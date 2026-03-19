@@ -21,14 +21,12 @@ public class Doctor {
     private LocalDate fechaNacimiento;
 
     // Horarios de atención (pueden ser más complejos en una implementación real)
-    private LocalDate horariLocalDateoInicio;
-    private LocalDate horarioFin;
 
     public Doctor() {
     }
 
     public Doctor(String nombre, String apellido, String telefono, String identificacion, String email, String password,
-            String especialidad, LocalDate fechaNacimiento, LocalDate horariLocalDateoInicio, LocalDate horarioFin) {
+            String especialidad, LocalDate fechaNacimiento) {
         this.nombre = nombre;
         this.apellido = apellido;
         this.telefono = telefono;
@@ -37,8 +35,6 @@ public class Doctor {
         this.password = password;
         this.especialidad = especialidad;
         this.fechaNacimiento = fechaNacimiento;
-        this.horariLocalDateoInicio = horariLocalDateoInicio;
-        this.horarioFin = horarioFin;
     }
 
     // Getters and Setters
@@ -105,22 +101,6 @@ public class Doctor {
 
     public void setFechaNacimiento(LocalDate fechaNacimiento) {
         this.fechaNacimiento = fechaNacimiento;
-    }
-
-    public LocalDate getHorariLocalDateoInicio() {
-        return horariLocalDateoInicio;
-    }
-
-    public void setHorariLocalDateoInicio(LocalDate horariLocalDateoInicio) {
-        this.horariLocalDateoInicio = horariLocalDateoInicio;
-    }
-
-    public LocalDate getHorarioFin() {
-        return horarioFin;
-    }
-
-    public void setHorarioFin(LocalDate horarioFin) {
-        this.horarioFin = horarioFin;
     }
 
     public String getIdentificacion() {
