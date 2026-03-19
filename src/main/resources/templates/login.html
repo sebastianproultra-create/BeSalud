@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+    xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+    
+<head>
+    <title>Gestión de Proyectos</title>
+</head>
+<body>
+<h2>Iniciar Sesión</h2>
+
+<form th:action="@{/login}" method="post">
+
+    <div>
+        <label>Usuario:</label>
+        <input type="text" name="username"/>
+    </div>
+
+    <div>
+        <label>Contraseña:</label>
+        <input type="password" name="password"/>
+    </div>
+
+    <!-- Token CSRF -->
+    <input type="hidden"
+           th:name="${_csrf.parameterName}"
+           th:value="${_csrf.token}" />
+
+    <button type="submit">Ingresar</button>
+
+</form>
+
+<!-- Mostrar error si existe -->
+<div th:if="${param.error}">
+    <p style="color:red;">
+        Usuario o contraseña incorrecta
+    </p>
+</div>
+
+<!-- Mensaje de logout exitoso -->
+<div th:if="${param.logout}">
+    <p style="color:green;">
+        usuario deslogueado correctamente
+    </p>
+</div>
+</body>
+</html>
