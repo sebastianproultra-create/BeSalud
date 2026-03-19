@@ -1,7 +1,12 @@
 package com.gestion.proyectos.modelo;
 
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
+
+@Document(collection = "citas")
 public class Cita {
 
+    @Id
     private String id;
     private String doctorId;
     private String pacienteId;
