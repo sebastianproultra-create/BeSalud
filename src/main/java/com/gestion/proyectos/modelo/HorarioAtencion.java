@@ -1,66 +1,67 @@
 package com.gestion.proyectos.modelo;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-@Document(collection = "HorariosAtencion")
+@Document(collection = "horariosAtencion")
 public class HorarioAtencion {
 
     @Id
     private String id;
-    private LocalDate horarioInicio;
-    private LocalDate horarioFin;
+    private String doctorId;
+    private LocalDateTime inicio;
+    private LocalDateTime fin;
+    private int duracionCitaMinutos = 30; // Default 30 minutes
 
     public HorarioAtencion() {
-
     }
 
-    public HorarioAtencion(LocalDate horarioInicio, LocalDate horarioFin) {
-
-        this.horarioInicio = horarioInicio;
-
-        this.horarioFin = horarioFin;
-
+    public HorarioAtencion(String doctorId, LocalDateTime inicio, LocalDateTime fin) {
+        this.doctorId = doctorId;
+        this.inicio = inicio;
+        this.fin = fin;
     }
-
-    // Getters and Setters
 
     public String getId() {
-
         return id;
-
     }
 
     public void setId(String id) {
-
         this.id = id;
-
     }
 
-    public LocalDate getHorarioInicio() {
-
-        return horarioInicio;
-
+    public String getDoctorId() {
+        return doctorId;
     }
 
-    public void setHorarioInicio(LocalDate horarioInicio) {
-
-        this.horarioInicio = horarioInicio;
-
+    public void setDoctorId(String doctorId) {
+        this.doctorId = doctorId;
     }
 
-    public LocalDate getHorarioFin() {
-
-        return horarioFin;
-
+    public LocalDateTime getInicio() {
+        return inicio;
     }
 
-    public void setHorarioFin(LocalDate horarioFin) {
+    public void setInicio(LocalDateTime inicio) {
+        this.inicio = inicio;
+    }
 
-        this.horarioFin = horarioFin;
+    public LocalDateTime getFin() {
+        return fin;
+    }
 
+    public void setFin(LocalDateTime fin) {
+        this.fin = fin;
+    }
+
+    public int getDuracionCitaMinutos() {
+        return duracionCitaMinutos;
+    }
+
+    public void setDuracionCitaMinutos(int duracionCitaMinutos) {
+        this.duracionCitaMinutos = duracionCitaMinutos;
     }
 
 }

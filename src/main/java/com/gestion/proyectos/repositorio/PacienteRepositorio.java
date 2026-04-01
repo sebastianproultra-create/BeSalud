@@ -5,4 +5,5 @@ import org.springframework.data.mongodb.repository.MongoRepository;
 
 // Repositorio para administrar los pacientes en MongoDB
 public interface PacienteRepositorio extends MongoRepository<Paciente, String> {
+    java.util.Optional<Paciente> findByEmail(String email);
 }

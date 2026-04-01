@@ -1,5 +1,8 @@
 package com.gestion.proyectos.modelo;
 
+import java.time.LocalDate;
+import java.time.LocalTime;
+
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -10,8 +13,24 @@ public class Cita {
     private String id;
     private String doctorId;
     private String pacienteId;
-    private String fechaHora; // En una implementación real, esto debería ser un tipo de fecha
+    private LocalTime Hora;
+    private LocalDate fecha;
     private String motivo;
+
+    private EstadoCita estado = EstadoCita.PENDIENTE;
+    private Dictamen dictamen;
+
+    public Cita() {
+    }
+
+    public Cita(String doctorId, String pacienteId, LocalTime hora, LocalDate fecha, String motivo, EstadoCita estado) {
+        this.doctorId = doctorId;
+        this.pacienteId = pacienteId;
+        Hora = hora;
+        this.fecha = fecha;
+        this.motivo = motivo;
+        this.estado = estado;
+    }
 
     public String getId() {
         return id;
@@ -37,12 +56,20 @@ public class Cita {
         this.pacienteId = pacienteId;
     }
 
-    public String getFechaHora() {
-        return fechaHora;
+    public LocalTime getHora() {
+        return Hora;
     }
 
-    public void setFechaHora(String fechaHora) {
-        this.fechaHora = fechaHora;
+    public void setHora(LocalTime hora) {
+        Hora = hora;
+    }
+
+    public LocalDate getFecha() {
+        return fecha;
+    }
+
+    public void setFecha(LocalDate fecha) {
+        this.fecha = fecha;
     }
 
     public String getMotivo() {
@@ -51,6 +78,14 @@ public class Cita {
 
     public void setMotivo(String motivo) {
         this.motivo = motivo;
+    }
+
+    public EstadoCita getEstado() {
+        return estado;
+    }
+
+    public void setEstado(EstadoCita estado) {
+        this.estado = estado;
     }
 
 }

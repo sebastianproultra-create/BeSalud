@@ -1,44 +1,19 @@
 package com.gestion.proyectos.modelo;
 
-import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.Document;
-
-@Document(collection = "pacientes")
-public class Paciente {
-    @Id
-    private String id;
+public class UserRegistrationDTO {
     private String nombre;
     private String apellido;
     private String telefono;
     private String identificacion;
-
     private String email;
     private String password;
-    private String role = "PACIENTE"; // Default role
-
-    public Paciente() {
-    }
-
-    public Paciente(String nombre, String apellido, String telefono, String identificacion, String email,
-            String password) {
-        this.nombre = nombre;
-        this.apellido = apellido;
-        this.telefono = telefono;
-        this.identificacion = identificacion;
-        this.email = email;
-        this.password = password;
-    }
+    private String role;
+    private String especialidad;
+    private String fechaNacimiento;
+    private String foto;
+    private String biografia;
 
     // Getters and Setters
-
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
-    }
-
     public String getNombre() {
         return nombre;
     }
@@ -95,4 +70,35 @@ public class Paciente {
         this.role = role;
     }
 
+    public String getEspecialidad() {
+        return especialidad;
+    }
+
+    public void setEspecialidad(String especialidad) {
+        this.especialidad = especialidad;
+    }
+
+    public String getFechaNacimiento() {
+        return fechaNacimiento;
+    }
+
+    public void setFechaNacimiento(String fechaNacimiento) {
+        this.fechaNacimiento = fechaNacimiento;
+    }
+
+    public String getFoto() {
+        return foto;
+    }
+
+    public void setFoto(String foto) {
+        this.foto = foto;
+    }
+
+    public String getBiografia() {
+        return biografia;
+    }
+
+    public void setBiografia(String biografia) {
+        this.biografia = biografia;
+    }
 }

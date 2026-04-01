@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Citas - BeHealth Citas Médicas</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+</head>
+<body>
+<header>
+    <h1>BeHealth</h1>
+    <p>Sistema de Gestión de Citas Médicas</p>
+</header>
+
+<nav>
+    <a th:href="@{/doctores}">Doctores</a>
+    <a th:href="@{/pacientes}">Pacientes</a>
+    <a th:href="@{/citas}">Citas</a>
+    <form th:action="@{/logout}" method="post" style="display:inline;">
+        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+        <button type="submit" class="btn btn-link" style="color: white; padding: 0; margin-left: 20px;">Cerrar Sesión</button>
+    </form>
+</nav>
+
+<div class="container">
+    <div class="card">
+        <h2>Citas Médicas</h2>
+        <a th:href="@{/citas/crear}" class="btn btn-success" style="margin-bottom: 20px;">+ Agendar Nueva Cita</a>
+        
+        <table th:if="${!citas.isEmpty()}">
+            <thead>
+                <tr>
+                    <th>Doctor</th>
+                    <th>Paciente</th>
+                    <th>Fecha</th>
+                    <th>Hora</th>
+                    <th>Motivo</th>
+                    <th>Estado</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="c : ${citas}">
+                    <td th:text="${c.doctorId}"></td>
+                    <td th:text="${c.pacienteId}"></td>
+                    <td th:text="${c.fecha}"></td>
+                    <td th:text="${c.hora}"></td>
+                    <td th:text="${c.motivo}"></td>
+                    <td>
+                        <span class="badge" 
+                              th:text="${c.estado.descripcion}"
+                              th:class="${'badge ' + (c.estado.name() == 'PENDIENTE' ? 'badge-pending' : c.estado.name() == 'COMPLETADA' ? 'badge-success' : 'badge-cancelled')}"></span>
+                    </td>
+                    <td>
+                        <form th:action="@{/citas/{id}/cancelar(id=${c.id})}" method="post" style="display:inline;">
+                            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                            <button type="submit" class="btn btn-danger" th:if="${c.estado.name() == 'PENDIENTE'}">Cancelar</button>
+                        </form>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div th:if="${citas.isEmpty()}" class="alert alert-info">
+            No hay citas registradas
+        </div>
+    </div>
+</div>
+
+<footer>
+    <p>&copy; 2026 BeHealth - Sistema de Citas Médicas. Todos los derechos reservados.</p>
+</footer>
+</body>
+</html>

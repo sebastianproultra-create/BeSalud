@@ -5,4 +5,7 @@ import org.springframework.data.mongodb.repository.MongoRepository;
 
 // Repositorio para administrar los doctores en MongoDB
 public interface DoctorRepositorio extends MongoRepository<Doctor, String> {
+    java.util.Optional<Doctor> findByEmail(String email);
+
+    java.util.List<Doctor> findByEspecialidadContainingIgnoreCase(String especialidad);
 }
