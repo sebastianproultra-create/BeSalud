@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Agendar Cita - BeHealth Citas Médicas</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+</head>
+<body>
+<header>
+    <h1>BeHealth</h1>
+    <p>Sistema de Gestión de Citas Médicas</p>
+</header>
+
+<nav>
+    <a th:href="@{/doctores}">Doctores</a>
+    <a th:href="@{/pacientes}">Pacientes</a>
+    <a th:href="@{/citas}">Citas</a>
+    <form th:action="@{/logout}" method="post" style="display:inline;">
+        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+        <button type="submit" class="btn btn-link" style="color: white; padding: 0; margin-left: 20px;">Cerrar Sesión</button>
+    </form>
+</nav>
+
+<div class="container">
+    <div class="card" style="max-width: 600px; margin: 30px auto;">
+        <h2>Agendar Nueva Cita</h2>
+        
+        <form th:action="@{/citas/guardar}" method="post">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+            
+            <label for="doctorId">Doctor:</label>
+            <select id="doctorId" name="doctorId" required>
+                <option value="">Seleccione un doctor</option>
+                <option th:each="d : ${doctores}" th:value="${d.id}" 
+                        th:text="${d.nombre} + ' ' + ${d.apellido} + ' (' + ${d.especialidad} + ')'"/>
+            </select>
+
+            <label for="pacienteId">Paciente:</label>
+            <select id="pacienteId" name="pacienteId" required>
+                <option value="">Seleccione un paciente</option>
+                <option th:each="p : ${pacientes}" th:value="${p.id}" 
+                        th:text="${p.nombre} + ' ' + ${p.apellido}"/>
+            </select>
+
+            <label for="fecha">Fecha:</label>
+            <input type="date" id="fecha" name="fecha" required/>
+
+            <label for="hora">Hora:</label>
+            <input type="time" id="hora" name="hora" required/>
+
+            <label for="motivo">Motivo de la Consulta:</label>
+            <textarea id="motivo" name="motivo" rows="4" placeholder="Describe el motivo de la cita" required></textarea>
+
+            <button type="submit" class="btn btn-success">Agendar Cita</button>
+            <a th:href="@{/citas}" class="btn btn-link" style="margin-left: 10px;">Cancelar</a>
+        </form>
+    </div>
+</div>
+
+<footer>
+    <p>&copy; 2026 BeHealth - Sistema de Citas Médicas. Todos los derechos reservados.</p>
+</footer>
+</body>
+</html>

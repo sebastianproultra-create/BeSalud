@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Dashboard Médico - BeHealth</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+</head>
+<body>
+<header>
+    <h1>BeHealth</h1>
+    <p>Panel de Control del Médico</p>
+    <nav>
+        <form th:action="@{/logout}" method="post" style="display: inline;">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+            <button type="submit" class="btn btn-secondary">Cerrar Sesión</button>
+        </form>
+    </nav>
+</header>
+
+<div class="container">
+    <div class="card">
+        <h2>Mi Perfil</h2>
+        <div class="doctor-profile">
+            <div class="doctor-photo">
+                <img th:src="${doctor.foto != null ? doctor.foto : '/images/default-doctor.png'}" alt="Mi foto" onerror="this.src='/images/default-doctor.png'">
+            </div>
+            <div class="doctor-info">
+                <h3 th:text="${doctor.nombre + ' ' + doctor.apellido}"></h3>
+                <p><strong>Especialidad:</strong> <span th:text="${doctor.especialidad}"></span></p>
+                <p><strong>Email:</strong> <span th:text="${doctor.email}"></span></p>
+                <p th:if="${doctor.biografia}"><strong>Biografía:</strong> <span th:text="${doctor.biografia}"></span></p>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <h2>Mis Horarios de Atención</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Inicio</th>
+                    <th>Fin</th>
+                    <th>Duración Cita (min)</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="horario : ${horarios}">
+                    <td th:text="${#temporals.format(horario.inicio, 'dd/MM/yyyy HH:mm')}"></td>
+                    <td th:text="${#temporals.format(horario.fin, 'dd/MM/yyyy HH:mm')}"></td>
+                    <td th:text="${horario.duracionCitaMinutos}"></td>
+                    <td>
+                        <button class="btn btn-danger btn-sm" onclick="eliminarHorario('${horario.id}')">Eliminar</button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h3>Agregar Nuevo Horario</h3>
+        <form th:action="@{/doctores/horarios/guardar}" method="post">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+
+            <label for="inicio">Fecha y Hora de Inicio:</label>
+            <input type="datetime-local" id="inicio" name="inicio" required/>
+
+            <label for="fin">Fecha y Hora de Fin:</label>
+            <input type="datetime-local" id="fin" name="fin" required/>
+
+            <label for="duracionCitaMinutos">Duración de cada cita (minutos):</label>
+            <input type="number" id="duracionCitaMinutos" name="duracionCitaMinutos" min="15" max="120" value="30" required/>
+
+            <button type="submit" class="btn btn-primary">Agregar Horario</button>
+        </form>
+    </div>
+</div>
+
+<footer>
+    <p>&copy; 2026 BeHealth - Sistema de Citas Médicas. Todos los derechos reservados.</p>
+</footer>
+
+<script>
+function eliminarHorario(id) {
+    if (confirm('¿Está seguro de que desea eliminar este horario?')) {
+        const form = document.createElement('form');
+        form.method = 'post';
+        form.action = '/doctores/horarios/' + id + '/eliminar';
+        
+        const csrfInput = document.createElement('input');
+        csrfInput.type = 'hidden';
+        csrfInput.name = '_csrf';
+        csrfInput.value = document.querySelector('input[name="_csrf"]').value;
+        form.appendChild(csrfInput);
+        
+        document.body.appendChild(form);
+        form.submit();
+    }
+}
+</script>
+</body>
+</html>

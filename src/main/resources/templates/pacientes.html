@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Pacientes - BeHealth Citas Médicas</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+</head>
+<body>
+<header>
+    <h1>BeHealth</h1>
+    <p>Sistema de Gestión de Citas Médicas</p>
+</header>
+
+<nav>
+    <a th:href="@{/doctores}">Doctores</a>
+    <a th:href="@{/pacientes}">Pacientes</a>
+    <a th:href="@{/citas}">Citas</a>
+    <form th:action="@{/logout}" method="post" style="display:inline;">
+        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+        <button type="submit" class="btn btn-link" style="color: white; padding: 0; margin-left: 20px;">Cerrar Sesión</button>
+    </form>
+</nav>
+
+<div class="container">
+    <div class="card">
+        <h2>Pacientes Registrados</h2>
+        
+        <table th:if="${!pacientes.isEmpty()}">
+            <thead>
+                <tr>
+                    <th>Nombre</th>
+                    <th>Apellido</th>
+                    <th>Email</th>
+                    <th>Teléfono</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="p : ${pacientes}">
+                    <td th:text="${p.nombre}"></td>
+                    <td th:text="${p.apellido}"></td>
+                    <td th:text="${p.email}"></td>
+                    <td th:text="${p.telefono}"></td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div th:if="${pacientes.isEmpty()}" class="alert alert-info">
+            No hay pacientes registrados
+        </div>
+    </div>
+
+    <div class="card">
+        <h2>Registrar Paciente</h2>
+        <form th:action="@{/pacientes/guardar}" method="post">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+            
+            <label>Nombre:</label>
+            <input type="text" name="nombre" required/>
+
+            <label>Apellido:</label>
+            <input type="text" name="apellido" required/>
+
+            <label>Teléfono:</label>
+            <input type="text" name="telefono"/>
+
+            <label>Identificación:</label>
+            <input type="text" name="identificacion"/>
+
+            <label>Email:</label>
+            <input type="email" name="email" required/>
+
+            <label>Contraseña:</label>
+            <input type="password" name="password" required/>
+
+            <button type="submit" class="btn btn-success">Guardar</button>
+        </form>
+    </div>
+</div>
+
+<footer>
+    <p>&copy; 2026 BeHealth - Sistema de Citas Médicas. Todos los derechos reservados.</p>
+</footer>
+</body>
+</html>
