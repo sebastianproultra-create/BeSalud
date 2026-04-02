@@ -1,0 +1,91 @@
+/* ============================================== 
+   REGISTER PAGE STYLES 
+   ============================================== */
+
+.register-container {
+    max-width: 600px;
+    margin: 30px auto;
+}
+
+.register-card {
+    background-color: var(--white);
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    padding: 40px;
+}
+
+.register-card h2 {
+    color: var(--primary-color);
+    margin-bottom: 25px;
+    text-align: center;
+}
+
+.register-card form label {
+    font-weight: 600;
+    margin-top: 15px;
+    display: block;
+    margin-bottom: 8px;
+}
+
+.register-card input,
+.register-card select,
+.register-card textarea {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 15px;
+    border: 1px solid var(--border-color);
+    border-radius: 5px;
+    font-size: 14px;
+}
+
+.register-card input:focus,
+.register-card select:focus,
+.register-card textarea:focus {
+    outline: none;
+    border-color: var(--secondary-color);
+    box-shadow: 0 0 5px rgba(0, 102, 204, 0.3);
+}
+
+.register-card button {
+    width: 100%;
+    margin-top: 20px;
+    padding: 12px;
+}
+
+.register-card .alert {
+    margin-top: 20px;
+}
+
+.doctor-fields {
+    background-color: #f8f9fa;
+    padding: 20px;
+    border-radius: 8px;
+    margin-top: 20px;
+    border-left: 4px solid var(--secondary-color);
+}
+
+.doctor-fields h4 {
+    color: var(--primary-color);
+    margin-bottom: 15px;
+}
+
+.register-links {
+    text-align: center;
+    margin-top: 20px;
+}
+
+.register-links p {
+    margin: 10px 0;
+}
+
+.register-links a {
+    color: var(--secondary-color);
+    text-decoration: underline;
+}
+
+@media (max-width: 768px) {
+    .register-card {
+        margin: 20px;
+        padding: 20px;
+    }
+}

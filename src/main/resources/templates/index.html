@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>BeHealth - Inicio</title>
+    <link rel="stylesheet" th:href="@{/css/global.css}" />
+    <link rel="stylesheet" th:href="@{/css/index.css}" />
+</head>
+<body>
+<header class="hero">
+    <div class="hero-content">
+        <h1>BeHealth</h1>
+        <p>Gestión inteligente de citas médicas para pacientes y doctores.</p>
+        <a class="btn btn-primary" th:href="@{/login}" id="irLogin">Ir a Login</a>
+    </div>
+</header>
+
+<main class="main-content">
+    <section class="section" id="about">
+        <h2>Sobre el proyecto</h2>
+        <p>BeHealth es una plataforma diseñada para simplificar la programación de citas médicas y mejorar
+           la comunicación entre pacientes y profesionales. Con un flujo de trabajo claro, control de horarios
+           y perfil médico, ofrecemos una experiencia confiable y segura.</p>
+    </section>
+
+    <section class="section" id="team">
+        <h2>¿Quiénes somos?</h2>
+        <div class="cards">
+            <div class="card">
+                <h3>Equipo de Desarrollo</h3>
+                <p>Un equipo apasionado por la tecnología y la salud, especializado en desarrollo web y experiencia
+den usuario.</p>
+            </div>
+            <div class="card">
+                <h3>Profesionales de la Salud</h3>
+                <p>Doctores y administradores con prácticas clínicas auténticas para diseñar un sistema que realmente ayude.</p>
+            </div>
+            <div class="card">
+                <h3>Soporte</h3>
+                <p>Soporte continuo para garantizar que la plataforma funcione sin interrupciones y con la mayor satisfacción.</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="section" id="contact">
+        <h2>Contacto</h2>
+        <p>Correo: <a href="mailto:soporte@behealth.com">soporte@behealth.com</a></p>
+        <p>Teléfono: +57 300 123 4567</p>
+        <p>Dirección: Calle Falsa 123, Ciudad Salud.</p>
+    </section>
+</main>
+
+<footer>
+    <p>&copy; 2026 BeHealth. Todos los derechos reservados.</p>
+</footer>
+</body>
+</html>

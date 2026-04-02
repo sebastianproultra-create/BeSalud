@@ -1,0 +1,150 @@
+/* ============================================== 
+   PACIENTES PAGE STYLES 
+   ============================================== */
+
+.pacientes-container {
+    max-width: 1200px;
+    margin: 30px auto;
+    padding: 0 20px;
+}
+
+.pacientes-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+.pacientes-header h2 {
+    color: var(--primary-color);
+    font-size: 24px;
+}
+
+.pacientes-header .btn {
+    padding: 10px 20px;
+}
+
+.pacientes-table {
+    background-color: var(--white);
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
+}
+
+.pacientes-table table {
+    width: 100%;
+    border-collapse: collapse;
+    box-shadow: none;
+}
+
+.pacientes-table thead {
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+}
+
+.pacientes-table th {
+    color: white;
+    padding: 15px;
+    text-align: left;
+    font-weight: 600;
+    background: none;
+}
+
+.pacientes-table td {
+    padding: 12px 15px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.pacientes-table tbody tr:hover {
+    background-color: #f8f9fa;
+}
+
+.paciente-name {
+    font-weight: 600;
+    color: var(--primary-color);
+}
+
+.paciente-contact {
+    color: var(--text-light);
+    font-size: 13px;
+}
+
+.paciente-identification {
+    color: var(--accent-color);
+    font-weight: 500;
+}
+
+/* Action Buttons */
+.action-buttons {
+    display: flex;
+    gap: 5px;
+}
+
+.action-buttons .btn {
+    padding: 6px 12px;
+    font-size: 12px;
+    margin: 0;
+}
+
+.action-buttons .btn-view {
+    background-color: var(--secondary-color);
+    color: white;
+}
+
+.action-buttons .btn-view:hover {
+    background-color: var(--primary-color);
+}
+
+.action-buttons .btn-delete {
+    background-color: var(--danger-color);
+    color: white;
+}
+
+.action-buttons .btn-delete:hover {
+    background-color: #c0392b;
+}
+
+.no-pacientes {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--text-light);
+    font-size: 18px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .pacientes-header {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .pacientes-header h2 {
+        margin: 0;
+    }
+
+    .pacientes-header .btn {
+        width: 100%;
+    }
+
+    .pacientes-table {
+        font-size: 13px;
+    }
+
+    .pacientes-table th,
+    .pacientes-table td {
+        padding: 8px 10px;
+    }
+
+    .action-buttons {
+        flex-direction: column;
+    }
+
+    .action-buttons .btn {
+        width: 100%;
+    }
+
+    .paciente-contact {
+        font-size: 11px;
+    }
+}

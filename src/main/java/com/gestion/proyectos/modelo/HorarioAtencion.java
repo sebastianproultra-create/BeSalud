@@ -1,6 +1,7 @@
 package com.gestion.proyectos.modelo;
 
-import java.time.LocalDateTime;
+import java.time.DayOfWeek;
+import java.time.LocalTime;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -11,17 +12,19 @@ public class HorarioAtencion {
     @Id
     private String id;
     private String doctorId;
-    private LocalDateTime inicio;
-    private LocalDateTime fin;
+    private DayOfWeek diaSemana;
+    private LocalTime horaInicio;
+    private LocalTime horaFin;
     private int duracionCitaMinutos = 30; // Default 30 minutes
 
     public HorarioAtencion() {
     }
 
-    public HorarioAtencion(String doctorId, LocalDateTime inicio, LocalDateTime fin) {
+    public HorarioAtencion(String doctorId, DayOfWeek diaSemana, LocalTime horaInicio, LocalTime horaFin) {
         this.doctorId = doctorId;
-        this.inicio = inicio;
-        this.fin = fin;
+        this.diaSemana = diaSemana;
+        this.horaInicio = horaInicio;
+        this.horaFin = horaFin;
     }
 
     public String getId() {
@@ -40,20 +43,28 @@ public class HorarioAtencion {
         this.doctorId = doctorId;
     }
 
-    public LocalDateTime getInicio() {
-        return inicio;
+    public DayOfWeek getDiaSemana() {
+        return diaSemana;
     }
 
-    public void setInicio(LocalDateTime inicio) {
-        this.inicio = inicio;
+    public void setDiaSemana(DayOfWeek diaSemana) {
+        this.diaSemana = diaSemana;
     }
 
-    public LocalDateTime getFin() {
-        return fin;
+    public LocalTime getHoraInicio() {
+        return horaInicio;
     }
 
-    public void setFin(LocalDateTime fin) {
-        this.fin = fin;
+    public void setHoraInicio(LocalTime horaInicio) {
+        this.horaInicio = horaInicio;
+    }
+
+    public LocalTime getHoraFin() {
+        return horaFin;
+    }
+
+    public void setHoraFin(LocalTime horaFin) {
+        this.horaFin = horaFin;
     }
 
     public int getDuracionCitaMinutos() {

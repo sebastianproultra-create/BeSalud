@@ -2,7 +2,8 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <title>Catálogo de Doctores - BeHealth</title>
-    <link rel="stylesheet" th:href="@{/css/styles.css}">
+    <link rel="stylesheet" th:href="@{/css/global.css}">
+    <link rel="stylesheet" th:href="@{/css/paciente_landing.css}">
 </head>
 <body>
 <header>
@@ -32,7 +33,7 @@
     <div class="doctors-grid">
         <div th:each="doctor : ${doctores}" class="doctor-card">
             <div class="doctor-photo">
-                <img th:src="${doctor.foto != null ? doctor.foto : '/images/default-doctor.png'}" alt="Foto del doctor" onerror="this.src='/images/default-doctor.png'">
+                <img th:src="${doctor.foto != null ? doctor.foto : '/images/default-avatar.jpg'}" alt="Foto del doctor" onerror="this.src='/images/default-avatar.jpg'">
             </div>
             <div class="doctor-info">
                 <h3 th:text="${doctor.nombre + ' ' + doctor.apellido}"></h3>
