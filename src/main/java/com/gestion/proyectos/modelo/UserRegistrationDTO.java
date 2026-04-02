@@ -1,5 +1,7 @@
 package com.gestion.proyectos.modelo;
 
+import org.springframework.web.multipart.MultipartFile;
+
 public class UserRegistrationDTO {
     private String nombre;
     private String apellido;
@@ -12,6 +14,7 @@ public class UserRegistrationDTO {
     private String fechaNacimiento;
     private String foto;
     private String biografia;
+    private MultipartFile fotoFile;
 
     // Getters and Setters
     public String getNombre() {
@@ -100,5 +103,13 @@ public class UserRegistrationDTO {
 
     public void setBiografia(String biografia) {
         this.biografia = biografia;
+    }
+
+    public MultipartFile getFotoFile() {
+        return fotoFile;
+    }
+
+    public void setFotoFile(MultipartFile fotoFile) {
+        this.fotoFile = fotoFile;
     }
 }

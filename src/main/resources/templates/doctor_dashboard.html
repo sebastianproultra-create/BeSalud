@@ -2,7 +2,8 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <title>Dashboard Médico - BeHealth</title>
-    <link rel="stylesheet" th:href="@{/css/styles.css}">
+    <link rel="stylesheet" th:href="@{/css/global.css}">
+    <link rel="stylesheet" th:href="@{/css/doctor_dashboard.css}">
 </head>
 <body>
 <header>
@@ -17,11 +18,20 @@
 </header>
 
 <div class="container">
+    <div th:if="${param.error}" class="error-message">
+        <p>Error: 
+            <span th:if="${param.error[0] == 'no_days_selected'}">Debes seleccionar al menos un día.</span>
+            <span th:if="${param.error[0].startsWith('missing_time_')}" th:text="'Falta la hora para el día ' + ${param.error[0].substring(13)}"></span>
+            <span th:if="${param.error[0].startsWith('invalid_time_')}" th:text="'Hora inválida para el día ' + ${param.error[0].substring(13)}"></span>
+            <span th:if="${param.error[0].startsWith('invalid_time2_')}" th:text="'Hora inválida para el segundo intervalo del día ' + ${param.error[0].substring(14)}"></span>
+        </p>
+    </div>
+
     <div class="card">
         <h2>Mi Perfil</h2>
         <div class="doctor-profile">
             <div class="doctor-photo">
-                <img th:src="${doctor.foto != null ? doctor.foto : '/images/default-doctor.png'}" alt="Mi foto" onerror="this.src='/images/default-doctor.png'">
+                <img th:src="${doctor.foto != null ? doctor.foto : '/images/default-avatar.jpg'}" alt="Mi foto" onerror="this.src='/images/default-avatar.jpg'">
             </div>
             <div class="doctor-info">
                 <h3 th:text="${doctor.nombre + ' ' + doctor.apellido}"></h3>
@@ -37,16 +47,18 @@
         <table>
             <thead>
                 <tr>
-                    <th>Inicio</th>
-                    <th>Fin</th>
+                    <th>Día</th>
+                    <th>Hora Inicio</th>
+                    <th>Hora Fin</th>
                     <th>Duración Cita (min)</th>
                     <th>Acciones</th>
                 </tr>
             </thead>
             <tbody>
-                <tr th:each="horario : ${horarios}">
-                    <td th:text="${#temporals.format(horario.inicio, 'dd/MM/yyyy HH:mm')}"></td>
-                    <td th:text="${#temporals.format(horario.fin, 'dd/MM/yyyy HH:mm')}"></td>
+                <tr th:each="horario : ${horarios}" th:if="${horario.diaSemana != null}">
+                    <td th:text="${horario.diaSemana}"></td>
+                    <td th:text="${#temporals.format(horario.horaInicio, 'HH:mm')}"></td>
+                    <td th:text="${#temporals.format(horario.horaFin, 'HH:mm')}"></td>
                     <td th:text="${horario.duracionCitaMinutos}"></td>
                     <td>
                         <button class="btn btn-danger btn-sm" onclick="eliminarHorario('${horario.id}')">Eliminar</button>
@@ -55,21 +67,114 @@
             </tbody>
         </table>
 
-        <h3>Agregar Nuevo Horario</h3>
+        <h3>Agregar Horarios Semanales</h3>
         <form th:action="@{/doctores/horarios/guardar}" method="post">
             <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
-
-            <label for="inicio">Fecha y Hora de Inicio:</label>
-            <input type="datetime-local" id="inicio" name="inicio" required/>
-
-            <label for="fin">Fecha y Hora de Fin:</label>
-            <input type="datetime-local" id="fin" name="fin" required/>
 
             <label for="duracionCitaMinutos">Duración de cada cita (minutos):</label>
             <input type="number" id="duracionCitaMinutos" name="duracionCitaMinutos" min="15" max="120" value="30" required/>
 
-            <button type="submit" class="btn btn-primary">Agregar Horario</button>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Día</th>
+                        <th>Seleccionar</th>
+                        <th>Hora Inicio</th>
+                        <th>Hora Fin</th>
+                        <th>Segundo Intervalo</th>
+                        <th>Hora Inicio 2</th>
+                        <th>Hora Fin 2</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Lunes</td>
+                        <td><input type="checkbox" name="days" value="MONDAY" onchange="toggleTime(this, 'MONDAY')"/></td>
+                        <td><input type="time" id="start_MONDAY" name="startTimes[MONDAY]" disabled required/></td>
+                        <td><input type="time" id="end_MONDAY" name="endTimes[MONDAY]" disabled required/></td>
+                        <td><input type="checkbox" id="second_MONDAY" onchange="toggleSecond(this, 'MONDAY')"/></td>
+                        <td><input type="time" id="start2_MONDAY" name="startTimes2[MONDAY]" disabled/></td>
+                        <td><input type="time" id="end2_MONDAY" name="endTimes2[MONDAY]" disabled/></td>
+                    </tr>
+                    <tr>
+                        <td>Martes</td>
+                        <td><input type="checkbox" name="days" value="TUESDAY" onchange="toggleTime(this, 'TUESDAY')"/></td>
+                        <td><input type="time" id="start_TUESDAY" name="startTimes[TUESDAY]" disabled required/></td>
+                        <td><input type="time" id="end_TUESDAY" name="endTimes[TUESDAY]" disabled required/></td>
+                        <td><input type="checkbox" id="second_TUESDAY" onchange="toggleSecond(this, 'TUESDAY')"/></td>
+                        <td><input type="time" id="start2_TUESDAY" name="startTimes2[TUESDAY]" disabled/></td>
+                        <td><input type="time" id="end2_TUESDAY" name="endTimes2[TUESDAY]" disabled/></td>
+                    </tr>
+                    <tr>
+                        <td>Miércoles</td>
+                        <td><input type="checkbox" name="days" value="WEDNESDAY" onchange="toggleTime(this, 'WEDNESDAY')"/></td>
+                        <td><input type="time" id="start_WEDNESDAY" name="startTimes[WEDNESDAY]" disabled required/></td>
+                        <td><input type="time" id="end_WEDNESDAY" name="endTimes[WEDNESDAY]" disabled required/></td>
+                        <td><input type="checkbox" id="second_WEDNESDAY" onchange="toggleSecond(this, 'WEDNESDAY')"/></td>
+                        <td><input type="time" id="start2_WEDNESDAY" name="startTimes2[WEDNESDAY]" disabled/></td>
+                        <td><input type="time" id="end2_WEDNESDAY" name="endTimes2[WEDNESDAY]" disabled/></td>
+                    </tr>
+                    <tr>
+                        <td>Jueves</td>
+                        <td><input type="checkbox" name="days" value="THURSDAY" onchange="toggleTime(this, 'THURSDAY')"/></td>
+                        <td><input type="time" id="start_THURSDAY" name="startTimes[THURSDAY]" disabled required/></td>
+                        <td><input type="time" id="end_THURSDAY" name="endTimes[THURSDAY]" disabled required/></td>
+                        <td><input type="checkbox" id="second_THURSDAY" onchange="toggleSecond(this, 'THURSDAY')"/></td>
+                        <td><input type="time" id="start2_THURSDAY" name="startTimes2[THURSDAY]" disabled/></td>
+                        <td><input type="time" id="end2_THURSDAY" name="endTimes2[THURSDAY]" disabled/></td>
+                    </tr>
+                    <tr>
+                        <td>Viernes</td>
+                        <td><input type="checkbox" name="days" value="FRIDAY" onchange="toggleTime(this, 'FRIDAY')"/></td>
+                        <td><input type="time" id="start_FRIDAY" name="startTimes[FRIDAY]" disabled required/></td>
+                        <td><input type="time" id="end_FRIDAY" name="endTimes[FRIDAY]" disabled required/></td>
+                        <td><input type="checkbox" id="second_FRIDAY" onchange="toggleSecond(this, 'FRIDAY')"/></td>
+                        <td><input type="time" id="start2_FRIDAY" name="startTimes2[FRIDAY]" disabled/></td>
+                        <td><input type="time" id="end2_FRIDAY" name="endTimes2[FRIDAY]" disabled/></td>
+                    </tr>
+                    <tr>
+                        <td>Sábado</td>
+                        <td><input type="checkbox" name="days" value="SATURDAY" onchange="toggleTime(this, 'SATURDAY')"/></td>
+                        <td><input type="time" id="start_SATURDAY" name="startTimes[SATURDAY]" disabled required/></td>
+                        <td><input type="time" id="end_SATURDAY" name="endTimes[SATURDAY]" disabled required/></td>
+                        <td><input type="checkbox" id="second_SATURDAY" onchange="toggleSecond(this, 'SATURDAY')"/></td>
+                        <td><input type="time" id="start2_SATURDAY" name="startTimes2[SATURDAY]" disabled/></td>
+                        <td><input type="time" id="end2_SATURDAY" name="endTimes2[SATURDAY]" disabled/></td>
+                    </tr>
+                    <tr>
+                        <td>Domingo</td>
+                        <td><input type="checkbox" name="days" value="SUNDAY" onchange="toggleTime(this, 'SUNDAY')"/></td>
+                        <td><input type="time" id="start_SUNDAY" name="startTimes[SUNDAY]" disabled required/></td>
+                        <td><input type="time" id="end_SUNDAY" name="endTimes[SUNDAY]" disabled required/></td>
+                        <td><input type="checkbox" id="second_SUNDAY" onchange="toggleSecond(this, 'SUNDAY')"/></td>
+                        <td><input type="time" id="start2_SUNDAY" name="startTimes2[SUNDAY]" disabled/></td>
+                        <td><input type="time" id="end2_SUNDAY" name="endTimes2[SUNDAY]" disabled/></td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <button type="submit" class="btn btn-primary">Agregar Horarios</button>
         </form>
+    </div>
+
+    <div class="card">
+        <h2>Citas Disponibles (Próximos 7 días)</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Fecha</th>
+                    <th>Citas posibles</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="entry : ${dailySlotCounts.entrySet()}">
+                    <td th:text="${#temporals.format(entry.key, 'dd/MM/yyyy')} + ' (' + ${entry.key.dayOfWeek} + ')' "></td>
+                    <td th:text="${entry.value}"></td>
+                </tr>
+            </tbody>
+        </table>
+        <p><strong>Total semana:</strong> <span th:text="${weeklySlotTotal}"></span></p>
+        <p th:if="${weeklySlotTotal == 0}">No hay horarios definidos.</p>
     </div>
 </div>
 
@@ -78,6 +183,31 @@
 </footer>
 
 <script>
+function toggleTime(cb, day) {
+    const start = document.getElementById('start_' + day);
+    const end = document.getElementById('end_' + day);
+    const secondCb = document.getElementById('second_' + day);
+    start.disabled = !cb.checked;
+    end.disabled = !cb.checked;
+    if (!cb.checked) {
+        start.value = '';
+        end.value = '';
+        secondCb.checked = false;
+        toggleSecond(secondCb, day);
+    }
+}
+
+function toggleSecond(cb, day) {
+    const start2 = document.getElementById('start2_' + day);
+    const end2 = document.getElementById('end2_' + day);
+    start2.disabled = !cb.checked;
+    end2.disabled = !cb.checked;
+    if (!cb.checked) {
+        start2.value = '';
+        end2.value = '';
+    }
+}
+
 function eliminarHorario(id) {
     if (confirm('¿Está seguro de que desea eliminar este horario?')) {
         const form = document.createElement('form');

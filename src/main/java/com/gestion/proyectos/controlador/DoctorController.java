@@ -15,8 +15,14 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
+import java.time.DayOfWeek;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 @Controller
 @RequestMapping("/doctores")
@@ -46,6 +52,32 @@ public class DoctorController {
             model.addAttribute("doctor", doctor);
             model.addAttribute("horarios", horarios);
             model.addAttribute("horario", new HorarioAtencion());
+
+            // Calcular slots disponibles para los próximos 7 días (conteo por día)
+            Map<LocalDate, Integer> dailySlotCounts = new LinkedHashMap<>();
+            int weeklyTotal = 0;
+            LocalDate today = LocalDate.now();
+            for (int i = 0; i < 7; i++) {
+                LocalDate date = today.plusDays(i);
+                DayOfWeek dow = date.getDayOfWeek();
+                int countForDay = 0;
+                for (HorarioAtencion h : horarios) {
+                    if (h.getDiaSemana() != null && h.getHoraInicio() != null && h.getHoraFin() != null &&
+                            h.getDiaSemana() == dow && h.getDuracionCitaMinutos() > 0) {
+                        LocalTime start = h.getHoraInicio();
+                        LocalTime end = h.getHoraFin();
+                        while (start.isBefore(end)) {
+                            countForDay++;
+                            start = start.plusMinutes(h.getDuracionCitaMinutos());
+                        }
+                    }
+                }
+                dailySlotCounts.put(date, countForDay);
+                weeklyTotal += countForDay;
+            }
+            model.addAttribute("dailySlotCounts", dailySlotCounts);
+            model.addAttribute("weeklySlotTotal", weeklyTotal);
+
             return "doctor_dashboard";
         } else {
             // Vista admin: lista todos los doctores
@@ -79,18 +111,55 @@ public class DoctorController {
     }
 
     @PostMapping("/horarios/guardar")
-    public String guardarHorario(@RequestParam String inicio,
-            @RequestParam String fin,
+    public String guardarHorario(@RequestParam(required = false) List<String> days,
+            @RequestParam Map<String, String> allParams,
             @RequestParam int duracionCitaMinutos) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         String email = auth.getName();
         Doctor doctor = doctorRepo.findByEmail(email).orElseThrow();
 
-        LocalDateTime inicioDate = LocalDateTime.parse(inicio);
-        LocalDateTime finDate = LocalDateTime.parse(fin);
-        HorarioAtencion horario = new HorarioAtencion(doctor.getId(), inicioDate, finDate);
-        horario.setDuracionCitaMinutos(duracionCitaMinutos);
-        horarioRepo.save(horario);
+        if (days == null || days.isEmpty()) {
+            return "redirect:/doctores?error=no_days_selected";
+        }
+
+        for (String day : days) {
+            String startStr = allParams.get("startTimes[" + day + "]");
+            String endStr = allParams.get("endTimes[" + day + "]");
+            if (startStr == null || startStr.isEmpty() || endStr == null || endStr.isEmpty()) {
+                return "redirect:/doctores?error=missing_time_" + day;
+            }
+
+            DayOfWeek diaSemana = DayOfWeek.valueOf(day);
+            LocalTime horaInicio = LocalTime.parse(startStr);
+            LocalTime horaFin = LocalTime.parse(endStr);
+
+            if (horaInicio.isAfter(horaFin) || horaInicio.equals(horaFin)) {
+                return "redirect:/doctores?error=invalid_time_" + day;
+            }
+
+            HorarioAtencion horario = new HorarioAtencion(doctor.getId(), diaSemana, horaInicio, horaFin);
+            horario.setDuracionCitaMinutos(duracionCitaMinutos);
+            horarioRepo.save(horario);
+
+            // Segundo intervalo si existe
+            String start2Str = allParams.get("startTimes2[" + day + "]");
+            String end2Str = allParams.get("endTimes2[" + day + "]");
+            if ((start2Str != null && !start2Str.isEmpty()) || (end2Str != null && !end2Str.isEmpty())) {
+                if (start2Str == null || start2Str.isEmpty() || end2Str == null || end2Str.isEmpty()) {
+                    return "redirect:/doctores?error=missing_time_" + day;
+                }
+                LocalTime horaInicio2 = LocalTime.parse(start2Str);
+                LocalTime horaFin2 = LocalTime.parse(end2Str);
+
+                if (horaInicio2.isAfter(horaFin2) || horaInicio2.equals(horaFin2)) {
+                    return "redirect:/doctores?error=invalid_time2_" + day;
+                }
+
+                HorarioAtencion horario2 = new HorarioAtencion(doctor.getId(), diaSemana, horaInicio2, horaFin2);
+                horario2.setDuracionCitaMinutos(duracionCitaMinutos);
+                horarioRepo.save(horario2);
+            }
+        }
         return "redirect:/doctores";
     }
 

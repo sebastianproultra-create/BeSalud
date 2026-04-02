@@ -17,7 +17,8 @@ public class SecurityConfig {
                 http
                                 // Se definen qué URLs puede usar cada rol
                                 .authorizeHttpRequests(auth -> auth
-                                                .requestMatchers("/login", "/register", "/register/save", "/css/**",
+                                                .requestMatchers("/", "/login", "/register", "/register/save",
+                                                                "/css/**",
                                                                 "/js/**", "/error")
                                                 .permitAll()
                                                 .requestMatchers("/admin/**").hasRole("ADMIN")

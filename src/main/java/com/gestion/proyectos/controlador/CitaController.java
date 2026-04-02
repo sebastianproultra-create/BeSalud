@@ -112,7 +112,10 @@ public class CitaController {
         // Validar que la cita esté dentro del horario del doctor
         List<HorarioAtencion> horarios = horarioRepo.findByDoctorId(doctorId);
         boolean horarioValido = horarios.stream()
-                .anyMatch(h -> !fechaHoraCita.isBefore(h.getInicio()) && !fechaHoraCita.isAfter(h.getFin()));
+                .anyMatch(h -> h.getDiaSemana() != null && h.getHoraInicio() != null && h.getHoraFin() != null &&
+                        h.getDiaSemana().equals(fechaHoraCita.getDayOfWeek()) &&
+                        !fechaHoraCita.toLocalTime().isBefore(h.getHoraInicio()) &&
+                        !fechaHoraCita.toLocalTime().isAfter(h.getHoraFin()));
 
         if (!horarioValido) {
             return "redirect:/citas/nueva?doctorId=" + doctorId + "&error=horario_invalido";
@@ -125,7 +128,10 @@ public class CitaController {
 
         // Obtener duración de cita del horario
         int duracionMinutos = horarios.stream()
-                .filter(h -> !fechaHoraCita.isBefore(h.getInicio()) && !fechaHoraCita.isAfter(h.getFin()))
+                .filter(h -> h.getDiaSemana() != null && h.getHoraInicio() != null && h.getHoraFin() != null &&
+                        h.getDiaSemana().equals(fechaHoraCita.getDayOfWeek()) &&
+                        !fechaHoraCita.toLocalTime().isBefore(h.getHoraInicio()) &&
+                        !fechaHoraCita.toLocalTime().isAfter(h.getHoraFin()))
                 .findFirst()
                 .map(HorarioAtencion::getDuracionCitaMinutos)
                 .orElse(30);
@@ -135,7 +141,10 @@ public class CitaController {
         boolean conflicto = citasExistentes.stream().anyMatch(c -> {
             LocalDateTime inicioExistente = LocalDateTime.of(c.getFecha(), c.getHora());
             int duracionExistente = horarios.stream()
-                    .filter(h -> !inicioExistente.isBefore(h.getInicio()) && !inicioExistente.isAfter(h.getFin()))
+                    .filter(h -> h.getDiaSemana() != null && h.getHoraInicio() != null && h.getHoraFin() != null &&
+                            h.getDiaSemana().equals(inicioExistente.getDayOfWeek()) &&
+                            !inicioExistente.toLocalTime().isBefore(h.getHoraInicio()) &&
+                            !inicioExistente.toLocalTime().isAfter(h.getHoraFin()))
                     .findFirst()
                     .map(HorarioAtencion::getDuracionCitaMinutos)
                     .orElse(30);
