@@ -23,9 +23,14 @@
 
         <div class="doctor-summary">
             <h3>Doctor Seleccionado</h3>
-            <p><strong th:text="${doctorSeleccionado.nombre + ' ' + doctorSeleccionado.apellido}"></strong></p>
-            <p th:text="${doctorSeleccionado.especialidad}"></p>
-            <p th:if="${doctorSeleccionado.biografia}" th:text="${doctorSeleccionado.biografia}"></p>
+            <div class="doctor-info">
+                <img th:if="${doctorSeleccionado.foto}" th:src="${doctorSeleccionado.foto}" alt="Foto del doctor" class="doctor-photo"/>
+                <div class="doctor-details">
+                    <p><strong th:text="${doctorSeleccionado.nombre + ' ' + doctorSeleccionado.apellido}"></strong></p>
+                    <p th:text="${doctorSeleccionado.especialidad}"></p>
+                    <p th:if="${doctorSeleccionado.biografia}" th:text="${doctorSeleccionado.biografia}"></p>
+                </div>
+            </div>
         </div>
 
         <form th:action="@{/citas/nueva}" method="get">
