@@ -8,6 +8,215 @@
     padding: 0 20px;
 }
 
+/* ── Duration picker ── */
+.duration-picker {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    background: var(--light-bg);
+    border-radius: 10px;
+    padding: 14px 18px;
+    margin-bottom: 20px;
+}
+.duration-picker label {
+    font-weight: 600;
+    color: var(--text-dark);
+    margin: 0;
+    white-space: nowrap;
+}
+.duration-picker select {
+    border: 1.5px solid var(--border-color);
+    border-radius: 8px;
+    padding: 7px 12px;
+    font-size: 14px;
+    background: var(--white);
+    min-width: 110px;
+}
+
+/* ── Schedule grid: 2 columns on wide screens ── */
+.schedule-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 12px;
+    margin-bottom: 24px;
+}
+
+/* ── Day card ── */
+.day-card {
+    border: 2px solid var(--border-color);
+    border-radius: 12px;
+    overflow: hidden;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+.day-card.active {
+    border-color: var(--secondary-color);
+    box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.1);
+}
+
+.day-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 14px;
+    background: var(--light-bg);
+}
+.day-chip {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background: #d1d5db;
+    color: var(--text-light);
+    font-size: 12px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: background 0.2s, color 0.2s;
+}
+.day-card.active .day-chip {
+    background: var(--secondary-color);
+    color: var(--white);
+}
+.day-full {
+    flex: 1;
+    font-weight: 600;
+    color: var(--text-dark);
+    font-size: 14px;
+}
+
+/* Toggle switch */
+.day-toggle {
+    position: relative;
+    display: inline-block;
+    width: 42px;
+    height: 24px;
+    flex-shrink: 0;
+}
+.day-toggle input { opacity: 0; width: 0; height: 0; }
+.toggle-pill {
+    position: absolute;
+    inset: 0;
+    background: #d1d5db;
+    border-radius: 24px;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+.toggle-pill::before {
+    content: '';
+    position: absolute;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: var(--white);
+    top: 3px;
+    left: 3px;
+    transition: transform 0.2s;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+}
+.day-toggle input:checked + .toggle-pill { background: var(--secondary-color); }
+.day-toggle input:checked + .toggle-pill::before { transform: translateX(18px); }
+
+/* Day body (time inputs) — hidden until active */
+.day-body {
+    padding: 12px 14px;
+    display: none;
+    flex-direction: column;
+    gap: 10px;
+    border-top: 1px solid var(--border-color);
+    background: var(--white);
+}
+.day-card.active .day-body { display: flex; }
+
+.time-row {
+    display: flex;
+    align-items: flex-end;
+    gap: 8px;
+}
+.time-field {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+.time-label {
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--text-light);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+.time-field input[type="time"] {
+    padding: 7px 8px;
+    border: 1.5px solid var(--border-color);
+    border-radius: 8px;
+    font-size: 14px;
+    width: 100%;
+    background: var(--light-bg);
+    outline: none;
+    transition: border-color 0.2s, background 0.2s;
+}
+.time-field input[type="time"]:not([disabled]):focus {
+    border-color: var(--secondary-color);
+    background: var(--white);
+}
+.time-field input[type="time"]:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+}
+.time-sep {
+    font-size: 16px;
+    color: var(--text-light);
+    margin-bottom: 7px;
+    flex-shrink: 0;
+}
+
+/* "+ 2° interval" button */
+.add-interval-btn {
+    background: none;
+    border: 1.5px dashed var(--secondary-color);
+    color: var(--secondary-color);
+    padding: 5px 12px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    align-self: flex-start;
+    transition: background 0.2s;
+}
+.add-interval-btn:hover { background: rgba(0, 102, 204, 0.07); }
+
+/* Second interval row */
+.second-row {
+    padding-top: 8px;
+    border-top: 1px dashed var(--border-color);
+}
+
+/* Weekly availability table */
+.availability-table td:nth-child(2) {
+    font-weight: 700;
+    color: var(--primary-color);
+}
+
+.availability-badge {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.availability-ok {
+    background: #e8f1fb;
+    color: #1f5f9f;
+}
+
+.availability-empty {
+    background: #eef1f4;
+    color: #5f6b76;
+}
+
+
 .dashboard-header {
     text-align: center;
     margin-bottom: 40px;

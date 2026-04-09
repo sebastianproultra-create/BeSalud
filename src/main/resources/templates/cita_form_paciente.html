@@ -1,94 +1,213 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title>Agendar Cita - BeHealth</title>
+    <title>Agendar Cita - BeSalud</title>
     <link rel="stylesheet" th:href="@{/css/global.css}">
     <link rel="stylesheet" th:href="@{/css/cita_form_paciente.css}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
 </head>
 <body>
 <header>
-    <h1>BeHealth</h1>
+    <h1>BeSalud</h1>
     <p>Agendar Cita Médica</p>
-    
-<nav class="nav-main">
-    <div class="nav-container">
-        <div class="nav-links">
-            <a th:href="@{/pacientes/landing}" class="nav-item">
-                <i class="fas fa-arrow-left"></i> Volver al Catálogo
-            </a>
+    <nav class="nav-main">
+        <div class="nav-container">
+            <div class="nav-links">
+                <a th:href="@{/pacientes/landing}" class="nav-item">← Volver al Catálogo</a>
+            </div>
+            <div class="nav-actions">
+                <form th:action="@{/logout}" method="post" class="logout-form">
+                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                    <button type="submit" class="btn-logout">Cerrar Sesión</button>
+                </form>
+            </div>
         </div>
-
-        <div class="nav-actions">
-            <form th:action="@{/logout}" method="post" class="logout-form">
-                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
-                <button type="submit" class="btn-logout">Cerrar Sesión</button>
-            </form>
-        </div>
-    </div>
-</nav>
-
-
+    </nav>
 </header>
 
-<div class="container">
-    <div class="card" style="max-width: 600px; margin: 30px auto;">
-        <h2>Agendar Cita</h2>
+<div class="booking-container">
 
-        <div class="doctor-summary">
-            <h3>Doctor Seleccionado</h3>
-            <div class="doctor-info">
-                <img th:if="${doctorSeleccionado.foto}" th:src="${doctorSeleccionado.foto}" alt="Foto del doctor" class="doctor-photo"/>
-                <div class="doctor-details">
-                    <p><strong th:text="${doctorSeleccionado.nombre + ' ' + doctorSeleccionado.apellido}"></strong></p>
-                    <p th:text="${doctorSeleccionado.especialidad}"></p>
-                    <p th:if="${doctorSeleccionado.biografia}" th:text="${doctorSeleccionado.biografia}"></p>
-                </div>
+    <!-- Doctor Card -->
+    <div class="doctor-card-header">
+        <img th:if="${doctorSeleccionado.foto}"
+             th:src="${doctorSeleccionado.foto}"
+             alt="Foto"
+             class="doc-avatar"
+             onerror="this.style.display='none'"/>
+        <div class="doc-avatar-placeholder" th:unless="${doctorSeleccionado.foto}">
+            <span th:text="${doctorSeleccionado.nombre.substring(0,1)}"></span>
+        </div>
+        <div class="doc-info">
+            <h2 th:text="'Dr. ' + ${doctorSeleccionado.nombre} + ' ' + ${doctorSeleccionado.apellido}"></h2>
+            <span class="specialty-tag" th:text="${doctorSeleccionado.especialidad}"></span>
+            <p class="doc-bio" th:if="${doctorSeleccionado.biografia}" th:text="${doctorSeleccionado.biografia}"></p>
+        </div>
+    </div>
+
+    <!-- No availability message -->
+    <div th:if="${#maps.isEmpty(slotsDisponibles)}" class="no-availability">
+        <div class="no-avail-icon"><i class="fa-regular fa-calendar-xmark fa-3x"></i></div>
+        <h3>Sin disponibilidad próxima</h3>
+        <p>Este médico no tiene horarios disponibles en los próximos 30 días.</p>
+        <a th:href="@{/pacientes/landing}" class="btn-back">Ver otros médicos</a>
+    </div>
+
+    <!-- Booking UI (only if there is availability) -->
+    <div th:unless="${#maps.isEmpty(slotsDisponibles)}" class="booking-ui">
+
+        <!-- Step 1: Date picker -->
+        <div class="step-section">
+            <div class="step-label">Fecha disponible</div>
+            <div class="date-strip" id="dateStrip">
+                <!-- Rendered by JS from SLOTS_DATA -->
             </div>
         </div>
 
-        <form th:action="@{/citas/nueva}" method="get">
-            <input type="hidden" name="doctorId" th:value="${doctorSeleccionado.id}"/>
-            <label for="fecha">Seleccionar Fecha:</label>
-            <input type="date" id="fecha" name="fecha" required/>
-            <button type="submit" class="btn btn-primary">Ver Horarios Disponibles</button>
-        </form>
+        <!-- Step 2: Time slots -->
+        <div class="step-section" id="slotsSection" style="display:none;">
+            <div class="step-label">Horario disponible</div>
+            <div class="slots-grid" id="slotsGrid"></div>
+        </div>
 
-        <div th:if="${fechaSeleccionada}" class="slots-section">
-            <h3>Horarios Disponibles para <span th:text="${fechaSeleccionada}"></span></h3>
-            
-            <div th:if="${#lists.isEmpty(slotsDisponibles)}" class="no-slots">
-                <p>No hay horarios disponibles para esta fecha.</p>
-            </div>
-
-            <div th:if="${not #lists.isEmpty(slotsDisponibles)}" class="slots-grid">
-                <div th:each="slot : ${slotsDisponibles}" class="slot-card">
-                    <form th:action="@{/citas/guardar-paciente}" method="post">
-                        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
-                        <input type="hidden" name="doctorId" th:value="${doctorSeleccionado.id}"/>
-                        <input type="hidden" name="fecha" th:value="${fechaSeleccionada}"/>
-                        <input type="hidden" name="hora" th:value="${slot}"/>
-
-                        <div class="slot-time">
-                            <strong th:text="${#temporals.format(slot, 'HH:mm')}"></strong>
-                        </div>
-
-                        <label for="motivo">Motivo de la Consulta:</label>
-                        <textarea id="motivo" name="motivo" rows="2" required></textarea>
-
-                        <button type="submit" class="btn btn-primary">Agendar</button>
-                    </form>
-                </div>
+        <!-- Step 3: Confirm -->
+        <div class="step-section" id="confirmSection" style="display:none;">
+            <div class="step-label">Resumen de cita</div>
+            <div class="confirm-card">
+                <div class="confirm-summary" id="confirmSummary"></div>
+                <form th:action="@{/citas/guardar-paciente}" method="post" id="bookingForm">
+                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                    <input type="hidden" name="doctorId" th:value="${doctorSeleccionado.id}"/>
+                    <input type="hidden" name="fecha" id="inputFecha"/>
+                    <input type="hidden" name="hora" id="inputHora"/>
+                    <div class="form-group">
+                        <label for="motivo">Motivo de la consulta</label>
+                        <textarea id="motivo" name="motivo" rows="3" placeholder="Describe brevemente el motivo de tu visita..." required></textarea>
+                    </div>
+                    <button type="submit" class="btn-confirm">Confirmar Cita</button>
+                    <button type="button" class="btn-change" onclick="clearSlot()">Cambiar horario</button>
+                </form>
             </div>
         </div>
 
-        <div th:if="${param.error == 'slot_no_disponible'}" class="alert alert-error">
-            <p>El horario seleccionado ya no está disponible. Por favor, selecciona otro.</p>
+        <!-- Error messages -->
+        <div th:if="${param.error == 'horario_invalido'}" class="alert-error">
+            El horario seleccionado ya no está disponible. Por favor, elige otro.
         </div>
+        <div th:if="${param.error == 'conflicto_cita'}" class="alert-error">
+            Ese horario ya fue reservado por otro paciente. Por favor elige otro.
+        </div>
+
     </div>
 </div>
 
 <footer>
-    <p>&copy; 2026 BeHealth - Sistema de Citas Médicas. Todos los derechos reservados.</p>
+    <p>&copy; 2026 BeSalud - Sistema de Citas Médicas. Todos los derechos reservados.</p>
 </footer>
+
+<script th:inline="javascript">
+/*<![CDATA[*/
+const SLOTS_DATA = /*[[${slotsDisponibles}]]*/ {};
+
+const DAYS_ES = ['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
+const MONTHS_ES = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+
+let selectedDate = null;
+let selectedTime = null;
+
+function toLocal12Hour(time24) {
+    const [hour, minute] = time24.split(':').map(Number);
+    const d = new Date();
+    d.setHours(hour, minute, 0, 0);
+    return d.toLocaleTimeString('es-CO', { hour: 'numeric', minute: '2-digit', hour12: true });
+}
+
+function buildDateStrip() {
+    const strip = document.getElementById('dateStrip');
+    const dates = Object.keys(SLOTS_DATA);
+
+    if (dates.length === 0) return;
+
+    dates.forEach(dateStr => {
+        const d = new Date(dateStr + 'T00:00:00');
+        const card = document.createElement('button');
+        card.type = 'button';
+        card.className = 'date-card';
+        card.dataset.date = dateStr;
+        card.innerHTML = `
+            <span class="date-dow">${DAYS_ES[d.getDay()]}</span>
+            <span class="date-num">${d.getDate()}</span>
+            <span class="date-month">${MONTHS_ES[d.getMonth()]}</span>
+            <span class="date-slots">${SLOTS_DATA[dateStr].length} horario${SLOTS_DATA[dateStr].length !== 1 ? 's' : ''}</span>
+        `;
+        card.addEventListener('click', () => selectDate(dateStr, card));
+        strip.appendChild(card);
+    });
+
+    // Auto-select first date
+    strip.firstChild.click();
+}
+
+function selectDate(dateStr, cardEl) {
+    selectedDate = dateStr;
+    selectedTime = null;
+
+    // Highlight selected card
+    document.querySelectorAll('.date-card').forEach(c => c.classList.remove('selected'));
+    cardEl.classList.add('selected');
+
+    // Scroll card into view
+    cardEl.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+
+    // Build slots
+    const grid = document.getElementById('slotsGrid');
+    grid.innerHTML = '';
+    const slots = SLOTS_DATA[dateStr];
+
+    slots.forEach(time => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'slot-btn';
+        btn.textContent = toLocal12Hour(time);
+        btn.addEventListener('click', () => selectSlot(time, btn));
+        grid.appendChild(btn);
+    });
+
+    document.getElementById('slotsSection').style.display = 'block';
+    document.getElementById('confirmSection').style.display = 'none';
+    document.getElementById('slotsSection').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function selectSlot(time, btnEl) {
+    selectedTime = time;
+
+    document.querySelectorAll('.slot-btn').forEach(b => b.classList.remove('selected'));
+    btnEl.classList.add('selected');
+
+    document.getElementById('inputFecha').value = selectedDate;
+    document.getElementById('inputHora').value = time;
+
+    // Build confirm summary
+    const d = new Date(selectedDate + 'T00:00:00');
+    const dayName = ['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'][d.getDay()];
+    const dateLabel = `${dayName} ${d.getDate()} de ${['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'][d.getMonth()]}`;
+    const timeLabel = toLocal12Hour(time);
+    document.getElementById('confirmSummary').innerHTML = `
+        <div class="summary-item"><span><i class='fa-regular fa-calendar'></i></span> ${dateLabel}</div>
+        <div class="summary-item"><span><i class='fa-regular fa-clock'></i></span> ${timeLabel}</div>
+    `;
+
+    document.getElementById('confirmSection').style.display = 'block';
+    document.getElementById('confirmSection').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function clearSlot() {
+    selectedTime = null;
+    document.querySelectorAll('.slot-btn').forEach(b => b.classList.remove('selected'));
+    document.getElementById('confirmSection').style.display = 'none';
+}
+
+buildDateStrip();
+/*]]>*/
+</script>
 </body>
 </html>

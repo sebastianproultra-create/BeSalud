@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
@@ -19,9 +20,11 @@ import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.format.TextStyle;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 @Controller
@@ -55,6 +58,8 @@ public class DoctorController {
 
             // Calcular slots disponibles para los próximos 7 días (conteo por día)
             Map<LocalDate, Integer> dailySlotCounts = new LinkedHashMap<>();
+            List<Map<String, Object>> weeklyAvailability = new ArrayList<>();
+            Locale localeEs = Locale.forLanguageTag("es-CO");
             int weeklyTotal = 0;
             LocalDate today = LocalDate.now();
             for (int i = 0; i < 7; i++) {
@@ -73,9 +78,17 @@ public class DoctorController {
                     }
                 }
                 dailySlotCounts.put(date, countForDay);
+                String diaSemanaEs = date.getDayOfWeek().getDisplayName(TextStyle.FULL, localeEs);
+                diaSemanaEs = diaSemanaEs.substring(0, 1).toUpperCase(localeEs) + diaSemanaEs.substring(1);
+                Map<String, Object> row = new LinkedHashMap<>();
+                row.put("fecha", date);
+                row.put("diaSemana", diaSemanaEs);
+                row.put("cantidad", countForDay);
+                weeklyAvailability.add(row);
                 weeklyTotal += countForDay;
             }
             model.addAttribute("dailySlotCounts", dailySlotCounts);
+            model.addAttribute("weeklyAvailability", weeklyAvailability);
             model.addAttribute("weeklySlotTotal", weeklyTotal);
 
             return "doctor_dashboard";
@@ -110,6 +123,7 @@ public class DoctorController {
         return "horarios";
     }
 
+    @PreAuthorize("hasRole('DOCTOR')")
     @PostMapping("/horarios/guardar")
     public String guardarHorario(@RequestParam(required = false) List<String> days,
             @RequestParam Map<String, String> allParams,
@@ -163,6 +177,7 @@ public class DoctorController {
         return "redirect:/doctores";
     }
 
+    @PreAuthorize("hasRole('DOCTOR')")
     @PostMapping("/horarios/{id}/eliminar")
     public String eliminarHorario(@PathVariable String id) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();

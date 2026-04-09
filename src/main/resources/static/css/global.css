@@ -5,13 +5,13 @@
 :root {
     --primary-color: #003366;
     --secondary-color: #0066cc;
-    --accent-color: #2ecc71;
+    --accent-color: #2f7fd3;
     --danger-color: #e74c3c;
-    --light-bg: #ecf0f1;
+    --light-bg: #f1f4f7;
     --white: #ffffff;
-    --text-dark: #2c3e50;
-    --text-light: #7f8c8d;
-    --border-color: #bdc3c7;
+    --text-dark: #1f2d3d;
+    --text-light: #6b7b8c;
+    --border-color: #d4dbe3;
 }
 
 * {
@@ -32,23 +32,76 @@ body {
    ============================================== */
 
 header {
-    background-color: var(--primary-color);
+    background: linear-gradient(110deg, #022b56 0%, #003b78 48%, #0a4f94 100%);
     color: var(--white);
-    padding: 20px 0;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    padding: 0 24px;
+    min-height: 64px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    box-shadow: 0 4px 14px rgba(0, 34, 77, 0.22);
 }
 
-header h1 {
-    margin-left: 20px;
-    font-size: 28px;
+/* Brand block inside header (wraps h1 + subtitle) */
+.header-brand {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 2px;
 }
 
-header p {
-    margin-left: 20px;
-    font-size: 14px;
-    opacity: 0.9;
+header h1,
+.header-brand h1 {
+    margin: 0;
+    font-size: 24px;
+    font-weight: 700;
+    line-height: 1.1;
+    letter-spacing: -0.3px;
 }
 
+header p,
+.header-brand p {
+    margin: 0;
+    font-size: 13px;
+    line-height: 1.2;
+    padding-left: 1px;
+    opacity: 0.85;
+}
+
+/* Nav placed directly inside header: transparent, no extra spacing */
+header > nav {
+    background: transparent;
+    padding: 0;
+}
+
+/* Logout button inside header nav — clean ghost style */
+header > nav button {
+    background: rgba(255, 255, 255, 0.16);
+    color: var(--white);
+    border: 1px solid rgba(255, 255, 255, 0.35);
+    padding: 8px 18px;
+    font-size: 13px;
+    font-weight: 600;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.2s, border-color 0.2s;
+}
+header > nav button:hover {
+    background: rgba(255, 255, 255, 0.24);
+    border-color: rgba(255, 255, 255, 0.48);
+    transform: none;
+}
+
+/* Remove the global form-card styling from forms inside any nav */
+nav form {
+    background: none;
+    padding: 0;
+    box-shadow: none;
+    border-radius: 0;
+    margin-bottom: 0;
+}
+
+/* Standalone nav bar (outside header) */
 nav {
     background-color: var(--secondary-color);
     padding: 15px 20px;
@@ -78,8 +131,8 @@ nav a:hover {
 
 .card {
     background-color: var(--white);
-    border-radius: 8px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    border-radius: 10px;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
     padding: 25px;
     margin-bottom: 20px;
 }
@@ -87,7 +140,7 @@ nav a:hover {
 .card h2 {
     color: var(--primary-color);
     margin-bottom: 20px;
-    border-bottom: 3px solid var(--accent-color);
+    border-bottom: 2px solid #2ec27e;
     padding-bottom: 10px;
 }
 
@@ -172,6 +225,7 @@ button[type="submit"],
 button[type="submit"]:hover,
 .btn-primary:hover {
     background-color: var(--primary-color);
+    color: var(--white);
     transform: translateY(-2px);
 }
 
@@ -184,15 +238,17 @@ button[type="submit"]:hover,
 
 .btn-danger:hover {
     background-color: #c0392b;
+    color: var(--white);
 }
 
 .btn-success {
-    background-color: var(--accent-color);
+    background-color: #1f8d53;
     color: var(--white);
 }
 
 .btn-success:hover {
-    background-color: #27ae60;
+    background-color: #166b3f;
+    color: var(--white);
 }
 
 .btn-secondary {
@@ -202,6 +258,7 @@ button[type="submit"]:hover,
 
 .btn-secondary:hover {
     background-color: var(--text-dark);
+    color: var(--white);
 }
 
 .btn-link {
@@ -268,7 +325,7 @@ table tr:last-child td {
 .alert-success {
     background-color: #d4edda;
     color: #155724;
-    border-left-color: var(--accent-color);
+    border-left-color: #2f9e62;
 }
 
 .alert-error,
@@ -323,7 +380,7 @@ footer {
 }
 
 .text-success {
-    color: var(--accent-color);
+    color: #1f8d53;
 }
 
 .mb-20 {
