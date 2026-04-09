@@ -36,6 +36,10 @@
     font-size: 20px;
 }
 
+.filter-section form .btn {
+    margin-top: 18px;
+}
+
 .filter-form {
     display: flex;
     gap: 10px;
@@ -389,6 +393,35 @@
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+}
+
+.cita-dictamen {
+    margin-top: 10px;
+    padding: 10px 12px;
+    background: rgba(13, 59, 46, 0.04);
+    border-left: 3px solid var(--accent-color);
+    border-radius: 0 6px 6px 0;
+    font-size: 12px;
+}
+.dictamen-header {
+    font-weight: 700;
+    color: var(--primary-color);
+    font-size: 12px;
+    margin-bottom: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+.dictamen-header i {
+    margin-right: 4px;
+    color: var(--accent-color);
+}
+.dictamen-field {
+    margin-bottom: 4px;
+    line-height: 1.4;
+    color: var(--text-dark);
+}
+.dictamen-field strong {
+    color: var(--primary-color);
 }
 
 /* Tab button — visible only when sidebar is collapsed */

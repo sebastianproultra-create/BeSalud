@@ -88,4 +88,12 @@ public class Cita {
         this.estado = estado;
     }
 
+    public Dictamen getDictamen() {
+        return dictamen;
+    }
+
+    public void setDictamen(Dictamen dictamen) {
+        this.dictamen = dictamen;
+    }
+
 }

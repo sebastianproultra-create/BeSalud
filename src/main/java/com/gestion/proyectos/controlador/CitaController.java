@@ -16,7 +16,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
@@ -120,18 +119,23 @@ public class CitaController {
         return "redirect:/citas";
     }
 
-    @PreAuthorize("hasRole('PACIENTE')")
     @PostMapping("/guardar-paciente")
     public String guardarPaciente(@RequestParam String doctorId,
             @RequestParam String fecha,
             @RequestParam String hora,
             @RequestParam String motivo) {
+        System.out.println("===== GUARDAR CITA PACIENTE =====");
+        System.out.println("doctorId recibido: " + doctorId);
+        System.out.println("fecha: " + fecha + ", hora: " + hora + ", motivo: " + motivo);
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         String email = auth.getName();
+        System.out.println("Paciente email: " + email);
         Paciente paciente = pacienteRepo.findByEmail(email).orElse(null);
         if (paciente == null) {
+            System.out.println("ERROR: Paciente no encontrado con email: " + email);
             return "redirect:/pacientes/landing?error=paciente_no_encontrado";
         }
+        System.out.println("Paciente ID: " + paciente.getId() + ", Nombre: " + paciente.getNombre());
 
         LocalDate fechaCita = LocalDate.parse(fecha);
         LocalTime horaCita = LocalTime.parse(hora);
@@ -141,25 +145,30 @@ public class CitaController {
         List<HorarioAtencion> horarios = horarioRepo.findByDoctorId(doctorId);
         boolean horarioValido = horarios.stream()
                 .anyMatch(h -> h.getDiaSemana() != null && h.getHoraInicio() != null && h.getHoraFin() != null &&
-                        h.getDiaSemana().equals(fechaHoraCita.getDayOfWeek()) &&
-                        !fechaHoraCita.toLocalTime().isBefore(h.getHoraInicio()) &&
-                        !fechaHoraCita.toLocalTime().isAfter(h.getHoraFin()));
+                        h.getDiaSemana().equals(fechaCita.getDayOfWeek()) &&
+                        !horaCita.isBefore(h.getHoraInicio()) &&
+                        horaCita.isBefore(h.getHoraFin()));
 
+        System.out.println("Horarios encontrados: " + horarios.size());
+        System.out.println("Horario válido: " + horarioValido);
         if (!horarioValido) {
+            System.out.println("ERROR: Horario inválido para día " + fechaCita.getDayOfWeek());
             return "redirect:/citas/nueva?doctorId=" + doctorId + "&error=horario_invalido";
         }
 
-        // Validar que no haya conflicto con otras citas
+        // Validar que no haya conflicto con otras citas activas
         List<Cita> citasExistentes = citaRepo.findAll().stream()
-                .filter(c -> c.getDoctorId().equals(doctorId) && c.getFecha().equals(fechaCita))
+                .filter(c -> c.getDoctorId().equals(doctorId) && c.getFecha().equals(fechaCita)
+                        && c.getEstado() != com.gestion.proyectos.modelo.EstadoCita.CANCELADA
+                        && c.getEstado() != com.gestion.proyectos.modelo.EstadoCita.NO_ASISTIO)
                 .collect(Collectors.toList());
 
         // Obtener duración de cita del horario
         int duracionMinutos = horarios.stream()
                 .filter(h -> h.getDiaSemana() != null && h.getHoraInicio() != null && h.getHoraFin() != null &&
-                        h.getDiaSemana().equals(fechaHoraCita.getDayOfWeek()) &&
-                        !fechaHoraCita.toLocalTime().isBefore(h.getHoraInicio()) &&
-                        !fechaHoraCita.toLocalTime().isAfter(h.getHoraFin()))
+                        h.getDiaSemana().equals(fechaCita.getDayOfWeek()) &&
+                        !horaCita.isBefore(h.getHoraInicio()) &&
+                        horaCita.isBefore(h.getHoraFin()))
                 .findFirst()
                 .map(HorarioAtencion::getDuracionCitaMinutos)
                 .orElse(30);
@@ -180,7 +189,9 @@ public class CitaController {
             return !(finCita.isBefore(inicioExistente) || fechaHoraCita.isAfter(finExistente));
         });
 
+        System.out.println("Citas existentes ese día: " + citasExistentes.size() + ", Conflicto: " + conflicto);
         if (conflicto) {
+            System.out.println("ERROR: Conflicto con cita existente");
             return "redirect:/citas/nueva?doctorId=" + doctorId + "&error=conflicto_cita";
         }
 
@@ -190,11 +201,11 @@ public class CitaController {
         cita.setFecha(fechaCita);
         cita.setHora(horaCita);
         cita.setMotivo(motivo);
-        citaRepo.save(cita);
+        Cita guardada = citaRepo.save(cita);
+        System.out.println("CITA GUARDADA - ID: " + guardada.getId() + ", doctorId: " + guardada.getDoctorId() + ", pacienteId: " + guardada.getPacienteId());
         return "redirect:/pacientes/landing?success=cita_agendada";
     }
 
-    @PreAuthorize("hasRole('PACIENTE') or hasRole('ADMIN')")
     @PostMapping("/{id}/cancelar")
     public String cancelar(@PathVariable String id) {
         citaRepo.findById(id).ifPresent(c -> {

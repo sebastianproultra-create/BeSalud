@@ -14,31 +14,93 @@
     align-items: center;
     gap: 16px;
     background: var(--light-bg);
-    border-radius: 10px;
+    border-radius: 4px;
     padding: 14px 18px;
     margin-bottom: 20px;
+    border: 1px solid var(--border-color);
 }
 .duration-picker label {
-    font-weight: 600;
-    color: var(--text-dark);
+    font-weight: 400;
+    color: var(--primary-color);
     margin: 0;
     white-space: nowrap;
+    font-size: 10px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
 }
 .duration-picker select {
-    border: 1.5px solid var(--border-color);
-    border-radius: 8px;
-    padding: 7px 12px;
+    width: auto;
+    min-width: 140px;
+}
+
+/* ── Section subtitle (h3 inside cards) ── */
+.section-subtitle {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 22px;
+    font-weight: 400;
+    color: var(--primary-color);
+    margin-top: 42px;
+    margin-bottom: 18px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.section-subtitle::after {
+    content: '';
+    display: block;
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(to right, var(--accent-color), transparent);
+    margin-left: 12px;
+    opacity: 0.4;
+}
+
+/* ── Custom select styling ── */
+.card select,
+.filter-bar select,
+.duration-picker select {
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background-color: var(--white);
+    border: 1px solid var(--border-color);
+    border-bottom: 2px solid var(--border-mid);
+    border-radius: 3px;
+    padding: 10px 38px 10px 14px;
+    font-family: 'DM Sans', sans-serif;
     font-size: 14px;
-    background: var(--white);
-    min-width: 110px;
+    font-weight: 300;
+    color: var(--text-dark);
+    cursor: pointer;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1.5L6 6.5L11 1.5' stroke='%230D3B2E' stroke-width='1.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    background-size: 12px;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+.card select:hover,
+.filter-bar select:hover,
+.duration-picker select:hover {
+    border-color: var(--border-mid);
+}
+.card select:focus,
+.filter-bar select:focus,
+.duration-picker select:focus {
+    outline: none;
+    border-color: var(--border-mid);
+    border-bottom-color: var(--accent-color);
+    box-shadow: 0 2px 0 -1px rgba(200, 169, 110, 0.25);
 }
 
 /* ── Schedule grid: 2 columns on wide screens ── */
 .schedule-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-    gap: 12px;
+    gap: 16px;
     margin-bottom: 24px;
+    padding: 4px;
 }
 
 /* ── Day card ── */
@@ -50,7 +112,8 @@
 }
 .day-card.active {
     border-color: var(--secondary-color);
-    box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.1);
+    outline: 3px solid rgba(0, 102, 204, 0.1);
+    outline-offset: -1px;
 }
 
 .day-header {
@@ -195,6 +258,255 @@
 /* Weekly availability table */
 .availability-table td:nth-child(2) {
     font-weight: 700;
+    color: var(--primary-color);
+}
+
+/* ── Filter bar ── */
+.filter-bar {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    background: var(--light-bg);
+    border-radius: 4px;
+    padding: 14px 18px;
+    margin-bottom: 18px;
+    border: 1px solid var(--border-color);
+}
+.filter-bar label {
+    font-weight: 400;
+    color: var(--primary-color);
+    margin: 0;
+    white-space: nowrap;
+    font-size: 10px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+}
+.filter-bar select {
+    width: auto;
+    min-width: 170px;
+}
+
+/* ── Estado badges ── */
+.estado-badge {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+}
+.estado-pendiente {
+    background: #fef3c7;
+    color: #92400e;
+}
+.estado-asistio {
+    background: #dbeafe;
+    color: #1e40af;
+}
+.estado-completada {
+    background: #d1fae5;
+    color: #065f46;
+}
+.estado-no-asistio {
+    background: #fee2e2;
+    color: #991b1b;
+}
+.estado-cancelada {
+    background: #e5e7eb;
+    color: #374151;
+}
+
+/* ── Action buttons in citas table ── */
+.actions-cell {
+    min-width: 180px;
+}
+.action-buttons {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+    flex-wrap: nowrap;
+}
+.inline-form {
+    display: inline;
+    margin: 0;
+    padding: 0;
+}
+.btn-success {
+    background: #059669;
+    color: #fff;
+    border: none;
+}
+.btn-success:hover {
+    background: #047857;
+}
+.btn-warning {
+    background: #d97706;
+    color: #fff;
+    border: none;
+}
+.btn-warning:hover {
+    background: #b45309;
+}
+.btn-danger {
+    background: #dc2626;
+    color: #fff;
+    border: none;
+}
+.btn-danger:hover {
+    background: #b91c1c;
+}
+.btn-outline {
+    background: transparent;
+    color: var(--secondary-color);
+    border: 1.5px solid var(--secondary-color);
+}
+.btn-outline:hover {
+    background: var(--secondary-color);
+    color: #fff;
+}
+.btn-sm {
+    padding: 6px 12px;
+    font-size: 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+    white-space: nowrap;
+    line-height: 1.4;
+}
+.text-muted {
+    color: #9ca3af;
+}
+
+/* ── Citas table ── */
+.citas-table-wrapper {
+    overflow-x: auto;
+}
+.citas-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    font-size: 14px;
+}
+.citas-table thead th {
+    background: var(--light-bg);
+    padding: 12px 14px;
+    text-align: left;
+    font-weight: 700;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    color: var(--text-light);
+    border-bottom: 2px solid var(--border-color);
+    white-space: nowrap;
+}
+.citas-table tbody td {
+    padding: 14px 14px;
+    border-bottom: 1px solid var(--border-color);
+    vertical-align: middle;
+}
+.citas-table tbody tr:last-child td {
+    border-bottom: none;
+}
+.citas-table tbody tr:hover {
+    background: rgba(0, 102, 204, 0.03);
+}
+.motivo-cell {
+    max-width: 200px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+}
+
+/* ── Dictamen preview in table ── */
+.dictamen-preview {
+    display: inline-block;
+    max-width: 180px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 13px;
+    color: var(--text-dark);
+    cursor: default;
+}
+
+/* ── Empty state ── */
+.empty-state {
+    text-align: center;
+    padding: 30px 20px;
+    color: var(--text-light);
+    font-size: 15px;
+}
+
+/* ── Modal ── */
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+.modal-content {
+    background: var(--white);
+    border-radius: 14px;
+    padding: 30px;
+    width: 90%;
+    max-width: 520px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    animation: modalIn 0.2s ease-out;
+}
+@keyframes modalIn {
+    from { opacity: 0; transform: translateY(-20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+.modal-content h3 {
+    margin-top: 0;
+    margin-bottom: 20px;
+    color: var(--primary-color);
+}
+.modal-content .form-group {
+    margin-bottom: 16px;
+}
+.modal-content .form-group label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 6px;
+    color: var(--text-dark);
+    font-size: 14px;
+}
+.modal-content textarea {
+    width: 100%;
+    border: 1.5px solid var(--border-color);
+    border-radius: 8px;
+    padding: 10px 12px;
+    font-size: 14px;
+    font-family: inherit;
+    resize: vertical;
+    background: var(--light-bg);
+    transition: border-color 0.2s;
+    box-sizing: border-box;
+}
+.modal-content textarea:focus {
+    border-color: var(--secondary-color);
+    outline: none;
+    background: var(--white);
+}
+.modal-actions {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+    margin-top: 20px;
+}
+
+/* ── Dictamen detail (view modal) ── */
+.dictamen-detail p {
+    margin: 10px 0;
+    line-height: 1.6;
+}
+.dictamen-detail strong {
     color: var(--primary-color);
 }
 

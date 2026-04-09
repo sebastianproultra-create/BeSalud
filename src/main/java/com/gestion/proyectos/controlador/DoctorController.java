@@ -1,9 +1,15 @@
 package com.gestion.proyectos.controlador;
 
+import com.gestion.proyectos.modelo.Cita;
+import com.gestion.proyectos.modelo.Dictamen;
 import com.gestion.proyectos.modelo.Doctor;
+import com.gestion.proyectos.modelo.EstadoCita;
 import com.gestion.proyectos.modelo.HorarioAtencion;
+import com.gestion.proyectos.modelo.Paciente;
+import com.gestion.proyectos.repositorio.CitaRepositorio;
 import com.gestion.proyectos.repositorio.DoctorRepositorio;
 import com.gestion.proyectos.repositorio.HorarioAtencionRepositorio;
+import com.gestion.proyectos.repositorio.PacienteRepositorio;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -18,7 +24,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.TextStyle;
 import java.util.ArrayList;
@@ -26,6 +31,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping("/doctores")
@@ -33,14 +39,21 @@ public class DoctorController {
 
     private final DoctorRepositorio doctorRepo;
     private final HorarioAtencionRepositorio horarioRepo;
+    private final CitaRepositorio citaRepo;
+    private final PacienteRepositorio pacienteRepo;
 
-    public DoctorController(DoctorRepositorio doctorRepo, HorarioAtencionRepositorio horarioRepo) {
+    public DoctorController(DoctorRepositorio doctorRepo, HorarioAtencionRepositorio horarioRepo,
+                            CitaRepositorio citaRepo, PacienteRepositorio pacienteRepo) {
         this.doctorRepo = doctorRepo;
         this.horarioRepo = horarioRepo;
+        this.citaRepo = citaRepo;
+        this.pacienteRepo = pacienteRepo;
     }
 
     @GetMapping
-    public String listar(Model model, @RequestParam(required = false) String especialidad) {
+    public String listar(Model model,
+                         @RequestParam(required = false) String especialidad,
+                         @RequestParam(required = false) String estado) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         String role = auth.getAuthorities().stream()
                 .map(a -> a.getAuthority())
@@ -51,10 +64,53 @@ public class DoctorController {
             // Dashboard del doctor
             String email = auth.getName();
             Doctor doctor = doctorRepo.findByEmail(email).orElseThrow();
+            System.out.println("===== DOCTOR DASHBOARD =====");
+            System.out.println("Doctor email: " + email + ", ID: " + doctor.getId());
             List<HorarioAtencion> horarios = horarioRepo.findByDoctorId(doctor.getId());
             model.addAttribute("doctor", doctor);
             model.addAttribute("horarios", horarios);
             model.addAttribute("horario", new HorarioAtencion());
+
+            // Citas del doctor filtradas por estado
+            String filtroEstado = (estado != null) ? estado : "";
+            List<Cita> citas;
+            if (filtroEstado.isEmpty() || "TODAS".equals(filtroEstado)) {
+                citas = citaRepo.findByDoctorId(doctor.getId());
+            } else {
+                citas = citaRepo.findByDoctorIdAndEstado(doctor.getId(), EstadoCita.valueOf(filtroEstado));
+            }
+            System.out.println("Citas encontradas para doctor " + doctor.getId() + ": " + citas.size());
+            // Debug: listar todas las citas en BD
+            List<Cita> todasCitas = citaRepo.findAll();
+            System.out.println("Total citas en BD: " + todasCitas.size());
+            for (Cita c : todasCitas) {
+                System.out.println("  Cita ID=" + c.getId() + " doctorId=" + c.getDoctorId() + " pacienteId=" + c.getPacienteId() + " motivo=" + c.getMotivo() + " estado=" + c.getEstado());
+            }
+
+            // Mapear pacienteId -> nombre completo para mostrar en la tabla
+            Map<String, String> pacienteNombres = new java.util.HashMap<>();
+            for (Cita c : citas) {
+                if (c.getPacienteId() != null && !pacienteNombres.containsKey(c.getPacienteId())) {
+                    pacienteRepo.findById(c.getPacienteId()).ifPresent(p ->
+                        pacienteNombres.put(p.getId(), p.getNombre() + " " + p.getApellido())
+                    );
+                }
+            }
+            model.addAttribute("citas", citas);
+            model.addAttribute("pacienteNombres", pacienteNombres);
+            model.addAttribute("filtroEstado", filtroEstado);
+            model.addAttribute("hoy", LocalDate.now());
+
+            // Pacientes del doctor (los que tienen cita con este doctor)
+            List<String> pacienteIds = citaRepo.findByDoctorId(doctor.getId()).stream()
+                    .map(Cita::getPacienteId)
+                    .distinct()
+                    .collect(Collectors.toList());
+            List<Paciente> misPacientes = new ArrayList<>();
+            for (String pid : pacienteIds) {
+                pacienteRepo.findById(pid).ifPresent(misPacientes::add);
+            }
+            model.addAttribute("misPacientes", misPacientes);
 
             // Calcular slots disponibles para los próximos 7 días (conteo por día)
             Map<LocalDate, Integer> dailySlotCounts = new LinkedHashMap<>();
@@ -190,6 +246,79 @@ public class DoctorController {
         }
 
         horarioRepo.deleteById(id);
+        return "redirect:/doctores";
+    }
+
+    @PreAuthorize("hasRole('DOCTOR')")
+    @PostMapping("/citas/{id}/asistio")
+    public String marcarAsistio(@PathVariable String id) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String email = auth.getName();
+        Doctor doctor = doctorRepo.findByEmail(email).orElseThrow();
+
+        Cita cita = citaRepo.findById(id).orElseThrow();
+        if (!cita.getDoctorId().equals(doctor.getId())) {
+            throw new RuntimeException("No autorizado");
+        }
+        cita.setEstado(EstadoCita.ASISTIO);
+        citaRepo.save(cita);
+        return "redirect:/doctores";
+    }
+
+    @PreAuthorize("hasRole('DOCTOR')")
+    @PostMapping("/citas/{id}/no-asistio")
+    public String marcarNoAsistio(@PathVariable String id) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String email = auth.getName();
+        Doctor doctor = doctorRepo.findByEmail(email).orElseThrow();
+
+        Cita cita = citaRepo.findById(id).orElseThrow();
+        if (!cita.getDoctorId().equals(doctor.getId())) {
+            throw new RuntimeException("No autorizado");
+        }
+        cita.setEstado(EstadoCita.NO_ASISTIO);
+        citaRepo.save(cita);
+        return "redirect:/doctores";
+    }
+
+    @PreAuthorize("hasRole('DOCTOR')")
+    @PostMapping("/citas/{id}/dictamen")
+    public String guardarDictamen(@PathVariable String id,
+                                   @RequestParam String diagnostico,
+                                   @RequestParam String tratamiento,
+                                   @RequestParam(required = false) String observaciones) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String email = auth.getName();
+        Doctor doctor = doctorRepo.findByEmail(email).orElseThrow();
+
+        Cita cita = citaRepo.findById(id).orElseThrow();
+        if (!cita.getDoctorId().equals(doctor.getId())) {
+            throw new RuntimeException("No autorizado");
+        }
+
+        Dictamen dictamen = new Dictamen();
+        dictamen.setDiagnostico(diagnostico);
+        dictamen.setTratamiento(tratamiento);
+        dictamen.setObservaciones(observaciones);
+        cita.setDictamen(dictamen);
+        cita.setEstado(EstadoCita.COMPLETADA);
+        citaRepo.save(cita);
+        return "redirect:/doctores";
+    }
+
+    @PreAuthorize("hasRole('DOCTOR')")
+    @PostMapping("/citas/{id}/cancelar")
+    public String cancelarCita(@PathVariable String id) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String email = auth.getName();
+        Doctor doctor = doctorRepo.findByEmail(email).orElseThrow();
+
+        Cita cita = citaRepo.findById(id).orElseThrow();
+        if (!cita.getDoctorId().equals(doctor.getId())) {
+            throw new RuntimeException("No autorizado");
+        }
+        cita.setEstado(EstadoCita.CANCELADA);
+        citaRepo.save(cita);
         return "redirect:/doctores";
     }
 }

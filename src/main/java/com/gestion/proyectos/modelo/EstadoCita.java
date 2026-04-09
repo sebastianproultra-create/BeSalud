@@ -2,6 +2,7 @@ package com.gestion.proyectos.modelo;
 
 public enum EstadoCita {
     PENDIENTE("Pendiente"),
+    ASISTIO("Asistió"),
     COMPLETADA("Completada"),
     CANCELADA("Cancelada"),
     NO_ASISTIO("No Asistió");

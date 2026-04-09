@@ -31,14 +31,14 @@
             <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
             
             <label for="doctorId">Doctor:</label>
-            <select id="doctorId" name="doctorId" required>
+            <select id="doctorId" name="doctorId" required class="styled-select">
                 <option value="">Seleccione un doctor</option>
                 <option th:each="d : ${doctores}" th:value="${d.id}" 
                         th:text="${d.nombre} + ' ' + ${d.apellido} + ' (' + ${d.especialidad} + ')'"/>
             </select>
 
             <label for="pacienteId">Paciente:</label>
-            <select id="pacienteId" name="pacienteId" required>
+            <select id="pacienteId" name="pacienteId" required class="styled-select">
                 <option value="">Seleccione un paciente</option>
                 <option th:each="p : ${pacientes}" th:value="${p.id}" 
                         th:text="${p.nombre} + ' ' + ${p.apellido}"/>
@@ -62,5 +62,6 @@
 <footer>
     <p>&copy; 2026 BeSalud - Sistema de Citas Médicas. Todos los derechos reservados.</p>
 </footer>
+<script th:src="@{/js/custom-select.js}"></script>
 </body>
 </html>

@@ -84,13 +84,13 @@
             </tbody>
         </table>
 
-        <h3>Agregar Horarios Semanales</h3>
+        <h3 class="section-subtitle">Agregar Horarios Semanales</h3>
         <form th:action="@{/doctores/horarios/guardar}" method="post">
             <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
 
             <div class="duration-picker">
                 <label for="duracionCitaMinutos">Duración de cada cita</label>
-                <select id="duracionCitaMinutos" name="duracionCitaMinutos">
+                <select id="duracionCitaMinutos" name="duracionCitaMinutos" class="styled-select">
                     <option value="15">15 min</option>
                     <option value="20">20 min</option>
                     <option value="30" selected>30 min</option>
@@ -279,6 +279,163 @@
         <p><strong>Total semana:</strong> <span th:text="${weeklySlotTotal}"></span></p>
         <p th:if="${weeklySlotTotal == 0}">No hay horarios definidos.</p>
     </div>
+
+    <!-- ═══════════════ MIS CITAS ═══════════════ -->
+    <div class="card">
+        <h2>Mis Citas</h2>
+        <form th:action="@{/doctores}" method="get" class="filter-bar">
+            <label for="filtroEstadoSelect">Filtrar por estado:</label>
+            <select id="filtroEstadoSelect" name="estado" onchange="this.form.submit()" class="styled-select">
+                <option value="TODAS" th:selected="${filtroEstado == '' or filtroEstado == 'TODAS'}">Todas</option>
+                <option value="PENDIENTE" th:selected="${filtroEstado == 'PENDIENTE'}">Pendiente</option>
+                <option value="ASISTIO" th:selected="${filtroEstado == 'ASISTIO'}">Asistió</option>
+                <option value="COMPLETADA" th:selected="${filtroEstado == 'COMPLETADA'}">Completada</option>
+                <option value="NO_ASISTIO" th:selected="${filtroEstado == 'NO_ASISTIO'}">No Asistió</option>
+                <option value="CANCELADA" th:selected="${filtroEstado == 'CANCELADA'}">Cancelada</option>
+            </select>
+        </form>
+
+        <div th:if="${#lists.isEmpty(citas)}" class="empty-state">
+            <p>No hay citas para mostrar.</p>
+        </div>
+
+        <div th:if="${!#lists.isEmpty(citas)}" class="citas-table-wrapper">
+            <table class="citas-table">
+                <thead>
+                    <tr>
+                        <th>Fecha</th>
+                        <th>Hora</th>
+                        <th>Paciente</th>
+                        <th>Motivo</th>
+                        <th>Estado</th>
+                        <th>Dictamen</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="cita : ${citas}">
+                        <td th:text="${#temporals.format(cita.fecha, 'dd/MM/yyyy')}"></td>
+                        <td th:text="${#temporals.format(cita.hora, 'hh:mm a')}"></td>
+                        <td th:text="${pacienteNombres[cita.pacienteId] ?: 'Desconocido'}"></td>
+                        <td class="motivo-cell" th:text="${cita.motivo}"></td>
+                        <td>
+                            <span class="estado-badge"
+                                  th:classappend="${cita.estado.name() == 'PENDIENTE'} ? 'estado-pendiente' : (${cita.estado.name() == 'ASISTIO'} ? 'estado-asistio' : (${cita.estado.name() == 'COMPLETADA'} ? 'estado-completada' : (${cita.estado.name() == 'NO_ASISTIO'} ? 'estado-no-asistio' : 'estado-cancelada')))"
+                                  th:text="${cita.estado.descripcion}"></span>
+                        </td>
+                        <td>
+                            <span th:if="${cita.dictamen != null}" class="dictamen-preview"
+                                  th:title="${cita.dictamen.diagnostico}"
+                                  th:text="${cita.dictamen.diagnostico}"></span>
+                            <span th:if="${cita.dictamen == null}" class="text-muted">—</span>
+                        </td>
+                        <td class="actions-cell">
+                            <div class="action-buttons">
+                                <!-- PENDIENTE: Cancelar siempre; Asistió/No Asistió solo el día de la cita -->
+                                <th:block th:if="${cita.estado.name() == 'PENDIENTE'}">
+                                    <th:block th:if="${cita.fecha.equals(hoy)}">
+                                        <form th:action="@{'/doctores/citas/' + ${cita.id} + '/asistio'}" method="post" class="inline-form">
+                                            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                                            <button type="submit" class="btn btn-success btn-sm">Asistió</button>
+                                        </form>
+                                        <form th:action="@{'/doctores/citas/' + ${cita.id} + '/no-asistio'}" method="post" class="inline-form">
+                                            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                                            <button type="submit" class="btn btn-warning btn-sm">No Asistió</button>
+                                        </form>
+                                    </th:block>
+                                    <form th:action="@{'/doctores/citas/' + ${cita.id} + '/cancelar'}" method="post" class="inline-form">
+                                        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                                        <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('¿Cancelar esta cita?')">Cancelar</button>
+                                    </form>
+                                </th:block>
+                                <!-- ASISTIO: dar dictamen -->
+                                <th:block th:if="${cita.estado.name() == 'ASISTIO'}">
+                                    <button type="button" class="btn btn-primary btn-sm"
+                                            th:data-cita-id="${cita.id}" onclick="abrirDictamen(this.dataset.citaId)">Dar Dictamen</button>
+                                </th:block>
+                                <!-- COMPLETADA con dictamen: ver -->
+                                <th:block th:if="${cita.estado.name() == 'COMPLETADA' and cita.dictamen != null}">
+                                    <button type="button" class="btn btn-outline btn-sm"
+                                            th:data-cita-id="${cita.id}" onclick="verDictamen(this.dataset.citaId)">Ver Dictamen</button>
+                                </th:block>
+                                <!-- Estados finales sin acciones -->
+                                <span th:if="${cita.estado.name() == 'NO_ASISTIO' or cita.estado.name() == 'CANCELADA' or (cita.estado.name() == 'COMPLETADA' and cita.dictamen == null)}" class="text-muted">—</span>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- ═══════════════ MIS PACIENTES ═══════════════ -->
+    <div class="card">
+        <h2>Mis Pacientes</h2>
+        <div th:if="${#lists.isEmpty(misPacientes)}" class="empty-state">
+            <p>Aún no tiene pacientes con citas agendadas.</p>
+        </div>
+        <table th:if="${!#lists.isEmpty(misPacientes)}">
+            <thead>
+                <tr>
+                    <th>Nombre</th>
+                    <th>Apellido</th>
+                    <th>Teléfono</th>
+                    <th>Email</th>
+                    <th>Identificación</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="pac : ${misPacientes}">
+                    <td th:text="${pac.nombre}"></td>
+                    <td th:text="${pac.apellido}"></td>
+                    <td th:text="${pac.telefono}"></td>
+                    <td th:text="${pac.email}"></td>
+                    <td th:text="${pac.identificacion}"></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- ═══════════════ MODAL DICTAMEN ═══════════════ -->
+<div id="dictamenModal" class="modal-overlay" style="display:none">
+    <div class="modal-content">
+        <h3 id="modalTitle">Registrar Dictamen</h3>
+        <form id="dictamenForm" method="post">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+            <div class="form-group">
+                <label for="diagnostico">Diagnóstico *</label>
+                <textarea id="diagnostico" name="diagnostico" rows="3" required></textarea>
+            </div>
+            <div class="form-group">
+                <label for="tratamiento">Tratamiento *</label>
+                <textarea id="tratamiento" name="tratamiento" rows="3" required></textarea>
+            </div>
+            <div class="form-group">
+                <label for="observaciones">Observaciones</label>
+                <textarea id="observaciones" name="observaciones" rows="2"></textarea>
+            </div>
+            <div class="modal-actions">
+                <button type="submit" class="btn btn-primary">Guardar Dictamen</button>
+                <button type="button" class="btn btn-secondary" onclick="cerrarModal()">Cancelar</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- ═══════════════ MODAL VER DICTAMEN ═══════════════ -->
+<div id="verDictamenModal" class="modal-overlay" style="display:none">
+    <div class="modal-content">
+        <h3>Dictamen de la Cita</h3>
+        <div class="dictamen-detail">
+            <p><strong>Diagnóstico:</strong> <span id="verDiagnostico"></span></p>
+            <p><strong>Tratamiento:</strong> <span id="verTratamiento"></span></p>
+            <p><strong>Observaciones:</strong> <span id="verObservaciones"></span></p>
+        </div>
+        <div class="modal-actions">
+            <button type="button" class="btn btn-secondary" onclick="cerrarVerModal()">Cerrar</button>
+        </div>
+    </div>
 </div>
 
 <footer>
@@ -348,6 +505,66 @@ function eliminarHorario(id) {
         form.submit();
     }
 }
+
+/* ── Dictamen Modal ── */
+function abrirDictamen(citaId) {
+    document.getElementById('dictamenForm').action = '/doctores/citas/' + citaId + '/dictamen';
+    document.getElementById('modalTitle').textContent = 'Registrar Dictamen';
+    document.getElementById('diagnostico').value = '';
+    document.getElementById('tratamiento').value = '';
+    document.getElementById('observaciones').value = '';
+    document.getElementById('diagnostico').readOnly = false;
+    document.getElementById('tratamiento').readOnly = false;
+    document.getElementById('observaciones').readOnly = false;
+    document.getElementById('dictamenModal').style.display = 'flex';
+}
+
+function cerrarModal() {
+    document.getElementById('dictamenModal').style.display = 'none';
+}
+
+/* Store dictamen data in a JS object for "Ver Dictamen" */
+var dictamenData = {};
+
 </script>
+
+<script th:inline="javascript">
+/* Populate dictamen data from server */
+var citas = /*[[${citas}]]*/ [];
+if (citas) {
+    citas.forEach(function(c) {
+        if (c.dictamen) {
+            dictamenData[c.id] = {
+                diagnostico: c.dictamen.diagnostico || '',
+                tratamiento: c.dictamen.tratamiento || '',
+                observaciones: c.dictamen.observaciones || ''
+            };
+        }
+    });
+}
+
+function verDictamen(citaId) {
+    var d = dictamenData[citaId];
+    if (d) {
+        document.getElementById('verDiagnostico').textContent = d.diagnostico;
+        document.getElementById('verTratamiento').textContent = d.tratamiento;
+        document.getElementById('verObservaciones').textContent = d.observaciones || 'Ninguna';
+        document.getElementById('verDictamenModal').style.display = 'flex';
+    }
+}
+
+function cerrarVerModal() {
+    document.getElementById('verDictamenModal').style.display = 'none';
+}
+
+/* Close modals on overlay click */
+document.getElementById('dictamenModal').addEventListener('click', function(e) {
+    if (e.target === this) cerrarModal();
+});
+document.getElementById('verDictamenModal').addEventListener('click', function(e) {
+    if (e.target === this) cerrarVerModal();
+});
+</script>
+<script th:src="@{/js/custom-select.js}"></script>
 </body>
 </html>

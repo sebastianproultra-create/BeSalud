@@ -32,7 +32,7 @@
             <h2>Filtrar Doctores</h2>
             <form th:action="@{/pacientes/landing}" method="get">
                 <label for="especialidad">Especialidad:</label>
-                <select id="especialidad" name="especialidad">
+                <select id="especialidad" name="especialidad" class="styled-select">
                     <option value="">Todas las especialidades</option>
                     <option th:each="esp : ${especialidades}" th:value="${esp}" th:text="${esp}"></option>
                 </select>
@@ -100,6 +100,22 @@
                             <span class="cita-meta"><i class="fa-regular fa-clock"></i> <span th:text="${#temporals.format(cita.hora, 'hh:mm a')}"></span></span>
                         </div>
                         <div class="cita-motivo" th:if="${cita.motivo}" th:text="${cita.motivo}"></div>
+                        <!-- Dictamen visible para citas completadas -->
+                        <div th:if="${cita.estado.name() == 'COMPLETADA' and cita.dictamen != null}" class="cita-dictamen">
+                            <div class="dictamen-header"><i class="fa-solid fa-file-medical"></i> Dictamen Médico</div>
+                            <div class="dictamen-field">
+                                <strong>Diagnóstico:</strong>
+                                <span th:text="${cita.dictamen.diagnostico}"></span>
+                            </div>
+                            <div class="dictamen-field">
+                                <strong>Tratamiento:</strong>
+                                <span th:text="${cita.dictamen.tratamiento}"></span>
+                            </div>
+                            <div th:if="${cita.dictamen.observaciones != null and !cita.dictamen.observaciones.isEmpty()}" class="dictamen-field">
+                                <strong>Observaciones:</strong>
+                                <span th:text="${cita.dictamen.observaciones}"></span>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -125,5 +141,6 @@ function openSidebar() {
     layout.classList.remove('sidebar-collapsed');
 }
 </script>
+<script th:src="@{/js/custom-select.js}"></script>
 </body>
 </html>
