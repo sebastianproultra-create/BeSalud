@@ -4,55 +4,137 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>BeSalud - Inicio</title>
-    <link rel="stylesheet" th:href="@{/css/global.css}" />
-    <link rel="stylesheet" th:href="@{/css/index.css}" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/index.css}" href="index.css" />
 </head>
 <body>
+
 <header class="hero">
+    <nav class="navbar">
+        <div class="nav-brand">
+            <a th:href="@{/}" href="#">
+                <span class="brand-icon">✦</span>
+                BeSalud
+            </a>
+        </div>
+        <ul class="nav-links">
+            <li><a th:href="@{/#about}" href="#about">Sobre</a></li>
+            <li><a th:href="@{/#team}" href="#team">Equipo</a></li>
+            <li><a th:href="@{/#contact}" href="#contact">Contacto</a></li>
+            <li><a class="btn btn-secondary" th:href="@{/login}" href="#">Iniciar sesión</a></li>
+        </ul>
+        <button class="nav-toggle" aria-label="Menú">&#9776;</button>
+    </nav>
+
+    <div class="hero-overlay"></div>
+
     <div class="hero-content">
+        <span class="hero-eyebrow">Plataforma Médica Digital</span>
         <h1>BeSalud</h1>
-        <p>Gestión inteligente de citas médicas para pacientes y doctores.</p>
-        <a class="btn btn-primary" th:href="@{/login}" id="irLogin">Ir a Login</a>
+        <p>Gestión inteligente de citas médicas<br>para pacientes y doctores.</p>
+        <div class="hero-actions">
+            <a class="btn btn-primary" th:href="@{/login}" href="#" id="irLogin">Ir a Login</a>
+            <a class="btn btn-ghost" th:href="@{/#about}" href="#about">Conoce más</a>
+        </div>
+    </div>
+
+    <div class="hero-scroll-indicator">
+        <span>Desplazar</span>
+        <div class="scroll-line"></div>
     </div>
 </header>
 
 <main class="main-content">
-    <section class="section" id="about">
-        <h2>Sobre el proyecto</h2>
-        <p>BeSalud es una plataforma diseñada para simplificar la programación de citas médicas y mejorar
-           la comunicación entre pacientes y profesionales. Con un flujo de trabajo claro, control de horarios
-           y perfil médico, ofrecemos una experiencia confiable y segura.</p>
+
+    <section class="section section-about" id="about">
+        <div class="section-inner">
+            <div class="section-label">01 — Sobre el proyecto</div>
+            <h2>Una plataforma pensada<br><em>para quienes cuidan</em></h2>
+            <p>BeSalud simplifica la programación de citas médicas y mejora la comunicación entre pacientes y profesionales de la salud. Con un flujo de trabajo claro, control de horarios y perfil médico, ofrecemos una experiencia confiable, segura y humana.</p>
+            <div class="about-stats">
+                <div class="stat">
+                    <span class="stat-number">100%</span>
+                    <span class="stat-label">Seguro</span>
+                </div>
+                <div class="stat-divider"></div>
+                <div class="stat">
+                    <span class="stat-number">24/7</span>
+                    <span class="stat-label">Disponible</span>
+                </div>
+                <div class="stat-divider"></div>
+                <div class="stat">
+                    <span class="stat-number">+50</span>
+                    <span class="stat-label">Especialidades</span>
+                </div>
+            </div>
+        </div>
+        <div class="section-image">
+            <img src="https://images.unsplash.com/photo-1582750433449-648ed127bb54?w=600&q=80&auto=format&fit=crop" alt="Médico con paciente" loading="lazy" />
+        </div>
     </section>
 
-    <section class="section" id="team">
-        <h2>¿Quiénes somos?</h2>
+    <section class="section section-team" id="team">
+        <div class="section-label">02 — Quiénes somos</div>
+        <h2>Un equipo comprometido<br><em>con tu salud</em></h2>
         <div class="cards">
             <div class="card">
-                <h3>Equipo de Desarrollo</h3>
-                <p>Un equipo apasionado por la tecnología y la salud, especializado en desarrollo web y experiencia
-den usuario.</p>
+                <div class="card-icon">⚕</div>
+                <h3>Desarrollo</h3>
+                <p>Un equipo apasionado por la tecnología y la salud, especializado en desarrollo web y experiencia de usuario.</p>
             </div>
             <div class="card">
-                <h3>Profesionales de la Salud</h3>
-                <p>Doctores y administradores con prácticas clínicas auténticas para diseñar un sistema que realmente ayude.</p>
+                <div class="card-icon">🩺</div>
+                <h3>Profesionales</h3>
+                <p>Doctores y administradores con prácticas clínicas auténticas que diseñaron un sistema que realmente ayuda.</p>
             </div>
             <div class="card">
+                <div class="card-icon">◎</div>
                 <h3>Soporte</h3>
                 <p>Soporte continuo para garantizar que la plataforma funcione sin interrupciones y con la mayor satisfacción.</p>
             </div>
         </div>
     </section>
 
-    <section class="section" id="contact">
-        <h2>Contacto</h2>
-        <p>Correo: <a href="mailto:soporte@besalud.com">soporte@besalud.com</a></p>
-        <p>Teléfono: +57 300 123 4567</p>
-        <p>Dirección: Calle Falsa 123, Ciudad Salud.</p>
+    <section class="section section-contact" id="contact">
+        <div class="section-label">03 — Contacto</div>
+        <h2>Estamos aquí<br><em>para ayudarte</em></h2>
+        <div class="contact-grid">
+            <div class="contact-item">
+                <span class="contact-icon">✉</span>
+                <div>
+                    <span class="contact-type">Correo electrónico</span>
+                    <a href="mailto:soporte@besalud.com">soporte@besalud.com</a>
+                </div>
+            </div>
+            <div class="contact-item">
+                <span class="contact-icon">☏</span>
+                <div>
+                    <span class="contact-type">Teléfono</span>
+                    <span>+57 300 123 4567</span>
+                </div>
+            </div>
+            <div class="contact-item">
+                <span class="contact-icon">⌖</span>
+                <div>
+                    <span class="contact-type">Dirección</span>
+                    <span>Calle Falsa 123, Ciudad Salud</span>
+                </div>
+            </div>
+        </div>
     </section>
+
 </main>
 
 <footer>
-    <p>&copy; 2026 BeSalud. Todos los derechos reservados.</p>
+    <div class="footer-inner">
+        <div class="footer-brand">
+            <span class="brand-icon">✦</span> BeSalud
+        </div>
+        <p class="footer-copy">&copy; 2026 BeSalud. Todos los derechos reservados.</p>
+    </div>
 </footer>
+
 </body>
 </html>
