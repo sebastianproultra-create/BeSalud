@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Error del servidor - BeSalud</title>
+    <link rel="stylesheet" th:href="@{/css/global.css}" />
+    <link rel="stylesheet" th:href="@{/css/styles.css}" />
+</head>
+<body>
+<header>
+    <div class="header-brand">
+        <h1>BeSalud</h1>
+        <p>Sistema de Gestión de Citas Médicas</p>
+    </div>
+</header>
+
+<div class="container">
+    <div class="card text-center">
+        <h2>Algo salió mal</h2>
+        <p class="mb-20">
+            Ha ocurrido un problema en el sistema. Estamos trabajando para resolverlo lo antes posible.
+        </p>
+
+        <div>
+            <a th:href="@{/}" class="btn btn-primary">Volver al inicio</a>
+            <a href="javascript:history.back()" class="btn btn-link">Regresar</a>
+        </div>
+    </div>
+</div>
+
+
+</body>
+</html>

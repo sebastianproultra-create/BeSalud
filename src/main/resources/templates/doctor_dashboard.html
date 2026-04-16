@@ -78,7 +78,10 @@
                     <td th:text="${#temporals.format(horario.horaFin, 'hh:mm a')}"></td>
                     <td th:text="${horario.duracionCitaMinutos}"></td>
                     <td>
-                        <button class="btn btn-danger btn-sm" onclick="eliminarHorario('${horario.id}')">Eliminar</button>
+                        <form th:action="@{'/doctores/horarios/' + ${horario.id} + '/eliminar'}" method="post" onsubmit="return confirm('¿Está seguro de que desea eliminar este horario?');">
+                            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                            <button type="submit" class="btn btn-danger btn-sm">Eliminar</button>
+                        </form>
                     </td>
                 </tr>
             </tbody>
@@ -486,23 +489,6 @@ function toggleSecond(day) {
         s2.disabled = true; s2.value = '';
         e2.disabled = true; e2.value = '';
         btn.textContent = '+ 2\u00b0 intervalo';
-    }
-}
-
-function eliminarHorario(id) {
-    if (confirm('¿Está seguro de que desea eliminar este horario?')) {
-        const form = document.createElement('form');
-        form.method = 'post';
-        form.action = '/doctores/horarios/' + id + '/eliminar';
-        
-        const csrfInput = document.createElement('input');
-        csrfInput.type = 'hidden';
-        csrfInput.name = '_csrf';
-        csrfInput.value = document.querySelector('input[name="_csrf"]').value;
-        form.appendChild(csrfInput);
-        
-        document.body.appendChild(form);
-        form.submit();
     }
 }
 

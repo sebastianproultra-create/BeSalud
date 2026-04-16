@@ -46,6 +46,11 @@
             Usuario o contraseña incorrecta
         </div>
 
+        <!-- Mensaje de sesión expirada -->
+        <div th:if="${param.sessionExpired}" class="alert alert-error">
+            Tu sesión ha expirado. Por favor, inicia sesión de nuevo.
+        </div>
+
         <!-- Mensaje de logout exitoso -->
         <div th:if="${param.logout}" class="alert alert-success">
             Sesión cerrada correctamente
