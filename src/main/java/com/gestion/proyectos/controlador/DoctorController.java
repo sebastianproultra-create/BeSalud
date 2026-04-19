@@ -64,8 +64,6 @@ public class DoctorController {
             // Dashboard del doctor
             String email = auth.getName();
             Doctor doctor = doctorRepo.findByEmail(email).orElseThrow();
-            System.out.println("===== DOCTOR DASHBOARD =====");
-            System.out.println("Doctor email: " + email + ", ID: " + doctor.getId());
             List<HorarioAtencion> horarios = horarioRepo.findByDoctorId(doctor.getId());
             model.addAttribute("doctor", doctor);
             model.addAttribute("horarios", horarios);
@@ -79,14 +77,6 @@ public class DoctorController {
             } else {
                 citas = citaRepo.findByDoctorIdAndEstado(doctor.getId(), EstadoCita.valueOf(filtroEstado));
             }
-            System.out.println("Citas encontradas para doctor " + doctor.getId() + ": " + citas.size());
-            // Debug: listar todas las citas en BD
-            List<Cita> todasCitas = citaRepo.findAll();
-            System.out.println("Total citas en BD: " + todasCitas.size());
-            for (Cita c : todasCitas) {
-                System.out.println("  Cita ID=" + c.getId() + " doctorId=" + c.getDoctorId() + " pacienteId=" + c.getPacienteId() + " motivo=" + c.getMotivo() + " estado=" + c.getEstado());
-            }
-
             // Mapear pacienteId -> nombre completo para mostrar en la tabla
             Map<String, String> pacienteNombres = new java.util.HashMap<>();
             for (Cita c : citas) {
@@ -165,8 +155,21 @@ public class DoctorController {
 
     @PostMapping("/guardar")
     public String guardar(@ModelAttribute Doctor doctor) {
+        if (esVacio(doctor.getNombre())) return "redirect:/doctores?error=nombre_requerido";
+        if (esVacio(doctor.getApellido())) return "redirect:/doctores?error=apellido_requerido";
+        if (esVacio(doctor.getEmail())) return "redirect:/doctores?error=email_requerido";
+        if (!doctor.getEmail().trim().matches("^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$"))
+            return "redirect:/doctores?error=email_invalido";
+        if (esVacio(doctor.getEspecialidad())) return "redirect:/doctores?error=especialidad_requerida";
+        boolean esNuevo = esVacio(doctor.getId());
+        if (esNuevo && doctorRepo.findByEmail(doctor.getEmail().trim()).isPresent())
+            return "redirect:/doctores?error=email_duplicado";
         doctorRepo.save(doctor);
         return "redirect:/doctores";
+    }
+
+    private boolean esVacio(String s) {
+        return s == null || s.trim().isEmpty();
     }
 
     @GetMapping("/{id}/horarios")
