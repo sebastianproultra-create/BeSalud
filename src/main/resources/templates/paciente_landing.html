@@ -27,6 +27,9 @@
         <div th:if="${param.success == 'cita_agendada'}" class="alert" style="background:#d1e7dd; color:#0f5132; padding:15px; border-radius:6px; margin-bottom:20px;">
             ¡Tu cita ha sido agendada exitosamente!
         </div>
+        <div th:if="${param.success == 'cita_reprogramada'}" class="alert" style="background:#d1e7dd; color:#0f5132; padding:15px; border-radius:6px; margin-bottom:20px;">
+            ¡Tu cita ha sido reprogramada exitosamente!
+        </div>
 
         <div class="filter-section">
             <h2>Filtrar Doctores</h2>
@@ -100,6 +103,11 @@
                             <span class="cita-meta"><i class="fa-regular fa-clock"></i> <span th:text="${#temporals.format(cita.hora, 'hh:mm a')}"></span></span>
                         </div>
                         <div class="cita-motivo" th:if="${cita.motivo}" th:text="${cita.motivo}"></div>
+                        <div class="cita-actions">
+                            <a th:href="@{/citas/{id}/reprogramar(id=${cita.id})}"
+                               class="btn btn-secondary btn-small"
+                               th:if="${cita.estado.name() == 'PENDIENTE'}">Reprogramar</a>
+                        </div>
                         <!-- Dictamen visible para citas completadas -->
                         <div th:if="${cita.estado.name() == 'COMPLETADA' and cita.dictamen != null}" class="cita-dictamen">
                             <div class="dictamen-header"><i class="fa-solid fa-file-medical"></i> Dictamen Médico</div>

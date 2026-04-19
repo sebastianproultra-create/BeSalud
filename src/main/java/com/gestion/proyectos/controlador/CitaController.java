@@ -86,13 +86,18 @@ public class CitaController {
             return "redirect:/pacientes/landing";
         }
         model.addAttribute("doctorSeleccionado", doctor);
+        model.addAttribute("cita", null);
+        model.addAttribute("actionUrl", "/citas/guardar-paciente");
+        model.addAttribute("pageTitle", "Agendar Cita Médica");
+        model.addAttribute("submitLabel", "Confirmar Cita");
+        model.addAttribute("backLink", "/pacientes/landing");
 
         // Pre-calcular todos los slots disponibles en los próximos 30 días
         LinkedHashMap<String, List<String>> slotsDisponibles = new LinkedHashMap<>();
         LocalDate today = LocalDate.now();
         for (int i = 0; i < 30; i++) {
             LocalDate fecha = today.plusDays(i);
-            List<LocalTime> slots = calcularSlotsDisponibles(doctorId, fecha);
+            List<LocalTime> slots = calcularSlotsDisponibles(doctorId, fecha, null, null, null);
             if (!slots.isEmpty()) {
                 slotsDisponibles.put(fecha.toString(),
                         slots.stream().map(t -> t.toString().substring(0, 5)).collect(Collectors.toList()));
@@ -101,6 +106,82 @@ public class CitaController {
         model.addAttribute("slotsDisponibles", slotsDisponibles);
 
         return "cita_form_paciente";
+    }
+
+    @GetMapping("/{id}/reprogramar")
+    public String reprogramar(@PathVariable String id, Model model) {
+        Cita cita = citaRepo.findById(id).orElse(null);
+        if (cita == null) {
+            return "redirect:/pacientes/landing";
+        }
+
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth == null || !auth.isAuthenticated()) {
+            return "redirect:/login";
+        }
+        String email = auth.getName();
+        Paciente paciente = pacienteRepo.findByEmail(email).orElse(null);
+        if (paciente == null || !paciente.getId().equals(cita.getPacienteId())) {
+            return "redirect:/pacientes/landing";
+        }
+
+        Doctor doctor = doctorRepo.findById(cita.getDoctorId()).orElse(null);
+        if (doctor == null) {
+            return "redirect:/pacientes/landing";
+        }
+
+        model.addAttribute("doctorSeleccionado", doctor);
+        model.addAttribute("cita", cita);
+        model.addAttribute("actionUrl", "/citas/" + cita.getId() + "/reprogramar");
+        model.addAttribute("pageTitle", "Reprogramar Cita Médica");
+        model.addAttribute("submitLabel", "Reprogramar Cita");
+        model.addAttribute("backLink", "/pacientes/landing");
+
+        LinkedHashMap<String, List<String>> slotsDisponibles = new LinkedHashMap<>();
+        LocalDate today = LocalDate.now();
+        for (int i = 0; i < 30; i++) {
+            LocalDate fecha = today.plusDays(i);
+            List<LocalTime> slots = calcularSlotsDisponibles(doctor.getId(), fecha, cita.getId(), cita.getFecha(), cita.getHora());
+            if (!slots.isEmpty()) {
+                slotsDisponibles.put(fecha.toString(),
+                        slots.stream().map(t -> t.toString().substring(0, 5)).collect(Collectors.toList()));
+            }
+        }
+        model.addAttribute("slotsDisponibles", slotsDisponibles);
+
+        return "cita_form_paciente";
+    }
+
+    @PostMapping("/{id}/reprogramar")
+    public String guardarReprogramacion(@PathVariable String id,
+            @RequestParam String fecha,
+            @RequestParam String hora) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth == null || !auth.isAuthenticated()) {
+            return "redirect:/login";
+        }
+        String email = auth.getName();
+        Paciente paciente = pacienteRepo.findByEmail(email).orElse(null);
+        Cita cita = citaRepo.findById(id).orElse(null);
+        if (paciente == null || cita == null || !paciente.getId().equals(cita.getPacienteId())) {
+            return "redirect:/pacientes/landing";
+        }
+
+        LocalDate fechaCita = LocalDate.parse(fecha);
+        LocalTime horaCita = LocalTime.parse(hora);
+
+        if (!esHorarioValido(cita.getDoctorId(), fechaCita, horaCita)) {
+            return "redirect:/citas/" + id + "/reprogramar?error=horario_invalido";
+        }
+
+        if (hayConflicto(cita.getDoctorId(), fechaCita, horaCita, cita.getId())) {
+            return "redirect:/citas/" + id + "/reprogramar?error=conflicto_cita";
+        }
+
+        cita.setFecha(fechaCita);
+        cita.setHora(horaCita);
+        citaRepo.save(cita);
+        return "redirect:/pacientes/landing?success=cita_reprogramada";
     }
 
     @PostMapping("/guardar")
@@ -259,5 +340,97 @@ public class CitaController {
         }
 
         return slots;
+    }
+
+    private List<LocalTime> calcularSlotsDisponibles(String doctorId, LocalDate fecha, String excludeCitaId, LocalDate fechaActual, LocalTime horaActual) {
+        List<HorarioAtencion> horarios = horarioRepo.findByDoctorId(doctorId);
+        List<LocalTime> slots = new ArrayList<>();
+
+        java.time.DayOfWeek diaSemana = fecha.getDayOfWeek();
+
+        // Citas ya reservadas en esa fecha con ese doctor
+        List<Cita> citasDelDia = citaRepo.findAll().stream()
+                .filter(c -> c.getDoctorId().equals(doctorId) && c.getFecha().equals(fecha)
+                        && (excludeCitaId == null || !excludeCitaId.equals(c.getId())))
+                .collect(Collectors.toList());
+
+        for (HorarioAtencion horario : horarios) {
+            if (horario.getDiaSemana() == null || horario.getHoraInicio() == null || horario.getHoraFin() == null) {
+                continue;
+            }
+            // Solo considerar el horario que corresponde al día de la semana de la fecha
+            if (!horario.getDiaSemana().equals(diaSemana)) {
+                continue;
+            }
+
+            int duracion = horario.getDuracionCitaMinutos() > 0 ? horario.getDuracionCitaMinutos() : 30;
+            LocalTime current = horario.getHoraInicio();
+
+            while (current.isBefore(horario.getHoraFin())) {
+                final LocalTime slotTime = current;
+                LocalDateTime slotStart = LocalDateTime.of(fecha, slotTime);
+                LocalDateTime slotEnd = slotStart.plusMinutes(duracion);
+
+                // El slot está disponible si:
+                // 1. No choca con ninguna cita existente
+                // 2. No es el mismo slot de la cita actual que se está reprogramando
+                boolean esSlotActual = fechaActual != null && horaActual != null
+                        && fecha.equals(fechaActual) && slotTime.equals(horaActual);
+
+                boolean disponible = !esSlotActual && citasDelDia.stream().noneMatch(c -> {
+                    LocalDateTime citaStart = LocalDateTime.of(c.getFecha(), c.getHora());
+                    LocalDateTime citaEnd = citaStart.plusMinutes(duracion);
+                    return slotStart.isBefore(citaEnd) && slotEnd.isAfter(citaStart);
+                });
+
+                if (disponible) {
+                    slots.add(current);
+                }
+
+                current = current.plusMinutes(duracion);
+            }
+        }
+
+        return slots;
+    }
+
+    private boolean esHorarioValido(String doctorId, LocalDate fechaCita, LocalTime horaCita) {
+        List<HorarioAtencion> horarios = horarioRepo.findByDoctorId(doctorId);
+        return horarios.stream()
+                .anyMatch(h -> h.getDiaSemana() != null && h.getHoraInicio() != null && h.getHoraFin() != null &&
+                        h.getDiaSemana().equals(fechaCita.getDayOfWeek()) &&
+                        !horaCita.isBefore(h.getHoraInicio()) &&
+                        horaCita.isBefore(h.getHoraFin()));
+    }
+
+    private int obtenerDuracionCita(String doctorId, LocalDate fechaCita, LocalTime horaCita) {
+        List<HorarioAtencion> horarios = horarioRepo.findByDoctorId(doctorId);
+        return horarios.stream()
+                .filter(h -> h.getDiaSemana() != null && h.getHoraInicio() != null && h.getHoraFin() != null &&
+                        h.getDiaSemana().equals(fechaCita.getDayOfWeek()) &&
+                        !horaCita.isBefore(h.getHoraInicio()) &&
+                        horaCita.isBefore(h.getHoraFin()))
+                .findFirst()
+                .map(HorarioAtencion::getDuracionCitaMinutos)
+                .orElse(30);
+    }
+
+    private boolean hayConflicto(String doctorId, LocalDate fechaCita, LocalTime horaCita, String excludeCitaId) {
+        List<Cita> citasExistentes = citaRepo.findAll().stream()
+                .filter(c -> c.getDoctorId().equals(doctorId)
+                        && c.getFecha().equals(fechaCita)
+                        && (excludeCitaId == null || !excludeCitaId.equals(c.getId()))
+                        && c.getEstado() != com.gestion.proyectos.modelo.EstadoCita.CANCELADA
+                        && c.getEstado() != com.gestion.proyectos.modelo.EstadoCita.NO_ASISTIO)
+                .collect(Collectors.toList());
+
+        LocalDateTime inicioNuevo = LocalDateTime.of(fechaCita, horaCita);
+        LocalDateTime finNuevo = inicioNuevo.plusMinutes(obtenerDuracionCita(doctorId, fechaCita, horaCita));
+
+        return citasExistentes.stream().anyMatch(c -> {
+            LocalDateTime inicioExistente = LocalDateTime.of(c.getFecha(), c.getHora());
+            LocalDateTime finExistente = inicioExistente.plusMinutes(obtenerDuracionCita(doctorId, c.getFecha(), c.getHora()));
+            return inicioNuevo.isBefore(finExistente) && finNuevo.isAfter(inicioExistente);
+        });
     }
 }
