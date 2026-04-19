@@ -45,12 +45,14 @@ public class LoginController {
     public String registerSave(UserRegistrationDTO user, Model model) {
         String error = validarCamposRegistro(user);
         if (error != null) {
+            model.addAttribute("user", user);
             model.addAttribute("error", error);
             return "register";
         }
 
         if (pacienteRepositorio.findByEmail(user.getEmail()).isPresent()
                 || doctorRepositorio.findByEmail(user.getEmail()).isPresent()) {
+            model.addAttribute("user", user);
             model.addAttribute("error", "Ya existe un usuario registrado con ese correo");
             return "register";
         }
@@ -68,6 +70,7 @@ public class LoginController {
                     fotoBase64 = "data:" + user.getFotoFile().getContentType() + ";base64,"
                             + Base64.getEncoder().encodeToString(bytes);
                 } catch (Exception e) {
+                    model.addAttribute("user", user);
                     model.addAttribute("error", "Error al procesar la imagen");
                     return "register";
                 }
@@ -76,6 +79,7 @@ public class LoginController {
             try {
                 fechaNac = java.time.LocalDate.parse(user.getFechaNacimiento().trim());
             } catch (Exception e) {
+                model.addAttribute("user", user);
                 model.addAttribute("error", "La fecha de nacimiento no tiene un formato válido (YYYY-MM-DD)");
                 return "register";
             }
@@ -93,7 +97,11 @@ public class LoginController {
         if (esVacio(user.getNombre())) return "El nombre es obligatorio";
         if (esVacio(user.getApellido())) return "El apellido es obligatorio";
         if (esVacio(user.getTelefono())) return "El teléfono es obligatorio";
+        if (!user.getTelefono().trim().matches("^3\\d{1,9}$"))
+            return "El teléfono debe empezar por 3 y tener máximo 10 dígitos";
         if (esVacio(user.getIdentificacion())) return "La identificación es obligatoria";
+        if (!user.getIdentificacion().trim().matches("^\\d{1,10}$"))
+            return "La identificación debe contener solo números y máximo 10 dígitos";
         if (esVacio(user.getEmail())) return "El correo electrónico es obligatorio";
         if (!user.getEmail().trim().matches("^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$"))
             return "El correo electrónico no tiene un formato válido";
