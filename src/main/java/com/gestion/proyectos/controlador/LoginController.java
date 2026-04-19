@@ -43,7 +43,12 @@ public class LoginController {
 
     @PostMapping("/register/save")
     public String registerSave(UserRegistrationDTO user, Model model) {
-        // Check if email already exists in either repo
+        String error = validarCamposRegistro(user);
+        if (error != null) {
+            model.addAttribute("error", error);
+            return "register";
+        }
+
         if (pacienteRepositorio.findByEmail(user.getEmail()).isPresent()
                 || doctorRepositorio.findByEmail(user.getEmail()).isPresent()) {
             model.addAttribute("error", "Ya existe un usuario registrado con ese correo");
@@ -51,10 +56,11 @@ public class LoginController {
         }
 
         if ("PACIENTE".equals(user.getRole())) {
-            Paciente paciente = new Paciente(user.getNombre(), user.getApellido(), user.getTelefono(),
-                    user.getIdentificacion(), user.getEmail(), passwordEncoder.encode(user.getPassword()));
+            Paciente paciente = new Paciente(user.getNombre().trim(), user.getApellido().trim(),
+                    user.getTelefono().trim(), user.getIdentificacion().trim(),
+                    user.getEmail().trim().toLowerCase(), passwordEncoder.encode(user.getPassword()));
             pacienteRepositorio.save(paciente);
-        } else if ("DOCTOR".equals(user.getRole())) {
+        } else {
             String fotoBase64 = null;
             if (user.getFotoFile() != null && !user.getFotoFile().isEmpty()) {
                 try {
@@ -66,13 +72,43 @@ public class LoginController {
                     return "register";
                 }
             }
-            Doctor doctor = new Doctor(user.getNombre(), user.getApellido(), user.getTelefono(),
-                    user.getIdentificacion(), user.getEmail(), passwordEncoder.encode(user.getPassword()),
-                    user.getEspecialidad(), java.time.LocalDate.parse(user.getFechaNacimiento()), fotoBase64,
-                    user.getBiografia());
+            java.time.LocalDate fechaNac;
+            try {
+                fechaNac = java.time.LocalDate.parse(user.getFechaNacimiento().trim());
+            } catch (Exception e) {
+                model.addAttribute("error", "La fecha de nacimiento no tiene un formato válido (YYYY-MM-DD)");
+                return "register";
+            }
+            Doctor doctor = new Doctor(user.getNombre().trim(), user.getApellido().trim(),
+                    user.getTelefono().trim(), user.getIdentificacion().trim(),
+                    user.getEmail().trim().toLowerCase(), passwordEncoder.encode(user.getPassword()),
+                    user.getEspecialidad().trim(), fechaNac, fotoBase64, user.getBiografia());
             doctorRepositorio.save(doctor);
         }
 
         return "redirect:/login?registerSuccess";
+    }
+
+    private String validarCamposRegistro(UserRegistrationDTO user) {
+        if (esVacio(user.getNombre())) return "El nombre es obligatorio";
+        if (esVacio(user.getApellido())) return "El apellido es obligatorio";
+        if (esVacio(user.getTelefono())) return "El teléfono es obligatorio";
+        if (esVacio(user.getIdentificacion())) return "La identificación es obligatoria";
+        if (esVacio(user.getEmail())) return "El correo electrónico es obligatorio";
+        if (!user.getEmail().trim().matches("^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$"))
+            return "El correo electrónico no tiene un formato válido";
+        if (esVacio(user.getPassword())) return "La contraseña es obligatoria";
+        if (user.getPassword().length() < 8) return "La contraseña debe tener al menos 8 caracteres";
+        if (!"PACIENTE".equals(user.getRole()) && !"DOCTOR".equals(user.getRole()))
+            return "Debe seleccionar un rol válido (Paciente o Doctor)";
+        if ("DOCTOR".equals(user.getRole())) {
+            if (esVacio(user.getEspecialidad())) return "La especialidad es obligatoria para doctores";
+            if (esVacio(user.getFechaNacimiento())) return "La fecha de nacimiento es obligatoria para doctores";
+        }
+        return null;
+    }
+
+    private boolean esVacio(String s) {
+        return s == null || s.trim().isEmpty();
     }
 }

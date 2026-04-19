@@ -185,38 +185,70 @@ public class CitaController {
     }
 
     @PostMapping("/guardar")
-    public String guardar(@RequestParam String doctorId,
-            @RequestParam String pacienteId,
-            @RequestParam String fecha,
-            @RequestParam String hora,
-            @RequestParam String motivo) {
+    public String guardar(@RequestParam(required = false) String doctorId,
+            @RequestParam(required = false) String pacienteId,
+            @RequestParam(required = false) String fecha,
+            @RequestParam(required = false) String hora,
+            @RequestParam(required = false) String motivo,
+            Model model) {
+        if (esVacio(doctorId)) return "redirect:/citas/crear?error=doctor_requerido";
+        if (esVacio(pacienteId)) return "redirect:/citas/crear?error=paciente_requerido";
+        if (esVacio(fecha)) return "redirect:/citas/crear?error=fecha_requerida";
+        if (esVacio(hora)) return "redirect:/citas/crear?error=hora_requerida";
+        if (esVacio(motivo)) return "redirect:/citas/crear?error=motivo_requerido";
+
+        LocalDate fechaCita;
+        LocalTime horaCita;
+        try {
+            fechaCita = LocalDate.parse(fecha.trim());
+        } catch (Exception e) {
+            return "redirect:/citas/crear?error=fecha_invalida";
+        }
+        try {
+            horaCita = LocalTime.parse(hora.trim());
+        } catch (Exception e) {
+            return "redirect:/citas/crear?error=hora_invalida";
+        }
+        if (fechaCita.isBefore(LocalDate.now())) {
+            return "redirect:/citas/crear?error=fecha_pasada";
+        }
+        if (!doctorRepo.existsById(doctorId)) return "redirect:/citas/crear?error=doctor_no_existe";
+        if (!pacienteRepo.existsById(pacienteId)) return "redirect:/citas/crear?error=paciente_no_existe";
+
         Cita cita = new Cita();
         cita.setDoctorId(doctorId);
         cita.setPacienteId(pacienteId);
-        cita.setFecha(LocalDate.parse(fecha));
-        cita.setHora(LocalTime.parse(hora));
-        cita.setMotivo(motivo);
+        cita.setFecha(fechaCita);
+        cita.setHora(horaCita);
+        cita.setMotivo(motivo.trim());
         citaRepo.save(cita);
         return "redirect:/citas";
     }
 
     @PostMapping("/guardar-paciente")
-    public String guardarPaciente(@RequestParam String doctorId,
-            @RequestParam String fecha,
-            @RequestParam String hora,
-            @RequestParam String motivo) {
-        System.out.println("===== GUARDAR CITA PACIENTE =====");
-        System.out.println("doctorId recibido: " + doctorId);
-        System.out.println("fecha: " + fecha + ", hora: " + hora + ", motivo: " + motivo);
+    public String guardarPaciente(@RequestParam(required = false) String doctorId,
+            @RequestParam(required = false) String fecha,
+            @RequestParam(required = false) String hora,
+            @RequestParam(required = false) String motivo) {
+        if (esVacio(doctorId)) return "redirect:/pacientes/landing?error=doctor_requerido";
+        if (esVacio(fecha)) return "redirect:/citas/nueva?doctorId=" + doctorId + "&error=fecha_requerida";
+        if (esVacio(hora)) return "redirect:/citas/nueva?doctorId=" + doctorId + "&error=hora_requerida";
+        if (esVacio(motivo)) return "redirect:/citas/nueva?doctorId=" + doctorId + "&error=motivo_requerido";
+
+        try {
+            if (LocalDate.parse(fecha.trim()).isBefore(LocalDate.now())) {
+                return "redirect:/citas/nueva?doctorId=" + doctorId + "&error=fecha_pasada";
+            }
+        } catch (Exception e) {
+            return "redirect:/citas/nueva?doctorId=" + doctorId + "&error=fecha_invalida";
+        }
+
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         String email = auth.getName();
-        System.out.println("Paciente email: " + email);
         Paciente paciente = pacienteRepo.findByEmail(email).orElse(null);
         if (paciente == null) {
-            System.out.println("ERROR: Paciente no encontrado con email: " + email);
             return "redirect:/pacientes/landing?error=paciente_no_encontrado";
         }
-        System.out.println("Paciente ID: " + paciente.getId() + ", Nombre: " + paciente.getNombre());
 
         LocalDate fechaCita = LocalDate.parse(fecha);
         LocalTime horaCita = LocalTime.parse(hora);
@@ -230,10 +262,7 @@ public class CitaController {
                         !horaCita.isBefore(h.getHoraInicio()) &&
                         horaCita.isBefore(h.getHoraFin()));
 
-        System.out.println("Horarios encontrados: " + horarios.size());
-        System.out.println("Horario válido: " + horarioValido);
         if (!horarioValido) {
-            System.out.println("ERROR: Horario inválido para día " + fechaCita.getDayOfWeek());
             return "redirect:/citas/nueva?doctorId=" + doctorId + "&error=horario_invalido";
         }
 
@@ -270,9 +299,7 @@ public class CitaController {
             return !(finCita.isBefore(inicioExistente) || fechaHoraCita.isAfter(finExistente));
         });
 
-        System.out.println("Citas existentes ese día: " + citasExistentes.size() + ", Conflicto: " + conflicto);
         if (conflicto) {
-            System.out.println("ERROR: Conflicto con cita existente");
             return "redirect:/citas/nueva?doctorId=" + doctorId + "&error=conflicto_cita";
         }
 
@@ -282,8 +309,7 @@ public class CitaController {
         cita.setFecha(fechaCita);
         cita.setHora(horaCita);
         cita.setMotivo(motivo);
-        Cita guardada = citaRepo.save(cita);
-        System.out.println("CITA GUARDADA - ID: " + guardada.getId() + ", doctorId: " + guardada.getDoctorId() + ", pacienteId: " + guardada.getPacienteId());
+        citaRepo.save(cita);
         return "redirect:/pacientes/landing?success=cita_agendada";
     }
 
@@ -294,6 +320,10 @@ public class CitaController {
             citaRepo.save(c);
         });
         return "redirect:/citas";
+    }
+
+    private boolean esVacio(String s) {
+        return s == null || s.trim().isEmpty();
     }
 
     private List<LocalTime> calcularSlotsDisponibles(String doctorId, LocalDate fecha) {

@@ -40,9 +40,28 @@ public class PacienteController {
     }
 
     @PostMapping("/guardar")
-    public String guardar(@ModelAttribute Paciente paciente) {
+    public String guardar(@ModelAttribute Paciente paciente, Model model) {
+        if (esVacio(paciente.getNombre())) return error(model, "El nombre es obligatorio", paciente);
+        if (esVacio(paciente.getApellido())) return error(model, "El apellido es obligatorio", paciente);
+        if (esVacio(paciente.getEmail())) return error(model, "El correo es obligatorio", paciente);
+        if (!paciente.getEmail().trim().matches("^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$"))
+            return error(model, "El correo no tiene un formato válido", paciente);
+        boolean esNuevo = esVacio(paciente.getId());
+        if (esNuevo && pacienteRepo.findByEmail(paciente.getEmail().trim()).isPresent())
+            return error(model, "Ya existe un paciente registrado con ese correo", paciente);
         pacienteRepo.save(paciente);
         return "redirect:/pacientes";
+    }
+
+    private String error(Model model, String mensaje, Paciente paciente) {
+        model.addAttribute("error", mensaje);
+        model.addAttribute("pacientes", pacienteRepo.findAll());
+        model.addAttribute("paciente", paciente);
+        return "pacientes";
+    }
+
+    private boolean esVacio(String s) {
+        return s == null || s.trim().isEmpty();
     }
 
     @GetMapping("/landing")
