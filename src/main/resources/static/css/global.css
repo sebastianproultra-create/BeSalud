@@ -368,8 +368,9 @@ button[type="submit"]:hover,
 
 .btn-secondary {
     background-color: transparent;
-    color: var(--text-light);
+    color: var(--text-dark);
     border: 1px solid var(--border-mid);
+    font-weight: 600;
 }
 
 .btn-secondary:hover {
