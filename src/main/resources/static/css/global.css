@@ -53,6 +53,9 @@ body {
     color: var(--text-dark);
     line-height: 1.65;
     -webkit-font-smoothing: antialiased;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
 }
 
 /* ==============================================
@@ -174,6 +177,7 @@ nav a:hover {
     max-width: 1000px;
     margin: 36px auto;
     padding: 0 28px;
+    flex: 1;
 }
 
 /* ==============================================

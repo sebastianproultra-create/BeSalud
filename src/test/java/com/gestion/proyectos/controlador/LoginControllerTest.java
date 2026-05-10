@@ -1,13 +1,16 @@
 package com.gestion.proyectos.controlador;
 
 import com.gestion.proyectos.modelo.Paciente;
+import com.gestion.proyectos.repositorio.AdminRepositorio;
 import com.gestion.proyectos.repositorio.DoctorRepositorio;
 import com.gestion.proyectos.repositorio.PacienteRepositorio;
 import com.gestion.proyectos.seguridad.CustomUserDetailsService;
 import org.junit.jupiter.api.Test;
+import com.gestion.proyectos.seguridad.SecurityConfig;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.Import;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.Optional;
@@ -20,6 +23,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(LoginController.class)
+@Import(SecurityConfig.class)
 class LoginControllerTest {
 
     @Autowired
@@ -30,6 +34,9 @@ class LoginControllerTest {
 
     @MockBean
     private DoctorRepositorio doctorRepositorio;
+
+    @MockBean
+    private AdminRepositorio adminRepositorio;
 
     @MockBean
     private CustomUserDetailsService customUserDetailsService;
@@ -69,11 +76,14 @@ class LoginControllerTest {
     }
 
     @Test
-    void registerSave_sinCsrf_retorna403() throws Exception {
+    void registerSave_sinCsrf_noProcesa() throws Exception {
+        // Sin token CSRF ni sesión, Spring Security intercepta y redirige
+        // a la URL de sesión expirada configurada en SecurityConfig
         mockMvc.perform(post("/register/save")
                         .param("email", "test@correo.com")
                         .param("role", "PACIENTE"))
-                .andExpect(status().isForbidden());
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/login?sessionExpired=true"));
     }
 
     @Test
@@ -189,7 +199,7 @@ class LoginControllerTest {
                         .param("apellido", "Lopez")
                         .param("telefono", "3009876543")
                         .param("identificacion", "654321")
-                        .param("password", "pass456")
+                        .param("password", "password456")
                         .param("role", "PACIENTE")
                         .with(csrf()))
                 .andExpect(status().is3xxRedirection())
@@ -207,7 +217,7 @@ class LoginControllerTest {
                         .param("apellido", "Gomez")
                         .param("telefono", "3001112233")
                         .param("identificacion", "789012")
-                        .param("password", "docpass")
+                        .param("password", "docpass123")
                         .param("role", "DOCTOR")
                         .param("especialidad", "Cardiologia")
                         .param("fechaNacimiento", "1980-05-15")

@@ -29,7 +29,7 @@ public class AdminController {
 
     @GetMapping
     public String dashboard(Model model) {
-        List<Doctor> doctores = doctorRepo.findAll();
+        List<Doctor> doctores = doctorRepo.findAllDoctores();
         List<Paciente> pacientes = pacienteRepo.findAll();
         List<Admin> admins = adminRepo.findAll();
 

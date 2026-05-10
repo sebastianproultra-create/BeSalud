@@ -14,7 +14,9 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 
 @Service
 public class CustomUserDetailsService implements UserDetailsService {
@@ -32,24 +34,40 @@ public class CustomUserDetailsService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        // Primero buscar admin
-        Admin admin = adminRepositorio.findByEmail(username).orElse(null);
+        if (username == null) {
+            throw new UsernameNotFoundException("Usuario no encontrado");
+        }
+        String email = username.trim().toLowerCase();
+
+        Admin admin = adminRepositorio.findByEmail(email).orElse(null);
         if (admin != null) {
             return new User(admin.getEmail(), admin.getPassword(),
                     Collections.singletonList(new SimpleGrantedAuthority("ROLE_ADMIN")));
         }
 
-        Paciente paciente = pacienteRepositorio.findByEmail(username).orElse(null);
-        if (paciente != null) {
-            return new User(paciente.getEmail(), paciente.getPassword(),
-                    Collections.singletonList(new SimpleGrantedAuthority("ROLE_PACIENTE")));
-        }
-        Doctor doctor = doctorRepositorio.findByEmail(username).orElse(null);
+        Doctor doctor = doctorRepositorio.findByEmail(email).orElse(null);
+        Paciente paciente = pacienteRepositorio.findByEmail(email).orElse(null);
+
+        List<SimpleGrantedAuthority> authorities = new ArrayList<>();
+        String password = null;
+        String resolvedEmail = null;
+
         if (doctor != null) {
-            return new User(doctor.getEmail(), doctor.getPassword(),
-                    Collections.singletonList(new SimpleGrantedAuthority("ROLE_DOCTOR")));
+            authorities.add(new SimpleGrantedAuthority("ROLE_DOCTOR"));
+            password = doctor.getPassword();
+            resolvedEmail = doctor.getEmail();
+        }
+        if (paciente != null) {
+            authorities.add(new SimpleGrantedAuthority("ROLE_PACIENTE"));
+            if (password == null) {
+                password = paciente.getPassword();
+                resolvedEmail = paciente.getEmail();
+            }
+        }
+        if (!authorities.isEmpty()) {
+            return new User(resolvedEmail, password, authorities);
         }
 
-        throw new UsernameNotFoundException("Usuario no encontrado: " + username);
+        throw new UsernameNotFoundException("Usuario no encontrado: " + email);
     }
 }

@@ -1,5 +1,7 @@
 package com.gestion.proyectos.controlador;
 
+import static com.gestion.proyectos.util.ValidacionUtil.esVacio;
+
 import com.gestion.proyectos.modelo.Cita;
 import com.gestion.proyectos.modelo.Doctor;
 import com.gestion.proyectos.modelo.Paciente;
@@ -60,21 +62,17 @@ public class PacienteController {
         return "pacientes";
     }
 
-    private boolean esVacio(String s) {
-        return s == null || s.trim().isEmpty();
-    }
-
     @GetMapping("/landing")
     public String landing(@RequestParam(value = "especialidad", required = false) String especialidad, Model model) {
         List<Doctor> doctores;
         if (especialidad != null && !especialidad.isEmpty()) {
             doctores = doctorRepo.findByEspecialidadContainingIgnoreCase(especialidad);
         } else {
-            doctores = doctorRepo.findAll();
+            doctores = doctorRepo.findAllDoctores();
         }
         model.addAttribute("doctores", doctores);
         model.addAttribute("especialidades",
-                doctorRepo.findAll().stream().map(Doctor::getEspecialidad).filter(e -> e != null).distinct().toList());
+                doctorRepo.findAllDoctores().stream().map(Doctor::getEspecialidad).filter(e -> e != null).distinct().toList());
 
         // Mis citas
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
@@ -83,7 +81,7 @@ public class PacienteController {
             Paciente paciente = pacienteRepo.findByEmail(email).orElse(null);
             if (paciente != null) {
                 List<Cita> misCitas = citaRepo.findByPacienteId(paciente.getId());
-                Map<String, String> doctoresMap = doctorRepo.findAll().stream()
+                Map<String, String> doctoresMap = doctorRepo.findAllDoctores().stream()
                         .collect(Collectors.toMap(Doctor::getId, d -> "Dr. " + d.getNombre() + " " + d.getApellido()));
                 model.addAttribute("misCitas", misCitas);
                 model.addAttribute("doctoresMap", doctoresMap);

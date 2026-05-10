@@ -1,8 +1,10 @@
-﻿<!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org"
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org"
       xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
-    <title>Dashboard Médico - BeSalud</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Médico — BeSalud</title>
     <link rel="stylesheet" th:href="@{/css/global.css}">
     <link rel="stylesheet" th:href="@{/css/doctor_dashboard.css}">
 </head>
@@ -12,83 +14,206 @@
         <h1>BeSalud</h1>
         <p>Panel de Control del Médico</p>
     </div>
-    <nav>
-        <!-- sec:authentication muestra el email del usuario autenticado actualmente -->
-        <span style="color: rgba(255,255,255,0.75); font-size: 13px; margin-right: 16px;"
-              sec:authentication="name"></span>
-        <form th:action="@{/logout}" method="post" style="display: inline;">
+    <nav class="header-nav" aria-label="Navegación principal">
+        <span class="header-user" sec:authentication="name" aria-label="Usuario activo"></span>
+        <form th:action="@{/logout}" method="post" class="header-logout-form">
             <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
             <button type="submit" class="btn btn-secondary">Cerrar Sesión</button>
         </form>
     </nav>
 </header>
 
-<div class="container">
-    <div th:if="${param.error}" class="error-message">
-        <p>Error: 
+<div class="container dashboard-container">
+
+    <!-- ═══════════════ HERO DE BIENVENIDA + STATS ═══════════════ -->
+    <section class="dashboard-hero" aria-labelledby="hero-title">
+        <div class="hero-greeting">
+            <p class="hero-eyebrow">Bienvenido de nuevo</p>
+            <h2 id="hero-title" class="hero-title">
+                Dr. <span th:text="${doctor.nombre + ' ' + doctor.apellido}">Doctor</span>
+            </h2>
+            <p class="hero-subtitle">
+                <span th:text="${doctor.especialidad}">Especialidad</span> · Hoy es
+                <span th:text="${#temporals.format(hoy, 'dd/MM/yyyy')}">fecha</span>
+            </p>
+        </div>
+
+        <div class="hero-stats" th:with="
+            citasHoy=${citas != null ? #lists.size(citas.?[fecha != null and fecha.equals(T(java.time.LocalDate).now())]) : 0},
+            citasPendientes=${citas != null ? #lists.size(citas.?[estado != null and estado.name() == 'PENDIENTE']) : 0},
+            citasCompletadas=${citas != null ? #lists.size(citas.?[estado != null and estado.name() == 'COMPLETADA']) : 0},
+            totalPacientes=${misPacientes != null ? #lists.size(misPacientes) : 0}">
+
+            <article class="stat-tile stat-tile--accent" aria-label="Citas hoy">
+                <div class="stat-tile-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+                        <rect x="3" y="5" width="18" height="16" rx="2"/>
+                        <path d="M3 10h18M8 3v4M16 3v4"/>
+                        <circle cx="12" cy="15" r="2"/>
+                    </svg>
+                </div>
+                <div class="stat-tile-body">
+                    <span class="stat-tile-value" th:text="${citasHoy}">0</span>
+                    <span class="stat-tile-label">Citas hoy</span>
+                </div>
+            </article>
+
+            <article class="stat-tile" aria-label="Citas pendientes">
+                <div class="stat-tile-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+                        <circle cx="12" cy="12" r="9"/>
+                        <path d="M12 7v5l3 2"/>
+                    </svg>
+                </div>
+                <div class="stat-tile-body">
+                    <span class="stat-tile-value" th:text="${citasPendientes}">0</span>
+                    <span class="stat-tile-label">Pendientes</span>
+                </div>
+            </article>
+
+            <article class="stat-tile" aria-label="Citas completadas">
+                <div class="stat-tile-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+                        <path d="M20 6L9 17l-5-5"/>
+                    </svg>
+                </div>
+                <div class="stat-tile-body">
+                    <span class="stat-tile-value" th:text="${citasCompletadas}">0</span>
+                    <span class="stat-tile-label">Completadas</span>
+                </div>
+            </article>
+
+            <article class="stat-tile" aria-label="Pacientes únicos">
+                <div class="stat-tile-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+                        <circle cx="9" cy="8" r="4"/>
+                        <path d="M2 21c0-4 3-7 7-7s7 3 7 7M17 11l2 2 4-4"/>
+                    </svg>
+                </div>
+                <div class="stat-tile-body">
+                    <span class="stat-tile-value" th:text="${totalPacientes}">0</span>
+                    <span class="stat-tile-label">Mis pacientes</span>
+                </div>
+            </article>
+
+            <article class="stat-tile" aria-label="Cupos disponibles esta semana">
+                <div class="stat-tile-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+                        <path d="M3 12h4l3-9 4 18 3-9h4"/>
+                    </svg>
+                </div>
+                <div class="stat-tile-body">
+                    <span class="stat-tile-value" th:text="${weeklySlotTotal}">0</span>
+                    <span class="stat-tile-label">Cupos esta semana</span>
+                </div>
+            </article>
+        </div>
+    </section>
+
+    <!-- ═══════════════ NAV DE SECCIONES ═══════════════ -->
+    <nav class="section-nav" aria-label="Secciones del dashboard">
+        <a href="#perfil" class="section-nav-link">Mi perfil</a>
+        <a href="#horarios" class="section-nav-link">Horarios</a>
+        <a href="#disponibilidad" class="section-nav-link">Disponibilidad</a>
+        <a href="#citas" class="section-nav-link">Citas</a>
+        <a href="#pacientes" class="section-nav-link">Pacientes</a>
+    </nav>
+
+    <!-- ═══════════════ ALERTAS DE ERROR ═══════════════ -->
+    <div th:if="${param.error}" class="alert alert-danger" role="alert">
+        <span class="alert-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                <circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/>
+            </svg>
+        </span>
+        <span>
             <span th:if="${param.error[0] == 'no_days_selected'}">Debes seleccionar al menos un día.</span>
             <span th:if="${param.error[0].startsWith('missing_time_')}" th:text="'Falta la hora para el día ' + ${param.error[0].substring(13)}"></span>
             <span th:if="${param.error[0].startsWith('invalid_time_')}" th:text="'Hora inválida para el día ' + ${param.error[0].substring(13)}"></span>
             <span th:if="${param.error[0].startsWith('invalid_time2_')}" th:text="'Hora inválida para el segundo intervalo del día ' + ${param.error[0].substring(14)}"></span>
-        </p>
+        </span>
     </div>
 
-    <div class="card">
-        <h2>Mi Perfil</h2>
+    <!-- ═══════════════ MI PERFIL ═══════════════ -->
+    <section id="perfil" class="card" aria-labelledby="perfil-title">
+        <h2 id="perfil-title">Mi Perfil</h2>
         <div class="doctor-profile">
             <div class="doctor-photo">
-                <img th:src="${doctor.foto != null ? doctor.foto : '/images/default-avatar.jpg'}" alt="Mi foto" onerror="this.src='/images/default-avatar.jpg'">
+                <img th:src="${doctor.foto != null ? doctor.foto : '/images/default-avatar.jpg'}"
+                     th:alt="'Foto de ' + ${doctor.nombre}"
+                     onerror="this.src='/images/default-avatar.jpg'">
             </div>
             <div class="doctor-info">
-                <h3 th:text="${doctor.nombre + ' ' + doctor.apellido}"></h3>
-                <p><strong>Especialidad:</strong> <span th:text="${doctor.especialidad}"></span></p>
-                <p><strong>Email:</strong> <span th:text="${doctor.email}"></span></p>
-                <p th:if="${doctor.biografia}"><strong>Biografía:</strong> <span th:text="${doctor.biografia}"></span></p>
+                <h3 th:text="${doctor.nombre + ' ' + doctor.apellido}">Nombre</h3>
+                <p class="doctor-info-specialty" th:text="${doctor.especialidad}">Especialidad</p>
+                <ul class="doctor-info-list">
+                    <li>
+                        <span class="doctor-info-label">Email</span>
+                        <span class="doctor-info-value" th:text="${doctor.email}">email</span>
+                    </li>
+                    <li th:if="${doctor.biografia}">
+                        <span class="doctor-info-label">Biografía</span>
+                        <span class="doctor-info-value" th:text="${doctor.biografia}"></span>
+                    </li>
+                </ul>
             </div>
         </div>
-    </div>
+    </section>
 
-    <div class="card">
-        <h2>Mis Horarios de Atención</h2>
-        <table>
-            <thead>
-                <tr>
-                    <th>Día</th>
-                    <th>Hora Inicio</th>
-                    <th>Hora Fin</th>
-                    <th>Duración Cita (min)</th>
-                    <th>Acciones</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr th:each="horario : ${horarios}" th:if="${horario.diaSemana != null}">
-                    <td>
-                        <span th:switch="${horario.diaSemana.name()}">
-                            <span th:case="'MONDAY'">Lunes</span>
-                            <span th:case="'TUESDAY'">Martes</span>
-                            <span th:case="'WEDNESDAY'">Miércoles</span>
-                            <span th:case="'THURSDAY'">Jueves</span>
-                            <span th:case="'FRIDAY'">Viernes</span>
-                            <span th:case="'SATURDAY'">Sábado</span>
-                            <span th:case="'SUNDAY'">Domingo</span>
-                            <span th:case="*" th:text="${horario.diaSemana}"></span>
-                        </span>
-                    </td>
-                    <td th:text="${#temporals.format(horario.horaInicio, 'hh:mm a')}"></td>
-                    <td th:text="${#temporals.format(horario.horaFin, 'hh:mm a')}"></td>
-                    <td th:text="${horario.duracionCitaMinutos}"></td>
-                    <td>
-                        <form th:action="@{'/doctores/horarios/' + ${horario.id} + '/eliminar'}" method="post" onsubmit="return confirm('¿Está seguro de que desea eliminar este horario?');">
-                            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
-                            <button type="submit" class="btn btn-danger btn-sm">Eliminar</button>
-                        </form>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
+    <!-- ═══════════════ HORARIOS ═══════════════ -->
+    <section id="horarios" class="card" aria-labelledby="horarios-title">
+        <h2 id="horarios-title">Mis Horarios de Atención</h2>
+
+        <div th:if="${#lists.isEmpty(horarios)}" class="empty-state">
+            <svg class="empty-state-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true">
+                <rect x="3" y="5" width="18" height="16" rx="2"/>
+                <path d="M3 10h18M8 3v4M16 3v4"/>
+            </svg>
+            <p>Aún no tienes horarios configurados. Agrégalos abajo para empezar a recibir citas.</p>
+        </div>
+
+        <div th:if="${!#lists.isEmpty(horarios)}" class="table-wrapper">
+            <table class="schedule-table">
+                <thead>
+                    <tr>
+                        <th>Día</th>
+                        <th>Hora Inicio</th>
+                        <th>Hora Fin</th>
+                        <th>Duración</th>
+                        <th class="text-right">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="horario : ${horarios}" th:if="${horario.diaSemana != null}">
+                        <td>
+                            <span class="day-pill" th:switch="${horario.diaSemana.name()}">
+                                <span th:case="'MONDAY'">Lunes</span>
+                                <span th:case="'TUESDAY'">Martes</span>
+                                <span th:case="'WEDNESDAY'">Miércoles</span>
+                                <span th:case="'THURSDAY'">Jueves</span>
+                                <span th:case="'FRIDAY'">Viernes</span>
+                                <span th:case="'SATURDAY'">Sábado</span>
+                                <span th:case="'SUNDAY'">Domingo</span>
+                                <span th:case="*" th:text="${horario.diaSemana}"></span>
+                            </span>
+                        </td>
+                        <td th:text="${#temporals.format(horario.horaInicio, 'hh:mm a')}"></td>
+                        <td th:text="${#temporals.format(horario.horaFin, 'hh:mm a')}"></td>
+                        <td><span class="duration-pill" th:text="${horario.duracionCitaMinutos + ' min'}"></span></td>
+                        <td class="text-right">
+                            <form th:action="@{'/doctores/horarios/' + ${horario.id} + '/eliminar'}" method="post"
+                                  class="inline-form" onsubmit="return confirm('¿Está seguro de que desea eliminar este horario?');">
+                                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                                <button type="submit" class="btn btn-danger btn-sm" aria-label="Eliminar horario">Eliminar</button>
+                            </form>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
 
         <h3 class="section-subtitle">Agregar Horarios Semanales</h3>
-        <form th:action="@{/doctores/horarios/guardar}" method="post">
+        <form th:action="@{/doctores/horarios/guardar}" method="post" class="schedule-form">
             <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
 
             <div class="duration-picker">
@@ -105,189 +230,83 @@
             </div>
 
             <div class="schedule-grid">
-
-                <div class="day-card" id="card-MONDAY">
-                    <div class="day-header">
-                        <span class="day-chip">Lu</span>
-                        <span class="day-full">Lunes</span>
-                        <label class="day-toggle"><input type="checkbox" name="days" value="MONDAY" onchange="toggleDay(this,'MONDAY')"/><span class="toggle-pill"></span></label>
-                    </div>
-                    <div class="day-body" id="body-MONDAY">
-                        <div class="time-row">
-                            <div class="time-field"><span class="time-label">Entrada</span><input type="time" id="start_MONDAY" name="startTimes[MONDAY]" disabled/></div>
-                            <div class="time-sep"></div>
-                            <div class="time-field"><span class="time-label">Salida</span><input type="time" id="end_MONDAY" name="endTimes[MONDAY]" disabled/></div>
+                <th:block th:each="d : ${diasSemana}">
+                    <div class="day-card" th:id="'card-' + ${d[0]}">
+                        <div class="day-header">
+                            <span class="day-chip" th:text="${d[1]}"></span>
+                            <span class="day-full" th:text="${d[2]}"></span>
+                            <label class="day-toggle" th:aria-label="'Activar ' + ${d[2]}">
+                                <input type="checkbox" name="days" th:value="${d[0]}" th:data-day="${d[0]}" onchange="toggleDay(this, this.dataset.day)"/>
+                                <span class="toggle-pill"></span>
+                            </label>
                         </div>
-                        <button type="button" class="add-interval-btn" id="add2-MONDAY" onclick="toggleSecond('MONDAY')">+ 2° intervalo</button>
-                        <div class="time-row second-row" id="second-MONDAY" style="display:none">
-                            <div class="time-field"><span class="time-label">Entrada 2</span><input type="time" id="start2_MONDAY" name="startTimes2[MONDAY]" disabled/></div>
-                            <div class="time-sep"></div>
-                            <div class="time-field"><span class="time-label">Salida 2</span><input type="time" id="end2_MONDAY" name="endTimes2[MONDAY]" disabled/></div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="day-card" id="card-TUESDAY">
-                    <div class="day-header">
-                        <span class="day-chip">Ma</span>
-                        <span class="day-full">Martes</span>
-                        <label class="day-toggle"><input type="checkbox" name="days" value="TUESDAY" onchange="toggleDay(this,'TUESDAY')"/><span class="toggle-pill"></span></label>
-                    </div>
-                    <div class="day-body" id="body-TUESDAY">
-                        <div class="time-row">
-                            <div class="time-field"><span class="time-label">Entrada</span><input type="time" id="start_TUESDAY" name="startTimes[TUESDAY]" disabled/></div>
-                            <div class="time-sep"></div>
-                            <div class="time-field"><span class="time-label">Salida</span><input type="time" id="end_TUESDAY" name="endTimes[TUESDAY]" disabled/></div>
-                        </div>
-                        <button type="button" class="add-interval-btn" id="add2-TUESDAY" onclick="toggleSecond('TUESDAY')">+ 2° intervalo</button>
-                        <div class="time-row second-row" id="second-TUESDAY" style="display:none">
-                            <div class="time-field"><span class="time-label">Entrada 2</span><input type="time" id="start2_TUESDAY" name="startTimes2[TUESDAY]" disabled/></div>
-                            <div class="time-sep"></div>
-                            <div class="time-field"><span class="time-label">Salida 2</span><input type="time" id="end2_TUESDAY" name="endTimes2[TUESDAY]" disabled/></div>
+                        <div class="day-body" th:id="'body-' + ${d[0]}">
+                            <div class="time-row">
+                                <div class="time-field">
+                                    <span class="time-label">Entrada</span>
+                                    <input type="time" th:id="'start_' + ${d[0]}" th:name="|startTimes[${d[0]}]|" disabled/>
+                                </div>
+                                <div class="time-sep" aria-hidden="true">→</div>
+                                <div class="time-field">
+                                    <span class="time-label">Salida</span>
+                                    <input type="time" th:id="'end_' + ${d[0]}" th:name="|endTimes[${d[0]}]|" disabled/>
+                                </div>
+                            </div>
+                            <button type="button" class="add-interval-btn" th:id="'add2-' + ${d[0]}" th:data-day="${d[0]}" onclick="toggleSecond(this.dataset.day)">+ 2° intervalo</button>
+                            <div class="time-row second-row" th:id="'second-' + ${d[0]}" style="display:none">
+                                <div class="time-field">
+                                    <span class="time-label">Entrada 2</span>
+                                    <input type="time" th:id="'start2_' + ${d[0]}" th:name="|startTimes2[${d[0]}]|" disabled/>
+                                </div>
+                                <div class="time-sep" aria-hidden="true">→</div>
+                                <div class="time-field">
+                                    <span class="time-label">Salida 2</span>
+                                    <input type="time" th:id="'end2_' + ${d[0]}" th:name="|endTimes2[${d[0]}]|" disabled/>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                </div>
-
-                <div class="day-card" id="card-WEDNESDAY">
-                    <div class="day-header">
-                        <span class="day-chip">Mi</span>
-                        <span class="day-full">Miércoles</span>
-                        <label class="day-toggle"><input type="checkbox" name="days" value="WEDNESDAY" onchange="toggleDay(this,'WEDNESDAY')"/><span class="toggle-pill"></span></label>
-                    </div>
-                    <div class="day-body" id="body-WEDNESDAY">
-                        <div class="time-row">
-                            <div class="time-field"><span class="time-label">Entrada</span><input type="time" id="start_WEDNESDAY" name="startTimes[WEDNESDAY]" disabled/></div>
-                            <div class="time-sep"></div>
-                            <div class="time-field"><span class="time-label">Salida</span><input type="time" id="end_WEDNESDAY" name="endTimes[WEDNESDAY]" disabled/></div>
-                        </div>
-                        <button type="button" class="add-interval-btn" id="add2-WEDNESDAY" onclick="toggleSecond('WEDNESDAY')">+ 2° intervalo</button>
-                        <div class="time-row second-row" id="second-WEDNESDAY" style="display:none">
-                            <div class="time-field"><span class="time-label">Entrada 2</span><input type="time" id="start2_WEDNESDAY" name="startTimes2[WEDNESDAY]" disabled/></div>
-                            <div class="time-sep"></div>
-                            <div class="time-field"><span class="time-label">Salida 2</span><input type="time" id="end2_WEDNESDAY" name="endTimes2[WEDNESDAY]" disabled/></div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="day-card" id="card-THURSDAY">
-                    <div class="day-header">
-                        <span class="day-chip">Ju</span>
-                        <span class="day-full">Jueves</span>
-                        <label class="day-toggle"><input type="checkbox" name="days" value="THURSDAY" onchange="toggleDay(this,'THURSDAY')"/><span class="toggle-pill"></span></label>
-                    </div>
-                    <div class="day-body" id="body-THURSDAY">
-                        <div class="time-row">
-                            <div class="time-field"><span class="time-label">Entrada</span><input type="time" id="start_THURSDAY" name="startTimes[THURSDAY]" disabled/></div>
-                            <div class="time-sep"></div>
-                            <div class="time-field"><span class="time-label">Salida</span><input type="time" id="end_THURSDAY" name="endTimes[THURSDAY]" disabled/></div>
-                        </div>
-                        <button type="button" class="add-interval-btn" id="add2-THURSDAY" onclick="toggleSecond('THURSDAY')">+ 2° intervalo</button>
-                        <div class="time-row second-row" id="second-THURSDAY" style="display:none">
-                            <div class="time-field"><span class="time-label">Entrada 2</span><input type="time" id="start2_THURSDAY" name="startTimes2[THURSDAY]" disabled/></div>
-                            <div class="time-sep"></div>
-                            <div class="time-field"><span class="time-label">Salida 2</span><input type="time" id="end2_THURSDAY" name="endTimes2[THURSDAY]" disabled/></div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="day-card" id="card-FRIDAY">
-                    <div class="day-header">
-                        <span class="day-chip">Vi</span>
-                        <span class="day-full">Viernes</span>
-                        <label class="day-toggle"><input type="checkbox" name="days" value="FRIDAY" onchange="toggleDay(this,'FRIDAY')"/><span class="toggle-pill"></span></label>
-                    </div>
-                    <div class="day-body" id="body-FRIDAY">
-                        <div class="time-row">
-                            <div class="time-field"><span class="time-label">Entrada</span><input type="time" id="start_FRIDAY" name="startTimes[FRIDAY]" disabled/></div>
-                            <div class="time-sep"></div>
-                            <div class="time-field"><span class="time-label">Salida</span><input type="time" id="end_FRIDAY" name="endTimes[FRIDAY]" disabled/></div>
-                        </div>
-                        <button type="button" class="add-interval-btn" id="add2-FRIDAY" onclick="toggleSecond('FRIDAY')">+ 2° intervalo</button>
-                        <div class="time-row second-row" id="second-FRIDAY" style="display:none">
-                            <div class="time-field"><span class="time-label">Entrada 2</span><input type="time" id="start2_FRIDAY" name="startTimes2[FRIDAY]" disabled/></div>
-                            <div class="time-sep"></div>
-                            <div class="time-field"><span class="time-label">Salida 2</span><input type="time" id="end2_FRIDAY" name="endTimes2[FRIDAY]" disabled/></div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="day-card" id="card-SATURDAY">
-                    <div class="day-header">
-                        <span class="day-chip">Sá</span>
-                        <span class="day-full">Sábado</span>
-                        <label class="day-toggle"><input type="checkbox" name="days" value="SATURDAY" onchange="toggleDay(this,'SATURDAY')"/><span class="toggle-pill"></span></label>
-                    </div>
-                    <div class="day-body" id="body-SATURDAY">
-                        <div class="time-row">
-                            <div class="time-field"><span class="time-label">Entrada</span><input type="time" id="start_SATURDAY" name="startTimes[SATURDAY]" disabled/></div>
-                            <div class="time-sep"></div>
-                            <div class="time-field"><span class="time-label">Salida</span><input type="time" id="end_SATURDAY" name="endTimes[SATURDAY]" disabled/></div>
-                        </div>
-                        <button type="button" class="add-interval-btn" id="add2-SATURDAY" onclick="toggleSecond('SATURDAY')">+ 2° intervalo</button>
-                        <div class="time-row second-row" id="second-SATURDAY" style="display:none">
-                            <div class="time-field"><span class="time-label">Entrada 2</span><input type="time" id="start2_SATURDAY" name="startTimes2[SATURDAY]" disabled/></div>
-                            <div class="time-sep"></div>
-                            <div class="time-field"><span class="time-label">Salida 2</span><input type="time" id="end2_SATURDAY" name="endTimes2[SATURDAY]" disabled/></div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="day-card" id="card-SUNDAY">
-                    <div class="day-header">
-                        <span class="day-chip">Do</span>
-                        <span class="day-full">Domingo</span>
-                        <label class="day-toggle"><input type="checkbox" name="days" value="SUNDAY" onchange="toggleDay(this,'SUNDAY')"/><span class="toggle-pill"></span></label>
-                    </div>
-                    <div class="day-body" id="body-SUNDAY">
-                        <div class="time-row">
-                            <div class="time-field"><span class="time-label">Entrada</span><input type="time" id="start_SUNDAY" name="startTimes[SUNDAY]" disabled/></div>
-                            <div class="time-sep"></div>
-                            <div class="time-field"><span class="time-label">Salida</span><input type="time" id="end_SUNDAY" name="endTimes[SUNDAY]" disabled/></div>
-                        </div>
-                        <button type="button" class="add-interval-btn" id="add2-SUNDAY" onclick="toggleSecond('SUNDAY')">+ 2° intervalo</button>
-                        <div class="time-row second-row" id="second-SUNDAY" style="display:none">
-                            <div class="time-field"><span class="time-label">Entrada 2</span><input type="time" id="start2_SUNDAY" name="startTimes2[SUNDAY]" disabled/></div>
-                            <div class="time-sep"></div>
-                            <div class="time-field"><span class="time-label">Salida 2</span><input type="time" id="end2_SUNDAY" name="endTimes2[SUNDAY]" disabled/></div>
-                        </div>
-                    </div>
-                </div>
-
+                </th:block>
             </div>
 
-            <button type="submit" class="btn btn-primary">Guardar Horarios</button>
+            <button type="submit" class="btn btn-primary schedule-save-btn">Guardar Horarios</button>
         </form>
-    </div>
-    <div class="card">
-        <h2>Citas Disponibles (Próximos 7 días)</h2>
-        <table class="availability-table">
-            <thead>
-                <tr>
-                    <th>Fecha</th>
-                    <th>Citas posibles</th>
-                    <th>Estado</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr th:each="row : ${weeklyAvailability}">
-                    <td th:text="${#temporals.format(row.fecha, 'dd/MM/yyyy')} + ' (' + ${row.diaSemana} + ')' "></td>
-                    <td th:text="${row.cantidad}"></td>
-                    <td>
-                        <span th:if="${row.cantidad > 0}" class="availability-badge availability-ok">Disponible</span>
-                        <span th:if="${row.cantidad == 0}" class="availability-badge availability-empty">Sin cupos</span>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
-        <p><strong>Total semana:</strong> <span th:text="${weeklySlotTotal}"></span></p>
-        <p th:if="${weeklySlotTotal == 0}">No hay horarios definidos.</p>
-    </div>
+    </section>
+
+    <!-- ═══════════════ DISPONIBILIDAD SEMANA ═══════════════ -->
+    <section id="disponibilidad" class="card" aria-labelledby="disp-title">
+        <h2 id="disp-title">Disponibilidad — Próximos 7 días</h2>
+
+        <div class="availability-grid">
+            <article th:each="row : ${weeklyAvailability}"
+                     class="availability-card"
+                     th:classappend="${row.cantidad == 0} ? ' availability-card--empty' : ''">
+                <header class="availability-card-head">
+                    <span class="availability-day" th:text="${row.diaSemana}"></span>
+                    <span class="availability-date" th:text="${#temporals.format(row.fecha, 'dd MMM')}"></span>
+                </header>
+                <div class="availability-count">
+                    <span class="availability-number" th:text="${row.cantidad}">0</span>
+                    <span class="availability-unit">cupos</span>
+                </div>
+                <span class="availability-badge"
+                      th:classappend="${row.cantidad > 0} ? ' availability-ok' : ' availability-empty'"
+                      th:text="${row.cantidad > 0 ? 'Disponible' : 'Sin cupos'}"></span>
+            </article>
+        </div>
+
+        <p class="weekly-total">
+            <strong th:text="${weeklySlotTotal}">0</strong>
+            <span th:text="${weeklySlotTotal == 1 ? 'cita disponible esta semana' : 'citas disponibles esta semana'}">citas disponibles esta semana</span>
+        </p>
+        <p th:if="${weeklySlotTotal == 0}" class="text-muted">No hay horarios definidos. Agrega tus horarios para mostrar disponibilidad.</p>
+    </section>
 
     <!-- ═══════════════ MIS CITAS ═══════════════ -->
-    <div class="card">
-        <h2>Mis Citas</h2>
+    <section id="citas" class="card" aria-labelledby="citas-title">
+        <h2 id="citas-title">Mis Citas</h2>
         <form th:action="@{/doctores}" method="get" class="filter-bar">
-            <label for="filtroEstadoSelect">Filtrar por estado:</label>
+            <label for="filtroEstadoSelect">Filtrar por estado</label>
             <select id="filtroEstadoSelect" name="estado" onchange="this.form.submit()" class="styled-select">
                 <option value="TODAS" th:selected="${filtroEstado == '' or filtroEstado == 'TODAS'}">Todas</option>
                 <option value="PENDIENTE" th:selected="${filtroEstado == 'PENDIENTE'}">Pendiente</option>
@@ -299,6 +318,10 @@
         </form>
 
         <div th:if="${#lists.isEmpty(citas)}" class="empty-state">
+            <svg class="empty-state-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true">
+                <path d="M9 12l2 2 4-4"/>
+                <circle cx="12" cy="12" r="10"/>
+            </svg>
             <p>No hay citas para mostrar.</p>
         </div>
 
@@ -312,15 +335,15 @@
                         <th>Motivo</th>
                         <th>Estado</th>
                         <th>Dictamen</th>
-                        <th>Acciones</th>
+                        <th class="text-right">Acciones</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr th:each="cita : ${citas}">
                         <td th:text="${#temporals.format(cita.fecha, 'dd/MM/yyyy')}"></td>
                         <td th:text="${#temporals.format(cita.hora, 'hh:mm a')}"></td>
-                        <td th:text="${pacienteNombres[cita.pacienteId] ?: 'Desconocido'}"></td>
-                        <td class="motivo-cell" th:text="${cita.motivo}"></td>
+                        <td class="paciente-cell" th:text="${pacienteNombres[cita.pacienteId] ?: 'Desconocido'}"></td>
+                        <td class="motivo-cell" th:text="${cita.motivo}" th:title="${cita.motivo}"></td>
                         <td>
                             <span class="estado-badge"
                                   th:classappend="${cita.estado.name() == 'PENDIENTE'} ? 'estado-pendiente' : (${cita.estado.name() == 'ASISTIO'} ? 'estado-asistio' : (${cita.estado.name() == 'COMPLETADA'} ? 'estado-completada' : (${cita.estado.name() == 'NO_ASISTIO'} ? 'estado-no-asistio' : 'estado-cancelada')))"
@@ -334,9 +357,8 @@
                         </td>
                         <td class="actions-cell">
                             <div class="action-buttons">
-                                <!-- PENDIENTE: Cancelar siempre; Asistió/No Asistió solo el día de la cita -->
                                 <th:block th:if="${cita.estado.name() == 'PENDIENTE'}">
-                                    <th:block th:if="${cita.fecha.equals(hoy)}">
+                                    <th:block th:if="${hoy != null and cita.fecha != null and hoy.equals(cita.fecha)}">
                                         <form th:action="@{'/doctores/citas/' + ${cita.id} + '/asistio'}" method="post" class="inline-form">
                                             <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
                                             <button type="submit" class="btn btn-success btn-sm">Asistió</button>
@@ -351,17 +373,14 @@
                                         <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('¿Cancelar esta cita?')">Cancelar</button>
                                     </form>
                                 </th:block>
-                                <!-- ASISTIO: dar dictamen -->
                                 <th:block th:if="${cita.estado.name() == 'ASISTIO'}">
                                     <button type="button" class="btn btn-primary btn-sm"
                                             th:data-cita-id="${cita.id}" onclick="abrirDictamen(this.dataset.citaId)">Dar Dictamen</button>
                                 </th:block>
-                                <!-- COMPLETADA con dictamen: ver -->
                                 <th:block th:if="${cita.estado.name() == 'COMPLETADA' and cita.dictamen != null}">
                                     <button type="button" class="btn btn-outline btn-sm"
                                             th:data-cita-id="${cita.id}" onclick="verDictamen(this.dataset.citaId)">Ver Dictamen</button>
                                 </th:block>
-                                <!-- Estados finales sin acciones -->
                                 <span th:if="${cita.estado.name() == 'NO_ASISTIO' or cita.estado.name() == 'CANCELADA' or (cita.estado.name() == 'COMPLETADA' and cita.dictamen == null)}" class="text-muted">—</span>
                             </div>
                         </td>
@@ -369,39 +388,45 @@
                 </tbody>
             </table>
         </div>
-    </div>
+    </section>
 
     <!-- ═══════════════ MIS PACIENTES ═══════════════ -->
-    <div class="card">
-        <h2>Mis Pacientes</h2>
+    <section id="pacientes" class="card" aria-labelledby="pacientes-title">
+        <h2 id="pacientes-title">
+            Mis Pacientes
+            <span class="card-counter" th:if="${!#lists.isEmpty(misPacientes)}" th:text="${#lists.size(misPacientes)}">0</span>
+        </h2>
         <div th:if="${#lists.isEmpty(misPacientes)}" class="empty-state">
+            <svg class="empty-state-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true">
+                <circle cx="9" cy="8" r="4"/>
+                <path d="M2 21c0-4 3-7 7-7s7 3 7 7"/>
+            </svg>
             <p>Aún no tiene pacientes con citas agendadas.</p>
         </div>
-        <table th:if="${!#lists.isEmpty(misPacientes)}">
-            <thead>
-                <tr>
-                    <th>Nombre</th>
-                    <th>Apellido</th>
-                    <th>Teléfono</th>
-                    <th>Email</th>
-                    <th>Identificación</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr th:each="pac : ${misPacientes}">
-                    <td th:text="${pac.nombre}"></td>
-                    <td th:text="${pac.apellido}"></td>
-                    <td th:text="${pac.telefono}"></td>
-                    <td th:text="${pac.email}"></td>
-                    <td th:text="${pac.identificacion}"></td>
-                </tr>
-            </tbody>
-        </table>
-    </div>
+
+        <div th:if="${!#lists.isEmpty(misPacientes)}" class="pacientes-grid">
+            <article th:each="pac : ${misPacientes}" class="paciente-card">
+                <div class="paciente-avatar" aria-hidden="true">
+                    <span th:text="${(pac.nombre != null and !pac.nombre.isEmpty() ? #strings.toUpperCase(pac.nombre.substring(0,1)) : '?') + (pac.apellido != null and !pac.apellido.isEmpty() ? #strings.toUpperCase(pac.apellido.substring(0,1)) : '?')}">PA</span>
+                </div>
+                <div class="paciente-card-body">
+                    <h4 class="paciente-name" th:text="${pac.nombre + ' ' + pac.apellido}">Nombre</h4>
+                    <ul class="paciente-meta">
+                        <li><span class="paciente-meta-label">ID</span><span th:text="${pac.identificacion}"></span></li>
+                        <li><span class="paciente-meta-label">Tel</span><span th:text="${pac.telefono ?: '—'}"></span></li>
+                        <li class="paciente-email-row">
+                            <span class="paciente-meta-label">Email</span>
+                            <span class="paciente-email" th:text="${pac.email}" th:title="${pac.email}"></span>
+                        </li>
+                    </ul>
+                </div>
+            </article>
+        </div>
+    </section>
 </div>
 
 <!-- ═══════════════ MODAL DICTAMEN ═══════════════ -->
-<div id="dictamenModal" class="modal-overlay" style="display:none">
+<div id="dictamenModal" class="modal-overlay" style="display:none" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
     <div class="modal-content">
         <h3 id="modalTitle">Registrar Dictamen</h3>
         <form id="dictamenForm" method="post">
@@ -419,17 +444,17 @@
                 <textarea id="observaciones" name="observaciones" rows="2"></textarea>
             </div>
             <div class="modal-actions">
-                <button type="submit" class="btn btn-primary">Guardar Dictamen</button>
                 <button type="button" class="btn btn-secondary" onclick="cerrarModal()">Cancelar</button>
+                <button type="submit" class="btn btn-primary">Guardar Dictamen</button>
             </div>
         </form>
     </div>
 </div>
 
 <!-- ═══════════════ MODAL VER DICTAMEN ═══════════════ -->
-<div id="verDictamenModal" class="modal-overlay" style="display:none">
+<div id="verDictamenModal" class="modal-overlay" style="display:none" role="dialog" aria-modal="true" aria-labelledby="verDictamenTitle">
     <div class="modal-content">
-        <h3>Dictamen de la Cita</h3>
+        <h3 id="verDictamenTitle">Dictamen de la Cita</h3>
         <div class="dictamen-detail">
             <p><strong>Diagnóstico:</strong> <span id="verDiagnostico"></span></p>
             <p><strong>Tratamiento:</strong> <span id="verTratamiento"></span></p>
@@ -460,7 +485,6 @@ function toggleDay(cb, day) {
         end.disabled   = true;
         start.value = '';
         end.value   = '';
-        // reset second interval
         const secondRow = document.getElementById('second-' + day);
         if (secondRow) {
             secondRow.style.display = 'none';
@@ -469,7 +493,7 @@ function toggleDay(cb, day) {
             s2.disabled = true; s2.value = '';
             e2.disabled = true; e2.value = '';
             const btn = document.getElementById('add2-' + day);
-            if (btn) btn.textContent = '+ 2\u00b0 intervalo';
+            if (btn) btn.textContent = '+ 2° intervalo';
         }
     }
 }
@@ -483,12 +507,12 @@ function toggleSecond(day) {
         row.style.display = 'flex';
         s2.disabled = false;
         e2.disabled = false;
-        btn.textContent = '\u2212 Quitar 2\u00b0 intervalo';
+        btn.textContent = '− Quitar 2° intervalo';
     } else {
         row.style.display = 'none';
         s2.disabled = true; s2.value = '';
         e2.disabled = true; e2.value = '';
-        btn.textContent = '+ 2\u00b0 intervalo';
+        btn.textContent = '+ 2° intervalo';
     }
 }
 
@@ -509,25 +533,43 @@ function cerrarModal() {
     document.getElementById('dictamenModal').style.display = 'none';
 }
 
-/* Store dictamen data in a JS object for "Ver Dictamen" */
 var dictamenData = {};
 
+/* Cerrar modales con Escape */
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        cerrarModal();
+        cerrarVerModal();
+    }
+});
+
+/* Highlight de sección activa al hacer scroll */
+(function() {
+    const links = document.querySelectorAll('.section-nav-link');
+    const sections = Array.from(links).map(l => document.querySelector(l.getAttribute('href'))).filter(Boolean);
+    if (!sections.length) return;
+    const observer = new IntersectionObserver(function(entries) {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                const id = '#' + entry.target.id;
+                links.forEach(l => l.classList.toggle('is-active', l.getAttribute('href') === id));
+            }
+        });
+    }, { rootMargin: '-30% 0px -60% 0px' });
+    sections.forEach(s => observer.observe(s));
+})();
 </script>
 
 <script th:inline="javascript">
-/* Populate dictamen data from server */
-var citas = /*[[${citas}]]*/ [];
-if (citas) {
-    citas.forEach(function(c) {
-        if (c.dictamen) {
-            dictamenData[c.id] = {
-                diagnostico: c.dictamen.diagnostico || '',
-                tratamiento: c.dictamen.tratamiento || '',
-                observaciones: c.dictamen.observaciones || ''
-            };
-        }
-    });
-}
+var dictamenDataMap = /*[[${dictamenDataMap}]]*/ {};
+Object.keys(dictamenDataMap).forEach(function(id) {
+    var d = dictamenDataMap[id];
+    dictamenData[id] = {
+        diagnostico: d.diagnostico || '',
+        tratamiento: d.tratamiento || '',
+        observaciones: d.observaciones || ''
+    };
+});
 
 function verDictamen(citaId) {
     var d = dictamenData[citaId];
@@ -543,7 +585,6 @@ function cerrarVerModal() {
     document.getElementById('verDictamenModal').style.display = 'none';
 }
 
-/* Close modals on overlay click */
 document.getElementById('dictamenModal').addEventListener('click', function(e) {
     if (e.target === this) cerrarModal();
 });

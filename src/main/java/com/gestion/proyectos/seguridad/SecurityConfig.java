@@ -6,6 +6,7 @@ import org.springframework.security.authentication.dao.DaoAuthenticationProvider
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
@@ -16,12 +17,14 @@ import org.springframework.security.web.session.HttpSessionEventPublisher;
 @EnableMethodSecurity
 public class SecurityConfig {
 
+        private static final String LOGIN_URL = "/login";
+
         @Bean
         public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
                 http
                                 // Se definen qué URLs puede usar cada rol
                                 .authorizeHttpRequests(auth -> auth
-                                                .requestMatchers("/", "/login", "/register", "/register/save",
+                                                .requestMatchers("/", LOGIN_URL, "/register", "/register/save",
                                                                 "/css/**", "/images/**",
                                                                 "/js/**", "/error")
                                                 .permitAll()
@@ -32,25 +35,24 @@ public class SecurityConfig {
 
                                 // Se habilita el formulario de login
                                 .formLogin(form -> form
-                                                .loginPage("/login") // Nuestra página personalizada
-                                                .loginProcessingUrl("/login") // URL que procesa el login
+                                                .loginPage(LOGIN_URL) // Nuestra página personalizada
+                                                .loginProcessingUrl(LOGIN_URL) // URL que procesa el login
                                                 .successHandler(customAuthenticationSuccessHandler())
-                                                .failureUrl("/login?error=true")
+                                                .failureUrl(LOGIN_URL + "?error=true")
                                                 .permitAll())
                                 // Se habilita el logout
                                 .logout(logout -> logout
                                                 .logoutUrl("/logout")
-                                                .logoutSuccessUrl("/login?logout=true")
+                                                .logoutSuccessUrl(LOGIN_URL + "?logout=true")
                                                 .permitAll())
                                 // Configuración de sesiones
                                 .sessionManagement(session -> session
                                                 .sessionFixation().migrateSession()
                                                 .sessionCreationPolicy(
-                                                                org.springframework.security.config.http.SessionCreationPolicy.IF_REQUIRED)
-                                                .invalidSessionUrl("/login?sessionExpired=true")
+                                                                SessionCreationPolicy.IF_REQUIRED)
                                                 .maximumSessions(1)
                                                 .maxSessionsPreventsLogin(false)
-                                                .expiredUrl("/login?sessionExpired=true"));
+                                                .expiredUrl(LOGIN_URL + "?sessionExpired=true"));
 
                 return http.build();
         }
@@ -76,18 +78,22 @@ public class SecurityConfig {
         @Bean
         public AuthenticationSuccessHandler customAuthenticationSuccessHandler() {
                 return (request, response, authentication) -> {
-                        String role = authentication.getAuthorities().stream()
-                                        .map(grantedAuthority -> grantedAuthority.getAuthority())
-                                        .findFirst()
-                                        .orElse("");
-                        if ("ROLE_ADMIN".equals(role)) {
+                        java.util.Collection<? extends GrantedAuthority> authorities =
+                                        authentication.getAuthorities();
+                        boolean isAdmin = authorities.stream()
+                                        .anyMatch(a -> "ROLE_ADMIN".equals(a.getAuthority()));
+                        boolean isDoctor = authorities.stream()
+                                        .anyMatch(a -> "ROLE_DOCTOR".equals(a.getAuthority()));
+                        boolean isPaciente = authorities.stream()
+                                        .anyMatch(a -> "ROLE_PACIENTE".equals(a.getAuthority()));
+                        if (isAdmin) {
                                 response.sendRedirect("/admin");
-                        } else if ("ROLE_DOCTOR".equals(role)) {
+                        } else if (isDoctor) {
                                 response.sendRedirect("/doctores");
-                        } else if ("ROLE_PACIENTE".equals(role)) {
+                        } else if (isPaciente) {
                                 response.sendRedirect("/pacientes/landing");
                         } else {
-                                response.sendRedirect("/login?error=true");
+                                response.sendRedirect(LOGIN_URL + "?error=true");
                         }
                 };
         }

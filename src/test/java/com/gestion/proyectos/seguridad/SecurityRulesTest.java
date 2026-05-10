@@ -1,12 +1,14 @@
 package com.gestion.proyectos.seguridad;
 
 import com.gestion.proyectos.controlador.LoginController;
+import com.gestion.proyectos.repositorio.AdminRepositorio;
 import com.gestion.proyectos.repositorio.DoctorRepositorio;
 import com.gestion.proyectos.repositorio.PacienteRepositorio;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.Import;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -15,6 +17,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(LoginController.class)
+@Import(SecurityConfig.class)
 class SecurityRulesTest {
 
     @Autowired
@@ -25,6 +28,9 @@ class SecurityRulesTest {
 
     @MockBean
     private DoctorRepositorio doctorRepositorio;
+
+    @MockBean
+    private AdminRepositorio adminRepositorio;
 
     @MockBean
     private CustomUserDetailsService customUserDetailsService;

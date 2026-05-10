@@ -1,5 +1,7 @@
 package com.gestion.proyectos.controlador;
 
+import static com.gestion.proyectos.util.ValidacionUtil.esVacio;
+
 import com.gestion.proyectos.modelo.Cita;
 import com.gestion.proyectos.modelo.Dictamen;
 import com.gestion.proyectos.modelo.Doctor;
@@ -18,8 +20,10 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.time.DayOfWeek;
@@ -31,11 +35,12 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping("/doctores")
 public class DoctorController {
+
+    private static final String REDIRECT_DOCTORES = "redirect:/doctores";
 
     private final DoctorRepositorio doctorRepo;
     private final HorarioAtencionRepositorio horarioRepo;
@@ -56,7 +61,7 @@ public class DoctorController {
                          @RequestParam(required = false) String estado) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         String role = auth.getAuthorities().stream()
-                .map(a -> a.getAuthority())
+                .map(GrantedAuthority::getAuthority)
                 .findFirst()
                 .orElse("");
 
@@ -91,11 +96,24 @@ public class DoctorController {
             model.addAttribute("filtroEstado", filtroEstado);
             model.addAttribute("hoy", LocalDate.now());
 
+            // Only string fields from Dictamen — safe for JS inline serialization
+            Map<String, Map<String, String>> dictamenDataMap = new java.util.HashMap<>();
+            for (Cita c : citas) {
+                if (c.getDictamen() != null) {
+                    Map<String, String> d = new java.util.HashMap<>();
+                    d.put("diagnostico", c.getDictamen().getDiagnostico() != null ? c.getDictamen().getDiagnostico() : "");
+                    d.put("tratamiento", c.getDictamen().getTratamiento() != null ? c.getDictamen().getTratamiento() : "");
+                    d.put("observaciones", c.getDictamen().getObservaciones() != null ? c.getDictamen().getObservaciones() : "");
+                    dictamenDataMap.put(c.getId(), d);
+                }
+            }
+            model.addAttribute("dictamenDataMap", dictamenDataMap);
+
             // Pacientes del doctor (los que tienen cita con este doctor)
             List<String> pacienteIds = citaRepo.findByDoctorId(doctor.getId()).stream()
                     .map(Cita::getPacienteId)
                     .distinct()
-                    .collect(Collectors.toList());
+                    .toList();
             List<Paciente> misPacientes = new ArrayList<>();
             for (String pid : pacienteIds) {
                 pacienteRepo.findById(pid).ifPresent(misPacientes::add);
@@ -137,6 +155,16 @@ public class DoctorController {
             model.addAttribute("weeklyAvailability", weeklyAvailability);
             model.addAttribute("weeklySlotTotal", weeklyTotal);
 
+            model.addAttribute("diasSemana", List.of(
+                new String[]{"MONDAY","Lu","Lunes"},
+                new String[]{"TUESDAY","Ma","Martes"},
+                new String[]{"WEDNESDAY","Mi","Miércoles"},
+                new String[]{"THURSDAY","Ju","Jueves"},
+                new String[]{"FRIDAY","Vi","Viernes"},
+                new String[]{"SATURDAY","Sá","Sábado"},
+                new String[]{"SUNDAY","Do","Domingo"}
+            ));
+
             return "doctor_dashboard";
         } else {
             // Vista admin: lista todos los doctores
@@ -144,7 +172,7 @@ public class DoctorController {
             if (especialidad != null && !especialidad.isEmpty()) {
                 doctores = doctorRepo.findByEspecialidadContainingIgnoreCase(especialidad);
             } else {
-                doctores = doctorRepo.findAll();
+                doctores = doctorRepo.findAllDoctores();
             }
             model.addAttribute("doctores", doctores);
             model.addAttribute("filtroEspecialidad", especialidad == null ? "" : especialidad);
@@ -165,11 +193,13 @@ public class DoctorController {
         if (esNuevo && doctorRepo.findByEmail(doctor.getEmail().trim()).isPresent())
             return "redirect:/doctores?error=email_duplicado";
         doctorRepo.save(doctor);
-        return "redirect:/doctores";
+        return REDIRECT_DOCTORES;
     }
 
-    private boolean esVacio(String s) {
-        return s == null || s.trim().isEmpty();
+    @PostMapping("/{id}/eliminar")
+    public String eliminar(@PathVariable String id) {
+        doctorRepo.deleteById(id);
+        return REDIRECT_DOCTORES;
     }
 
     @GetMapping("/{id}/horarios")
@@ -202,13 +232,29 @@ public class DoctorController {
                 return "redirect:/doctores?error=missing_time_" + day;
             }
 
-            DayOfWeek diaSemana = DayOfWeek.valueOf(day);
-            LocalTime horaInicio = LocalTime.parse(startStr);
-            LocalTime horaFin = LocalTime.parse(endStr);
+            DayOfWeek diaSemana;
+            try {
+                diaSemana = DayOfWeek.valueOf(day);
+            } catch (IllegalArgumentException e) {
+                return "redirect:/doctores?error=dia_invalido_" + day;
+            }
+
+            LocalTime horaInicio;
+            LocalTime horaFin;
+            try {
+                horaInicio = LocalTime.parse(startStr);
+                horaFin = LocalTime.parse(endStr);
+            } catch (Exception e) {
+                return "redirect:/doctores?error=formato_hora_" + day;
+            }
 
             if (horaInicio.isAfter(horaFin) || horaInicio.equals(horaFin)) {
                 return "redirect:/doctores?error=invalid_time_" + day;
             }
+
+            // Eliminar horarios existentes para ese día antes de guardar nuevos (evita duplicados)
+            horarioRepo.findByDoctorIdAndDiaSemana(doctor.getId(), diaSemana)
+                    .forEach(h -> horarioRepo.deleteById(h.getId()));
 
             HorarioAtencion horario = new HorarioAtencion(doctor.getId(), diaSemana, horaInicio, horaFin);
             horario.setDuracionCitaMinutos(duracionCitaMinutos);
@@ -219,13 +265,24 @@ public class DoctorController {
             String end2Str = allParams.get("endTimes2[" + day + "]");
             if ((start2Str != null && !start2Str.isEmpty()) || (end2Str != null && !end2Str.isEmpty())) {
                 if (start2Str == null || start2Str.isEmpty() || end2Str == null || end2Str.isEmpty()) {
-                    return "redirect:/doctores?error=missing_time_" + day;
+                    return "redirect:/doctores?error=missing_time2_" + day;
                 }
-                LocalTime horaInicio2 = LocalTime.parse(start2Str);
-                LocalTime horaFin2 = LocalTime.parse(end2Str);
+                LocalTime horaInicio2;
+                LocalTime horaFin2;
+                try {
+                    horaInicio2 = LocalTime.parse(start2Str);
+                    horaFin2 = LocalTime.parse(end2Str);
+                } catch (Exception e) {
+                    return "redirect:/doctores?error=formato_hora2_" + day;
+                }
 
                 if (horaInicio2.isAfter(horaFin2) || horaInicio2.equals(horaFin2)) {
                     return "redirect:/doctores?error=invalid_time2_" + day;
+                }
+
+                // Validar que el segundo intervalo no solape con el primero
+                if (horaInicio2.isBefore(horaFin) && horaFin2.isAfter(horaInicio)) {
+                    return "redirect:/doctores?error=solapamiento_intervalos_" + day;
                 }
 
                 HorarioAtencion horario2 = new HorarioAtencion(doctor.getId(), diaSemana, horaInicio2, horaFin2);
@@ -233,7 +290,7 @@ public class DoctorController {
                 horarioRepo.save(horario2);
             }
         }
-        return "redirect:/doctores";
+        return REDIRECT_DOCTORES;
     }
 
     @PreAuthorize("hasRole('DOCTOR')")
@@ -245,11 +302,11 @@ public class DoctorController {
 
         HorarioAtencion horario = horarioRepo.findById(id).orElseThrow();
         if (!horario.getDoctorId().equals(doctor.getId())) {
-            throw new RuntimeException("No autorizado");
+            throw new AccessDeniedException("No autorizado");
         }
 
         horarioRepo.deleteById(id);
-        return "redirect:/doctores";
+        return REDIRECT_DOCTORES;
     }
 
     @PreAuthorize("hasRole('DOCTOR')")
@@ -261,11 +318,11 @@ public class DoctorController {
 
         Cita cita = citaRepo.findById(id).orElseThrow();
         if (!cita.getDoctorId().equals(doctor.getId())) {
-            throw new RuntimeException("No autorizado");
+            throw new AccessDeniedException("No autorizado");
         }
         cita.setEstado(EstadoCita.ASISTIO);
         citaRepo.save(cita);
-        return "redirect:/doctores";
+        return REDIRECT_DOCTORES;
     }
 
     @PreAuthorize("hasRole('DOCTOR')")
@@ -277,11 +334,11 @@ public class DoctorController {
 
         Cita cita = citaRepo.findById(id).orElseThrow();
         if (!cita.getDoctorId().equals(doctor.getId())) {
-            throw new RuntimeException("No autorizado");
+            throw new AccessDeniedException("No autorizado");
         }
         cita.setEstado(EstadoCita.NO_ASISTIO);
         citaRepo.save(cita);
-        return "redirect:/doctores";
+        return REDIRECT_DOCTORES;
     }
 
     @PreAuthorize("hasRole('DOCTOR')")
@@ -296,7 +353,7 @@ public class DoctorController {
 
         Cita cita = citaRepo.findById(id).orElseThrow();
         if (!cita.getDoctorId().equals(doctor.getId())) {
-            throw new RuntimeException("No autorizado");
+            throw new AccessDeniedException("No autorizado");
         }
 
         Dictamen dictamen = new Dictamen();
@@ -306,7 +363,7 @@ public class DoctorController {
         cita.setDictamen(dictamen);
         cita.setEstado(EstadoCita.COMPLETADA);
         citaRepo.save(cita);
-        return "redirect:/doctores";
+        return REDIRECT_DOCTORES;
     }
 
     @PreAuthorize("hasRole('DOCTOR')")
@@ -318,10 +375,10 @@ public class DoctorController {
 
         Cita cita = citaRepo.findById(id).orElseThrow();
         if (!cita.getDoctorId().equals(doctor.getId())) {
-            throw new RuntimeException("No autorizado");
+            throw new AccessDeniedException("No autorizado");
         }
         cita.setEstado(EstadoCita.CANCELADA);
         citaRepo.save(cita);
-        return "redirect:/doctores";
+        return REDIRECT_DOCTORES;
     }
 }

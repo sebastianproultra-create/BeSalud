@@ -1,5 +1,7 @@
 package com.gestion.proyectos.excepcion;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.ui.Model;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
@@ -7,6 +9,11 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
  * Clase utilitaria para el manejo centralizado de errores en la aplicación
  */
 public class ManejoDeErrores {
+
+    private static final Logger log = LoggerFactory.getLogger(ManejoDeErrores.class);
+
+    private ManejoDeErrores() {
+    }
 
     // Constantes para tipos de error
     public static final String ERROR_HORARIO_INVALIDO = "horario_invalido";
@@ -101,9 +108,6 @@ public class ManejoDeErrores {
      * Registra un error en los logs (puedes expandir esto)
      */
     public static void logError(String tipoError, String detalles) {
-        System.err.println("ERROR [" + tipoError + "]: " + detalles);
-        // Aquí podrías integrar con un logger como SLF4J
-        // Logger logger = LoggerFactory.getLogger(ManejoDeErrores.class);
-        // logger.error("Error {}: {}", tipoError, detalles);
+        log.error("Error [{}]: {}", tipoError, detalles);
     }
 }

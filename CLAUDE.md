@@ -1,61 +1,35 @@
-# BeSalud — Proyecto de gestión médica
+# BeSalud
 
 ## Stack
-- Java 17 + Spring Boot 3.2.0
-- MongoDB local (`mongodb://localhost:27017/besalud`)
-- Thymeleaf + thymeleaf-extras-springsecurity6
-- Spring Security (BCrypt, sesiones, max 1 sesión por usuario)
-- Sin Maven wrapper — usar `mvn` directamente
+Java 17 + Spring Boot 3.2.0 | MongoDB localhost:27017/besalud | Thymeleaf + Spring Security | NO Maven wrapper → usar mvn
 
-## Estructura de paquetes
-```
-com.gestion.proyectos
-├── config/          # DataInitializer
-├── controlador/     # AdminController, CitaController, DoctorController,
-│                    # HomeController, LoginController, PacienteController
-├── modelo/          # Admin, Cita, Dictamen, Doctor, EstadoCita,
-│                    # HorarioAtencion, Paciente, UserRegistrationDTO
-├── repositorio/     # AdminRepositorio, CitaRepositorio, DoctorRepositorio,
-│                    # HorarioAtencionRepositorio, PacienteRepositorio
-└── seguridad/       # CustomUserDetailsService, SecurityConfig
-```
-
-## Roles y rutas
-| Rol            | Ruta base       |
-|----------------|-----------------|
-| ROLE_ADMIN     | `/admin/**`     |
-| ROLE_DOCTOR    | `/doctores/**`  |
-| ROLE_PACIENTE  | `/pacientes/**` |
-| Público        | `/login`, `/register`, `/register/save` |
-
-## Autenticación
-- Login por **email** (no username)
-- `CustomUserDetailsService` busca en orden: Admin → Paciente → Doctor
-- Redirect post-login según rol (ver `SecurityConfig.customAuthenticationSuccessHandler`)
-- Sesión expira en 45 minutos, máximo 1 sesión por usuario
+## Auth
+Login por email. Busca: Admin → Paciente → Doctor. Sesión: 45min, máx 1 por usuario. Redirect post-login por rol.
 
 ## Modelos clave
-- `Cita`: doctorId, pacienteId, fecha, hora, motivo, estado (`EstadoCita`), dictamen
-- `HorarioAtencion`: doctorId, diaSemana, horaInicio, horaFin, duracionCitaMinutos
-- `EstadoCita`: PENDIENTE, ASISTIO, NO_ASISTIO, CANCELADA, COMPLETADA
-
-## Validaciones implementadas
-- **Registro**: todos los campos obligatorios, email con regex, password ≥ 8 chars, rol solo PACIENTE/DOCTOR, doctor requiere especialidad y fechaNacimiento (con try-catch para DateTimeParseException)
-- **Citas (admin)**: campos vacíos, fecha/hora parseables, fecha no en pasado, doctor y paciente existen
-- **Citas (paciente)**: motivo obligatorio, fecha no en pasado
-- **Paciente/Doctor (admin)**: nombre/email obligatorios, formato email, email único
-
-## Tests
-```
-src/test/java/com/gestion/proyectos/
-├── controlador/LoginControllerTest.java     # @WebMvcTest — login, registro, validaciones
-└── seguridad/
-    ├── CustomUserDetailsServiceTest.java    # JUnit + Mockito puro
-    └── SecurityRulesTest.java              # @WebMvcTest — reglas de acceso por rol
-```
-Correr con: `mvn test`
+- Cita: doctorId, pacienteId, fecha, hora, motivo, EstadoCita, dictamen
+- EstadoCita: PENDIENTE, ASISTIO, NO_ASISTIO, CANCELADA, COMPLETADA
+- HorarioAtencion: doctorId, diaSemana, horaInicio, horaFin, duracionCitaMinutos
 
 ## Convenciones
-- Controladores usan `esVacio(String s)` como helper privado para validar nulos/blancos
-- Errores en formularios: `model.addAttribute("error", mensaje)` y retorno a la vista
-- Errores en redirects: parámetro `?error=codigo_error` en la URL
+- esVacio(String s) → helper para nulos/blancos
+- Errores form: model.addAttribute("error", msg) → retorno vista
+- Errores redirect: ?error=codigo
+
+## Contexto adicional (cargar solo si necesario)
+- Arquitectura detallada → .claude/ARCHITECTURE_MAP.md
+- Comandos → .claude/QUICK_START.md
+- Bugs conocidos → .claude/COMMON_MISTAKES.md
+
+## Gestión de contexto
+- Leer solo el fragmento relevante del archivo (usar offset/limit), no archivos completos
+- Usar grep antes de read para localizar antes de abrir
+- NO releer archivos ya leídos en la misma sesión
+- Después de completar una tarea grande: sugerir /compact
+- Entre tareas no relacionadas: sugerir /clear
+
+## Rama de trabajo
+Siempre trabajar en rama `pruebas`. Si Claude Code crea worktree automático (claude/*), los cambios van a `pruebas` via cherry-pick o merge manual.
+
+## Respuesta
+Sigue .claude/caveman.md

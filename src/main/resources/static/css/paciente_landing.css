@@ -36,6 +36,15 @@
     font-size: 20px;
 }
 
+/* Neutraliza el form global dentro del filtro */
+.filter-section form {
+    background: none;
+    padding: 0;
+    border: none;
+    border-radius: 0;
+    box-shadow: none;
+}
+
 .filter-section form .btn {
     margin-top: 18px;
 }
@@ -78,6 +87,8 @@
     box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
     overflow: hidden;
     transition: transform 0.3s ease, box-shadow 0.3s ease;
+    display: flex;
+    flex-direction: column;
 }
 
 .doctor-card:hover {
@@ -110,6 +121,9 @@
 
 .doctor-info {
     padding: 20px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
 }
 
 .doctor-info h3 {
@@ -137,7 +151,7 @@
     width: 100%;
     padding: 10px;
     text-align: center;
-    margin-top: 10px;
+    margin-top: auto;
 }
 
 /* No Results */
@@ -278,6 +292,8 @@
     font-size: 16px;
     font-weight: 700;
     margin: 0;
+    color: var(--white);
+    font-family: 'DM Sans', sans-serif;
 }
 .sidebar-count {
     background: rgba(255, 255, 255, 0.25);
@@ -393,6 +409,35 @@
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+}
+
+.cita-actions {
+    margin-top: 8px;
+    display: flex;
+    gap: 6px;
+}
+
+.btn-small {
+    padding: 4px 12px;
+    font-size: 11px;
+    font-weight: 600;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    transition: background 0.2s;
+}
+
+.btn-small.btn-secondary {
+    background: var(--light-bg);
+    color: var(--primary-color);
+    border: 1px solid var(--border-color);
+}
+
+.btn-small.btn-secondary:hover {
+    background: var(--border-color);
 }
 
 .cita-dictamen {

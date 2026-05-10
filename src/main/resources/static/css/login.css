@@ -20,6 +20,15 @@
     margin-bottom: 30px;
 }
 
+/* Neutraliza el form global dentro de la card */
+.card form {
+    background: none;
+    padding: 0;
+    border: none;
+    border-radius: 0;
+    box-shadow: none;
+}
+
 .login-card form label {
     font-weight: 600;
     margin-top: 15px;

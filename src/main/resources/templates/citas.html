@@ -47,13 +47,14 @@
                 <tr th:each="c : ${citas}">
                     <td th:text="${doctoresMap != null and doctoresMap[c.doctorId] != null ? doctoresMap[c.doctorId] : c.doctorId}"></td>
                     <td th:text="${pacientesMap != null and pacientesMap[c.pacienteId] != null ? pacientesMap[c.pacienteId] : c.pacienteId}"></td>
-                    <td th:text="${#temporals.format(c.fecha, 'dd/MM/yyyy')}"></td>
-                    <td th:text="${#temporals.format(c.hora, 'hh:mm a')}"></td>
+                    <td th:text="${c.fecha != null ? #temporals.format(c.fecha, 'dd/MM/yyyy') : '—'}"></td>
+                    <td th:text="${c.hora != null ? #temporals.format(c.hora, 'HH:mm') : '—'}"></td>
                     <td th:text="${c.motivo}"></td>
                     <td>
-                        <span class="badge" 
+                        <span th:if="${c.estado != null}" class="badge"
                               th:text="${c.estado.descripcion}"
                               th:class="${'badge ' + (c.estado.name() == 'PENDIENTE' ? 'badge-pending' : c.estado.name() == 'COMPLETADA' ? 'badge-success' : 'badge-cancelled')}"></span>
+                        <span th:if="${c.estado == null}" class="badge">—</span>
                     </td>
                     <td>
                         <!-- Solo pacientes y administradores pueden cancelar citas -->
