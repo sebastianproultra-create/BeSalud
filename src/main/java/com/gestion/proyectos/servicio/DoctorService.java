@@ -6,10 +6,10 @@ import com.gestion.proyectos.modelo.Doctor;
 import com.gestion.proyectos.modelo.EstadoCita;
 import com.gestion.proyectos.modelo.HorarioAtencion;
 import com.gestion.proyectos.modelo.Paciente;
+import com.gestion.proyectos.modelo.User;
 import com.gestion.proyectos.repositorio.CitaRepositorio;
-import com.gestion.proyectos.repositorio.DoctorRepositorio;
 import com.gestion.proyectos.repositorio.HorarioAtencionRepositorio;
-import com.gestion.proyectos.repositorio.PacienteRepositorio;
+import com.gestion.proyectos.repositorio.UserRepository;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,35 +33,44 @@ public class DoctorService {
 
     private static final Logger log = LoggerFactory.getLogger(DoctorService.class);
 
-    private final DoctorRepositorio doctorRepo;
+    private final UserRepository userRepository;
     private final HorarioAtencionRepositorio horarioRepo;
     private final CitaRepositorio citaRepo;
-    private final PacienteRepositorio pacienteRepo;
 
-    public DoctorService(DoctorRepositorio doctorRepo, HorarioAtencionRepositorio horarioRepo,
-                         CitaRepositorio citaRepo, PacienteRepositorio pacienteRepo) {
-        this.doctorRepo = doctorRepo;
+    public DoctorService(UserRepository userRepository, HorarioAtencionRepositorio horarioRepo,
+            CitaRepositorio citaRepo) {
+        this.userRepository = userRepository;
         this.horarioRepo = horarioRepo;
         this.citaRepo = citaRepo;
-        this.pacienteRepo = pacienteRepo;
     }
 
     // ── Consultas ────────────────────────────────────────────────────────────
 
     public Optional<Doctor> buscarPorEmail(String email) {
-        return doctorRepo.findByEmail(email);
+        return userRepository.findByEmail(email)
+                .filter(user -> user.hasRole("ROLE_DOCTOR"))
+                .map(this::convertirUserADoctor);
     }
 
     public Optional<Doctor> buscarPorId(String id) {
-        return doctorRepo.findById(id);
+        return userRepository.findById(Long.parseLong(id))
+                .filter(user -> user.hasRole("ROLE_DOCTOR"))
+                .map(this::convertirUserADoctor);
     }
 
     public List<Doctor> listarTodos() {
-        return doctorRepo.findAllDoctores();
+        return userRepository.findAll().stream()
+                .filter(user -> user.hasRole("ROLE_DOCTOR"))
+                .map(this::convertirUserADoctor)
+                .collect(Collectors.toList());
     }
 
     public List<Doctor> listarPorEspecialidad(String especialidad) {
-        return doctorRepo.findByEspecialidadContainingIgnoreCase(especialidad);
+        return userRepository.findAll().stream()
+                .filter(user -> user.hasRole("ROLE_DOCTOR") && user.getEspecialidad() != null &&
+                        user.getEspecialidad().toLowerCase().contains(especialidad.toLowerCase()))
+                .map(this::convertirUserADoctor)
+                .collect(Collectors.toList());
     }
 
     public List<HorarioAtencion> horariosDelDoctor(String doctorId) {
@@ -81,8 +90,10 @@ public class DoctorService {
         Map<String, String> nombres = new HashMap<>();
         for (Cita c : citas) {
             if (c.getPacienteId() != null && !nombres.containsKey(c.getPacienteId())) {
-                pacienteRepo.findById(c.getPacienteId())
-                        .ifPresent(p -> nombres.put(p.getId(), p.getNombre() + " " + p.getApellido()));
+                userRepository.findById(Long.parseLong(c.getPacienteId()))
+                        .filter(user -> user.hasRole("ROLE_PACIENTE"))
+                        .ifPresent(user -> nombres.put(user.getId().toString(),
+                                user.getNombre() + " " + user.getApellido()));
             }
         }
         return nombres;
@@ -95,7 +106,8 @@ public class DoctorService {
                 Map<String, String> d = new HashMap<>();
                 d.put("diagnostico", c.getDictamen().getDiagnostico() != null ? c.getDictamen().getDiagnostico() : "");
                 d.put("tratamiento", c.getDictamen().getTratamiento() != null ? c.getDictamen().getTratamiento() : "");
-                d.put("observaciones", c.getDictamen().getObservaciones() != null ? c.getDictamen().getObservaciones() : "");
+                d.put("observaciones",
+                        c.getDictamen().getObservaciones() != null ? c.getDictamen().getObservaciones() : "");
                 result.put(c.getId(), d);
             }
         }
@@ -109,9 +121,40 @@ public class DoctorService {
                 .toList();
         List<Paciente> pacientes = new ArrayList<>();
         for (String pid : ids) {
-            pacienteRepo.findById(pid).ifPresent(pacientes::add);
+            userRepository.findById(Long.parseLong(pid))
+                    .filter(user -> user.hasRole("ROLE_PACIENTE"))
+                    .ifPresent(user -> pacientes.add(convertirUserAPaciente(user)));
         }
         return pacientes;
+    }
+
+    private Paciente convertirUserAPaciente(User user) {
+        Paciente paciente = new Paciente();
+        paciente.setId(user.getId().toString());
+        paciente.setNombre(user.getNombre());
+        paciente.setApellido(user.getApellido());
+        paciente.setTelefono(user.getTelefono());
+        paciente.setIdentificacion(user.getIdentificacion());
+        paciente.setEmail(user.getEmail());
+        paciente.setPassword(user.getPassword());
+        paciente.setRole("PACIENTE");
+        return paciente;
+    }
+
+    private Doctor convertirUserADoctor(User user) {
+        Doctor doctor = new Doctor();
+        doctor.setId(user.getId().toString());
+        doctor.setNombre(user.getNombre());
+        doctor.setApellido(user.getApellido());
+        doctor.setTelefono(user.getTelefono());
+        doctor.setIdentificacion(user.getIdentificacion());
+        doctor.setEmail(user.getEmail());
+        doctor.setPassword(user.getPassword());
+        doctor.setEspecialidad(user.getEspecialidad());
+        doctor.setFechaNacimiento(user.getFechaNacimiento());
+        doctor.setFoto(user.getFoto());
+        doctor.setBiografia(user.getBiografia());
+        return doctor;
     }
 
     public List<Map<String, Object>> weeklyAvailability(String doctorId) {
@@ -159,16 +202,32 @@ public class DoctorService {
     // ── Doctor CRUD ──────────────────────────────────────────────────────────
 
     public boolean emailDuplicado(String email) {
-        return doctorRepo.findByEmail(email.trim()).isPresent();
+        return userRepository.findByEmail(email.trim())
+                .filter(user -> user.hasRole("ROLE_DOCTOR"))
+                .isPresent();
     }
 
     public void guardar(Doctor doctor) {
-        doctorRepo.save(doctor);
-        log.info("Doctor guardado: {}", doctor.getEmail());
+        // Nota: Este método asume que el doctor ya existe como User, solo actualiza
+        // Para nuevo doctor, usar validarYGuardar en DoctorService que creamos antes
+        Optional<User> existingUser = userRepository.findByEmail(doctor.getEmail());
+        if (existingUser.isPresent()) {
+            User user = existingUser.get();
+            user.setNombre(doctor.getNombre());
+            user.setApellido(doctor.getApellido());
+            user.setTelefono(doctor.getTelefono());
+            user.setIdentificacion(doctor.getIdentificacion());
+            user.setEspecialidad(doctor.getEspecialidad());
+            user.setFechaNacimiento(doctor.getFechaNacimiento());
+            user.setFoto(doctor.getFoto());
+            user.setBiografia(doctor.getBiografia());
+            userRepository.save(user);
+            log.info("Doctor actualizado: {}", doctor.getEmail());
+        }
     }
 
     public void eliminar(String id) {
-        doctorRepo.deleteById(id);
+        userRepository.deleteById(Long.parseLong(id));
         log.info("Doctor eliminado: id={}", id);
     }
 
@@ -179,7 +238,7 @@ public class DoctorService {
      * Retorna null si OK, o el código de error si hay validación fallida.
      */
     public String guardarHorarioDia(String doctorId, String day, Map<String, String> allParams,
-                                     int duracionCitaMinutos) {
+            int duracionCitaMinutos) {
         String startStr = allParams.get("startTimes[" + day + "]");
         String endStr = allParams.get("endTimes[" + day + "]");
         if (startStr == null || startStr.isEmpty() || endStr == null || endStr.isEmpty()) {
@@ -202,7 +261,8 @@ public class DoctorService {
             return "formato_hora_" + day;
         }
 
-        if (!horaInicio.isBefore(horaFin)) return "invalid_time_" + day;
+        if (!horaInicio.isBefore(horaFin))
+            return "invalid_time_" + day;
 
         horarioRepo.findByDoctorIdAndDiaSemana(doctorId, diaSemana)
                 .forEach(h -> horarioRepo.deleteById(h.getId()));
@@ -225,7 +285,8 @@ public class DoctorService {
             } catch (Exception e) {
                 return "formato_hora2_" + day;
             }
-            if (!horaInicio2.isBefore(horaFin2)) return "invalid_time2_" + day;
+            if (!horaInicio2.isBefore(horaFin2))
+                return "invalid_time2_" + day;
             if (horaInicio2.isBefore(horaFin) && horaFin2.isAfter(horaInicio)) {
                 return "solapamiento_intervalos_" + day;
             }
@@ -238,7 +299,8 @@ public class DoctorService {
 
     public void eliminarHorario(String horarioId, String doctorId) {
         HorarioAtencion horario = horarioRepo.findById(horarioId).orElseThrow();
-        if (!horario.getDoctorId().equals(doctorId)) throw new AccessDeniedException("No autorizado");
+        if (!horario.getDoctorId().equals(doctorId))
+            throw new AccessDeniedException("No autorizado");
         horarioRepo.deleteById(horarioId);
     }
 
@@ -246,7 +308,8 @@ public class DoctorService {
 
     public void marcarAsistio(String citaId, String doctorId) {
         Cita cita = citaRepo.findById(citaId).orElseThrow();
-        if (!cita.getDoctorId().equals(doctorId)) throw new AccessDeniedException("No autorizado");
+        if (!cita.getDoctorId().equals(doctorId))
+            throw new AccessDeniedException("No autorizado");
         cita.setEstado(EstadoCita.ASISTIO);
         citaRepo.save(cita);
         log.info("Cita {} marcada ASISTIO por doctor {}", citaId, doctorId);
@@ -254,7 +317,8 @@ public class DoctorService {
 
     public void marcarNoAsistio(String citaId, String doctorId) {
         Cita cita = citaRepo.findById(citaId).orElseThrow();
-        if (!cita.getDoctorId().equals(doctorId)) throw new AccessDeniedException("No autorizado");
+        if (!cita.getDoctorId().equals(doctorId))
+            throw new AccessDeniedException("No autorizado");
         cita.setEstado(EstadoCita.NO_ASISTIO);
         citaRepo.save(cita);
         log.info("Cita {} marcada NO_ASISTIO por doctor {}", citaId, doctorId);
@@ -262,16 +326,18 @@ public class DoctorService {
 
     public void cancelarCita(String citaId, String doctorId) {
         Cita cita = citaRepo.findById(citaId).orElseThrow();
-        if (!cita.getDoctorId().equals(doctorId)) throw new AccessDeniedException("No autorizado");
+        if (!cita.getDoctorId().equals(doctorId))
+            throw new AccessDeniedException("No autorizado");
         cita.setEstado(EstadoCita.CANCELADA);
         citaRepo.save(cita);
         log.info("Cita {} CANCELADA por doctor {}", citaId, doctorId);
     }
 
     public void guardarDictamen(String citaId, String doctorId,
-                                 String diagnostico, String tratamiento, String observaciones) {
+            String diagnostico, String tratamiento, String observaciones) {
         Cita cita = citaRepo.findById(citaId).orElseThrow();
-        if (!cita.getDoctorId().equals(doctorId)) throw new AccessDeniedException("No autorizado");
+        if (!cita.getDoctorId().equals(doctorId))
+            throw new AccessDeniedException("No autorizado");
         Dictamen dictamen = new Dictamen();
         dictamen.setDiagnostico(diagnostico);
         dictamen.setTratamiento(tratamiento);

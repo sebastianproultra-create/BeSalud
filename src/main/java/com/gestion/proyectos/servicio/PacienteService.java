@@ -26,7 +26,7 @@ public class PacienteService {
     private final CitaRepositorio citaRepo;
 
     public PacienteService(PacienteRepositorio pacienteRepo, DoctorRepositorio doctorRepo,
-                           CitaRepositorio citaRepo) {
+            CitaRepositorio citaRepo) {
         this.pacienteRepo = pacienteRepo;
         this.doctorRepo = doctorRepo;
         this.citaRepo = citaRepo;

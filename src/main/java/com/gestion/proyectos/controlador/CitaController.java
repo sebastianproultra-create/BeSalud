@@ -37,8 +37,8 @@ public class CitaController {
 
     @GetMapping
     public String listar(@RequestParam(required = false) String pacienteId,
-                         @RequestParam(required = false) String doctorId,
-                         Model model) {
+            @RequestParam(required = false) String doctorId,
+            Model model) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         String role = auth.getAuthorities().stream().map(GrantedAuthority::getAuthority).findFirst().orElse("");
         String email = auth.getName();
@@ -60,7 +60,8 @@ public class CitaController {
     @GetMapping("/nueva")
     public String nueva(@RequestParam String doctorId, Model model) {
         Doctor doctor = citaService.buscarDoctorPorId(doctorId).orElse(null);
-        if (doctor == null) return REDIRECT_PACIENTES_LANDING;
+        if (doctor == null)
+            return REDIRECT_PACIENTES_LANDING;
 
         model.addAttribute("doctorSeleccionado", doctor);
         model.addAttribute("cita", null);
@@ -75,16 +76,20 @@ public class CitaController {
     @GetMapping("/{id}/reprogramar")
     public String reprogramar(@PathVariable String id, Model model) {
         Cita cita = citaService.buscarPorId(id).orElse(null);
-        if (cita == null) return REDIRECT_PACIENTES_LANDING;
+        if (cita == null)
+            return REDIRECT_PACIENTES_LANDING;
 
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        if (auth == null || !auth.isAuthenticated()) return REDIRECT_LOGIN;
+        if (auth == null || !auth.isAuthenticated())
+            return REDIRECT_LOGIN;
 
         Paciente paciente = citaService.buscarPacientePorEmail(auth.getName()).orElse(null);
-        if (paciente == null || !paciente.getId().equals(cita.getPacienteId())) return REDIRECT_PACIENTES_LANDING;
+        if (paciente == null || !paciente.getId().equals(cita.getPacienteId()))
+            return REDIRECT_PACIENTES_LANDING;
 
         Doctor doctor = citaService.buscarDoctorPorId(cita.getDoctorId()).orElse(null);
-        if (doctor == null) return REDIRECT_PACIENTES_LANDING;
+        if (doctor == null)
+            return REDIRECT_PACIENTES_LANDING;
 
         model.addAttribute("doctorSeleccionado", doctor);
         model.addAttribute("cita", cita);
@@ -102,22 +107,31 @@ public class CitaController {
             @RequestParam String fecha,
             @RequestParam String hora) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        if (auth == null || !auth.isAuthenticated()) return REDIRECT_LOGIN;
+        if (auth == null || !auth.isAuthenticated())
+            return REDIRECT_LOGIN;
 
         Paciente paciente = citaService.buscarPacientePorEmail(auth.getName()).orElse(null);
         Cita cita = citaService.buscarPorId(id).orElse(null);
         if (paciente == null || cita == null || !paciente.getId().equals(cita.getPacienteId()))
             return REDIRECT_PACIENTES_LANDING;
 
-        if (esVacio(fecha)) return "redirect:/citas/" + id + "/reprogramar?error=fecha_requerida";
-        if (esVacio(hora)) return "redirect:/citas/" + id + "/reprogramar?error=hora_requerida";
+        if (esVacio(fecha))
+            return "redirect:/citas/" + id + "/reprogramar?error=fecha_requerida";
+        if (esVacio(hora))
+            return "redirect:/citas/" + id + "/reprogramar?error=hora_requerida";
 
         LocalDate fechaCita;
         LocalTime horaCita;
-        try { fechaCita = LocalDate.parse(fecha.trim()); }
-        catch (Exception e) { return "redirect:/citas/" + id + "/reprogramar?error=fecha_invalida"; }
-        try { horaCita = LocalTime.parse(hora.trim()); }
-        catch (Exception e) { return "redirect:/citas/" + id + "/reprogramar?error=hora_invalida"; }
+        try {
+            fechaCita = LocalDate.parse(fecha.trim());
+        } catch (Exception e) {
+            return "redirect:/citas/" + id + "/reprogramar?error=fecha_invalida";
+        }
+        try {
+            horaCita = LocalTime.parse(hora.trim());
+        } catch (Exception e) {
+            return "redirect:/citas/" + id + "/reprogramar?error=hora_invalida";
+        }
 
         if (citaService.esFechaHoraPasada(fechaCita, horaCita))
             return "redirect:/citas/" + id + "/reprogramar?error=fecha_pasada";
@@ -137,24 +151,40 @@ public class CitaController {
             @RequestParam(required = false) String hora,
             @RequestParam(required = false) String motivo,
             Model model) {
-        if (esVacio(doctorId)) return "redirect:/citas/crear?error=doctor_requerido";
-        if (esVacio(pacienteId)) return "redirect:/citas/crear?error=paciente_requerido";
-        if (esVacio(fecha)) return "redirect:/citas/crear?error=fecha_requerida";
-        if (esVacio(hora)) return "redirect:/citas/crear?error=hora_requerida";
-        if (esVacio(motivo)) return "redirect:/citas/crear?error=motivo_requerido";
+        if (esVacio(doctorId))
+            return "redirect:/citas/crear?error=doctor_requerido";
+        if (esVacio(pacienteId))
+            return "redirect:/citas/crear?error=paciente_requerido";
+        if (esVacio(fecha))
+            return "redirect:/citas/crear?error=fecha_requerida";
+        if (esVacio(hora))
+            return "redirect:/citas/crear?error=hora_requerida";
+        if (esVacio(motivo))
+            return "redirect:/citas/crear?error=motivo_requerido";
 
         LocalDate fechaCita;
         LocalTime horaCita;
-        try { fechaCita = LocalDate.parse(fecha.trim()); }
-        catch (Exception e) { return "redirect:/citas/crear?error=fecha_invalida"; }
-        try { horaCita = LocalTime.parse(hora.trim()); }
-        catch (Exception e) { return "redirect:/citas/crear?error=hora_invalida"; }
+        try {
+            fechaCita = LocalDate.parse(fecha.trim());
+        } catch (Exception e) {
+            return "redirect:/citas/crear?error=fecha_invalida";
+        }
+        try {
+            horaCita = LocalTime.parse(hora.trim());
+        } catch (Exception e) {
+            return "redirect:/citas/crear?error=hora_invalida";
+        }
 
-        if (citaService.esFechaHoraPasada(fechaCita, horaCita)) return "redirect:/citas/crear?error=fecha_pasada";
-        if (!citaService.doctorExiste(doctorId)) return "redirect:/citas/crear?error=doctor_no_existe";
-        if (!citaService.pacienteExiste(pacienteId)) return "redirect:/citas/crear?error=paciente_no_existe";
-        if (!citaService.esHorarioValido(doctorId, fechaCita, horaCita)) return "redirect:/citas/crear?error=horario_invalido";
-        if (citaService.hayConflicto(doctorId, fechaCita, horaCita, null)) return "redirect:/citas/crear?error=conflicto_cita";
+        if (citaService.esFechaHoraPasada(fechaCita, horaCita))
+            return "redirect:/citas/crear?error=fecha_pasada";
+        if (!citaService.doctorExiste(doctorId))
+            return "redirect:/citas/crear?error=doctor_no_existe";
+        if (!citaService.pacienteExiste(pacienteId))
+            return "redirect:/citas/crear?error=paciente_no_existe";
+        if (!citaService.esHorarioValido(doctorId, fechaCita, horaCita))
+            return "redirect:/citas/crear?error=horario_invalido";
+        if (citaService.hayConflicto(doctorId, fechaCita, horaCita, null))
+            return "redirect:/citas/crear?error=conflicto_cita";
 
         citaService.crearCita(doctorId, pacienteId, fechaCita, horaCita, motivo);
         return REDIRECT_CITAS;
@@ -165,24 +195,35 @@ public class CitaController {
             @RequestParam(required = false) String fecha,
             @RequestParam(required = false) String hora,
             @RequestParam(required = false) String motivo) {
-        if (esVacio(doctorId)) return "redirect:/pacientes/landing?error=doctor_requerido";
-        if (esVacio(fecha)) return "redirect:/citas/nueva?doctorId=" + doctorId + "&error=fecha_requerida";
-        if (esVacio(hora)) return "redirect:/citas/nueva?doctorId=" + doctorId + "&error=hora_requerida";
-        if (esVacio(motivo)) return "redirect:/citas/nueva?doctorId=" + doctorId + "&error=motivo_requerido";
+        if (esVacio(doctorId))
+            return "redirect:/pacientes/landing?error=doctor_requerido";
+        if (esVacio(fecha))
+            return "redirect:/citas/nueva?doctorId=" + doctorId + "&error=fecha_requerida";
+        if (esVacio(hora))
+            return "redirect:/citas/nueva?doctorId=" + doctorId + "&error=hora_requerida";
+        if (esVacio(motivo))
+            return "redirect:/citas/nueva?doctorId=" + doctorId + "&error=motivo_requerido";
 
         LocalDate fechaCita;
         LocalTime horaCita;
-        try { fechaCita = LocalDate.parse(fecha.trim()); }
-        catch (Exception e) { return "redirect:/citas/nueva?doctorId=" + doctorId + "&error=fecha_invalida"; }
-        try { horaCita = LocalTime.parse(hora.trim()); }
-        catch (Exception e) { return "redirect:/citas/nueva?doctorId=" + doctorId + "&error=hora_invalida"; }
+        try {
+            fechaCita = LocalDate.parse(fecha.trim());
+        } catch (Exception e) {
+            return "redirect:/citas/nueva?doctorId=" + doctorId + "&error=fecha_invalida";
+        }
+        try {
+            horaCita = LocalTime.parse(hora.trim());
+        } catch (Exception e) {
+            return "redirect:/citas/nueva?doctorId=" + doctorId + "&error=hora_invalida";
+        }
 
         if (citaService.esFechaHoraPasada(fechaCita, horaCita))
             return "redirect:/citas/nueva?doctorId=" + doctorId + "&error=fecha_pasada";
 
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         Paciente paciente = citaService.buscarPacientePorEmail(auth.getName()).orElse(null);
-        if (paciente == null) return "redirect:/pacientes/landing?error=paciente_no_encontrado";
+        if (paciente == null)
+            return "redirect:/pacientes/landing?error=paciente_no_encontrado";
 
         if (!citaService.esHorarioValido(doctorId, fechaCita, horaCita))
             return "redirect:/citas/nueva?doctorId=" + doctorId + "&error=horario_invalido";
@@ -205,13 +246,15 @@ public class CitaController {
     @PostMapping("/{id}/cancelar")
     public String cancelar(@PathVariable String id) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        if (auth == null || !auth.isAuthenticated()) return REDIRECT_LOGIN;
+        if (auth == null || !auth.isAuthenticated())
+            return REDIRECT_LOGIN;
 
         String role = auth.getAuthorities().stream().map(GrantedAuthority::getAuthority).findFirst().orElse("");
         String email = auth.getName();
 
         Cita cita = citaService.buscarPorId(id).orElse(null);
-        if (cita == null) return REDIRECT_CITAS;
+        if (cita == null)
+            return REDIRECT_CITAS;
 
         if ("ROLE_PACIENTE".equals(role)) {
             Paciente paciente = citaService.buscarPacientePorEmail(email).orElse(null);

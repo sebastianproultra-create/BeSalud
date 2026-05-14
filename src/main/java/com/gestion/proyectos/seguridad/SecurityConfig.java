@@ -79,8 +79,7 @@ public class SecurityConfig {
 
         public AuthenticationSuccessHandler customAuthenticationSuccessHandler() {
                 return (request, response, authentication) -> {
-                        java.util.Collection<? extends GrantedAuthority> authorities =
-                                        authentication.getAuthorities();
+                        java.util.Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
                         boolean isAdmin = authorities.stream()
                                         .anyMatch(a -> "ROLE_ADMIN".equals(a.getAuthority()));
                         boolean isDoctor = authorities.stream()

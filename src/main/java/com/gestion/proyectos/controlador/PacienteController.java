@@ -41,7 +41,7 @@ public class PacienteController {
 
     @GetMapping("/landing")
     public String landing(@RequestParam(value = "especialidad", required = false) String especialidad,
-                          Model model, HttpSession session) {
+            Model model, HttpSession session) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         String currentEmail = auth != null ? auth.getName() : null;
         boolean modoPaciente = "ROLE_PACIENTE".equals(session.getAttribute("selectedRole"));

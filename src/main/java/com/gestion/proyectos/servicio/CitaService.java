@@ -35,7 +35,7 @@ public class CitaService {
     private final HorarioAtencionRepositorio horarioRepo;
 
     public CitaService(CitaRepositorio citaRepo, DoctorRepositorio doctorRepo,
-                       PacienteRepositorio pacienteRepo, HorarioAtencionRepositorio horarioRepo) {
+            PacienteRepositorio pacienteRepo, HorarioAtencionRepositorio horarioRepo) {
         this.citaRepo = citaRepo;
         this.doctorRepo = doctorRepo;
         this.pacienteRepo = pacienteRepo;
@@ -51,8 +51,10 @@ public class CitaService {
             Paciente paciente = pacienteRepo.findByEmail(email).orElse(null);
             return paciente != null ? citaRepo.findByPacienteId(paciente.getId()) : List.of();
         }
-        if (pacienteId != null && !pacienteId.isBlank()) return citaRepo.findByPacienteId(pacienteId);
-        if (doctorId != null && !doctorId.isBlank()) return citaRepo.findByDoctorId(doctorId);
+        if (pacienteId != null && !pacienteId.isBlank())
+            return citaRepo.findByPacienteId(pacienteId);
+        if (doctorId != null && !doctorId.isBlank())
+            return citaRepo.findByDoctorId(doctorId);
         return citaRepo.findAll();
     }
 
@@ -67,7 +69,7 @@ public class CitaService {
     }
 
     public LinkedHashMap<String, List<String>> slotsDisponibles(String doctorId, String excludeCitaId,
-                                                                  LocalDate fechaActual, LocalTime horaActual) {
+            LocalDate fechaActual, LocalTime horaActual) {
         LinkedHashMap<String, List<String>> slots = new LinkedHashMap<>();
         LocalDate today = LocalDate.now();
         for (int i = 0; i < 30; i++) {
@@ -88,7 +90,8 @@ public class CitaService {
         cita.setHora(hora);
         cita.setMotivo(motivo.trim());
         Cita guardada = citaRepo.save(cita);
-        log.info("Cita creada: id={} doctor={} paciente={} fecha={} hora={}", guardada.getId(), doctorId, pacienteId, fecha, hora);
+        log.info("Cita creada: id={} doctor={} paciente={} fecha={} hora={}", guardada.getId(), doctorId, pacienteId,
+                fecha, hora);
         return guardada;
     }
 
@@ -184,7 +187,7 @@ public class CitaService {
     }
 
     private List<LocalTime> calcularSlotsDisponibles(String doctorId, LocalDate fecha, String excludeCitaId,
-                                                      LocalDate fechaActual, LocalTime horaActual) {
+            LocalDate fechaActual, LocalTime horaActual) {
         List<HorarioAtencion> horarios = horarioRepo.findByDoctorId(doctorId);
         List<LocalTime> slots = new ArrayList<>();
         java.time.DayOfWeek dia = fecha.getDayOfWeek();
@@ -196,8 +199,10 @@ public class CitaService {
                 .toList();
 
         for (HorarioAtencion horario : horarios) {
-            if (horario.getDiaSemana() == null || horario.getHoraInicio() == null || horario.getHoraFin() == null) continue;
-            if (!horario.getDiaSemana().equals(dia)) continue;
+            if (horario.getDiaSemana() == null || horario.getHoraInicio() == null || horario.getHoraFin() == null)
+                continue;
+            if (!horario.getDiaSemana().equals(dia))
+                continue;
 
             int duracion = horario.getDuracionCitaMinutos() > 0 ? horario.getDuracionCitaMinutos() : 30;
             LocalTime current = horario.getHoraInicio();
@@ -216,7 +221,8 @@ public class CitaService {
                     return slotStart.isBefore(citaEnd) && slotEnd.isAfter(citaStart);
                 });
 
-                if (disponible) slots.add(current);
+                if (disponible)
+                    slots.add(current);
                 current = current.plusMinutes(duracion);
             }
         }
