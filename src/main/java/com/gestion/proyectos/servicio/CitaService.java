@@ -110,7 +110,24 @@ public class CitaService {
     }
 
     public Optional<Paciente> buscarPacientePorEmail(String email) {
-        return pacienteRepo.findByEmail(email);
+        Optional<Paciente> paciente = pacienteRepo.findByEmail(email);
+        if (paciente.isPresent()) {
+            return paciente;
+        }
+        return doctorRepo.findByEmail(email).map(this::convertirDoctorAPaciente);
+    }
+
+    private Paciente convertirDoctorAPaciente(Doctor doctor) {
+        Paciente paciente = new Paciente();
+        paciente.setId(doctor.getId());
+        paciente.setNombre(doctor.getNombre());
+        paciente.setApellido(doctor.getApellido());
+        paciente.setTelefono(doctor.getTelefono());
+        paciente.setIdentificacion(doctor.getIdentificacion());
+        paciente.setEmail(doctor.getEmail());
+        paciente.setPassword(doctor.getPassword());
+        paciente.setRole("PACIENTE");
+        return paciente;
     }
 
     public Optional<Doctor> buscarDoctorPorEmail(String email) {

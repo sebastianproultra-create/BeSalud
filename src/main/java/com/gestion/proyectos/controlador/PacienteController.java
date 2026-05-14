@@ -3,6 +3,7 @@ package com.gestion.proyectos.controlador;
 import com.gestion.proyectos.modelo.Paciente;
 import com.gestion.proyectos.servicio.PacienteService;
 
+import jakarta.servlet.http.HttpSession;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
@@ -40,13 +41,17 @@ public class PacienteController {
 
     @GetMapping("/landing")
     public String landing(@RequestParam(value = "especialidad", required = false) String especialidad,
-                          Model model) {
-        model.addAttribute("doctores", pacienteService.listarDoctores(especialidad));
-        model.addAttribute("especialidades", pacienteService.especialidadesDisponibles());
-
+                          Model model, HttpSession session) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String currentEmail = auth != null ? auth.getName() : null;
+        boolean modoPaciente = "ROLE_PACIENTE".equals(session.getAttribute("selectedRole"));
+
+        model.addAttribute("doctores", pacienteService.listarDoctores(especialidad, currentEmail, modoPaciente));
+        model.addAttribute("especialidades", pacienteService.especialidadesDisponibles());
+        model.addAttribute("modoPaciente", modoPaciente);
+
         if (auth != null && auth.isAuthenticated()) {
-            pacienteService.buscarPorEmail(auth.getName()).ifPresent(paciente -> {
+            pacienteService.buscarPorEmail(currentEmail).ifPresent(paciente -> {
                 model.addAttribute("misCitas", pacienteService.citasDelPaciente(paciente.getId()));
                 model.addAttribute("doctoresMap", pacienteService.mapDoctores());
             });

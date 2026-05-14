@@ -37,7 +37,24 @@ public class PacienteService {
     }
 
     public Optional<Paciente> buscarPorEmail(String email) {
-        return pacienteRepo.findByEmail(email);
+        Optional<Paciente> paciente = pacienteRepo.findByEmail(email);
+        if (paciente.isPresent()) {
+            return paciente;
+        }
+        return doctorRepo.findByEmail(email).map(this::convertirDoctorAPaciente);
+    }
+
+    private Paciente convertirDoctorAPaciente(Doctor doctor) {
+        Paciente paciente = new Paciente();
+        paciente.setId(doctor.getId());
+        paciente.setNombre(doctor.getNombre());
+        paciente.setApellido(doctor.getApellido());
+        paciente.setTelefono(doctor.getTelefono());
+        paciente.setIdentificacion(doctor.getIdentificacion());
+        paciente.setEmail(doctor.getEmail());
+        paciente.setPassword(doctor.getPassword());
+        paciente.setRole("PACIENTE");
+        return paciente;
     }
 
     /** null = OK, mensaje de error si falla validación o duplicado */
@@ -59,9 +76,23 @@ public class PacienteService {
     }
 
     public List<Doctor> listarDoctores(String especialidad) {
-        if (especialidad != null && !especialidad.isEmpty())
-            return doctorRepo.findByEspecialidadContainingIgnoreCase(especialidad);
-        return doctorRepo.findAllDoctores();
+        return listarDoctores(especialidad, null, false);
+    }
+
+    public List<Doctor> listarDoctores(String especialidad, String currentUserEmail, boolean ocultarDoctorPropio) {
+        List<Doctor> doctores;
+        if (especialidad != null && !especialidad.isEmpty()) {
+            doctores = doctorRepo.findByEspecialidadContainingIgnoreCase(especialidad);
+        } else {
+            doctores = doctorRepo.findAllDoctores();
+        }
+        if (ocultarDoctorPropio && currentUserEmail != null && !currentUserEmail.isBlank()) {
+            String emailLower = currentUserEmail.trim().toLowerCase();
+            return doctores.stream()
+                    .filter(d -> d.getEmail() == null || !d.getEmail().trim().equalsIgnoreCase(emailLower))
+                    .toList();
+        }
+        return doctores;
     }
 
     public List<String> especialidadesDisponibles() {

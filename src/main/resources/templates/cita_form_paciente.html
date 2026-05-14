@@ -96,6 +96,9 @@
         <div th:if="${param.error != null and param.error[0] == 'conflicto_cita'}" class="alert-error">
             Ese horario ya fue reservado por otro paciente. Por favor elige otro.
         </div>
+        <div th:if="${param.error != null and param.error[0] == 'doctor_invalido'}" class="alert-error">
+            No puedes agendar una cita contigo mismo. Elige otro doctor.
+        </div>
 
     </div>
 </div>

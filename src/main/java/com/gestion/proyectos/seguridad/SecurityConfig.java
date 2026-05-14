@@ -75,7 +75,8 @@ public class SecurityConfig {
                 return new HttpSessionEventPublisher();
         }
 
-        @Bean
+        private static final String SELECT_ROLE_URL = "/seleccionar-rol";
+
         public AuthenticationSuccessHandler customAuthenticationSuccessHandler() {
                 return (request, response, authentication) -> {
                         java.util.Collection<? extends GrantedAuthority> authorities =
@@ -88,6 +89,8 @@ public class SecurityConfig {
                                         .anyMatch(a -> "ROLE_PACIENTE".equals(a.getAuthority()));
                         if (isAdmin) {
                                 response.sendRedirect("/admin");
+                        } else if (isDoctor && isPaciente) {
+                                response.sendRedirect(SELECT_ROLE_URL);
                         } else if (isDoctor) {
                                 response.sendRedirect("/doctores");
                         } else if (isPaciente) {
