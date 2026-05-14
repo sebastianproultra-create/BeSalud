@@ -24,10 +24,10 @@
 
     <!-- Main content -->
     <main class="main-content">
-        <div th:if="${param.success == 'cita_agendada'}" class="alert" style="background:#d1e7dd; color:#0f5132; padding:15px; border-radius:6px; margin-bottom:20px;">
+        <div th:if="${param.success != null and param.success[0] == 'cita_agendada'}" class="alert" style="background:#d1e7dd; color:#0f5132; padding:15px; border-radius:6px; margin-bottom:20px;">
             ¡Tu cita ha sido agendada exitosamente!
         </div>
-        <div th:if="${param.success == 'cita_reprogramada'}" class="alert" style="background:#d1e7dd; color:#0f5132; padding:15px; border-radius:6px; margin-bottom:20px;">
+        <div th:if="${param.success != null and param.success[0] == 'cita_reprogramada'}" class="alert" style="background:#d1e7dd; color:#0f5132; padding:15px; border-radius:6px; margin-bottom:20px;">
             ¡Tu cita ha sido reprogramada exitosamente!
         </div>
 
@@ -49,7 +49,7 @@
                     <img th:src="${doctor.foto != null ? doctor.foto : '/images/default-avatar.jpg'}" alt="Foto del doctor" onerror="this.src='/images/default-avatar.jpg'">
                 </div>
                 <div class="doctor-info">
-                    <h3 th:text="${doctor.nombre + ' ' + doctor.apellido}"></h3>
+                    <h3 th:text="${'Dr. ' + doctor.nombre + ' ' + doctor.apellido}"></h3>
                     <p class="specialty" th:text="${doctor.especialidad}"></p>
                     <p class="bio" th:text="${doctor.biografia != null ? doctor.biografia : 'Sin biografía disponible'}"></p>
                     <a th:href="@{/citas/nueva(doctorId=${doctor.id})}" class="btn btn-primary">Agendar Cita</a>
@@ -132,21 +132,25 @@
 
 </div><!-- end .page-layout -->
 
-<footer>
-    <p>&copy; 2026 BeSalud - Sistema de Citas Médicas. Todos los derechos reservados.</p>
-</footer>
+<!-- Backdrop for mobile sidebar overlay -->
+<div class="sidebar-backdrop" id="sidebarBackdrop" onclick="closeSidebar()"></div>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
 
 <script>
-const sidebar = document.getElementById('citasSidebar');
-const layout  = document.getElementById('pageLayout');
+const sidebar  = document.getElementById('citasSidebar');
+const layout   = document.getElementById('pageLayout');
+const backdrop = document.getElementById('sidebarBackdrop');
 
 function closeSidebar() {
     sidebar.classList.add('collapsed');
     layout.classList.add('sidebar-collapsed');
+    if (backdrop) backdrop.style.display = 'none';
 }
 function openSidebar() {
     sidebar.classList.remove('collapsed');
     layout.classList.remove('sidebar-collapsed');
+    if (backdrop && window.innerWidth <= 900) backdrop.style.display = 'block';
 }
 </script>
 <script th:src="@{/js/custom-select.js}"></script>

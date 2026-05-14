@@ -35,6 +35,9 @@ class SecurityRulesTest {
     @MockBean
     private CustomUserDetailsService customUserDetailsService;
 
+    @MockBean
+    private com.gestion.proyectos.servicio.RegistroService registroService;
+
     // --- Rutas públicas ---
 
     @Test

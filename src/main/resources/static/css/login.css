@@ -4,7 +4,11 @@
 
 .login-container {
     max-width: 500px;
-    margin: 50px auto;
+    margin: 0 auto;
+    min-height: calc(100vh - 120px);
+    display: flex;
+    align-items: center;
+    padding: 40px 0;
 }
 
 .login-card {

@@ -305,17 +305,17 @@
     <!-- ═══════════════ MIS CITAS ═══════════════ -->
     <section id="citas" class="card" aria-labelledby="citas-title">
         <h2 id="citas-title">Mis Citas</h2>
-        <form th:action="@{/doctores}" method="get" class="filter-bar">
+        <div class="filter-bar">
             <label for="filtroEstadoSelect">Filtrar por estado</label>
-            <select id="filtroEstadoSelect" name="estado" onchange="this.form.submit()" class="styled-select">
-                <option value="TODAS" th:selected="${filtroEstado == '' or filtroEstado == 'TODAS'}">Todas</option>
-                <option value="PENDIENTE" th:selected="${filtroEstado == 'PENDIENTE'}">Pendiente</option>
-                <option value="ASISTIO" th:selected="${filtroEstado == 'ASISTIO'}">Asistió</option>
-                <option value="COMPLETADA" th:selected="${filtroEstado == 'COMPLETADA'}">Completada</option>
-                <option value="NO_ASISTIO" th:selected="${filtroEstado == 'NO_ASISTIO'}">No Asistió</option>
-                <option value="CANCELADA" th:selected="${filtroEstado == 'CANCELADA'}">Cancelada</option>
+            <select id="filtroEstadoSelect" class="styled-select" onchange="filtrarCitas(this.value)">
+                <option value="TODAS">Todas</option>
+                <option value="PENDIENTE">Pendiente</option>
+                <option value="ASISTIO">Asistió</option>
+                <option value="COMPLETADA">Completada</option>
+                <option value="NO_ASISTIO">No Asistió</option>
+                <option value="CANCELADA">Cancelada</option>
             </select>
-        </form>
+        </div>
 
         <div th:if="${#lists.isEmpty(citas)}" class="empty-state">
             <svg class="empty-state-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true">
@@ -339,7 +339,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr th:each="cita : ${citas}">
+                    <tr th:each="cita : ${citas}" th:attr="data-estado=${cita.estado.name()}">
                         <td th:text="${#temporals.format(cita.fecha, 'dd/MM/yyyy')}"></td>
                         <td th:text="${#temporals.format(cita.hora, 'hh:mm a')}"></td>
                         <td class="paciente-cell" th:text="${pacienteNombres[cita.pacienteId] ?: 'Desconocido'}"></td>
@@ -387,6 +387,9 @@
                     </tr>
                 </tbody>
             </table>
+            <div id="citas-empty-filter" class="empty-state" style="display:none;">
+                <p>No hay citas con ese estado.</p>
+            </div>
         </div>
     </section>
 
@@ -466,9 +469,7 @@
     </div>
 </div>
 
-<footer>
-    <p>&copy; 2026 BeSalud - Sistema de Citas Médicas. Todos los derechos reservados.</p>
-</footer>
+<footer th:replace="~{fragments/layout :: footer}"></footer>
 
 <script>
 function toggleDay(cb, day) {
@@ -593,5 +594,16 @@ document.getElementById('verDictamenModal').addEventListener('click', function(e
 });
 </script>
 <script th:src="@{/js/custom-select.js}"></script>
+<script th:src="@{/js/form-submit.js}"></script>
+<script>
+function filtrarCitas(estado) {
+    document.querySelectorAll('#citas tbody tr').forEach(function(row) {
+        row.style.display = (estado === 'TODAS' || row.dataset.estado === estado) ? '' : 'none';
+    });
+    const visible = document.querySelectorAll('#citas tbody tr:not([style*="none"])').length;
+    const emptyMsg = document.getElementById('citas-empty-filter');
+    if (emptyMsg) emptyMsg.style.display = visible === 0 ? '' : 'none';
+}
+</script>
 </body>
 </html>

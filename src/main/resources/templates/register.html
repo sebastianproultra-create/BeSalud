@@ -6,12 +6,7 @@
     <link rel="stylesheet" th:href="@{/css/register.css}">
 </head>
 <body>
-<header>
-    <div class="header-brand">
-        <h1>BeSalud</h1>
-        <p>Sistema de Gestión de Citas Médicas</p>
-    </div>
-</header>
+<header th:replace="~{fragments/layout :: header-brand}"></header>
 
 <div class="container">
     <div class="card" style="max-width: 600px; margin: 30px auto;">
@@ -109,12 +104,12 @@
                 <textarea id="biografia" th:field="*{biografia}" rows="3"></textarea>
             </div>
 
+            <div th:if="${error}" class="alert alert-error">
+                <p th:text="${error}"></p>
+            </div>
+
             <button type="submit">Registrarse</button>
         </form>
-
-        <div th:if="${error}" class="alert alert-error">
-            <p th:text="${error}"></p>
-        </div>
 
         <p style="text-align: center; margin-top: 20px;">
             <a th:href="@{/login}">¿Ya tienes cuenta? Inicia sesión aquí</a>
@@ -175,8 +170,7 @@ identificacionInput.addEventListener('input', function () {
 </script>
 <script th:src="@{/js/custom-select.js}"></script>
 
-<footer>
-    <p>&copy; 2026 BeSalud - Sistema de Citas Médicas. Todos los derechos reservados.</p>
-</footer>
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+<script th:src="@{/js/form-submit.js}"></script>
 </body>
 </html>

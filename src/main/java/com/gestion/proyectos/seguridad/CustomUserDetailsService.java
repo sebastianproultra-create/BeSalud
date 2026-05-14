@@ -14,9 +14,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.List;
 
 @Service
 public class CustomUserDetailsService implements UserDetailsService {
@@ -45,27 +43,16 @@ public class CustomUserDetailsService implements UserDetailsService {
                     Collections.singletonList(new SimpleGrantedAuthority("ROLE_ADMIN")));
         }
 
-        Doctor doctor = doctorRepositorio.findByEmail(email).orElse(null);
         Paciente paciente = pacienteRepositorio.findByEmail(email).orElse(null);
-
-        List<SimpleGrantedAuthority> authorities = new ArrayList<>();
-        String password = null;
-        String resolvedEmail = null;
-
-        if (doctor != null) {
-            authorities.add(new SimpleGrantedAuthority("ROLE_DOCTOR"));
-            password = doctor.getPassword();
-            resolvedEmail = doctor.getEmail();
-        }
         if (paciente != null) {
-            authorities.add(new SimpleGrantedAuthority("ROLE_PACIENTE"));
-            if (password == null) {
-                password = paciente.getPassword();
-                resolvedEmail = paciente.getEmail();
-            }
+            return new User(paciente.getEmail(), paciente.getPassword(),
+                    Collections.singletonList(new SimpleGrantedAuthority("ROLE_PACIENTE")));
         }
-        if (!authorities.isEmpty()) {
-            return new User(resolvedEmail, password, authorities);
+
+        Doctor doctor = doctorRepositorio.findByEmail(email).orElse(null);
+        if (doctor != null) {
+            return new User(doctor.getEmail(), doctor.getPassword(),
+                    Collections.singletonList(new SimpleGrantedAuthority("ROLE_DOCTOR")));
         }
 
         throw new UsernameNotFoundException("Usuario no encontrado: " + email);

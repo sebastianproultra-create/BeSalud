@@ -9,21 +9,21 @@
 <body>
 <header>
     <h1 th:text="${pageTitle != null ? pageTitle : 'BeSalud'}">BeSalud</h1>
-    <p th:text="${pageTitle != null ? pageTitle : 'Agendar Cita Médica'}">Agendar Cita Médica</p>
-    <nav class="nav-main">
-        <div class="nav-container">
-            <div class="nav-links">
-                <a th:href="@{${backLink != null ? backLink : '/pacientes/landing'}}" class="nav-item">← Volver al Catálogo</a>
-            </div>
-            <div class="nav-actions">
-                <form th:action="@{/logout}" method="post" class="logout-form">
-                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
-                    <button type="submit" class="btn-logout">Cerrar Sesión</button>
-                </form>
-            </div>
-        </div>
-    </nav>
+    <p>Sistema de Gestión de Citas Médicas</p>
 </header>
+<nav class="nav-main">
+    <div class="nav-container">
+        <div class="nav-links">
+            <a th:href="@{${backLink != null ? backLink : '/pacientes/landing'}}" class="nav-item">← Volver al Catálogo</a>
+        </div>
+        <div class="nav-actions">
+            <form th:action="@{/logout}" method="post" class="logout-form" id="logoutForm">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+            </form>
+            <a href="#" class="nav-item nav-logout" onclick="document.getElementById('logoutForm').submit(); return false;">Cerrar Sesión</a>
+        </div>
+    </div>
+</nav>
 
 <div class="booking-container">
 
@@ -90,19 +90,17 @@
         </div>
 
         <!-- Error messages -->
-        <div th:if="${param.error == 'horario_invalido'}" class="alert-error">
+        <div th:if="${param.error != null and param.error[0] == 'horario_invalido'}" class="alert-error">
             El horario seleccionado ya no está disponible. Por favor, elige otro.
         </div>
-        <div th:if="${param.error == 'conflicto_cita'}" class="alert-error">
+        <div th:if="${param.error != null and param.error[0] == 'conflicto_cita'}" class="alert-error">
             Ese horario ya fue reservado por otro paciente. Por favor elige otro.
         </div>
 
     </div>
 </div>
 
-<footer>
-    <p>&copy; 2026 BeSalud - Sistema de Citas Médicas. Todos los derechos reservados.</p>
-</footer>
+<footer th:replace="~{fragments/layout :: footer}"></footer>
 
 <script th:inline="javascript">
 /*<![CDATA[*/
@@ -116,9 +114,10 @@ let selectedTime = null;
 
 function toLocal12Hour(time24) {
     const [hour, minute] = time24.split(':').map(Number);
-    const d = new Date();
-    d.setHours(hour, minute, 0, 0);
-    return d.toLocaleTimeString('es-CO', { hour: 'numeric', minute: '2-digit', hour12: true });
+    const h12 = hour % 12 || 12;
+    const m = String(minute).padStart(2, '0');
+    const period = hour >= 12 ? 'p.m.' : 'a.m.';
+    return `${h12}:${m} ${period}`;
 }
 
 function buildDateStrip() {
@@ -209,5 +208,6 @@ function clearSlot() {
 buildDateStrip();
 /*]]>*/
 </script>
+<script th:src="@{/js/form-submit.js}"></script>
 </body>
 </html>

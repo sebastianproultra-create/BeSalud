@@ -8,22 +8,8 @@
     <link rel="stylesheet" th:href="@{/css/doctores.css}">
 </head>
 <body>
-<header>
-    <div class="header-brand">
-        <h1>BeSalud</h1>
-        <p>Sistema de Gestión de Citas Médicas</p>
-    </div>
-</header>
-
-<nav aria-label="Navegación principal">
-    <a th:href="@{/doctores}">Doctores</a>
-    <a th:href="@{/pacientes}">Pacientes</a>
-    <a th:href="@{/citas}">Citas</a>
-    <form th:action="@{/logout}" method="post" class="nav-logout-form">
-        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
-        <button type="submit" class="btn btn-link nav-logout-btn">Cerrar Sesión</button>
-    </form>
-</nav>
+<header th:replace="~{fragments/layout :: header-brand}"></header>
+<nav th:replace="~{fragments/layout :: nav-admin}"></nav>
 
 <div class="container doctores-page">
 
@@ -138,8 +124,7 @@
     </section>
 </div>
 
-<footer>
-    <p>&copy; 2026 BeSalud - Sistema de Citas Médicas. Todos los derechos reservados.</p>
-</footer>
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+<script th:src="@{/js/form-submit.js}"></script>
 </body>
 </html>
