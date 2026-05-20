@@ -18,7 +18,7 @@
         </div>
         <div class="nav-actions">
             <form th:action="@{/logout}" method="post" class="logout-form" id="logoutForm">
-                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+
             </form>
             <a href="#" class="nav-item nav-logout" onclick="document.getElementById('logoutForm').submit(); return false;">Cerrar Sesión</a>
         </div>
@@ -75,7 +75,7 @@
             <div class="confirm-card">
                 <div class="confirm-summary" id="confirmSummary"></div>
                 <form th:action="@{${actionUrl}}" method="post" id="bookingForm">
-                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+
                     <input type="hidden" name="doctorId" th:value="${doctorSeleccionado.id}"/>
                     <input type="hidden" name="fecha" id="inputFecha"/>
                     <input type="hidden" name="hora" id="inputHora"/>

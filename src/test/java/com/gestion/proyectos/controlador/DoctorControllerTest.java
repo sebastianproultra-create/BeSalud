@@ -2,9 +2,10 @@ package com.gestion.proyectos.controlador;
 
 import com.gestion.proyectos.modelo.Doctor;
 import com.gestion.proyectos.repositorio.AdminRepositorio;
-import com.gestion.proyectos.repositorio.DoctorRepositorio;
-import com.gestion.proyectos.repositorio.PacienteRepositorio;
+import com.gestion.proyectos.repositorio.PersonaRepositorio;
 import com.gestion.proyectos.seguridad.CustomUserDetailsService;
+import com.gestion.proyectos.seguridad.JwtCookieService;
+import com.gestion.proyectos.seguridad.JwtService;
 import com.gestion.proyectos.seguridad.SecurityConfig;
 import com.gestion.proyectos.servicio.DoctorService;
 import org.junit.jupiter.api.Test;
@@ -32,9 +33,10 @@ class DoctorControllerTest {
 
     @MockBean private DoctorService doctorService;
     @MockBean private CustomUserDetailsService customUserDetailsService;
-    @MockBean private PacienteRepositorio pacienteRepositorio;
-    @MockBean private DoctorRepositorio doctorRepositorio;
+    @MockBean private PersonaRepositorio personaRepositorio;
     @MockBean private AdminRepositorio adminRepositorio;
+    @MockBean private JwtService jwtService;
+    @MockBean private JwtCookieService jwtCookieService;
 
     // ── guardar horario ──────────────────────────────────────────────────────
 

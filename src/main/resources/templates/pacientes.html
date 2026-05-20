@@ -41,7 +41,7 @@
     <div class="card">
         <h2>Registrar Paciente</h2>
         <form th:action="@{/pacientes/guardar}" method="post">
-            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+
             
             <label>Nombre:</label>
             <input type="text" name="nombre" required/>

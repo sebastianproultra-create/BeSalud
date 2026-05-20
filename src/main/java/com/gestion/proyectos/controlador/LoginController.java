@@ -1,15 +1,24 @@
 package com.gestion.proyectos.controlador;
 
 import com.gestion.proyectos.modelo.UserRegistrationDTO;
+import com.gestion.proyectos.seguridad.JwtCookieService;
+import com.gestion.proyectos.seguridad.JwtService;
 import com.gestion.proyectos.servicio.RegistroService;
 
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 @Controller
 @RequestMapping
@@ -19,14 +28,45 @@ public class LoginController {
     private static final String ATTR_ERROR = "error";
 
     private final RegistroService registroService;
+    private final AuthenticationManager authenticationManager;
+    private final JwtService jwtService;
+    private final JwtCookieService jwtCookieService;
 
-    public LoginController(RegistroService registroService) {
+    public LoginController(RegistroService registroService,
+            AuthenticationManager authenticationManager,
+            JwtService jwtService,
+            JwtCookieService jwtCookieService) {
         this.registroService = registroService;
+        this.authenticationManager = authenticationManager;
+        this.jwtService = jwtService;
+        this.jwtCookieService = jwtCookieService;
     }
 
     @GetMapping("/login")
     public String login() {
         return "login";
+    }
+
+    @PostMapping("/login")
+    public String loginPost(@RequestParam String email, @RequestParam String password,
+            HttpServletResponse response) {
+        try {
+            Authentication authentication = authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(email, password));
+            String token = jwtService.generateToken((UserDetails) authentication.getPrincipal());
+            jwtCookieService.addJwtCookie(response, token);
+
+            boolean isAdmin = authentication.getAuthorities().stream()
+                    .anyMatch(a -> "ROLE_ADMIN".equals(a.getAuthority()));
+            boolean isDoctor = authentication.getAuthorities().stream()
+                    .anyMatch(a -> "ROLE_DOCTOR".equals(a.getAuthority()));
+
+            if (isAdmin) return "redirect:/admin";
+            if (isDoctor) return "redirect:/doctores";
+            return "redirect:/pacientes/landing";
+        } catch (Exception e) {
+            return "redirect:/login?error=true";
+        }
     }
 
     @GetMapping("/register")

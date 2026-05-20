@@ -2,8 +2,7 @@ package com.gestion.proyectos.servicio;
 
 import com.gestion.proyectos.modelo.UserRegistrationDTO;
 import com.gestion.proyectos.repositorio.AdminRepositorio;
-import com.gestion.proyectos.repositorio.DoctorRepositorio;
-import com.gestion.proyectos.repositorio.PacienteRepositorio;
+import com.gestion.proyectos.repositorio.PersonaRepositorio;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -21,8 +20,7 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 class RegistroServiceTest {
 
-    @Mock PacienteRepositorio pacienteRepo;
-    @Mock DoctorRepositorio doctorRepo;
+    @Mock PersonaRepositorio personaRepo;
     @Mock AdminRepositorio adminRepo;
     @Mock PasswordEncoder passwordEncoder;
 
@@ -88,7 +86,7 @@ class RegistroServiceTest {
     @Test
     void verificarDuplicado_emailNuevo_retornaNull() {
         when(adminRepo.findByEmail(anyString())).thenReturn(Optional.empty());
-        when(pacienteRepo.findByEmail(anyString())).thenReturn(Optional.empty());
+        when(personaRepo.findPacienteByEmail(anyString())).thenReturn(Optional.empty());
         assertThat(service.verificarDuplicado(dto)).isNull();
     }
 }

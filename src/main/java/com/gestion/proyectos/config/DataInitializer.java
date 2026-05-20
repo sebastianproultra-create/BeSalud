@@ -4,8 +4,7 @@ import com.gestion.proyectos.modelo.Admin;
 import com.gestion.proyectos.modelo.Doctor;
 import com.gestion.proyectos.modelo.Paciente;
 import com.gestion.proyectos.repositorio.AdminRepositorio;
-import com.gestion.proyectos.repositorio.DoctorRepositorio;
-import com.gestion.proyectos.repositorio.PacienteRepositorio;
+import com.gestion.proyectos.repositorio.PersonaRepositorio;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -22,8 +21,7 @@ public class DataInitializer implements CommandLineRunner {
     private static final Logger log = LoggerFactory.getLogger(DataInitializer.class);
 
     private final AdminRepositorio adminRepositorio;
-    private final DoctorRepositorio doctorRepositorio;
-    private final PacienteRepositorio pacienteRepositorio;
+    private final PersonaRepositorio personaRepositorio;
     private final PasswordEncoder passwordEncoder;
 
     @Value("${besalud.admin.email:admin@besalud.com}")
@@ -38,11 +36,10 @@ public class DataInitializer implements CommandLineRunner {
     @Value("${besalud.paciente.password:paciente1234}")
     private String defaultPacientePassword;
 
-    public DataInitializer(AdminRepositorio adminRepositorio, DoctorRepositorio doctorRepositorio,
-            PacienteRepositorio pacienteRepositorio, PasswordEncoder passwordEncoder) {
+    public DataInitializer(AdminRepositorio adminRepositorio, PersonaRepositorio personaRepositorio,
+            PasswordEncoder passwordEncoder) {
         this.adminRepositorio = adminRepositorio;
-        this.doctorRepositorio = doctorRepositorio;
-        this.pacienteRepositorio = pacienteRepositorio;
+        this.personaRepositorio = personaRepositorio;
         this.passwordEncoder = passwordEncoder;
     }
 
@@ -62,33 +59,33 @@ public class DataInitializer implements CommandLineRunner {
         // Ensure test doctor exists with BCrypt-encoded password
         String doctorEmail = "sebastianfontalvoayola27@gmail.com";
         String doctorPassword = defaultDoctorPassword;
-        Optional<Doctor> existingDoctor = doctorRepositorio.findByEmail(doctorEmail);
+        Optional<Doctor> existingDoctor = personaRepositorio.findDoctorByEmail(doctorEmail);
         if (existingDoctor.isEmpty()) {
             Doctor doctor = new Doctor("Sebastián", "Fontalvo", "3001234567", "1234567890",
                     doctorEmail, passwordEncoder.encode(doctorPassword),
                     "Medicina General", LocalDate.of(1990, 1, 1), null, null);
-            doctorRepositorio.save(doctor);
+            personaRepositorio.save(doctor);
             log.info("Doctor de prueba creado: {} / contraseña: {}", doctorEmail, doctorPassword);
         } else {
             Doctor doctor = existingDoctor.get();
             doctor.setPassword(passwordEncoder.encode(doctorPassword));
-            doctorRepositorio.save(doctor);
+            personaRepositorio.save(doctor);
             log.info("Contraseña del doctor {} actualizada. Contraseña: {}", doctorEmail, doctorPassword);
         }
 
         // Ensure test patient exists
         String pacienteEmail = "paciente@besalud.com";
         String pacientePassword = defaultPacientePassword;
-        Optional<Paciente> existingPaciente = pacienteRepositorio.findByEmail(pacienteEmail);
+        Optional<Paciente> existingPaciente = personaRepositorio.findPacienteByEmail(pacienteEmail);
         if (existingPaciente.isEmpty()) {
             Paciente paciente = new Paciente("Paciente", "Prueba", "3009876543", "9876543210",
                     pacienteEmail, passwordEncoder.encode(pacientePassword));
-            pacienteRepositorio.save(paciente);
+            personaRepositorio.save(paciente);
             log.info("Paciente de prueba creado: {} / contraseña: {}", pacienteEmail, pacientePassword);
         } else {
             Paciente paciente = existingPaciente.get();
             paciente.setPassword(passwordEncoder.encode(pacientePassword));
-            pacienteRepositorio.save(paciente);
+            personaRepositorio.save(paciente);
             log.info("Contraseña del paciente {} actualizada. Contraseña: {}", pacienteEmail, pacientePassword);
         }
     }

@@ -84,7 +84,7 @@
         <p class="form-subtitle">Crea una nueva cuenta médica con acceso al panel de control.</p>
 
         <form th:action="@{/doctores/guardar}" method="post" class="register-form">
-            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+
 
             <div class="form-grid">
                 <div class="form-field">

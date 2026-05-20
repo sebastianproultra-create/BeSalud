@@ -1,9 +1,10 @@
 package com.gestion.proyectos.controlador;
 
 import com.gestion.proyectos.repositorio.AdminRepositorio;
-import com.gestion.proyectos.repositorio.DoctorRepositorio;
-import com.gestion.proyectos.repositorio.PacienteRepositorio;
+import com.gestion.proyectos.repositorio.PersonaRepositorio;
 import com.gestion.proyectos.seguridad.CustomUserDetailsService;
+import com.gestion.proyectos.seguridad.JwtCookieService;
+import com.gestion.proyectos.seguridad.JwtService;
 import com.gestion.proyectos.servicio.RegistroService;
 import org.junit.jupiter.api.Test;
 import com.gestion.proyectos.seguridad.SecurityConfig;
@@ -11,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -28,10 +30,7 @@ class LoginControllerTest {
     private MockMvc mockMvc;
 
     @MockBean
-    private PacienteRepositorio pacienteRepositorio;
-
-    @MockBean
-    private DoctorRepositorio doctorRepositorio;
+    private PersonaRepositorio personaRepositorio;
 
     @MockBean
     private AdminRepositorio adminRepositorio;
@@ -41,6 +40,15 @@ class LoginControllerTest {
 
     @MockBean
     private RegistroService registroService;
+
+    @MockBean
+    private JwtService jwtService;
+
+    @MockBean
+    private JwtCookieService jwtCookieService;
+
+    @MockBean
+    private AuthenticationManager authenticationManager;
 
     @Test
     void loginPage_retornaVistaLogin() throws Exception {
@@ -77,17 +85,11 @@ class LoginControllerTest {
     }
 
     @Test
-    void registerSave_sinCsrf_noProcesa() throws Exception {
-        // Spring Security rechaza POST sin CSRF token (403 o redirección según config)
+    void registerSave_sinCsrf_retorna403() throws Exception {
         mockMvc.perform(post("/register/save")
                         .param("email", "test@correo.com")
                         .param("role", "PACIENTE"))
-                .andExpect(result -> {
-                    int status = result.getResponse().getStatus();
-                    org.junit.jupiter.api.Assertions.assertTrue(
-                            status == 403 || (status >= 300 && status < 400),
-                            "Debe ser 403 o redirección, fue: " + status);
-                });
+                .andExpect(status().isForbidden());
     }
 
     @Test

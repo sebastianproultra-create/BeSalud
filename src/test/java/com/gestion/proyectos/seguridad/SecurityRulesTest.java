@@ -2,8 +2,9 @@ package com.gestion.proyectos.seguridad;
 
 import com.gestion.proyectos.controlador.LoginController;
 import com.gestion.proyectos.repositorio.AdminRepositorio;
-import com.gestion.proyectos.repositorio.DoctorRepositorio;
-import com.gestion.proyectos.repositorio.PacienteRepositorio;
+import com.gestion.proyectos.repositorio.PersonaRepositorio;
+import com.gestion.proyectos.seguridad.JwtCookieService;
+import com.gestion.proyectos.seguridad.JwtService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -24,10 +25,7 @@ class SecurityRulesTest {
     private MockMvc mockMvc;
 
     @MockBean
-    private PacienteRepositorio pacienteRepositorio;
-
-    @MockBean
-    private DoctorRepositorio doctorRepositorio;
+    private PersonaRepositorio personaRepositorio;
 
     @MockBean
     private AdminRepositorio adminRepositorio;
@@ -37,6 +35,15 @@ class SecurityRulesTest {
 
     @MockBean
     private com.gestion.proyectos.servicio.RegistroService registroService;
+
+    @MockBean
+    private JwtService jwtService;
+
+    @MockBean
+    private JwtCookieService jwtCookieService;
+
+    @MockBean
+    private org.springframework.security.authentication.AuthenticationManager authenticationManager;
 
     // --- Rutas públicas ---
 
@@ -58,28 +65,44 @@ class SecurityRulesTest {
     void adminSinAutenticar_redirigeTLogin() throws Exception {
         mockMvc.perform(get("/admin"))
                 .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrlPattern("**/login"));
+                .andExpect(result -> {
+                    String url = result.getResponse().getRedirectedUrl();
+                    org.junit.jupiter.api.Assertions.assertNotNull(url, "Debe redirigir");
+                    org.junit.jupiter.api.Assertions.assertTrue(url.contains("/login"), "Debe redirigir a login, fue: " + url);
+                });
     }
 
     @Test
     void doctoresSinAutenticar_redirigeTLogin() throws Exception {
         mockMvc.perform(get("/doctores"))
                 .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrlPattern("**/login"));
+                .andExpect(result -> {
+                    String url = result.getResponse().getRedirectedUrl();
+                    org.junit.jupiter.api.Assertions.assertNotNull(url, "Debe redirigir");
+                    org.junit.jupiter.api.Assertions.assertTrue(url.contains("/login"), "Debe redirigir a login, fue: " + url);
+                });
     }
 
     @Test
     void citasSinAutenticar_redirigeTLogin() throws Exception {
         mockMvc.perform(get("/citas"))
                 .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrlPattern("**/login"));
+                .andExpect(result -> {
+                    String url = result.getResponse().getRedirectedUrl();
+                    org.junit.jupiter.api.Assertions.assertNotNull(url, "Debe redirigir");
+                    org.junit.jupiter.api.Assertions.assertTrue(url.contains("/login"), "Debe redirigir a login, fue: " + url);
+                });
     }
 
     @Test
     void pacientesSinAutenticar_redirigeTLogin() throws Exception {
         mockMvc.perform(get("/pacientes/landing"))
                 .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrlPattern("**/login"));
+                .andExpect(result -> {
+                    String url = result.getResponse().getRedirectedUrl();
+                    org.junit.jupiter.api.Assertions.assertNotNull(url, "Debe redirigir");
+                    org.junit.jupiter.api.Assertions.assertTrue(url.contains("/login"), "Debe redirigir a login, fue: " + url);
+                });
     }
 
     // --- Control de roles: PACIENTE y DOCTOR no pueden entrar a /admin ---

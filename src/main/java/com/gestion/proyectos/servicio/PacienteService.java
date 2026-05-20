@@ -4,8 +4,7 @@ import com.gestion.proyectos.modelo.Cita;
 import com.gestion.proyectos.modelo.Doctor;
 import com.gestion.proyectos.modelo.Paciente;
 import com.gestion.proyectos.repositorio.CitaRepositorio;
-import com.gestion.proyectos.repositorio.DoctorRepositorio;
-import com.gestion.proyectos.repositorio.PacienteRepositorio;
+import com.gestion.proyectos.repositorio.PersonaRepositorio;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,23 +20,20 @@ public class PacienteService {
 
     private static final Logger log = LoggerFactory.getLogger(PacienteService.class);
 
-    private final PacienteRepositorio pacienteRepo;
-    private final DoctorRepositorio doctorRepo;
+    private final PersonaRepositorio personaRepo;
     private final CitaRepositorio citaRepo;
 
-    public PacienteService(PacienteRepositorio pacienteRepo, DoctorRepositorio doctorRepo,
-                           CitaRepositorio citaRepo) {
-        this.pacienteRepo = pacienteRepo;
-        this.doctorRepo = doctorRepo;
+    public PacienteService(PersonaRepositorio personaRepo, CitaRepositorio citaRepo) {
+        this.personaRepo = personaRepo;
         this.citaRepo = citaRepo;
     }
 
     public List<Paciente> listarTodos() {
-        return pacienteRepo.findAll();
+        return personaRepo.findAllPacientes();
     }
 
     public Optional<Paciente> buscarPorEmail(String email) {
-        return pacienteRepo.findByEmail(email);
+        return personaRepo.findPacienteByEmail(email);
     }
 
     /** null = OK, mensaje de error si falla validación o duplicado */
@@ -50,22 +46,22 @@ public class PacienteService {
             return "El correo es obligatorio";
         if (!paciente.getEmail().trim().matches("^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$"))
             return "El correo no tiene un formato válido";
-        var conflicto = pacienteRepo.findByEmail(paciente.getEmail().trim());
+        var conflicto = personaRepo.findPacienteByEmail(paciente.getEmail().trim());
         if (conflicto.isPresent() && !conflicto.get().getId().equals(paciente.getId()))
             return "Ya existe un paciente registrado con ese correo";
-        pacienteRepo.save(paciente);
+        personaRepo.save(paciente);
         log.info("Paciente guardado: {}", paciente.getEmail());
         return null;
     }
 
     public List<Doctor> listarDoctores(String especialidad) {
         if (especialidad != null && !especialidad.isEmpty())
-            return doctorRepo.findByEspecialidadContainingIgnoreCase(especialidad);
-        return doctorRepo.findAllDoctores();
+            return personaRepo.findDoctoresByEspecialidadContainingIgnoreCase(especialidad);
+        return personaRepo.findAllDoctores();
     }
 
     public List<String> especialidadesDisponibles() {
-        return doctorRepo.findAllDoctores().stream()
+        return personaRepo.findAllDoctores().stream()
                 .map(Doctor::getEspecialidad)
                 .filter(e -> e != null)
                 .distinct()
@@ -77,7 +73,7 @@ public class PacienteService {
     }
 
     public Map<String, String> mapDoctores() {
-        return doctorRepo.findAllDoctores().stream()
+        return personaRepo.findAllDoctores().stream()
                 .collect(Collectors.toMap(Doctor::getId, d -> "Dr. " + d.getNombre() + " " + d.getApellido()));
     }
 }

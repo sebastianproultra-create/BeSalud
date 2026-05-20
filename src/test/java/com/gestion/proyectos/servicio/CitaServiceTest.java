@@ -4,9 +4,8 @@ import com.gestion.proyectos.modelo.Cita;
 import com.gestion.proyectos.modelo.EstadoCita;
 import com.gestion.proyectos.modelo.HorarioAtencion;
 import com.gestion.proyectos.repositorio.CitaRepositorio;
-import com.gestion.proyectos.repositorio.DoctorRepositorio;
 import com.gestion.proyectos.repositorio.HorarioAtencionRepositorio;
-import com.gestion.proyectos.repositorio.PacienteRepositorio;
+import com.gestion.proyectos.repositorio.PersonaRepositorio;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -28,8 +27,7 @@ import static org.mockito.Mockito.when;
 class CitaServiceTest {
 
     @Mock CitaRepositorio citaRepo;
-    @Mock DoctorRepositorio doctorRepo;
-    @Mock PacienteRepositorio pacienteRepo;
+    @Mock PersonaRepositorio personaRepo;
     @Mock HorarioAtencionRepositorio horarioRepo;
 
     @InjectMocks CitaService service;

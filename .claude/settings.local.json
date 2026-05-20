@@ -93,7 +93,9 @@
       "mcp__Claude_in_Chrome__select_browser",
       "mcp__Claude_in_Chrome__tabs_create_mcp",
       "Bash(timeout 15 powershell -command \"Get-Content 'C:\\\\Users\\\\sebas\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\C--Users-sebas-OneDrive-Documents-GitHub-ProyectoDeAulaLinkedin\\\\c4deed7e-890e-4211-b455-6172896f55a9\\\\tasks\\\\byo2br8tc.output' -Wait | Select-String 'Started|ERROR|BUILD'\")",
-      "mcp__Claude_in_Chrome__read_console_messages"
+      "mcp__Claude_in_Chrome__read_console_messages",
+      "Bash(git add *)",
+      "Bash(git commit -m ' *)"
     ]
   }
 }

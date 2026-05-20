@@ -4,8 +4,7 @@ import com.gestion.proyectos.modelo.Admin;
 import com.gestion.proyectos.modelo.Doctor;
 import com.gestion.proyectos.modelo.Paciente;
 import com.gestion.proyectos.repositorio.AdminRepositorio;
-import com.gestion.proyectos.repositorio.DoctorRepositorio;
-import com.gestion.proyectos.repositorio.PacienteRepositorio;
+import com.gestion.proyectos.repositorio.PersonaRepositorio;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,24 +18,21 @@ public class AdminService {
     private static final Logger log = LoggerFactory.getLogger(AdminService.class);
 
     private final AdminRepositorio adminRepo;
-    private final DoctorRepositorio doctorRepo;
-    private final PacienteRepositorio pacienteRepo;
+    private final PersonaRepositorio personaRepo;
 
-    public AdminService(AdminRepositorio adminRepo, DoctorRepositorio doctorRepo,
-                        PacienteRepositorio pacienteRepo) {
+    public AdminService(AdminRepositorio adminRepo, PersonaRepositorio personaRepo) {
         this.adminRepo = adminRepo;
-        this.doctorRepo = doctorRepo;
-        this.pacienteRepo = pacienteRepo;
+        this.personaRepo = personaRepo;
     }
 
     public List<Doctor> listarDoctores() {
-        List<Doctor> result = doctorRepo.findAllDoctores();
+        List<Doctor> result = personaRepo.findAllDoctores();
         log.debug("listarDoctores → {} registros", result.size());
         return result;
     }
 
     public List<Paciente> listarPacientes() {
-        List<Paciente> result = pacienteRepo.findAll();
+        List<Paciente> result = personaRepo.findAllPacientes();
         log.debug("listarPacientes → {} registros", result.size());
         return result;
     }

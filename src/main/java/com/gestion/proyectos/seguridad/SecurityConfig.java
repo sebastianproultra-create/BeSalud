@@ -2,16 +2,17 @@ package com.gestion.proyectos.seguridad;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
-import org.springframework.security.web.session.HttpSessionEventPublisher;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import com.gestion.proyectos.oauth2.OAuth2LoginSuccessHandler;
 
 @Configuration
 @EnableMethodSecurity
@@ -20,39 +21,37 @@ public class SecurityConfig {
         private static final String LOGIN_URL = "/login";
 
         @Bean
-        public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+        public SecurityFilterChain filterChain(HttpSecurity http,
+                        JwtAuthenticationFilter jwtAuthenticationFilter,
+                        JwtCookieService jwtCookieService,
+                        OAuth2LoginSuccessHandler oauth2LoginSuccessHandler) throws Exception {
                 http
-                                // Se definen qué URLs puede usar cada rol
+                                .csrf(org.springframework.security.config.Customizer.withDefaults())
                                 .authorizeHttpRequests(auth -> auth
                                                 .requestMatchers("/", LOGIN_URL, "/register", "/register/save",
                                                                 "/css/**", "/images/**",
-                                                                "/js/**", "/error")
+                                                                "/js/**", "/error", "/elegir-rol")
                                                 .permitAll()
                                                 .requestMatchers("/admin/**").hasRole("ADMIN")
                                                 .requestMatchers("/doctores/**", "/pacientes/**", "/citas/**")
                                                 .authenticated()
                                                 .anyRequest().authenticated())
-
-                                // Se habilita el formulario de login
-                                .formLogin(form -> form
-                                                .loginPage(LOGIN_URL) // Nuestra página personalizada
-                                                .loginProcessingUrl(LOGIN_URL) // URL que procesa el login
-                                                .successHandler(customAuthenticationSuccessHandler())
-                                                .failureUrl(LOGIN_URL + "?error=true")
-                                                .permitAll())
-                                // Se habilita el logout
+                                .formLogin(form -> form.disable())
+                                .oauth2Login(oauth2 -> oauth2
+                                                .loginPage(LOGIN_URL)
+                                                .successHandler(oauth2LoginSuccessHandler))
                                 .logout(logout -> logout
                                                 .logoutUrl("/logout")
+                                                .addLogoutHandler((request, response, authentication) ->
+                                                                jwtCookieService.clearJwtCookie(response))
                                                 .logoutSuccessUrl(LOGIN_URL + "?logout=true")
                                                 .permitAll())
-                                // Configuración de sesiones
                                 .sessionManagement(session -> session
-                                                .sessionFixation().migrateSession()
-                                                .sessionCreationPolicy(
-                                                                SessionCreationPolicy.IF_REQUIRED)
-                                                .maximumSessions(1)
-                                                .maxSessionsPreventsLogin(false)
-                                                .expiredUrl(LOGIN_URL + "?sessionExpired=true"));
+                                                .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
+                                .exceptionHandling(ex -> ex
+                                                .authenticationEntryPoint((request, response, authException) ->
+                                                                response.sendRedirect(LOGIN_URL + "?error=true")))
+                                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
                 return http.build();
         }
@@ -71,31 +70,8 @@ public class SecurityConfig {
         }
 
         @Bean
-        public HttpSessionEventPublisher httpSessionEventPublisher() {
-                return new HttpSessionEventPublisher();
-        }
-
-        @Bean
-        public AuthenticationSuccessHandler customAuthenticationSuccessHandler() {
-                return (request, response, authentication) -> {
-                        java.util.Collection<? extends GrantedAuthority> authorities =
-                                        authentication.getAuthorities();
-                        boolean isAdmin = authorities.stream()
-                                        .anyMatch(a -> "ROLE_ADMIN".equals(a.getAuthority()));
-                        boolean isDoctor = authorities.stream()
-                                        .anyMatch(a -> "ROLE_DOCTOR".equals(a.getAuthority()));
-                        boolean isPaciente = authorities.stream()
-                                        .anyMatch(a -> "ROLE_PACIENTE".equals(a.getAuthority()));
-                        if (isAdmin) {
-                                response.sendRedirect("/admin");
-                        } else if (isDoctor) {
-                                response.sendRedirect("/doctores");
-                        } else if (isPaciente) {
-                                response.sendRedirect("/pacientes/landing");
-                        } else {
-                                response.sendRedirect(LOGIN_URL + "?error=true");
-                        }
-                };
+        public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration) throws Exception {
+                return configuration.getAuthenticationManager();
         }
 
 }

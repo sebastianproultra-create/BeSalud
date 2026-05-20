@@ -7,9 +7,8 @@ import com.gestion.proyectos.modelo.EstadoCita;
 import com.gestion.proyectos.modelo.HorarioAtencion;
 import com.gestion.proyectos.modelo.Paciente;
 import com.gestion.proyectos.repositorio.CitaRepositorio;
-import com.gestion.proyectos.repositorio.DoctorRepositorio;
 import com.gestion.proyectos.repositorio.HorarioAtencionRepositorio;
-import com.gestion.proyectos.repositorio.PacienteRepositorio;
+import com.gestion.proyectos.repositorio.PersonaRepositorio;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,35 +32,33 @@ public class DoctorService {
 
     private static final Logger log = LoggerFactory.getLogger(DoctorService.class);
 
-    private final DoctorRepositorio doctorRepo;
+    private final PersonaRepositorio personaRepo;
     private final HorarioAtencionRepositorio horarioRepo;
     private final CitaRepositorio citaRepo;
-    private final PacienteRepositorio pacienteRepo;
 
-    public DoctorService(DoctorRepositorio doctorRepo, HorarioAtencionRepositorio horarioRepo,
-                         CitaRepositorio citaRepo, PacienteRepositorio pacienteRepo) {
-        this.doctorRepo = doctorRepo;
+    public DoctorService(PersonaRepositorio personaRepo, HorarioAtencionRepositorio horarioRepo,
+                         CitaRepositorio citaRepo) {
+        this.personaRepo = personaRepo;
         this.horarioRepo = horarioRepo;
         this.citaRepo = citaRepo;
-        this.pacienteRepo = pacienteRepo;
     }
 
     // ── Consultas ────────────────────────────────────────────────────────────
 
     public Optional<Doctor> buscarPorEmail(String email) {
-        return doctorRepo.findByEmail(email);
+        return personaRepo.findDoctorByEmail(email);
     }
 
     public Optional<Doctor> buscarPorId(String id) {
-        return doctorRepo.findById(id);
+        return personaRepo.findById(id).map(p -> (Doctor) p);
     }
 
     public List<Doctor> listarTodos() {
-        return doctorRepo.findAllDoctores();
+        return personaRepo.findAllDoctores();
     }
 
     public List<Doctor> listarPorEspecialidad(String especialidad) {
-        return doctorRepo.findByEspecialidadContainingIgnoreCase(especialidad);
+        return personaRepo.findDoctoresByEspecialidadContainingIgnoreCase(especialidad);
     }
 
     public List<HorarioAtencion> horariosDelDoctor(String doctorId) {
@@ -81,7 +78,7 @@ public class DoctorService {
         Map<String, String> nombres = new HashMap<>();
         for (Cita c : citas) {
             if (c.getPacienteId() != null && !nombres.containsKey(c.getPacienteId())) {
-                pacienteRepo.findById(c.getPacienteId())
+                personaRepo.findById(c.getPacienteId())
                         .ifPresent(p -> nombres.put(p.getId(), p.getNombre() + " " + p.getApellido()));
             }
         }
@@ -109,7 +106,7 @@ public class DoctorService {
                 .toList();
         List<Paciente> pacientes = new ArrayList<>();
         for (String pid : ids) {
-            pacienteRepo.findById(pid).ifPresent(pacientes::add);
+            personaRepo.findById(pid).map(p -> (Paciente) p).ifPresent(pacientes::add);
         }
         return pacientes;
     }
@@ -159,16 +156,16 @@ public class DoctorService {
     // ── Doctor CRUD ──────────────────────────────────────────────────────────
 
     public boolean emailDuplicado(String email) {
-        return doctorRepo.findByEmail(email.trim()).isPresent();
+        return personaRepo.findDoctorByEmail(email.trim()).isPresent();
     }
 
     public void guardar(Doctor doctor) {
-        doctorRepo.save(doctor);
+        personaRepo.save(doctor);
         log.info("Doctor guardado: {}", doctor.getEmail());
     }
 
     public void eliminar(String id) {
-        doctorRepo.deleteById(id);
+        personaRepo.deleteById(id);
         log.info("Doctor eliminado: id={}", id);
     }
 

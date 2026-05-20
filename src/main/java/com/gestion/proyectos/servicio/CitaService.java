@@ -6,9 +6,8 @@ import com.gestion.proyectos.modelo.EstadoCita;
 import com.gestion.proyectos.modelo.HorarioAtencion;
 import com.gestion.proyectos.modelo.Paciente;
 import com.gestion.proyectos.repositorio.CitaRepositorio;
-import com.gestion.proyectos.repositorio.DoctorRepositorio;
 import com.gestion.proyectos.repositorio.HorarioAtencionRepositorio;
-import com.gestion.proyectos.repositorio.PacienteRepositorio;
+import com.gestion.proyectos.repositorio.PersonaRepositorio;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,25 +29,23 @@ public class CitaService {
     private static final Logger log = LoggerFactory.getLogger(CitaService.class);
 
     private final CitaRepositorio citaRepo;
-    private final DoctorRepositorio doctorRepo;
-    private final PacienteRepositorio pacienteRepo;
+    private final PersonaRepositorio personaRepo;
     private final HorarioAtencionRepositorio horarioRepo;
 
-    public CitaService(CitaRepositorio citaRepo, DoctorRepositorio doctorRepo,
-                       PacienteRepositorio pacienteRepo, HorarioAtencionRepositorio horarioRepo) {
+    public CitaService(CitaRepositorio citaRepo, PersonaRepositorio personaRepo,
+                       HorarioAtencionRepositorio horarioRepo) {
         this.citaRepo = citaRepo;
-        this.doctorRepo = doctorRepo;
-        this.pacienteRepo = pacienteRepo;
+        this.personaRepo = personaRepo;
         this.horarioRepo = horarioRepo;
     }
 
     public List<Cita> listarPorRol(String role, String email, String pacienteId, String doctorId) {
         if ("ROLE_DOCTOR".equals(role)) {
-            Doctor doctor = doctorRepo.findByEmail(email).orElse(null);
+            Doctor doctor = personaRepo.findDoctorByEmail(email).orElse(null);
             return doctor != null ? citaRepo.findByDoctorId(doctor.getId()) : List.of();
         }
         if ("ROLE_PACIENTE".equals(role)) {
-            Paciente paciente = pacienteRepo.findByEmail(email).orElse(null);
+            Paciente paciente = personaRepo.findPacienteByEmail(email).orElse(null);
             return paciente != null ? citaRepo.findByPacienteId(paciente.getId()) : List.of();
         }
         if (pacienteId != null && !pacienteId.isBlank()) return citaRepo.findByPacienteId(pacienteId);
@@ -57,12 +54,12 @@ public class CitaService {
     }
 
     public Map<String, String> mapDoctores() {
-        return doctorRepo.findAllDoctores().stream()
+        return personaRepo.findAllDoctores().stream()
                 .collect(Collectors.toMap(Doctor::getId, d -> d.getNombre() + " " + d.getApellido()));
     }
 
     public Map<String, String> mapPacientes() {
-        return pacienteRepo.findAll().stream()
+        return personaRepo.findAllPacientes().stream()
                 .collect(Collectors.toMap(Paciente::getId, p -> p.getNombre() + " " + p.getApellido()));
     }
 
@@ -110,31 +107,31 @@ public class CitaService {
     }
 
     public Optional<Paciente> buscarPacientePorEmail(String email) {
-        return pacienteRepo.findByEmail(email);
+        return personaRepo.findPacienteByEmail(email);
     }
 
     public Optional<Doctor> buscarDoctorPorEmail(String email) {
-        return doctorRepo.findByEmail(email);
+        return personaRepo.findDoctorByEmail(email);
     }
 
     public Optional<Doctor> buscarDoctorPorId(String id) {
-        return doctorRepo.findById(id);
+        return personaRepo.findById(id).map(p -> (Doctor) p);
     }
 
     public List<Doctor> listarDoctores() {
-        return doctorRepo.findAllDoctores();
+        return personaRepo.findAllDoctores();
     }
 
     public List<Paciente> listarPacientes() {
-        return pacienteRepo.findAll();
+        return personaRepo.findAllPacientes();
     }
 
     public boolean doctorExiste(String doctorId) {
-        return doctorRepo.existsById(doctorId);
+        return personaRepo.existsById(doctorId);
     }
 
     public boolean pacienteExiste(String pacienteId) {
-        return pacienteRepo.existsById(pacienteId);
+        return personaRepo.existsById(pacienteId);
     }
 
     public boolean esFechaHoraPasada(LocalDate fecha, LocalTime hora) {

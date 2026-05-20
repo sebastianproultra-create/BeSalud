@@ -6,8 +6,7 @@ import com.gestion.proyectos.modelo.Doctor;
 import com.gestion.proyectos.modelo.Paciente;
 import com.gestion.proyectos.modelo.UserRegistrationDTO;
 import com.gestion.proyectos.repositorio.AdminRepositorio;
-import com.gestion.proyectos.repositorio.DoctorRepositorio;
-import com.gestion.proyectos.repositorio.PacienteRepositorio;
+import com.gestion.proyectos.repositorio.PersonaRepositorio;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,15 +21,13 @@ public class RegistroService {
 
     private static final Logger log = LoggerFactory.getLogger(RegistroService.class);
 
-    private final PacienteRepositorio pacienteRepo;
-    private final DoctorRepositorio doctorRepo;
+    private final PersonaRepositorio personaRepo;
     private final AdminRepositorio adminRepo;
     private final PasswordEncoder passwordEncoder;
 
-    public RegistroService(PacienteRepositorio pacienteRepo, DoctorRepositorio doctorRepo,
-                           AdminRepositorio adminRepo, PasswordEncoder passwordEncoder) {
-        this.pacienteRepo = pacienteRepo;
-        this.doctorRepo = doctorRepo;
+    public RegistroService(PersonaRepositorio personaRepo, AdminRepositorio adminRepo,
+                           PasswordEncoder passwordEncoder) {
+        this.personaRepo = personaRepo;
         this.adminRepo = adminRepo;
         this.passwordEncoder = passwordEncoder;
     }
@@ -58,9 +55,9 @@ public class RegistroService {
         String email = user.getEmail().trim().toLowerCase();
         if (adminRepo.findByEmail(email).isPresent())
             return "Ya existe un usuario registrado con ese correo";
-        if ("PACIENTE".equals(user.getRole()) && pacienteRepo.findByEmail(email).isPresent())
+        if ("PACIENTE".equals(user.getRole()) && personaRepo.findPacienteByEmail(email).isPresent())
             return "Ya existe un paciente registrado con ese correo";
-        if ("DOCTOR".equals(user.getRole()) && doctorRepo.findByEmail(email).isPresent())
+        if ("DOCTOR".equals(user.getRole()) && personaRepo.findDoctorByEmail(email).isPresent())
             return "Ya existe un doctor registrado con ese correo";
         return null;
     }
@@ -76,7 +73,7 @@ public class RegistroService {
         if ("PACIENTE".equals(user.getRole())) {
             Paciente paciente = new Paciente(user.getNombre().trim(), user.getApellido().trim(),
                     user.getTelefono().trim(), user.getIdentificacion().trim(), email, password);
-            pacienteRepo.save(paciente);
+            personaRepo.save(paciente);
             log.info("Paciente registrado: {}", email);
             return null;
         }
@@ -102,7 +99,7 @@ public class RegistroService {
         Doctor doctor = new Doctor(user.getNombre().trim(), user.getApellido().trim(),
                 user.getTelefono().trim(), user.getIdentificacion().trim(), email, password,
                 user.getEspecialidad().trim(), fechaNac, fotoBase64, user.getBiografia());
-        doctorRepo.save(doctor);
+        personaRepo.save(doctor);
         log.info("Doctor registrado: {}", email);
         return null;
     }

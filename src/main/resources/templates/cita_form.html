@@ -15,7 +15,7 @@
         <h2>Agendar Nueva Cita</h2>
         
         <form th:action="@{/citas/guardar}" method="post">
-            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+
             
             <label for="doctorId">Doctor:</label>
             <select id="doctorId" name="doctorId" required class="styled-select">

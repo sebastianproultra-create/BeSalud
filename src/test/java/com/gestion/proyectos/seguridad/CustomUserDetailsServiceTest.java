@@ -4,8 +4,7 @@ import com.gestion.proyectos.modelo.Admin;
 import com.gestion.proyectos.modelo.Doctor;
 import com.gestion.proyectos.modelo.Paciente;
 import com.gestion.proyectos.repositorio.AdminRepositorio;
-import com.gestion.proyectos.repositorio.DoctorRepositorio;
-import com.gestion.proyectos.repositorio.PacienteRepositorio;
+import com.gestion.proyectos.repositorio.PersonaRepositorio;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -23,10 +22,7 @@ import static org.mockito.Mockito.when;
 class CustomUserDetailsServiceTest {
 
     @Mock
-    private PacienteRepositorio pacienteRepositorio;
-
-    @Mock
-    private DoctorRepositorio doctorRepositorio;
+    private PersonaRepositorio personaRepositorio;
 
     @Mock
     private AdminRepositorio adminRepositorio;
@@ -54,7 +50,7 @@ class CustomUserDetailsServiceTest {
         paciente.setEmail("paciente@test.com");
         paciente.setPassword("encoded");
         when(adminRepositorio.findByEmail("paciente@test.com")).thenReturn(Optional.empty());
-        when(pacienteRepositorio.findByEmail("paciente@test.com")).thenReturn(Optional.of(paciente));
+        when(personaRepositorio.findPacienteByEmail("paciente@test.com")).thenReturn(Optional.of(paciente));
 
         UserDetails details = userDetailsService.loadUserByUsername("paciente@test.com");
 
@@ -69,8 +65,8 @@ class CustomUserDetailsServiceTest {
         doctor.setEmail("doctor@test.com");
         doctor.setPassword("encoded");
         when(adminRepositorio.findByEmail("doctor@test.com")).thenReturn(Optional.empty());
-        when(pacienteRepositorio.findByEmail("doctor@test.com")).thenReturn(Optional.empty());
-        when(doctorRepositorio.findByEmail("doctor@test.com")).thenReturn(Optional.of(doctor));
+        when(personaRepositorio.findPacienteByEmail("doctor@test.com")).thenReturn(Optional.empty());
+        when(personaRepositorio.findDoctorByEmail("doctor@test.com")).thenReturn(Optional.of(doctor));
 
         UserDetails details = userDetailsService.loadUserByUsername("doctor@test.com");
 
@@ -82,8 +78,8 @@ class CustomUserDetailsServiceTest {
     @Test
     void loadUsuarioInexistente_lanzaExcepcion() {
         when(adminRepositorio.findByEmail("nadie@test.com")).thenReturn(Optional.empty());
-        when(pacienteRepositorio.findByEmail("nadie@test.com")).thenReturn(Optional.empty());
-        when(doctorRepositorio.findByEmail("nadie@test.com")).thenReturn(Optional.empty());
+        when(personaRepositorio.findPacienteByEmail("nadie@test.com")).thenReturn(Optional.empty());
+        when(personaRepositorio.findDoctorByEmail("nadie@test.com")).thenReturn(Optional.empty());
 
         assertThrows(UsernameNotFoundException.class,
                 () -> userDetailsService.loadUserByUsername("nadie@test.com"));
