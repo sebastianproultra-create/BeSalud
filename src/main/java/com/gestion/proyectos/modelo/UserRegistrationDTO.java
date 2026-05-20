@@ -40,4 +40,5 @@ public class UserRegistrationDTO {
     private String foto;
     private String biografia;
     private MultipartFile fotoFile;
+    private String fotoUrl;
 }

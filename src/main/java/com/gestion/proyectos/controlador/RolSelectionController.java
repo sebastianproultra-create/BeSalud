@@ -54,6 +54,7 @@ public class RolSelectionController {
                               @RequestParam(required = false) String identificacion,
                               @RequestParam(required = false) String especialidad,
                               @RequestParam(required = false) String fechaNacimiento,
+                              @RequestParam(required = false) String biografia,
                               HttpSession session,
                               HttpServletResponse response,
                               Model model) {
@@ -61,6 +62,8 @@ public class RolSelectionController {
         if (email == null) {
             return "redirect:/login";
         }
+
+        String picture = (String) session.getAttribute("oauth2Picture");
 
         UserRegistrationDTO dto = new UserRegistrationDTO();
         dto.setEmail(email);
@@ -72,6 +75,8 @@ public class RolSelectionController {
         dto.setRole(role);
         dto.setEspecialidad(especialidad);
         dto.setFechaNacimiento(fechaNacimiento);
+        dto.setBiografia(biografia);
+        dto.setFotoUrl(picture);
 
         String error = registroService.validar(dto);
         if (error != null) {
@@ -97,6 +102,7 @@ public class RolSelectionController {
         session.removeAttribute("oauth2Email");
         session.removeAttribute("oauth2Nombre");
         session.removeAttribute("oauth2Apellido");
+        session.removeAttribute("oauth2Picture");
 
         var ud = new User(email, "", List.of(new SimpleGrantedAuthority("ROLE_" + role)));
         String token = jwtService.generateToken(ud);

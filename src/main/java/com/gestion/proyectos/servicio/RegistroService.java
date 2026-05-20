@@ -87,6 +87,8 @@ public class RegistroService {
             } catch (Exception e) {
                 return "Error al procesar la imagen";
             }
+        } else if (user.getFotoUrl() != null && !user.getFotoUrl().isBlank()) {
+            fotoBase64 = user.getFotoUrl();
         }
 
         LocalDate fechaNac;

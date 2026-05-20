@@ -90,8 +90,10 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
         session.setAttribute("oauth2Email", email);
         String nombre = oauth2User.getAttribute("given_name");
         String apellido = oauth2User.getAttribute("family_name");
+        String picture = oauth2User.getAttribute("picture");
         if (nombre != null) session.setAttribute("oauth2Nombre", nombre);
         if (apellido != null) session.setAttribute("oauth2Apellido", apellido);
+        if (picture != null) session.setAttribute("oauth2Picture", picture);
 
         response.sendRedirect("/elegir-rol");
     }
