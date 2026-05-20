@@ -8,6 +8,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.oauth2.core.user.OAuth2User;
@@ -55,6 +57,11 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
             var ud = new User(emailFinal, "", List.of(new SimpleGrantedAuthority("ROLE_ADMIN")));
             String token = jwtService.generateToken(ud);
             jwtCookieService.addJwtCookie(response, token);
+            HttpSession adminSession = request.getSession(false);
+            if (adminSession != null) {
+                adminSession.removeAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY);
+            }
+            SecurityContextHolder.clearContext();
             response.sendRedirect("/admin");
             return;
         }
@@ -65,6 +72,11 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
             var ud = new User(emailFinal, "", List.of(new SimpleGrantedAuthority(role)));
             String token = jwtService.generateToken(ud);
             jwtCookieService.addJwtCookie(response, token);
+            HttpSession personaSession = request.getSession(false);
+            if (personaSession != null) {
+                personaSession.removeAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY);
+            }
+            SecurityContextHolder.clearContext();
             if ("DOCTOR".equals(persona.getRole())) {
                 response.sendRedirect("/doctores");
             } else {

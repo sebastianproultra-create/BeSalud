@@ -80,6 +80,13 @@ public class RolSelectionController {
             return "elegir_rol";
         }
 
+        String duplicado = registroService.verificarDuplicado(dto);
+        if (duplicado != null) {
+            model.addAttribute("error", duplicado);
+            model.addAttribute("email", email);
+            return "elegir_rol";
+        }
+
         String resultado = registroService.registrar(dto);
         if (resultado != null) {
             model.addAttribute("error", resultado);
