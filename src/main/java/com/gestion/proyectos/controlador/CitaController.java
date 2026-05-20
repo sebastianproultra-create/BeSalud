@@ -189,6 +189,15 @@ public class CitaController {
         if (citaService.hayConflicto(doctorId, fechaCita, horaCita, null))
             return "redirect:/citas/nueva?doctorId=" + doctorId + "&error=conflicto_cita";
 
+        Doctor doctor = citaService.buscarDoctorPorId(doctorId).orElse(null);
+        if (doctor == null) {
+            return "redirect:/citas/nueva?doctorId=" + doctorId + "&error=doctor_no_existe";
+        }
+        if (paciente.getEmail() != null && doctor.getEmail() != null
+                && doctor.getEmail().trim().equalsIgnoreCase(paciente.getEmail().trim())) {
+            return "redirect:/citas/nueva?doctorId=" + doctorId + "&error=doctor_invalido";
+        }
+
         citaService.crearCita(doctorId, paciente.getId(), fechaCita, horaCita, motivo);
         return "redirect:/pacientes/landing?success=cita_agendada";
     }
