@@ -10,6 +10,7 @@ import com.gestion.proyectos.repositorio.PersonaRepositorio;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -55,10 +56,8 @@ public class RegistroService {
         String email = user.getEmail().trim().toLowerCase();
         if (adminRepo.findByEmail(email).isPresent())
             return "Ya existe un usuario registrado con ese correo";
-        if ("PACIENTE".equals(user.getRole()) && personaRepo.findPacienteByEmail(email).isPresent())
-            return "Ya existe un paciente registrado con ese correo";
-        if ("DOCTOR".equals(user.getRole()) && personaRepo.findDoctorByEmail(email).isPresent())
-            return "Ya existe un doctor registrado con ese correo";
+        if (personaRepo.findByEmail(email).isPresent())
+            return "Ya existe un usuario registrado con ese correo";
         return null;
     }
 
@@ -73,7 +72,12 @@ public class RegistroService {
         if ("PACIENTE".equals(user.getRole())) {
             Paciente paciente = new Paciente(user.getNombre().trim(), user.getApellido().trim(),
                     user.getTelefono().trim(), user.getIdentificacion().trim(), email, password);
-            personaRepo.save(paciente);
+            try {
+                personaRepo.save(paciente);
+            } catch (DuplicateKeyException ex) {
+                log.warn("Error al guardar paciente por clave duplicada: {}", email, ex);
+                return "Ya existe un usuario registrado con ese correo";
+            }
             log.info("Paciente registrado: {}", email);
             return null;
         }
@@ -101,7 +105,12 @@ public class RegistroService {
         Doctor doctor = new Doctor(user.getNombre().trim(), user.getApellido().trim(),
                 user.getTelefono().trim(), user.getIdentificacion().trim(), email, password,
                 user.getEspecialidad().trim(), fechaNac, fotoBase64, user.getBiografia());
-        personaRepo.save(doctor);
+        try {
+            personaRepo.save(doctor);
+        } catch (DuplicateKeyException ex) {
+            log.warn("Error al guardar doctor por clave duplicada: {}", email, ex);
+            return "Ya existe un usuario registrado con ese correo";
+        }
         log.info("Doctor registrado: {}", email);
         return null;
     }

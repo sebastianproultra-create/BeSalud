@@ -46,7 +46,7 @@ public class PacienteController {
         String currentEmail = auth != null ? auth.getName() : null;
         boolean modoPaciente = "ROLE_PACIENTE".equals(session.getAttribute("selectedRole"));
 
-        model.addAttribute("doctores", pacienteService.listarDoctores(especialidad, currentEmail, modoPaciente));
+        model.addAttribute("doctores", pacienteService.listarDoctores(especialidad));
         model.addAttribute("especialidades", pacienteService.especialidadesDisponibles());
         model.addAttribute("modoPaciente", modoPaciente);
 
