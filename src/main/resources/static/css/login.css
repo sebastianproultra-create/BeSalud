@@ -2,6 +2,13 @@
    LOGIN PAGE STYLES
    ============================================== */
 
+/* Card principal centrada y más amplia */
+.login-card-main {
+    max-width: 600px;
+    margin: 60px auto;
+    padding: 48px 52px;
+}
+
 /* Neutraliza el form global dentro de la card */
 .card form {
     background: none;
