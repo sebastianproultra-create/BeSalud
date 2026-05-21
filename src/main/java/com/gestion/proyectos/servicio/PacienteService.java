@@ -70,10 +70,12 @@ public class PacienteService {
         if (hasSearch && hasEspecialidad)
             return personaRepo.searchDoctoresCombinado(search.trim(), especialidad.trim(), pageable);
         if (hasSearch) {
-            String[] partes = search.trim().split("\\s+");
+            String limpio = search.trim().replaceAll("(?i)^(dra?\\.?)\\s+", "").trim();
+            if (limpio.isEmpty()) limpio = search.trim();
+            String[] partes = limpio.split("\\s+");
             if (partes.length >= 2)
                 return personaRepo.searchDoctoresByNombreYApellido(partes[0], partes[1], pageable);
-            return personaRepo.searchDoctoresByNombreApellidoEmail(search.trim(), pageable);
+            return personaRepo.searchDoctoresByNombreApellidoEmail(limpio, pageable);
         }
         if (hasEspecialidad)
             return personaRepo.findDoctoresByEspecialidadContainingIgnoreCase(especialidad.trim(), pageable);
