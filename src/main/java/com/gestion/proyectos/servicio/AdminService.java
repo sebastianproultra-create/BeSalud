@@ -49,13 +49,18 @@ public class AdminService {
 
     public Page<Doctor> listarDoctoresPaginated(int page, int size, String especialidad, String search) {
         Pageable pageable = PageRequest.of(Math.max(0, page), Math.max(1, size));
-        if (search != null && !search.isBlank()) {
+        boolean hasSearch = search != null && !search.isBlank();
+        boolean hasEspecialidad = especialidad != null && !especialidad.isBlank();
+
+        if (hasSearch && hasEspecialidad) {
+            return personaRepo.searchDoctoresCombinado(search.trim(), especialidad.trim(), pageable);
+        } else if (hasSearch) {
             return personaRepo.searchDoctoresByNombreApellidoEmail(search.trim(), pageable);
-        }
-        if (especialidad != null && !especialidad.isBlank()) {
+        } else if (hasEspecialidad) {
             return personaRepo.findDoctoresByEspecialidadContainingIgnoreCase(especialidad.trim(), pageable);
+        } else {
+            return personaRepo.findAllDoctores(pageable);
         }
-        return personaRepo.findAllDoctores(pageable);
     }
 
     public Page<Paciente> listarPacientesPaginated(int page, int size) {

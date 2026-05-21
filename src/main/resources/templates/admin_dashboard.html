@@ -1,5 +1,6 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <title>Panel de Administración - BeSalud</title>
     <link rel="stylesheet" th:href="@{/css/global.css}">
@@ -11,9 +12,9 @@
         <h1>BeSalud</h1>
         <p>Panel de Administración</p>
     </div>
-    <nav>
+    <nav class="header-nav" aria-label="Navegación principal">
+        <span class="header-user" sec:authentication="name" style="margin-right: 15px; font-weight: 500;">Administrador</span>
         <form th:action="@{/logout}" method="post" style="display: inline;">
-
             <button type="submit" class="btn btn-secondary">Cerrar Sesión</button>
         </form>
     </nav>
@@ -23,11 +24,11 @@
     <div class="stats-grid">
         <div class="stat-card">
             <h3>Total Doctores</h3>
-            <div class="stat-number" th:text="${#lists.size(doctores)}"></div>
+            <div class="stat-number" th:text="${doctores.totalElements}"></div>
         </div>
         <div class="stat-card">
             <h3>Total Pacientes</h3>
-            <div class="stat-number" th:text="${#lists.size(pacientes)}"></div>
+            <div class="stat-number" th:text="${pacientes.totalElements}"></div>
         </div>
         <div class="stat-card">
             <h3>Total Administradores</h3>
@@ -36,7 +37,18 @@
     </div>
 
     <div class="card">
-        <h2>Doctores Registrados</h2>
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 16px;">
+            <h2 style="margin: 0;">Doctores Registrados</h2>
+            <form th:action="@{/admin}" method="get" style="display:flex; gap:8px; align-items:center;">
+                <input type="text" name="search" th:value="${search}" placeholder="Buscar nombre o email..." style="padding:8px; border: 1px solid var(--border-color, #ccc); border-radius: 4px;" />
+                <input type="text" name="especialidad" th:value="${especialidad}" placeholder="Filtrar especialidad" style="padding:8px; border: 1px solid var(--border-color, #ccc); border-radius: 4px;" />
+                <input type="hidden" name="size" th:value="${size}" />
+                <button type="submit" class="btn btn-primary btn-sm">Buscar</button>
+                <a th:if="${search != null and !search.isEmpty() or especialidad != null and !especialidad.isEmpty()}" 
+                   th:href="@{/admin}" class="btn btn-secondary btn-sm">Limpiar</a>
+            </form>
+        </div>
+        <div style="overflow-x: auto;">
         <table>
             <thead>
                 <tr>
@@ -68,26 +80,27 @@
                     </tr>
             </tbody>
         </table>
-            <form th:action="@{/admin}" method="get" style="display:flex; gap:8px; align-items:center; margin-bottom:12px;">
-                <input type="text" name="search" th:value="${search}" placeholder="Buscar por nombre o email" style="padding:8px;" />
-                <input type="text" name="especialidad" th:value="${especialidad}" placeholder="Filtrar por especialidad" style="padding:8px;" />
-                <input type="hidden" name="size" th:value="${size}" />
-                <button type="submit" class="btn btn-primary">Buscar</button>
-            </form>
-            <div th:if="${doctores.totalPages > 1}" style="margin-top:12px; text-align:center;">
+        </div>
+        <div th:if="${doctores.totalPages > 1}" style="margin-top:16px; text-align:center;"
+             th:with="start=${(doctores.number - 2 < 0) ? 0 : (doctores.number - 2)}, end=${(doctores.number + 2 >= doctores.totalPages) ? (doctores.totalPages - 1) : (doctores.number + 2)}">
                 <a th:if="${doctores.hasPrevious()}" th:href="@{/admin(page=${doctores.number-1},size=${size},search=${search},especialidad=${especialidad})}" class="btn btn-link">Anterior</a>
-                <span th:each="i : ${#numbers.sequence(0, doctores.totalPages-1)}">
+                <span th:if="${start > 0}" style="color: #666; margin: 0 4px;">...</span>
+                <span th:each="i : ${#numbers.sequence(start, end)}">
                     <a th:href="@{/admin(page=${i},size=${size},search=${search},especialidad=${especialidad})}"
                        th:text="${i+1}"
                        th:classappend="${i == doctores.number} ? ' btn btn-accent' : ' btn btn-link'"
                        style="margin:0 4px;"></a>
                 </span>
+                <span th:if="${end < doctores.totalPages - 1}" style="color: #666; margin: 0 4px;">...</span>
                 <a th:if="${doctores.hasNext()}" th:href="@{/admin(page=${doctores.number+1},size=${size},search=${search},especialidad=${especialidad})}" class="btn btn-link">Siguiente</a>
             </div>
     </div>
 
     <div class="card">
-        <h2>Pacientes Registrados</h2>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+            <h2 style="margin: 0;">Pacientes Registrados</h2>
+        </div>
+        <div style="overflow-x: auto;">
         <table>
             <thead>
                 <tr>
@@ -108,14 +121,18 @@
                 </tr>
             </tbody>
         </table>
-        <div th:if="${pacientes.totalPages > 1}" style="margin-top:12px; text-align:center;">
+        </div>
+        <div th:if="${pacientes.totalPages > 1}" style="margin-top:16px; text-align:center;"
+             th:with="start=${(pacientes.number - 2 < 0) ? 0 : (pacientes.number - 2)}, end=${(pacientes.number + 2 >= pacientes.totalPages) ? (pacientes.totalPages - 1) : (pacientes.number + 2)}">
             <a th:if="${pacientes.hasPrevious()}" th:href="@{/admin(page=${pacientes.number-1},size=${size})}" class="btn btn-link">Anterior</a>
-            <span th:each="i : ${#numbers.sequence(0, pacientes.totalPages-1)}">
+            <span th:if="${start > 0}" style="color: #666; margin: 0 4px;">...</span>
+            <span th:each="i : ${#numbers.sequence(start, end)}">
                 <a th:href="@{/admin(page=${i},size=${size})}"
                    th:text="${i+1}"
                    th:classappend="${i == pacientes.number} ? ' btn btn-accent' : ' btn btn-link'"
                    style="margin:0 4px;"></a>
             </span>
+            <span th:if="${end < pacientes.totalPages - 1}" style="color: #666; margin: 0 4px;">...</span>
             <a th:if="${pacientes.hasNext()}" th:href="@{/admin(page=${pacientes.number+1},size=${size})}" class="btn btn-link">Siguiente</a>
         </div>
     </div>
