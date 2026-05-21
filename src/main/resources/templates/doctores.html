@@ -5,10 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Doctores — BeSalud</title>
     <link rel="stylesheet" th:href="@{/css/global.css}">
-    <link rel="stylesheet" th:href="@{/css/doctores.css}">
 </head>
 <body>
-<header th:replace="~{fragments/layout :: header-brand}"></header>
 <nav th:replace="~{fragments/layout :: nav-admin}"></nav>
 
 <div class="container doctores-page">
@@ -20,21 +18,19 @@
             <h2 id="page-title" class="page-title">Doctores Registrados</h2>
             <p class="page-subtitle">Administra el equipo médico y consulta sus horarios.</p>
         </div>
-        <div class="page-header-stat" aria-label="Total de doctores">
-            <span class="page-header-stat-value" th:text="${#lists.size(doctores)}">0</span>
-            <span class="page-header-stat-label">Total</span>
+                <input type="text" name="especialidad" th:value="${filtroEspecialidad}"
+                       placeholder="Filtrar por especialidad (ej: Cardiología)"
+                       class="search-input" aria-label="Filtrar por especialidad"/>
+                <input type="text" name="search" th:value="${search}"
+                       placeholder="Buscar por nombre o email" class="search-input" aria-label="Buscar" style="margin-left:12px;"/>
         </div>
     </section>
-
-    <!-- ═══════════════ FILTRO ═══════════════ -->
+            <a th:if="${filtroEspecialidad != null and !filtroEspecialidad.isEmpty()} or ${search != null and !search.isEmpty()}"
+               th:href="@{/doctores}" class="btn btn-secondary">Limpiar</a>
     <section class="card filter-card" aria-labelledby="filter-title">
         <h3 id="filter-title" class="filter-title">Buscar</h3>
         <form th:action="@{/doctores}" method="get" class="search-form">
             <div class="search-input-wrap">
-                <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">
-                    <circle cx="11" cy="11" r="7"/>
-                    <path d="M21 21l-4.3-4.3"/>
-                </svg>
                 <input type="text" name="especialidad" th:value="${filtroEspecialidad}"
                        placeholder="Filtrar por especialidad (ej: Cardiología)"
                        class="search-input" aria-label="Filtrar por especialidad"/>
@@ -46,10 +42,9 @@
     </section>
 
     <!-- ═══════════════ GRID DE DOCTORES ═══════════════ -->
-    <section class="card" aria-labelledby="list-title">
-        <h2 id="list-title">
-            Equipo Médico
-            <span class="card-counter" th:if="${!doctores.isEmpty()}" th:text="${#lists.size(doctores)}">0</span>
+    <section class="card" aria-labelledby="equipo-title">
+        <h2 id="equipo-title">Equipo Médico
+            <span class="card-counter" th:if="${!doctores.isEmpty()}" th:text="${doctores.totalElements}">0</span>
         </h2>
 
         <div th:if="${doctores.isEmpty()}" class="empty-state">
@@ -61,8 +56,20 @@
             <p>No hay doctores que coincidan con tu búsqueda.</p>
         </div>
 
+
+        <!-- Pagination -->
+        <div th:if="${doctores.totalPages > 1}" class="pagination" style="margin-top:18px; text-align:center;">
+            <a th:if="${doctores.hasPrevious()}" th:href="@{/doctores(page=${doctores.number-1},size=${size},especialidad=${filtroEspecialidad},search=${search})}" class="btn btn-link">Anterior</a>
+            <span th:each="i : ${#numbers.sequence(0, doctores.totalPages-1)}">
+                <a th:href="@{/doctores(page=${i},size=${size},especialidad=${filtroEspecialidad},search=${search})}"
+                   th:text="${i+1}"
+                   th:classappend="${i == doctores.number} ? ' btn btn-accent' : ' btn btn-link'"
+                   style="margin:0 4px;"></a>
+            </span>
+            <a th:if="${doctores.hasNext()}" th:href="@{/doctores(page=${doctores.number+1},size=${size},especialidad=${filtroEspecialidad},search=${search})}" class="btn btn-link">Siguiente</a>
+        </div>
         <div th:if="${!doctores.isEmpty()}" class="doctores-grid">
-            <article th:each="doctor : ${doctores}" class="doctor-card">
+            <article th:each="doctor : ${doctores.content}" class="doctor-card">
                 <div class="doctor-card-avatar" aria-hidden="true">
                     <span th:text="${#strings.toUpperCase(doctor.nombre.substring(0,1)) + #strings.toUpperCase(doctor.apellido.substring(0,1))}">DR</span>
                 </div>

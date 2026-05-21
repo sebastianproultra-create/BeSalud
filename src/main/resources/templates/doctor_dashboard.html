@@ -131,6 +131,10 @@
             <span th:if="${param.error[0].startsWith('missing_time_')}" th:text="'Falta la hora para el día ' + ${param.error[0].substring(13)}"></span>
             <span th:if="${param.error[0].startsWith('invalid_time_')}" th:text="'Hora inválida para el día ' + ${param.error[0].substring(13)}"></span>
             <span th:if="${param.error[0].startsWith('invalid_time2_')}" th:text="'Hora inválida para el segundo intervalo del día ' + ${param.error[0].substring(14)}"></span>
+            <span th:if="${param.error[0].startsWith('formato_hora2_')}" th:text="'Formato de hora incorrecto en segundo intervalo del día ' + ${param.error[0].substring(14)}"></span>
+            <span th:if="${param.error[0].startsWith('formato_hora_')}" th:text="'Formato de hora incorrecto para el día ' + ${param.error[0].substring(13)}"></span>
+            <span th:if="${param.error[0].startsWith('missing_time2_')}" th:text="'Falta completar el segundo intervalo del día ' + ${param.error[0].substring(14)}"></span>
+            <span th:if="${param.error[0].startsWith('solapamiento_intervalos_')}" th:text="'Los dos intervalos se solapan para el día ' + ${param.error[0].substring(24)}"></span>
         </span>
     </div>
 
@@ -370,7 +374,7 @@
                                     </th:block>
                                     <form th:action="@{'/doctores/citas/' + ${cita.id} + '/cancelar'}" method="post" class="inline-form">
 
-                                        <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('¿Cancelar esta cita?')">Cancelar</button>
+                                        <button type="submit" class="btn btn-danger btn-sm" style="padding:6px 14px;font-size:10px;letter-spacing:0.14em;text-transform:uppercase;line-height:1.4;" onclick="return confirm('¿Cancelar esta cita?')">Cancelar</button>
                                     </form>
                                 </th:block>
                                 <th:block th:if="${cita.estado.name() == 'ASISTIO'}">
@@ -378,7 +382,7 @@
                                             th:data-cita-id="${cita.id}" onclick="abrirDictamen(this.dataset.citaId)">Dar Dictamen</button>
                                 </th:block>
                                 <th:block th:if="${cita.estado.name() == 'COMPLETADA' and cita.dictamen != null}">
-                                    <button type="button" class="btn btn-outline btn-sm"
+                                    <button type="button" class="btn btn-primary btn-sm"
                                             th:data-cita-id="${cita.id}" onclick="verDictamen(this.dataset.citaId)">Ver Dictamen</button>
                                 </th:block>
                                 <span th:if="${cita.estado.name() == 'NO_ASISTIO' or cita.estado.name() == 'CANCELADA' or (cita.estado.name() == 'COMPLETADA' and cita.dictamen == null)}" class="text-muted">—</span>
@@ -433,6 +437,7 @@
     <div class="modal-content">
         <h3 id="modalTitle">Registrar Dictamen</h3>
         <form id="dictamenForm" method="post">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
 
             <div class="form-group">
                 <label for="diagnostico">Diagnóstico *</label>
@@ -559,6 +564,73 @@ document.addEventListener('keydown', function(e) {
     }, { rootMargin: '-30% 0px -60% 0px' });
     sections.forEach(s => observer.observe(s));
 })();
+
+/* ── Paginación Frontend para Pacientes ── */
+document.addEventListener('DOMContentLoaded', function() {
+    const grid = document.querySelector('.pacientes-grid');
+    if (!grid) return;
+    
+    const cards = grid.querySelectorAll('.paciente-card');
+    const itemsPerPage = 6; // Ajusta este número para cambiar la cantidad por página
+    const totalPages = Math.ceil(cards.length / itemsPerPage);
+    
+    if (totalPages > 1) {
+        const paginationContainer = document.createElement('div');
+        paginationContainer.className = 'pagination';
+        paginationContainer.style.marginTop = '24px';
+        paginationContainer.style.textAlign = 'center';
+        grid.parentNode.insertBefore(paginationContainer, grid.nextSibling);
+
+        function showPage(page) {
+            cards.forEach((card, index) => {
+                card.style.display = (index >= (page - 1) * itemsPerPage && index < page * itemsPerPage) ? '' : 'none';
+            });
+            renderPagination(page);
+        }
+
+        function renderPagination(currentPage) {
+            paginationContainer.innerHTML = '';
+            
+            if (currentPage > 1) {
+                const prev = document.createElement('button');
+                prev.type = 'button';
+                prev.className = 'btn btn-link';
+                prev.textContent = 'Anterior';
+                prev.onclick = () => showPage(currentPage - 1);
+                paginationContainer.appendChild(prev);
+            }
+
+            for (let i = 1; i <= totalPages; i++) {
+                if (i === 1 || i === totalPages || (i >= currentPage - 1 && i <= currentPage + 1)) {
+                    const btn = document.createElement('button');
+                    btn.type = 'button';
+                    btn.className = i === currentPage ? 'btn btn-accent' : 'btn btn-link';
+                    btn.style.margin = '0 4px';
+                    btn.textContent = i;
+                    btn.onclick = () => showPage(i);
+                    paginationContainer.appendChild(btn);
+                } else if (i === currentPage - 2 || i === currentPage + 2) {
+                    const dots = document.createElement('span');
+                    dots.textContent = '...';
+                    dots.style.color = '#666';
+                    dots.style.margin = '0 4px';
+                    paginationContainer.appendChild(dots);
+                }
+            }
+
+            if (currentPage < totalPages) {
+                const next = document.createElement('button');
+                next.type = 'button';
+                next.className = 'btn btn-link';
+                next.textContent = 'Siguiente';
+                next.onclick = () => showPage(currentPage + 1);
+                paginationContainer.appendChild(next);
+            }
+        }
+
+        showPage(1);
+    }
+});
 </script>
 
 <script th:inline="javascript">

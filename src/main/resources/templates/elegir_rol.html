@@ -39,7 +39,56 @@
 
             <div id="doctor-fields" style="display:none;">
                 <label for="especialidad">Especialidad:</label>
-                <input type="text" id="especialidad" name="especialidad"/>
+                <select id="especialidad" name="especialidad" class="styled-select">
+                    <option value="">Seleccione una especialidad</option>
+                    <optgroup label="Atención Integral y Primaria">
+                        <option value="Geriatría">Geriatría</option>
+                        <option value="Medicina Familiar">Medicina Familiar</option>
+                        <option value="Medicina General">Medicina General</option>
+                        <option value="Medicina Interna">Medicina Interna</option>
+                        <option value="Pediatría">Pediatría</option>
+                    </optgroup>
+                    <optgroup label="Especialidades Médicas (Clínicas)">
+                        <option value="Alergología e Inmunología">Alergología e Inmunología</option>
+                        <option value="Cardiología">Cardiología</option>
+                        <option value="Dermatología">Dermatología</option>
+                        <option value="Endocrinología y Metabolismo">Endocrinología y Metabolismo</option>
+                        <option value="Gastroenterología">Gastroenterología</option>
+                        <option value="Ginecología y Obstetricia">Ginecología y Obstetricia</option>
+                        <option value="Hematología">Hematología</option>
+                        <option value="Infectología">Infectología</option>
+                        <option value="Nefrología">Nefrología</option>
+                        <option value="Neumología">Neumología</option>
+                        <option value="Neurología">Neurología</option>
+                        <option value="Nutrición y Dietética">Nutrición y Dietética</option>
+                        <option value="Oftalmología">Oftalmología</option>
+                        <option value="Oncología Médica">Oncología Médica</option>
+                        <option value="Otorrinolaringología">Otorrinolaringología</option>
+                        <option value="Reumatología">Reumatología</option>
+                        <option value="Urología">Urología</option>
+                    </optgroup>
+                    <optgroup label="Especialidades Quirúrgicas">
+                        <option value="Cirugía Cardiovascular">Cirugía Cardiovascular</option>
+                        <option value="Cirugía General">Cirugía General</option>
+                        <option value="Cirugía Maxilofacial">Cirugía Maxilofacial</option>
+                        <option value="Cirugía Plástica y Estética">Cirugía Plástica y Estética</option>
+                        <option value="Cirugía Vascular">Cirugía Vascular</option>
+                        <option value="Neurocirugía">Neurocirugía</option>
+                        <option value="Ortopedia y Traumatología">Ortopedia y Traumatología</option>
+                    </optgroup>
+                    <optgroup label="Salud Mental y Rehabilitación">
+                        <option value="Fisiatría (Medicina Física)">Fisiatría (Medicina Física)</option>
+                        <option value="Psicología Clínica">Psicología Clínica</option>
+                        <option value="Psiquiatría">Psiquiatría</option>
+                        <option value="Terapia Ocupacional">Terapia Ocupacional</option>
+                    </optgroup>
+                    <optgroup label="Otras Especialidades">
+                        <option value="Medicina del Deporte">Medicina del Deporte</option>
+                        <option value="Medicina del Dolor y Cuidados Paliativos">Medicina del Dolor y Cuidados Paliativos</option>
+                        <option value="Medicina Laboral">Medicina Laboral</option>
+                        <option value="Toxicología">Toxicología</option>
+                    </optgroup>
+                </select>
 
                 <label for="fechaNacimiento">Fecha de Nacimiento:</label>
                 <input type="date" id="fechaNacimiento" name="fechaNacimiento"/>
@@ -65,5 +114,6 @@ function toggleDoctorFields() {
     fechaNac.required = role === 'DOCTOR';
 }
 </script>
+<script th:src="@{/js/custom-select.js}"></script>
 </body>
 </html>

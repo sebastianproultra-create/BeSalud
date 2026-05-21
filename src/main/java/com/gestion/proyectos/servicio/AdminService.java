@@ -8,9 +8,13 @@ import com.gestion.proyectos.repositorio.PersonaRepositorio;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class AdminService {
@@ -41,5 +45,48 @@ public class AdminService {
         List<Admin> result = adminRepo.findAll();
         log.debug("listarAdmins → {} registros", result.size());
         return result;
+    }
+
+    public Page<Doctor> listarDoctoresPaginated(int page, int size, String especialidad, String search) {
+        Pageable pageable = PageRequest.of(Math.max(0, page), Math.max(1, size));
+        boolean hasSearch = search != null && !search.isBlank();
+        boolean hasEspecialidad = especialidad != null && !especialidad.isBlank();
+
+        if (hasSearch && hasEspecialidad) {
+            return personaRepo.searchDoctoresCombinado(search.trim(), especialidad.trim(), pageable);
+        } else if (hasSearch) {
+            return personaRepo.searchDoctoresByNombreApellidoEmail(search.trim(), pageable);
+        } else if (hasEspecialidad) {
+            return personaRepo.findDoctoresByEspecialidadContainingIgnoreCase(especialidad.trim(), pageable);
+        } else {
+            return personaRepo.findAllDoctores(pageable);
+        }
+    }
+
+    public Page<Paciente> listarPacientesPaginated(int page, int size) {
+        Pageable pageable = PageRequest.of(Math.max(0, page), Math.max(1, size));
+        return personaRepo.findAllPacientes(pageable);
+    }
+
+    public Optional<Doctor> obtenerDoctor(String id) {
+        return personaRepo.findById(id).filter(p -> p instanceof Doctor).map(p -> (Doctor) p);
+    }
+
+    public void activarDoctor(String doctorId) {
+        Optional<Doctor> doctor = obtenerDoctor(doctorId);
+        if (doctor.isPresent()) {
+            doctor.get().setEstado("ACTIVO");
+            personaRepo.save(doctor.get());
+            log.info("Doctor {} activado", doctorId);
+        }
+    }
+
+    public void desactivarDoctor(String doctorId) {
+        Optional<Doctor> doctor = obtenerDoctor(doctorId);
+        if (doctor.isPresent()) {
+            doctor.get().setEstado("INACTIVO");
+            personaRepo.save(doctor.get());
+            log.info("Doctor {} desactivado", doctorId);
+        }
     }
 }

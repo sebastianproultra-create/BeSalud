@@ -37,8 +37,11 @@ public class DoctorController {
 
     @GetMapping
     public String listar(Model model,
-                         @RequestParam(required = false) String especialidad,
-                         @RequestParam(required = false) String estado) {
+            @org.springframework.web.bind.annotation.RequestParam(required = false) String especialidad,
+            @org.springframework.web.bind.annotation.RequestParam(required = false) String estado,
+            @org.springframework.web.bind.annotation.RequestParam(defaultValue = "0") int page,
+            @org.springframework.web.bind.annotation.RequestParam(defaultValue = "10") int size,
+            @org.springframework.web.bind.annotation.RequestParam(required = false) String search) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         String role = auth.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
@@ -64,34 +67,38 @@ public class DoctorController {
             model.addAttribute("weeklySlotTotal", doctorService.weeklySlotTotal(weeklyAvailability));
             model.addAttribute("dailySlotCounts", doctorService.dailySlotCounts(weeklyAvailability));
             model.addAttribute("diasSemana", List.of(
-                new String[]{"MONDAY","Lu","Lunes"},
-                new String[]{"TUESDAY","Ma","Martes"},
-                new String[]{"WEDNESDAY","Mi","Miércoles"},
-                new String[]{"THURSDAY","Ju","Jueves"},
-                new String[]{"FRIDAY","Vi","Viernes"},
-                new String[]{"SATURDAY","Sá","Sábado"},
-                new String[]{"SUNDAY","Do","Domingo"}
-            ));
+                    new String[] { "MONDAY", "Lu", "Lunes" },
+                    new String[] { "TUESDAY", "Ma", "Martes" },
+                    new String[] { "WEDNESDAY", "Mi", "Miércoles" },
+                    new String[] { "THURSDAY", "Ju", "Jueves" },
+                    new String[] { "FRIDAY", "Vi", "Viernes" },
+                    new String[] { "SATURDAY", "Sá", "Sábado" },
+                    new String[] { "SUNDAY", "Do", "Domingo" }));
             return "doctor_dashboard";
         }
 
-        List<Doctor> doctores = (especialidad != null && !especialidad.isEmpty())
-                ? doctorService.listarPorEspecialidad(especialidad)
-                : doctorService.listarTodos();
-        model.addAttribute("doctores", doctores);
+        var doctoresPage = doctorService.listarDoctoresPaginated(page, size, especialidad, search);
+        model.addAttribute("doctores", doctoresPage);
         model.addAttribute("filtroEspecialidad", especialidad == null ? "" : especialidad);
+        model.addAttribute("search", search == null ? "" : search);
+        model.addAttribute("page", page);
+        model.addAttribute("size", size);
         model.addAttribute("doctor", new Doctor());
         return "doctores";
     }
 
     @PostMapping("/guardar")
     public String guardar(@ModelAttribute Doctor doctor) {
-        if (esVacio(doctor.getNombre())) return "redirect:/doctores?error=nombre_requerido";
-        if (esVacio(doctor.getApellido())) return "redirect:/doctores?error=apellido_requerido";
-        if (esVacio(doctor.getEmail())) return "redirect:/doctores?error=email_requerido";
+        if (esVacio(doctor.getNombre()))
+            return "redirect:/doctores?error=nombre_requerido";
+        if (esVacio(doctor.getApellido()))
+            return "redirect:/doctores?error=apellido_requerido";
+        if (esVacio(doctor.getEmail()))
+            return "redirect:/doctores?error=email_requerido";
         if (!doctor.getEmail().trim().matches("^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$"))
             return "redirect:/doctores?error=email_invalido";
-        if (esVacio(doctor.getEspecialidad())) return "redirect:/doctores?error=especialidad_requerida";
+        if (esVacio(doctor.getEspecialidad()))
+            return "redirect:/doctores?error=especialidad_requerida";
         if (esVacio(doctor.getId()) && doctorService.emailDuplicado(doctor.getEmail()))
             return "redirect:/doctores?error=email_duplicado";
         doctorService.guardar(doctor);
@@ -118,15 +125,15 @@ public class DoctorController {
     public String guardarHorario(@RequestParam(required = false) List<String> days,
             @RequestParam Map<String, String> allParams,
             @RequestParam int duracionCitaMinutos) {
-        if (days == null || days.isEmpty()) return "redirect:/doctores?error=no_days_selected";
+        if (days == null || days.isEmpty())
+            return "redirect:/doctores?error=no_days_selected";
 
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         Doctor doctor = doctorService.buscarPorEmail(auth.getName()).orElseThrow();
 
-        for (String day : days) {
-            String error = doctorService.guardarHorarioDia(doctor.getId(), day, allParams, duracionCitaMinutos);
-            if (error != null) return "redirect:/doctores?error=" + error;
-        }
+        String error = doctorService.guardarHorariosSemanales(doctor.getId(), days, allParams, duracionCitaMinutos);
+        if (error != null)
+            return "redirect:/doctores?error=" + error;
         return REDIRECT_DOCTORES;
     }
 
@@ -160,9 +167,9 @@ public class DoctorController {
     @PreAuthorize("hasRole('DOCTOR')")
     @PostMapping("/citas/{id}/dictamen")
     public String guardarDictamen(@PathVariable String id,
-                                   @RequestParam String diagnostico,
-                                   @RequestParam String tratamiento,
-                                   @RequestParam(required = false) String observaciones) {
+            @RequestParam String diagnostico,
+            @RequestParam String tratamiento,
+            @RequestParam(required = false) String observaciones) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         Doctor doctor = doctorService.buscarPorEmail(auth.getName()).orElseThrow();
         doctorService.guardarDictamen(id, doctor.getId(), diagnostico, tratamiento, observaciones);

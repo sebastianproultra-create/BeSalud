@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cuenta Pendiente de Activación — BeSalud</title>
+    <link rel="stylesheet" th:href="@{/css/global.css}">
+</head>
+<body>
+<header th:replace="~{fragments/layout :: header-brand}"></header>
+
+<div class="container">
+    <div class="card" style="max-width: 620px; margin: 50px auto;">
+        <h2>Cuenta en espera de activación</h2>
+
+        <div class="alert alert-info">
+            Gracias por registrarse en nuestro sistema. Su cuenta será activada en un lapso de 1 a 7 días.
+        </div>
+
+        <p>
+            Su cuenta de doctor se encuentra actualmente <strong>desactivada</strong> y solo un administrador
+            puede activarla o desactivarla desde su panel de administración.
+        </p>
+
+        <div class="alert alert-success" style="margin-top: 20px;">
+            Cuando el administrador active su cuenta, podrá iniciar sesión normalmente y acceder a su panel.
+        </div>
+
+        <div style="display: flex; gap: 12px; flex-wrap: wrap; margin-top: 30px;">
+            <a th:href="@{/login}" class="btn btn-primary">Volver al login</a>
+            <a th:href="@{/}" class="btn btn-secondary">Ir al inicio</a>
+        </div>
+    </div>
+</div>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+</body>
+</html>

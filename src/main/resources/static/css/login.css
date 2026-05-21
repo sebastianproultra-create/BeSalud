@@ -1,27 +1,12 @@
-/* ============================================== 
-   LOGIN PAGE STYLES 
+/* ==============================================
+   LOGIN PAGE STYLES
    ============================================== */
 
-.login-container {
-    max-width: 500px;
-    margin: 0 auto;
-    min-height: calc(100vh - 120px);
-    display: flex;
-    align-items: center;
-    padding: 40px 0;
-}
-
-.login-card {
-    background-color: var(--white);
-    border-radius: 10px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-    padding: 40px;
-}
-
-.login-card h2 {
-    text-align: center;
-    color: var(--primary-color);
-    margin-bottom: 30px;
+/* Card principal: llena el container */
+.login-card-main {
+    max-width: 900px;
+    margin: 50px auto;
+    padding: 48px 52px;
 }
 
 /* Neutraliza el form global dentro de la card */
@@ -31,35 +16,75 @@
     border: none;
     border-radius: 0;
     box-shadow: none;
+    margin-bottom: 0;
 }
 
-.login-card form label {
-    font-weight: 600;
-    margin-top: 15px;
-}
-
-.login-card button {
+/* Botón principal full-width */
+.login-submit {
+    display: block;
     width: 100%;
-    margin-top: 20px;
-}
-
-.login-links {
+    margin-top: 22px;
     text-align: center;
-    margin-top: 20px;
 }
 
-.login-links p {
-    margin: 10px 0;
+/* Separador "o" */
+.oauth-divider {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin: 22px 0;
+    color: var(--text-light);
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
 }
 
-.login-links a {
-    color: var(--secondary-color);
-    text-decoration: underline;
+.oauth-divider::before,
+.oauth-divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border-color);
+}
+
+/* Botón Google */
+.btn-google-login {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    width: 100%;
+    padding: 11px 20px;
+    background: var(--white);
+    border: 1px solid var(--border-mid);
+    border-radius: 2px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 400;
+    color: var(--text-dark);
+    text-decoration: none;
+    letter-spacing: 0.01em;
+    transition: background 0.2s, border-color 0.2s;
+    box-sizing: border-box;
+}
+
+.btn-google-login:hover {
+    background: var(--off-white);
+    border-color: var(--border-mid);
+    color: var(--text-dark);
+}
+
+/* Link de registro */
+.login-register-link {
+    text-align: center;
+    margin-top: 22px;
+    font-size: 13px;
+    color: var(--text-light);
 }
 
 @media (max-width: 768px) {
-    .login-card {
-        margin: 20px;
-        padding: 20px;
+    .card {
+        margin: 20px !important;
+        padding: 24px !important;
     }
 }
