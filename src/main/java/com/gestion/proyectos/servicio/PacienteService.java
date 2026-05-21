@@ -63,9 +63,15 @@ public class PacienteService {
         return personaRepo.findAllDoctores();
     }
 
-    public Page<Doctor> listarDoctoresPaginated(int page, int size, String especialidad) {
+    public Page<Doctor> listarDoctoresPaginated(int page, int size, String especialidad, String search) {
         Pageable pageable = PageRequest.of(Math.max(0, page), Math.max(1, size));
-        if (especialidad != null && !especialidad.isBlank())
+        boolean hasSearch = search != null && !search.isBlank();
+        boolean hasEspecialidad = especialidad != null && !especialidad.isBlank();
+        if (hasSearch && hasEspecialidad)
+            return personaRepo.searchDoctoresCombinado(search.trim(), especialidad.trim(), pageable);
+        if (hasSearch)
+            return personaRepo.searchDoctoresByNombreApellidoEmail(search.trim(), pageable);
+        if (hasEspecialidad)
             return personaRepo.findDoctoresByEspecialidadContainingIgnoreCase(especialidad.trim(), pageable);
         return personaRepo.findAllDoctores(pageable);
     }

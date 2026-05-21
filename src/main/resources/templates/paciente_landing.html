@@ -37,12 +37,16 @@
                 Estás usando el modo paciente. No se mostrará tu perfil médico para agendarte citas a ti mismo.
             </div>
             <form th:action="@{/pacientes/landing}" method="get" class="filter-form">
+                <label for="search">Buscar:</label>
+                <input type="text" id="search" name="search" th:value="${search}" placeholder="Nombre o email del doctor" />
                 <label for="especialidad">Especialidad:</label>
                 <select id="especialidad" name="especialidad" class="styled-select">
                     <option value="">Todas las especialidades</option>
-                    <option th:each="esp : ${especialidades}" th:value="${esp}" th:text="${esp}"></option>
+                    <option th:each="esp : ${especialidades}" th:value="${esp}" th:selected="${esp == especialidad}" th:text="${esp}"></option>
                 </select>
                 <button type="submit" class="btn btn-primary">Filtrar</button>
+                <a th:if="${(search != null and !search.isEmpty()) or (especialidad != null and !especialidad.isEmpty())}"
+                   th:href="@{/pacientes/landing}" class="btn btn-secondary">Limpiar</a>
             </form>
         </div>
 
@@ -66,16 +70,16 @@
 
         <div th:if="${doctores.totalPages > 1}" style="margin-top:16px; text-align:center;"
              th:with="start=${(doctores.number - 2 < 0) ? 0 : (doctores.number - 2)}, end=${(doctores.number + 2 >= doctores.totalPages) ? (doctores.totalPages - 1) : (doctores.number + 2)}">
-            <a th:if="${doctores.hasPrevious()}" th:href="@{/pacientes/landing(page=${doctores.number-1},size=${size},especialidad=${especialidad})}" class="btn btn-link">Anterior</a>
+            <a th:if="${doctores.hasPrevious()}" th:href="@{/pacientes/landing(page=${doctores.number-1},size=${size},especialidad=${especialidad},search=${search})}" class="btn btn-link">Anterior</a>
             <span th:if="${start > 0}" style="color: #666; margin: 0 4px;">...</span>
             <span th:each="i : ${#numbers.sequence(start, end)}">
-                <a th:href="@{/pacientes/landing(page=${i},size=${size},especialidad=${especialidad})}"
+                <a th:href="@{/pacientes/landing(page=${i},size=${size},especialidad=${especialidad},search=${search})}"
                    th:text="${i+1}"
                    th:classappend="${i == doctores.number} ? ' btn btn-accent' : ' btn btn-link'"
                    style="margin:0 4px;"></a>
             </span>
             <span th:if="${end < doctores.totalPages - 1}" style="color: #666; margin: 0 4px;">...</span>
-            <a th:if="${doctores.hasNext()}" th:href="@{/pacientes/landing(page=${doctores.number+1},size=${size},especialidad=${especialidad})}" class="btn btn-link">Siguiente</a>
+            <a th:if="${doctores.hasNext()}" th:href="@{/pacientes/landing(page=${doctores.number+1},size=${size},especialidad=${especialidad},search=${search})}" class="btn btn-link">Siguiente</a>
         </div>
     </main>
 

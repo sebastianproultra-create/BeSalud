@@ -311,7 +311,7 @@
         <h2 id="citas-title">Mis Citas</h2>
         <div class="filter-bar">
             <label for="filtroEstadoSelect">Filtrar por estado</label>
-            <select id="filtroEstadoSelect" class="styled-select" onchange="filtrarCitas(this.value)">
+            <select id="filtroEstadoSelect" class="styled-select" onchange="filtrarCitas()">
                 <option value="TODAS">Todas</option>
                 <option value="PENDIENTE">Pendiente</option>
                 <option value="ASISTIO">Asistió</option>
@@ -319,6 +319,8 @@
                 <option value="NO_ASISTIO">No Asistió</option>
                 <option value="CANCELADA">Cancelada</option>
             </select>
+            <label for="busquedaPaciente" style="margin-left:12px;">Buscar paciente</label>
+            <input type="text" id="busquedaPaciente" placeholder="Nombre del paciente" oninput="filtrarCitas()" style="padding:8px; border:1px solid var(--border-color, #ccc); border-radius:4px;" />
         </div>
 
         <div th:if="${#lists.isEmpty(citas)}" class="empty-state">
@@ -403,6 +405,10 @@
             Mis Pacientes
             <span class="card-counter" th:if="${!#lists.isEmpty(misPacientes)}" th:text="${#lists.size(misPacientes)}">0</span>
         </h2>
+        <div th:if="${!#lists.isEmpty(misPacientes)}" class="filter-bar">
+            <label for="busquedaMisPacientes">Buscar paciente</label>
+            <input type="text" id="busquedaMisPacientes" placeholder="Nombre del paciente" oninput="filtrarPacientes()" style="padding:8px; border:1px solid var(--border-color, #ccc); border-radius:4px;" />
+        </div>
         <div th:if="${#lists.isEmpty(misPacientes)}" class="empty-state">
             <svg class="empty-state-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true">
                 <circle cx="9" cy="8" r="4"/>
@@ -668,13 +674,27 @@ document.getElementById('verDictamenModal').addEventListener('click', function(e
 <script th:src="@{/js/custom-select.js}"></script>
 <script th:src="@{/js/form-submit.js}"></script>
 <script>
-function filtrarCitas(estado) {
+function filtrarCitas() {
+    const estado = (document.getElementById('filtroEstadoSelect') || {}).value || 'TODAS';
+    const q = ((document.getElementById('busquedaPaciente') || {}).value || '').trim().toLowerCase();
     document.querySelectorAll('#citas tbody tr').forEach(function(row) {
-        row.style.display = (estado === 'TODAS' || row.dataset.estado === estado) ? '' : 'none';
+        const matchEstado = (estado === 'TODAS' || row.dataset.estado === estado);
+        const pacienteCell = row.querySelector('.paciente-cell');
+        const nombre = pacienteCell ? pacienteCell.textContent.toLowerCase() : '';
+        const matchSearch = q === '' || nombre.includes(q);
+        row.style.display = (matchEstado && matchSearch) ? '' : 'none';
     });
     const visible = document.querySelectorAll('#citas tbody tr:not([style*="none"])').length;
     const emptyMsg = document.getElementById('citas-empty-filter');
     if (emptyMsg) emptyMsg.style.display = visible === 0 ? '' : 'none';
+}
+
+function filtrarPacientes() {
+    const q = (document.getElementById('busquedaMisPacientes').value || '').trim().toLowerCase();
+    document.querySelectorAll('.pacientes-grid .paciente-card').forEach(function(card) {
+        const name = (card.querySelector('.paciente-name') || {}).textContent || '';
+        card.style.display = (q === '' || name.toLowerCase().includes(q)) ? '' : 'none';
+    });
 }
 </script>
 </body>
