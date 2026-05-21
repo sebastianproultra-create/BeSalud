@@ -1062,8 +1062,7 @@ table td form {
 .modal-overlay {
     position: fixed;
     inset: 0;
-    background: rgba(13, 59, 46, 0.55);
-    backdrop-filter: blur(2px);
+    background: rgba(13, 59, 46, 0.6);
     display: flex;
     align-items: center;
     justify-content: center;
