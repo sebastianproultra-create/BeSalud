@@ -4,6 +4,7 @@ import static com.gestion.proyectos.util.ValidacionUtil.esVacio;
 
 import com.gestion.proyectos.modelo.Cita;
 import com.gestion.proyectos.modelo.Doctor;
+import com.gestion.proyectos.modelo.EstadoCita;
 import com.gestion.proyectos.modelo.Paciente;
 import com.gestion.proyectos.servicio.CitaService;
 
@@ -109,6 +110,9 @@ public class CitaController {
         if (paciente == null || cita == null || !paciente.getId().equals(cita.getPacienteId()))
             return REDIRECT_PACIENTES_LANDING;
 
+        if (cita.getEstado() != EstadoCita.PENDIENTE)
+            return "redirect:/citas/" + id + "/reprogramar?error=estado_invalido";
+
         if (esVacio(fecha)) return "redirect:/citas/" + id + "/reprogramar?error=fecha_requerida";
         if (esVacio(hora)) return "redirect:/citas/" + id + "/reprogramar?error=hora_requerida";
 
@@ -180,23 +184,25 @@ public class CitaController {
         if (citaService.esFechaHoraPasada(fechaCita, horaCita))
             return "redirect:/citas/nueva?doctorId=" + doctorId + "&error=fecha_pasada";
 
+        Doctor doctor = citaService.buscarDoctorPorId(doctorId).orElse(null);
+        if (doctor == null)
+            return "redirect:/pacientes/landing?error=doctor_no_existe";
+        if (!"ACTIVO".equals(doctor.getEstado()))
+            return "redirect:/pacientes/landing?error=doctor_inactivo";
+
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         Paciente paciente = citaService.buscarPacientePorEmail(auth.getName()).orElse(null);
         if (paciente == null) return "redirect:/pacientes/landing?error=paciente_no_encontrado";
+
+        if (paciente.getEmail() != null && doctor.getEmail() != null
+                && doctor.getEmail().trim().equalsIgnoreCase(paciente.getEmail().trim())) {
+            return "redirect:/citas/nueva?doctorId=" + doctorId + "&error=doctor_invalido";
+        }
 
         if (!citaService.esHorarioValido(doctorId, fechaCita, horaCita))
             return "redirect:/citas/nueva?doctorId=" + doctorId + "&error=horario_invalido";
         if (citaService.hayConflicto(doctorId, fechaCita, horaCita, null))
             return "redirect:/citas/nueva?doctorId=" + doctorId + "&error=conflicto_cita";
-
-        Doctor doctor = citaService.buscarDoctorPorId(doctorId).orElse(null);
-        if (doctor == null) {
-            return "redirect:/citas/nueva?doctorId=" + doctorId + "&error=doctor_no_existe";
-        }
-        if (paciente.getEmail() != null && doctor.getEmail() != null
-                && doctor.getEmail().trim().equalsIgnoreCase(paciente.getEmail().trim())) {
-            return "redirect:/citas/nueva?doctorId=" + doctorId + "&error=doctor_invalido";
-        }
 
         citaService.crearCita(doctorId, paciente.getId(), fechaCita, horaCita, motivo);
         return "redirect:/pacientes/landing?success=cita_agendada";

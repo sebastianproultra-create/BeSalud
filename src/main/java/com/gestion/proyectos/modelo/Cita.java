@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 @Document(collection = "citas")
@@ -11,7 +12,9 @@ public class Cita {
 
     @Id
     private String id;
+    @Indexed
     private String doctorId;
+    @Indexed
     private String pacienteId;
     private LocalTime hora;
     private LocalDate fecha;

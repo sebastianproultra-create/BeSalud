@@ -437,6 +437,7 @@
     <div class="modal-content">
         <h3 id="modalTitle">Registrar Dictamen</h3>
         <form id="dictamenForm" method="post">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
 
             <div class="form-group">
                 <label for="diagnostico">Diagnóstico *</label>

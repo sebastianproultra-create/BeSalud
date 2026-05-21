@@ -78,6 +78,9 @@ public class CitaService {
     }
 
     public Cita crearCita(String doctorId, String pacienteId, LocalDate fecha, LocalTime hora, String motivo) {
+        if (!doctorActivo(doctorId)) {
+            throw new IllegalStateException("Doctor no activo: " + doctorId);
+        }
         Cita cita = new Cita();
         cita.setDoctorId(doctorId);
         cita.setPacienteId(pacienteId);
@@ -90,6 +93,9 @@ public class CitaService {
     }
 
     public void reprogramar(Cita cita, LocalDate fecha, LocalTime hora) {
+        if (cita.getEstado() != EstadoCita.PENDIENTE) {
+            throw new IllegalStateException("Solo citas PENDIENTE pueden reprogramarse: " + cita.getId());
+        }
         cita.setFecha(fecha);
         cita.setHora(hora);
         citaRepo.save(cita);
@@ -97,6 +103,10 @@ public class CitaService {
     }
 
     public void cancelar(Cita cita) {
+        if (cita.getEstado() == EstadoCita.CANCELADA) {
+            log.warn("Intento de cancelar cita ya cancelada: {}", cita.getId());
+            return;
+        }
         cita.setEstado(EstadoCita.CANCELADA);
         citaRepo.save(cita);
         log.info("Cita cancelada: id={}", cita.getId());
@@ -115,7 +125,11 @@ public class CitaService {
     }
 
     public Optional<Doctor> buscarDoctorPorId(String id) {
-        return personaRepo.findById(id).map(p -> (Doctor) p);
+        return personaRepo.findById(id).filter(p -> p instanceof Doctor).map(p -> (Doctor) p);
+    }
+
+    public boolean doctorActivo(String doctorId) {
+        return buscarDoctorPorId(doctorId).map(d -> "ACTIVO".equals(d.getEstado())).orElse(false);
     }
 
     public List<Doctor> listarDoctores() {
@@ -147,6 +161,7 @@ public class CitaService {
     }
 
     public boolean hayConflicto(String doctorId, LocalDate fecha, LocalTime hora, String excludeCitaId) {
+        List<HorarioAtencion> horarios = horarioRepo.findByDoctorId(doctorId);
         List<Cita> existentes = citaRepo.findByDoctorIdAndFecha(doctorId, fecha).stream()
                 .filter(c -> (excludeCitaId == null || !excludeCitaId.equals(c.getId()))
                         && c.getEstado() != EstadoCita.CANCELADA
@@ -154,11 +169,11 @@ public class CitaService {
                 .toList();
 
         LocalDateTime inicioNuevo = LocalDateTime.of(fecha, hora);
-        LocalDateTime finNuevo = inicioNuevo.plusMinutes(obtenerDuracion(doctorId, fecha, hora));
+        LocalDateTime finNuevo = inicioNuevo.plusMinutes(duracionDesdeHorarios(horarios, fecha, hora));
 
         return existentes.stream().anyMatch(c -> {
             LocalDateTime inicio = LocalDateTime.of(c.getFecha(), c.getHora());
-            LocalDateTime fin = inicio.plusMinutes(obtenerDuracion(doctorId, c.getFecha(), c.getHora()));
+            LocalDateTime fin = inicio.plusMinutes(duracionDesdeHorarios(horarios, c.getFecha(), c.getHora()));
             return inicioNuevo.isBefore(fin) && finNuevo.isAfter(inicio);
         });
     }
@@ -168,6 +183,7 @@ public class CitaService {
         List<HorarioAtencion> horarios = horarioRepo.findByDoctorId(doctorId);
         List<LocalTime> slots = new ArrayList<>();
         java.time.DayOfWeek dia = fecha.getDayOfWeek();
+        LocalDateTime ahora = LocalDateTime.now();
 
         List<Cita> citasDelDia = citaRepo.findByDoctorIdAndFecha(doctorId, fecha).stream()
                 .filter(c -> (excludeCitaId == null || !excludeCitaId.equals(c.getId()))
@@ -182,15 +198,16 @@ public class CitaService {
             int duracion = horario.getDuracionCitaMinutos() > 0 ? horario.getDuracionCitaMinutos() : 30;
             LocalTime current = horario.getHoraInicio();
 
-            while (current.isBefore(horario.getHoraFin())) {
+            while (!current.plusMinutes(duracion).isAfter(horario.getHoraFin())) {
                 final LocalTime slot = current;
                 LocalDateTime slotStart = LocalDateTime.of(fecha, slot);
                 LocalDateTime slotEnd = slotStart.plusMinutes(duracion);
 
+                boolean esPasado = slotStart.isBefore(ahora);
                 boolean esSlotActual = fechaActual != null && horaActual != null
                         && fecha.equals(fechaActual) && slot.equals(horaActual);
 
-                boolean disponible = !esSlotActual && citasDelDia.stream().noneMatch(c -> {
+                boolean disponible = !esPasado && !esSlotActual && citasDelDia.stream().noneMatch(c -> {
                     LocalDateTime citaStart = LocalDateTime.of(c.getFecha(), c.getHora());
                     LocalDateTime citaEnd = citaStart.plusMinutes(duracion);
                     return slotStart.isBefore(citaEnd) && slotEnd.isAfter(citaStart);
@@ -203,8 +220,8 @@ public class CitaService {
         return slots;
     }
 
-    private int obtenerDuracion(String doctorId, LocalDate fecha, LocalTime hora) {
-        return horarioRepo.findByDoctorId(doctorId).stream()
+    private int duracionDesdeHorarios(List<HorarioAtencion> horarios, LocalDate fecha, LocalTime hora) {
+        return horarios.stream()
                 .filter(h -> h.getDiaSemana() != null && h.getHoraInicio() != null && h.getHoraFin() != null
                         && h.getDiaSemana().equals(fecha.getDayOfWeek())
                         && !hora.isBefore(h.getHoraInicio())

@@ -17,10 +17,12 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.time.format.DateTimeParseException;
 import java.time.format.TextStyle;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -53,7 +55,7 @@ public class DoctorService {
     }
 
     public Optional<Doctor> buscarPorId(String id) {
-        return personaRepo.findById(id).map(p -> (Doctor) p);
+        return personaRepo.findById(id).filter(p -> p instanceof Doctor).map(p -> (Doctor) p);
     }
 
     public List<Doctor> listarTodos() {
@@ -94,13 +96,14 @@ public class DoctorService {
     }
 
     public Map<String, String> mapPacienteNombres(List<Cita> citas) {
+        List<String> ids = citas.stream()
+                .map(Cita::getPacienteId)
+                .filter(id -> id != null)
+                .distinct()
+                .toList();
         Map<String, String> nombres = new HashMap<>();
-        for (Cita c : citas) {
-            if (c.getPacienteId() != null && !nombres.containsKey(c.getPacienteId())) {
-                personaRepo.findById(c.getPacienteId())
-                        .ifPresent(p -> nombres.put(p.getId(), p.getNombre() + " " + p.getApellido()));
-            }
-        }
+        personaRepo.findAllById(ids)
+                .forEach(p -> nombres.put(p.getId(), p.getNombre() + " " + p.getApellido()));
         return nombres;
     }
 
@@ -122,12 +125,13 @@ public class DoctorService {
     public List<Paciente> pacientesDelDoctor(String doctorId) {
         List<String> ids = citaRepo.findByDoctorId(doctorId).stream()
                 .map(Cita::getPacienteId)
+                .filter(id -> id != null)
                 .distinct()
                 .toList();
         List<Paciente> pacientes = new ArrayList<>();
-        for (String pid : ids) {
-            personaRepo.findById(pid).map(p -> (Paciente) p).ifPresent(pacientes::add);
-        }
+        personaRepo.findAllById(ids).forEach(p -> {
+            if (p instanceof Paciente pac) pacientes.add(pac);
+        });
         return pacientes;
     }
 
@@ -195,6 +199,7 @@ public class DoctorService {
      * Valida y guarda horarios para múltiples días en lote (un delete + saveAll).
      * Retorna null si OK, o el código de error si hay validación fallida.
      */
+    @Transactional
     public String guardarHorariosSemanales(String doctorId, List<String> days,
             Map<String, String> allParams, int duracionCitaMinutos) {
         List<HorarioAtencion> nuevos = new ArrayList<>();
@@ -219,7 +224,7 @@ public class DoctorService {
             try {
                 horaInicio = LocalTime.parse(startStr);
                 horaFin = LocalTime.parse(endStr);
-            } catch (Exception e) {
+            } catch (DateTimeParseException e) {
                 return "formato_hora_" + day;
             }
 
@@ -242,7 +247,7 @@ public class DoctorService {
                 try {
                     horaInicio2 = LocalTime.parse(start2);
                     horaFin2 = LocalTime.parse(end2);
-                } catch (Exception e) {
+                } catch (DateTimeParseException e) {
                     return "formato_hora2_" + day;
                 }
                 if (!horaInicio2.isBefore(horaFin2))

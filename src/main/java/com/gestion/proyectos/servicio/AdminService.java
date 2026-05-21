@@ -69,7 +69,7 @@ public class AdminService {
     }
 
     public Optional<Doctor> obtenerDoctor(String id) {
-        return personaRepo.findById(id).map(p -> (Doctor) p);
+        return personaRepo.findById(id).filter(p -> p instanceof Doctor).map(p -> (Doctor) p);
     }
 
     public void activarDoctor(String doctorId) {
