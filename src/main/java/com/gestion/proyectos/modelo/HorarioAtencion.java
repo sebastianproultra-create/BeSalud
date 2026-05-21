@@ -4,6 +4,7 @@ import java.time.DayOfWeek;
 import java.time.LocalTime;
 
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 @Document(collection = "horariosAtencion")
@@ -11,6 +12,7 @@ public class HorarioAtencion {
 
     @Id
     private String id;
+    @Indexed
     private String doctorId;
     private DayOfWeek diaSemana;
     private LocalTime horaInicio;
