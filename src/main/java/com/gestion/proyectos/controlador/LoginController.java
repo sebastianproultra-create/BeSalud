@@ -1,9 +1,11 @@
 package com.gestion.proyectos.controlador;
 
 import com.gestion.proyectos.modelo.UserRegistrationDTO;
+import com.gestion.proyectos.modelo.Doctor;
 import com.gestion.proyectos.seguridad.JwtCookieService;
 import com.gestion.proyectos.seguridad.JwtService;
 import com.gestion.proyectos.servicio.RegistroService;
+import com.gestion.proyectos.servicio.DoctorService;
 
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
@@ -30,15 +32,18 @@ public class LoginController {
     private final AuthenticationManager authenticationManager;
     private final JwtService jwtService;
     private final JwtCookieService jwtCookieService;
+    private final DoctorService doctorService;
 
     public LoginController(RegistroService registroService,
             AuthenticationManager authenticationManager,
             JwtService jwtService,
-            JwtCookieService jwtCookieService) {
+            JwtCookieService jwtCookieService,
+            DoctorService doctorService) {
         this.registroService = registroService;
         this.authenticationManager = authenticationManager;
         this.jwtService = jwtService;
         this.jwtCookieService = jwtCookieService;
+        this.doctorService = doctorService;
     }
 
     @GetMapping("/login")
@@ -48,17 +53,27 @@ public class LoginController {
 
     @PostMapping("/login")
     public String loginPost(@RequestParam String email, @RequestParam String password,
-            HttpServletResponse response) {
+            HttpServletResponse response, Model model) {
         try {
             Authentication authentication = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(email, password));
+
+            // Validar si es doctor inactivo
+            boolean isDoctor = authentication.getAuthorities().stream()
+                    .anyMatch(a -> "ROLE_DOCTOR".equals(a.getAuthority()));
+
+            if (isDoctor) {
+                Doctor doctor = doctorService.buscarPorEmail(email).orElseThrow();
+                if ("INACTIVO".equals(doctor.getEstado())) {
+                    return "cuenta_pendiente_activacion";
+                }
+            }
+
             String token = jwtService.generateToken((UserDetails) authentication.getPrincipal());
             jwtCookieService.addJwtCookie(response, token);
 
             boolean isAdmin = authentication.getAuthorities().stream()
                     .anyMatch(a -> "ROLE_ADMIN".equals(a.getAuthority()));
-            boolean isDoctor = authentication.getAuthorities().stream()
-                    .anyMatch(a -> "ROLE_DOCTOR".equals(a.getAuthority()));
 
             if (isAdmin)
                 return "redirect:/admin";

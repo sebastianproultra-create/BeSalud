@@ -43,6 +43,7 @@
                     <th>Nombre</th>
                     <th>Email</th>
                     <th>Especialidad</th>
+                    <th>Estado</th>
                     <th>Acciones</th>
                 </tr>
             </thead>
@@ -52,7 +53,17 @@
                     <td th:text="${doctor.email}"></td>
                     <td th:text="${doctor.especialidad}"></td>
                     <td>
+                        <span th:if="${doctor.estado == 'ACTIVO'}" class="status-badge status-activo">Activo</span>
+                        <span th:if="${doctor.estado == 'INACTIVO'}" class="status-badge status-inactivo">Inactivo</span>
+                    </td>
+                    <td>
                         <a th:href="@{/doctores/{id}/horarios(id=${doctor.id})}" class="btn btn-sm">Ver Horarios</a>
+                        <form th:if="${doctor.estado == 'INACTIVO'}" th:action="@{/admin/doctores/{id}/activar(id=${doctor.id})}" method="post" style="display: inline;">
+                            <button type="submit" class="btn btn-sm btn-success">Activar</button>
+                        </form>
+                        <form th:if="${doctor.estado == 'ACTIVO'}" th:action="@{/admin/doctores/{id}/desactivar(id=${doctor.id})}" method="post" style="display: inline;">
+                            <button type="submit" class="btn btn-sm btn-warning">Desactivar</button>
+                        </form>
                     </td>
                 </tr>
             </tbody>

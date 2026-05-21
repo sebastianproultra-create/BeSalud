@@ -190,3 +190,45 @@
         font-size: 24px;
     }
 }
+
+/* Status Badges */
+.status-badge {
+    display: inline-block;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.status-activo {
+    background-color: #d4edda;
+    color: #155724;
+}
+
+.status-inactivo {
+    background-color: #f8d7da;
+    color: #721c24;
+}
+
+/* Button styles for state management */
+.btn-success {
+    background-color: #28a745;
+    color: white;
+    border: none;
+}
+
+.btn-success:hover {
+    background-color: #218838;
+}
+
+.btn-warning {
+    background-color: #ffc107;
+    color: #333;
+    border: none;
+}
+
+.btn-warning:hover {
+    background-color: #e0a800;
+}

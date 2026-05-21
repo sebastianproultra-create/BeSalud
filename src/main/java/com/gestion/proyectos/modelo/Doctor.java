@@ -16,6 +16,7 @@ public class Doctor extends Persona {
     private LocalDate fechaNacimiento;
     private String foto;
     private String biografia;
+    private String estado = "INACTIVO"; // ACTIVO o INACTIVO
 
     public Doctor() {
         setRole("DOCTOR");
