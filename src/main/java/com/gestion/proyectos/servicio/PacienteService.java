@@ -69,8 +69,12 @@ public class PacienteService {
         boolean hasEspecialidad = especialidad != null && !especialidad.isBlank();
         if (hasSearch && hasEspecialidad)
             return personaRepo.searchDoctoresCombinado(search.trim(), especialidad.trim(), pageable);
-        if (hasSearch)
+        if (hasSearch) {
+            String[] partes = search.trim().split("\\s+");
+            if (partes.length >= 2)
+                return personaRepo.searchDoctoresByNombreYApellido(partes[0], partes[1], pageable);
             return personaRepo.searchDoctoresByNombreApellidoEmail(search.trim(), pageable);
+        }
         if (hasEspecialidad)
             return personaRepo.findDoctoresByEspecialidadContainingIgnoreCase(especialidad.trim(), pageable);
         return personaRepo.findAllDoctores(pageable);

@@ -43,6 +43,9 @@ public interface PersonaRepositorio extends MongoRepository<Persona, String> {
     @Query("{ $or: [ { 'nombre': { $regex: ?0, $options: 'i' } }, { 'apellido': { $regex: ?0, $options: 'i' } }, { 'email': { $regex: ?0, $options: 'i' } } ], 'role': 'DOCTOR' }")
     Page<Doctor> searchDoctoresByNombreApellidoEmail(String q, Pageable pageable);
 
+    @Query("{ $and: [ { 'nombre': { $regex: ?0, $options: 'i' } }, { 'apellido': { $regex: ?1, $options: 'i' } } ], 'role': 'DOCTOR' }")
+    Page<Doctor> searchDoctoresByNombreYApellido(String nombre, String apellido, Pageable pageable);
+
     // Añade esta consulta personalizada en tu archivo PersonaRepositorio.java
     @org.springframework.data.mongodb.repository.Query("{ '_class': 'com.gestion.proyectos.modelo.Doctor', $and: [ " +
             "  { $or: [ { 'nombre': { $regex: ?0, $options: 'i' } }, { 'apellido': { $regex: ?0, $options: 'i' } }, { 'email': { $regex: ?0, $options: 'i' } } ] }, "
