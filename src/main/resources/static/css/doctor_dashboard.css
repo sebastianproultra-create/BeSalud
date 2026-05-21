@@ -874,6 +874,16 @@ table td form {
     text-transform: uppercase;
     line-height: 1.4;
 }
+
+.action-buttons button,
+.action-buttons .btn {
+    padding: 6px 14px !important;
+    font-size: 10px !important;
+    letter-spacing: 0.14em !important;
+    text-transform: uppercase !important;
+    line-height: 1.4 !important;
+    width: auto !important;
+}
 .text-muted {
     color: var(--text-light);
     font-size: 13px;
