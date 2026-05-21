@@ -178,41 +178,32 @@ public class CitaController {
     private List<LocalTime> calcularSlotsDisponibles(String doctorId, LocalDate fecha) {
         List<HorarioAtencion> horarios = horarioRepo.findByDoctorId(doctorId);
         List<LocalTime> slots = new ArrayList<>();
+        java.time.DayOfWeek dia = fecha.getDayOfWeek();
+
+        List<Cita> citasDelDia = citaRepo.findByDoctorIdAndFecha(doctorId, fecha).stream()
+                .filter(c -> c.getEstado() != EstadoCita.CANCELADA && c.getEstado() != EstadoCita.NO_ASISTIO)
+                .toList();
 
         for (HorarioAtencion horario : horarios) {
-            // Solo considerar horarios que incluyan la fecha (asumiendo que inicio y fin
-            // son en la misma fecha por simplicidad)
-            if (horario.getInicio().toLocalDate().equals(fecha)) {
-                LocalTime inicio = horario.getInicio().toLocalTime();
-                LocalTime fin = horario.getFin().toLocalTime();
-                int duracion = horario.getDuracionCitaMinutos();
+            if (horario.getDiaSemana() == null || horario.getHoraInicio() == null || horario.getHoraFin() == null) continue;
+            if (!horario.getDiaSemana().equals(dia)) continue;
 
-                LocalTime current = inicio;
-                while (current.isBefore(fin)) {
-                    // Verificar si el slot está disponible
-                    LocalDateTime slotStart = LocalDateTime.of(fecha, current);
-                    LocalDateTime slotEnd = slotStart.plusMinutes(duracion);
+            int duracion = horario.getDuracionCitaMinutos() > 0 ? horario.getDuracionCitaMinutos() : 30;
+            LocalTime current = horario.getHoraInicio();
 
-                    boolean disponible = citaRepo.findAll().stream()
-                            .filter(c -> c.getDoctorId().equals(doctorId) && c.getFecha().equals(fecha))
-                            .noneMatch(c -> {
-                                LocalDateTime citaStart = LocalDateTime.of(c.getFecha(), c.getHora());
-                                // Obtener duración de la cita existente
-                                int duracionExistente = horarios.stream()
-                                        .filter(h -> h.getDoctorId().equals(doctorId))
-                                        .findFirst()
-                                        .map(HorarioAtencion::getDuracionCitaMinutos)
-                                        .orElse(duracion);
-                                LocalDateTime citaEnd = citaStart.plusMinutes(duracionExistente);
-                                return !(slotEnd.isBefore(citaStart) || slotStart.isAfter(citaEnd));
-                            });
+            while (current.isBefore(horario.getHoraFin())) {
+                final LocalTime slot = current;
+                LocalDateTime slotStart = LocalDateTime.of(fecha, slot);
+                LocalDateTime slotEnd = slotStart.plusMinutes(duracion);
 
-                    if (disponible) {
-                        slots.add(current);
-                    }
+                boolean disponible = citasDelDia.stream().noneMatch(c -> {
+                    LocalDateTime citaStart = LocalDateTime.of(c.getFecha(), c.getHora());
+                    LocalDateTime citaEnd = citaStart.plusMinutes(duracion);
+                    return slotStart.isBefore(citaEnd) && slotEnd.isAfter(citaStart);
+                });
 
-                    current = current.plusMinutes(duracion);
-                }
+                if (disponible) slots.add(current);
+                current = current.plusMinutes(duracion);
             }
         }
 
