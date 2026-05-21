@@ -12,6 +12,9 @@ import com.gestion.proyectos.repositorio.PersonaRepositorio;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
@@ -37,7 +40,7 @@ public class DoctorService {
     private final CitaRepositorio citaRepo;
 
     public DoctorService(PersonaRepositorio personaRepo, HorarioAtencionRepositorio horarioRepo,
-                         CitaRepositorio citaRepo) {
+            CitaRepositorio citaRepo) {
         this.personaRepo = personaRepo;
         this.horarioRepo = horarioRepo;
         this.citaRepo = citaRepo;
@@ -59,6 +62,17 @@ public class DoctorService {
 
     public List<Doctor> listarPorEspecialidad(String especialidad) {
         return personaRepo.findDoctoresByEspecialidadContainingIgnoreCase(especialidad);
+    }
+
+    public Page<Doctor> listarDoctoresPaginated(int page, int size, String especialidad, String search) {
+        Pageable pageable = PageRequest.of(Math.max(0, page), Math.max(1, size));
+        if (search != null && !search.isBlank()) {
+            return personaRepo.searchDoctoresByNombreApellidoEmail(search.trim(), pageable);
+        }
+        if (especialidad != null && !especialidad.isBlank()) {
+            return personaRepo.findDoctoresByEspecialidadContainingIgnoreCase(especialidad.trim(), pageable);
+        }
+        return personaRepo.findAllDoctores(pageable);
     }
 
     public List<HorarioAtencion> horariosDelDoctor(String doctorId) {
@@ -92,7 +106,8 @@ public class DoctorService {
                 Map<String, String> d = new HashMap<>();
                 d.put("diagnostico", c.getDictamen().getDiagnostico() != null ? c.getDictamen().getDiagnostico() : "");
                 d.put("tratamiento", c.getDictamen().getTratamiento() != null ? c.getDictamen().getTratamiento() : "");
-                d.put("observaciones", c.getDictamen().getObservaciones() != null ? c.getDictamen().getObservaciones() : "");
+                d.put("observaciones",
+                        c.getDictamen().getObservaciones() != null ? c.getDictamen().getObservaciones() : "");
                 result.put(c.getId(), d);
             }
         }
@@ -176,7 +191,7 @@ public class DoctorService {
      * Retorna null si OK, o el código de error si hay validación fallida.
      */
     public String guardarHorarioDia(String doctorId, String day, Map<String, String> allParams,
-                                     int duracionCitaMinutos) {
+            int duracionCitaMinutos) {
         String startStr = allParams.get("startTimes[" + day + "]");
         String endStr = allParams.get("endTimes[" + day + "]");
         if (startStr == null || startStr.isEmpty() || endStr == null || endStr.isEmpty()) {
@@ -199,7 +214,8 @@ public class DoctorService {
             return "formato_hora_" + day;
         }
 
-        if (!horaInicio.isBefore(horaFin)) return "invalid_time_" + day;
+        if (!horaInicio.isBefore(horaFin))
+            return "invalid_time_" + day;
 
         horarioRepo.findByDoctorIdAndDiaSemana(doctorId, diaSemana)
                 .forEach(h -> horarioRepo.deleteById(h.getId()));
@@ -222,7 +238,8 @@ public class DoctorService {
             } catch (Exception e) {
                 return "formato_hora2_" + day;
             }
-            if (!horaInicio2.isBefore(horaFin2)) return "invalid_time2_" + day;
+            if (!horaInicio2.isBefore(horaFin2))
+                return "invalid_time2_" + day;
             if (horaInicio2.isBefore(horaFin) && horaFin2.isAfter(horaInicio)) {
                 return "solapamiento_intervalos_" + day;
             }
@@ -235,7 +252,8 @@ public class DoctorService {
 
     public void eliminarHorario(String horarioId, String doctorId) {
         HorarioAtencion horario = horarioRepo.findById(horarioId).orElseThrow();
-        if (!horario.getDoctorId().equals(doctorId)) throw new AccessDeniedException("No autorizado");
+        if (!horario.getDoctorId().equals(doctorId))
+            throw new AccessDeniedException("No autorizado");
         horarioRepo.deleteById(horarioId);
     }
 
@@ -243,7 +261,8 @@ public class DoctorService {
 
     public void marcarAsistio(String citaId, String doctorId) {
         Cita cita = citaRepo.findById(citaId).orElseThrow();
-        if (!cita.getDoctorId().equals(doctorId)) throw new AccessDeniedException("No autorizado");
+        if (!cita.getDoctorId().equals(doctorId))
+            throw new AccessDeniedException("No autorizado");
         cita.setEstado(EstadoCita.ASISTIO);
         citaRepo.save(cita);
         log.info("Cita {} marcada ASISTIO por doctor {}", citaId, doctorId);
@@ -251,7 +270,8 @@ public class DoctorService {
 
     public void marcarNoAsistio(String citaId, String doctorId) {
         Cita cita = citaRepo.findById(citaId).orElseThrow();
-        if (!cita.getDoctorId().equals(doctorId)) throw new AccessDeniedException("No autorizado");
+        if (!cita.getDoctorId().equals(doctorId))
+            throw new AccessDeniedException("No autorizado");
         cita.setEstado(EstadoCita.NO_ASISTIO);
         citaRepo.save(cita);
         log.info("Cita {} marcada NO_ASISTIO por doctor {}", citaId, doctorId);
@@ -259,16 +279,18 @@ public class DoctorService {
 
     public void cancelarCita(String citaId, String doctorId) {
         Cita cita = citaRepo.findById(citaId).orElseThrow();
-        if (!cita.getDoctorId().equals(doctorId)) throw new AccessDeniedException("No autorizado");
+        if (!cita.getDoctorId().equals(doctorId))
+            throw new AccessDeniedException("No autorizado");
         cita.setEstado(EstadoCita.CANCELADA);
         citaRepo.save(cita);
         log.info("Cita {} CANCELADA por doctor {}", citaId, doctorId);
     }
 
     public void guardarDictamen(String citaId, String doctorId,
-                                 String diagnostico, String tratamiento, String observaciones) {
+            String diagnostico, String tratamiento, String observaciones) {
         Cita cita = citaRepo.findById(citaId).orElseThrow();
-        if (!cita.getDoctorId().equals(doctorId)) throw new AccessDeniedException("No autorizado");
+        if (!cita.getDoctorId().equals(doctorId))
+            throw new AccessDeniedException("No autorizado");
         Dictamen dictamen = new Dictamen();
         dictamen.setDiagnostico(diagnostico);
         dictamen.setTratamiento(tratamiento);

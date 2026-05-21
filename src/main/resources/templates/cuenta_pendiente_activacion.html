@@ -1,189 +1,38 @@
 <!DOCTYPE html>
-<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cuenta Pendiente de Activación — BeSalud</title>
     <link rel="stylesheet" th:href="@{/css/global.css}">
-    <style>
-        .pending-activation-container {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            min-height: 100vh;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            padding: 20px;
-        }
-        
-        .pending-activation-card {
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-            padding: 60px 40px;
-            max-width: 500px;
-            text-align: center;
-        }
-        
-        .pending-icon {
-            width: 80px;
-            height: 80px;
-            background: #ffc107;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto 30px;
-            font-size: 40px;
-        }
-        
-        .pending-activation-card h1 {
-            font-size: 28px;
-            color: #333;
-            margin-bottom: 20px;
-            font-weight: 600;
-        }
-        
-        .pending-activation-card p {
-            font-size: 16px;
-            color: #666;
-            line-height: 1.6;
-            margin-bottom: 15px;
-        }
-        
-        .message-box {
-            background: #f8f9fa;
-            border-left: 4px solid #ffc107;
-            padding: 20px;
-            border-radius: 4px;
-            margin: 30px 0;
-            text-align: left;
-        }
-        
-        .message-box strong {
-            display: block;
-            color: #333;
-            margin-bottom: 10px;
-            font-size: 16px;
-        }
-        
-        .message-box p {
-            margin: 0;
-            color: #666;
-            font-size: 15px;
-        }
-        
-        .actions {
-            margin-top: 40px;
-            display: flex;
-            gap: 15px;
-            justify-content: center;
-            flex-wrap: wrap;
-        }
-        
-        .btn-logout {
-            background: #667eea;
-            color: white;
-            padding: 12px 30px;
-            border: none;
-            border-radius: 6px;
-            font-size: 15px;
-            font-weight: 600;
-            cursor: pointer;
-            text-decoration: none;
-            display: inline-block;
-            transition: background 0.3s;
-        }
-        
-        .btn-logout:hover {
-            background: #764ba2;
-        }
-        
-        .btn-home {
-            background: #f0f0f0;
-            color: #333;
-            padding: 12px 30px;
-            border: none;
-            border-radius: 6px;
-            font-size: 15px;
-            font-weight: 600;
-            cursor: pointer;
-            text-decoration: none;
-            display: inline-block;
-            transition: background 0.3s;
-        }
-        
-        .btn-home:hover {
-            background: #e0e0e0;
-        }
-        
-        .info-grid {
-            background: #f8f9fa;
-            padding: 20px;
-            border-radius: 8px;
-            margin: 20px 0;
-            text-align: left;
-        }
-        
-        .info-item {
-            margin-bottom: 15px;
-        }
-        
-        .info-item:last-child {
-            margin-bottom: 0;
-        }
-        
-        .info-label {
-            font-weight: 600;
-            color: #333;
-            font-size: 14px;
-            display: block;
-            margin-bottom: 5px;
-        }
-        
-        .info-value {
-            color: #666;
-            font-size: 15px;
-        }
-    </style>
 </head>
 <body>
-    <div class="pending-activation-container">
-        <div class="pending-activation-card">
-            <div class="pending-icon">⏳</div>
-            
-            <h1>Cuenta en Espera de Activación</h1>
-            
-            <p>Gracias por registrarse en nuestro sistema.</p>
-            
-            <div class="message-box">
-                <strong>Estado de tu Cuenta:</strong>
-                <p>Su cuenta será activada en un lapso de 1 a 7 días.</p>
-            </div>
-            
-            <div class="info-grid">
-                <div class="info-item">
-                    <span class="info-label">📧 ¿Qué significa esto?</span>
-                    <span class="info-value">Un administrador del sistema está revisando tu solicitud de registro. Esto es normal para asegurar la calidad de nuestro servicio.</span>
-                </div>
-                <div class="info-item">
-                    <span class="info-label">⏰ Tiempo de Espera</span>
-                    <span class="info-value">Típicamente, la activación toma entre 1 a 7 días hábiles.</span>
-                </div>
-                <div class="info-item">
-                    <span class="info-label">📬 Notificación</span>
-                    <span class="info-value">Recibirás un correo electrónico cuando tu cuenta sea activada.</span>
-                </div>
-            </div>
-            
-            <p style="font-size: 14px; color: #999; margin-top: 20px;">
-                Si tienes preguntas, contacta a nuestro equipo de soporte.
-            </p>
-            
-            <div class="actions">
-                <a href="/login" class="btn-logout">Volver al Login</a>
-                <a href="/" class="btn-home">Ir al Inicio</a>
-            </div>
+<header th:replace="~{fragments/layout :: header-brand}"></header>
+
+<div class="container">
+    <div class="card" style="max-width: 620px; margin: 50px auto;">
+        <h2>Cuenta en espera de activación</h2>
+
+        <div class="alert alert-info">
+            Gracias por registrarse en nuestro sistema. Su cuenta será activada en un lapso de 1 a 7 días.
+        </div>
+
+        <p>
+            Su cuenta de doctor se encuentra actualmente <strong>desactivada</strong> y solo un administrador
+            puede activarla o desactivarla desde su panel de administración.
+        </p>
+
+        <div class="alert alert-success" style="margin-top: 20px;">
+            Cuando el administrador active su cuenta, podrá iniciar sesión normalmente y acceder a su panel.
+        </div>
+
+        <div style="display: flex; gap: 12px; flex-wrap: wrap; margin-top: 30px;">
+            <a th:href="@{/login}" class="btn btn-primary">Volver al login</a>
+            <a th:href="@{/}" class="btn btn-secondary">Ir al inicio</a>
         </div>
     </div>
+</div>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
 </body>
 </html>

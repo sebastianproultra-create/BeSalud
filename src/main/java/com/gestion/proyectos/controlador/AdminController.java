@@ -19,10 +19,22 @@ public class AdminController {
     }
 
     @GetMapping
-    public String dashboard(Model model) {
-        model.addAttribute("doctores", adminService.listarDoctores());
-        model.addAttribute("pacientes", adminService.listarPacientes());
+    public String dashboard(Model model,
+            @org.springframework.web.bind.annotation.RequestParam(defaultValue = "0") int page,
+            @org.springframework.web.bind.annotation.RequestParam(defaultValue = "10") int size,
+            @org.springframework.web.bind.annotation.RequestParam(required = false) String especialidad,
+            @org.springframework.web.bind.annotation.RequestParam(required = false) String search) {
+
+        var doctoresPage = adminService.listarDoctoresPaginated(page, size, especialidad, search);
+        var pacientesPage = adminService.listarPacientesPaginated(page, size);
+
+        model.addAttribute("doctores", doctoresPage);
+        model.addAttribute("pacientes", pacientesPage);
         model.addAttribute("admins", adminService.listarAdmins());
+        model.addAttribute("page", page);
+        model.addAttribute("size", size);
+        model.addAttribute("search", search == null ? "" : search);
+        model.addAttribute("especialidad", especialidad == null ? "" : especialidad);
         return "admin_dashboard";
     }
 

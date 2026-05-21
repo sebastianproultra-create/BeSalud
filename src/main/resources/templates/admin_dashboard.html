@@ -48,26 +48,42 @@
                 </tr>
             </thead>
             <tbody>
-                <tr th:each="doctor : ${doctores}">
-                    <td th:text="${doctor.nombre + ' ' + doctor.apellido}"></td>
-                    <td th:text="${doctor.email}"></td>
-                    <td th:text="${doctor.especialidad}"></td>
-                    <td>
-                        <span th:if="${doctor.estado == 'ACTIVO'}" class="status-badge status-activo">Activo</span>
-                        <span th:if="${doctor.estado == 'INACTIVO'}" class="status-badge status-inactivo">Inactivo</span>
-                    </td>
-                    <td>
-                        <a th:href="@{/doctores/{id}/horarios(id=${doctor.id})}" class="btn btn-sm">Ver Horarios</a>
-                        <form th:if="${doctor.estado == 'INACTIVO'}" th:action="@{/admin/doctores/{id}/activar(id=${doctor.id})}" method="post" style="display: inline;">
-                            <button type="submit" class="btn btn-sm btn-success">Activar</button>
-                        </form>
-                        <form th:if="${doctor.estado == 'ACTIVO'}" th:action="@{/admin/doctores/{id}/desactivar(id=${doctor.id})}" method="post" style="display: inline;">
-                            <button type="submit" class="btn btn-sm btn-warning">Desactivar</button>
-                        </form>
-                    </td>
-                </tr>
+                    <tr th:each="doctor : ${doctores.content}">
+                        <td th:text="${doctor.nombre + ' ' + doctor.apellido}"></td>
+                        <td th:text="${doctor.email}"></td>
+                        <td th:text="${doctor.especialidad}"></td>
+                        <td>
+                            <span th:if="${doctor.estado == 'ACTIVO'}" class="status-badge status-activo">Activo</span>
+                            <span th:if="${doctor.estado == 'INACTIVO'}" class="status-badge status-inactivo">Inactivo</span>
+                        </td>
+                        <td>
+                            <a th:href="@{/doctores/{id}/horarios(id=${doctor.id})}" class="btn btn-sm">Ver Horarios</a>
+                            <form th:if="${doctor.estado == 'INACTIVO'}" th:action="@{/admin/doctores/{id}/activar(id=${doctor.id})}" method="post" style="display: inline;">
+                                <button type="submit" class="btn btn-sm btn-success">Activar</button>
+                            </form>
+                            <form th:if="${doctor.estado == 'ACTIVO'}" th:action="@{/admin/doctores/{id}/desactivar(id=${doctor.id})}" method="post" style="display: inline;">
+                                <button type="submit" class="btn btn-sm btn-warning">Desactivar</button>
+                            </form>
+                        </td>
+                    </tr>
             </tbody>
         </table>
+            <form th:action="@{/admin}" method="get" style="display:flex; gap:8px; align-items:center; margin-bottom:12px;">
+                <input type="text" name="search" th:value="${search}" placeholder="Buscar por nombre o email" style="padding:8px;" />
+                <input type="text" name="especialidad" th:value="${especialidad}" placeholder="Filtrar por especialidad" style="padding:8px;" />
+                <input type="hidden" name="size" th:value="${size}" />
+                <button type="submit" class="btn btn-primary">Buscar</button>
+            </form>
+            <div th:if="${doctores.totalPages > 1}" style="margin-top:12px; text-align:center;">
+                <a th:if="${doctores.hasPrevious()}" th:href="@{/admin(page=${doctores.number-1},size=${size},search=${search},especialidad=${especialidad})}" class="btn btn-link">Anterior</a>
+                <span th:each="i : ${#numbers.sequence(0, doctores.totalPages-1)}">
+                    <a th:href="@{/admin(page=${i},size=${size},search=${search},especialidad=${especialidad})}"
+                       th:text="${i+1}"
+                       th:classappend="${i == doctores.number} ? ' btn btn-accent' : ' btn btn-link'"
+                       style="margin:0 4px;"></a>
+                </span>
+                <a th:if="${doctores.hasNext()}" th:href="@{/admin(page=${doctores.number+1},size=${size},search=${search},especialidad=${especialidad})}" class="btn btn-link">Siguiente</a>
+            </div>
     </div>
 
     <div class="card">
@@ -82,7 +98,7 @@
                 </tr>
             </thead>
             <tbody>
-                <tr th:each="paciente : ${pacientes}">
+                <tr th:each="paciente : ${pacientes.content}">
                     <td th:text="${paciente.nombre + ' ' + paciente.apellido}"></td>
                     <td th:text="${paciente.email}"></td>
                     <td th:text="${paciente.telefono}"></td>
@@ -92,6 +108,16 @@
                 </tr>
             </tbody>
         </table>
+        <div th:if="${pacientes.totalPages > 1}" style="margin-top:12px; text-align:center;">
+            <a th:if="${pacientes.hasPrevious()}" th:href="@{/admin(page=${pacientes.number-1},size=${size})}" class="btn btn-link">Anterior</a>
+            <span th:each="i : ${#numbers.sequence(0, pacientes.totalPages-1)}">
+                <a th:href="@{/admin(page=${i},size=${size})}"
+                   th:text="${i+1}"
+                   th:classappend="${i == pacientes.number} ? ' btn btn-accent' : ' btn btn-link'"
+                   style="margin:0 4px;"></a>
+            </span>
+            <a th:if="${pacientes.hasNext()}" th:href="@{/admin(page=${pacientes.number+1},size=${size})}" class="btn btn-link">Siguiente</a>
+        </div>
     </div>
 </div>
 
