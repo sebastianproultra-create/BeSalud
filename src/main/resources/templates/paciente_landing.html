@@ -60,8 +60,22 @@
             </div>
         </div>
 
-        <div th:if="${#lists.isEmpty(doctores)}" class="no-doctors">
+        <div th:if="${doctores.totalElements == 0}" class="no-doctors">
             <p>No se encontraron doctores con los criterios seleccionados.</p>
+        </div>
+
+        <div th:if="${doctores.totalPages > 1}" style="margin-top:16px; text-align:center;"
+             th:with="start=${(doctores.number - 2 < 0) ? 0 : (doctores.number - 2)}, end=${(doctores.number + 2 >= doctores.totalPages) ? (doctores.totalPages - 1) : (doctores.number + 2)}">
+            <a th:if="${doctores.hasPrevious()}" th:href="@{/pacientes/landing(page=${doctores.number-1},size=${size},especialidad=${especialidad})}" class="btn btn-link">Anterior</a>
+            <span th:if="${start > 0}" style="color: #666; margin: 0 4px;">...</span>
+            <span th:each="i : ${#numbers.sequence(start, end)}">
+                <a th:href="@{/pacientes/landing(page=${i},size=${size},especialidad=${especialidad})}"
+                   th:text="${i+1}"
+                   th:classappend="${i == doctores.number} ? ' btn btn-accent' : ' btn btn-link'"
+                   style="margin:0 4px;"></a>
+            </span>
+            <span th:if="${end < doctores.totalPages - 1}" style="color: #666; margin: 0 4px;">...</span>
+            <a th:if="${doctores.hasNext()}" th:href="@{/pacientes/landing(page=${doctores.number+1},size=${size},especialidad=${especialidad})}" class="btn btn-link">Siguiente</a>
         </div>
     </main>
 

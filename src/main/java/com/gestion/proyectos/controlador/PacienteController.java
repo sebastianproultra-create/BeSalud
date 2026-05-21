@@ -41,13 +41,17 @@ public class PacienteController {
 
     @GetMapping("/landing")
     public String landing(@RequestParam(value = "especialidad", required = false) String especialidad,
+                          @RequestParam(value = "page", defaultValue = "0") int page,
+                          @RequestParam(value = "size", defaultValue = "6") int size,
                           Model model, HttpSession session) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         String currentEmail = auth != null ? auth.getName() : null;
         boolean modoPaciente = "ROLE_PACIENTE".equals(session.getAttribute("selectedRole"));
 
-        model.addAttribute("doctores", pacienteService.listarDoctores(especialidad));
+        model.addAttribute("doctores", pacienteService.listarDoctoresPaginated(page, size, especialidad));
         model.addAttribute("especialidades", pacienteService.especialidadesDisponibles());
+        model.addAttribute("especialidad", especialidad);
+        model.addAttribute("size", size);
         model.addAttribute("modoPaciente", modoPaciente);
 
         if (auth != null && auth.isAuthenticated()) {

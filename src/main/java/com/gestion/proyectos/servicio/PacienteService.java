@@ -8,6 +8,9 @@ import com.gestion.proyectos.repositorio.PersonaRepositorio;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -58,6 +61,13 @@ public class PacienteService {
         if (especialidad != null && !especialidad.isEmpty())
             return personaRepo.findDoctoresByEspecialidadContainingIgnoreCase(especialidad);
         return personaRepo.findAllDoctores();
+    }
+
+    public Page<Doctor> listarDoctoresPaginated(int page, int size, String especialidad) {
+        Pageable pageable = PageRequest.of(Math.max(0, page), Math.max(1, size));
+        if (especialidad != null && !especialidad.isBlank())
+            return personaRepo.findDoctoresByEspecialidadContainingIgnoreCase(especialidad.trim(), pageable);
+        return personaRepo.findAllDoctores(pageable);
     }
 
     public List<String> especialidadesDisponibles() {
