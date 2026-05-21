@@ -823,7 +823,7 @@
     justify-content: flex-end;
 }
 .inline-form {
-    display: inline;
+    display: contents;
     margin: 0;
     padding: 0;
     background: none;
