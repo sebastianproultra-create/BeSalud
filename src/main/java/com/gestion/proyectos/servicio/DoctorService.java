@@ -192,67 +192,81 @@ public class DoctorService {
     // ── Horarios ─────────────────────────────────────────────────────────────
 
     /**
-     * Reemplaza el horario de un día para el doctor y guarda uno o dos intervalos.
+     * Valida y guarda horarios para múltiples días en lote (un delete + saveAll).
      * Retorna null si OK, o el código de error si hay validación fallida.
      */
+    public String guardarHorariosSemanales(String doctorId, List<String> days,
+            Map<String, String> allParams, int duracionCitaMinutos) {
+        List<HorarioAtencion> nuevos = new ArrayList<>();
+        List<DayOfWeek> diasAfectados = new ArrayList<>();
+
+        for (String day : days) {
+            String startStr = allParams.get("startTimes[" + day + "]");
+            String endStr = allParams.get("endTimes[" + day + "]");
+            if (startStr == null || startStr.isEmpty() || endStr == null || endStr.isEmpty()) {
+                return "missing_time_" + day;
+            }
+
+            DayOfWeek diaSemana;
+            try {
+                diaSemana = DayOfWeek.valueOf(day);
+            } catch (IllegalArgumentException e) {
+                return "dia_invalido_" + day;
+            }
+
+            LocalTime horaInicio;
+            LocalTime horaFin;
+            try {
+                horaInicio = LocalTime.parse(startStr);
+                horaFin = LocalTime.parse(endStr);
+            } catch (Exception e) {
+                return "formato_hora_" + day;
+            }
+
+            if (!horaInicio.isBefore(horaFin))
+                return "invalid_time_" + day;
+
+            diasAfectados.add(diaSemana);
+            HorarioAtencion h = new HorarioAtencion(doctorId, diaSemana, horaInicio, horaFin);
+            h.setDuracionCitaMinutos(duracionCitaMinutos);
+            nuevos.add(h);
+
+            String start2 = allParams.get("startTimes2[" + day + "]");
+            String end2 = allParams.get("endTimes2[" + day + "]");
+            if ((start2 != null && !start2.isEmpty()) || (end2 != null && !end2.isEmpty())) {
+                if (start2 == null || start2.isEmpty() || end2 == null || end2.isEmpty()) {
+                    return "missing_time2_" + day;
+                }
+                LocalTime horaInicio2;
+                LocalTime horaFin2;
+                try {
+                    horaInicio2 = LocalTime.parse(start2);
+                    horaFin2 = LocalTime.parse(end2);
+                } catch (Exception e) {
+                    return "formato_hora2_" + day;
+                }
+                if (!horaInicio2.isBefore(horaFin2))
+                    return "invalid_time2_" + day;
+                if (horaInicio2.isBefore(horaFin) && horaFin2.isAfter(horaInicio)) {
+                    return "solapamiento_intervalos_" + day;
+                }
+                HorarioAtencion h2 = new HorarioAtencion(doctorId, diaSemana, horaInicio2, horaFin2);
+                h2.setDuracionCitaMinutos(duracionCitaMinutos);
+                nuevos.add(h2);
+            }
+        }
+
+        // Un solo delete batch + un solo insert batch
+        horarioRepo.deleteByDoctorIdAndDiaSemanaIn(doctorId, diasAfectados);
+        horarioRepo.saveAll(nuevos);
+        log.info("Horarios guardados para doctor {}: {} registros", doctorId, nuevos.size());
+        return null;
+    }
+
+    /** @deprecated usar guardarHorariosSemanales */
     public String guardarHorarioDia(String doctorId, String day, Map<String, String> allParams,
             int duracionCitaMinutos) {
-        String startStr = allParams.get("startTimes[" + day + "]");
-        String endStr = allParams.get("endTimes[" + day + "]");
-        if (startStr == null || startStr.isEmpty() || endStr == null || endStr.isEmpty()) {
-            return "missing_time_" + day;
-        }
-
-        DayOfWeek diaSemana;
-        try {
-            diaSemana = DayOfWeek.valueOf(day);
-        } catch (IllegalArgumentException e) {
-            return "dia_invalido_" + day;
-        }
-
-        LocalTime horaInicio;
-        LocalTime horaFin;
-        try {
-            horaInicio = LocalTime.parse(startStr);
-            horaFin = LocalTime.parse(endStr);
-        } catch (Exception e) {
-            return "formato_hora_" + day;
-        }
-
-        if (!horaInicio.isBefore(horaFin))
-            return "invalid_time_" + day;
-
-        horarioRepo.findByDoctorIdAndDiaSemana(doctorId, diaSemana)
-                .forEach(h -> horarioRepo.deleteById(h.getId()));
-
-        HorarioAtencion horario = new HorarioAtencion(doctorId, diaSemana, horaInicio, horaFin);
-        horario.setDuracionCitaMinutos(duracionCitaMinutos);
-        horarioRepo.save(horario);
-
-        String start2 = allParams.get("startTimes2[" + day + "]");
-        String end2 = allParams.get("endTimes2[" + day + "]");
-        if ((start2 != null && !start2.isEmpty()) || (end2 != null && !end2.isEmpty())) {
-            if (start2 == null || start2.isEmpty() || end2 == null || end2.isEmpty()) {
-                return "missing_time2_" + day;
-            }
-            LocalTime horaInicio2;
-            LocalTime horaFin2;
-            try {
-                horaInicio2 = LocalTime.parse(start2);
-                horaFin2 = LocalTime.parse(end2);
-            } catch (Exception e) {
-                return "formato_hora2_" + day;
-            }
-            if (!horaInicio2.isBefore(horaFin2))
-                return "invalid_time2_" + day;
-            if (horaInicio2.isBefore(horaFin) && horaFin2.isAfter(horaInicio)) {
-                return "solapamiento_intervalos_" + day;
-            }
-            HorarioAtencion horario2 = new HorarioAtencion(doctorId, diaSemana, horaInicio2, horaFin2);
-            horario2.setDuracionCitaMinutos(duracionCitaMinutos);
-            horarioRepo.save(horario2);
-        }
-        return null;
+        return guardarHorariosSemanales(doctorId, List.of(day), allParams, duracionCitaMinutos);
     }
 
     public void eliminarHorario(String horarioId, String doctorId) {

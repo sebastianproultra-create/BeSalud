@@ -131,11 +131,9 @@ public class DoctorController {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         Doctor doctor = doctorService.buscarPorEmail(auth.getName()).orElseThrow();
 
-        for (String day : days) {
-            String error = doctorService.guardarHorarioDia(doctor.getId(), day, allParams, duracionCitaMinutos);
-            if (error != null)
-                return "redirect:/doctores?error=" + error;
-        }
+        String error = doctorService.guardarHorariosSemanales(doctor.getId(), days, allParams, duracionCitaMinutos);
+        if (error != null)
+            return "redirect:/doctores?error=" + error;
         return REDIRECT_DOCTORES;
     }
 

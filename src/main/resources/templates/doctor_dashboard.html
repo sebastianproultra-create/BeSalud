@@ -131,6 +131,10 @@
             <span th:if="${param.error[0].startsWith('missing_time_')}" th:text="'Falta la hora para el día ' + ${param.error[0].substring(13)}"></span>
             <span th:if="${param.error[0].startsWith('invalid_time_')}" th:text="'Hora inválida para el día ' + ${param.error[0].substring(13)}"></span>
             <span th:if="${param.error[0].startsWith('invalid_time2_')}" th:text="'Hora inválida para el segundo intervalo del día ' + ${param.error[0].substring(14)}"></span>
+            <span th:if="${param.error[0].startsWith('formato_hora2_')}" th:text="'Formato de hora incorrecto en segundo intervalo del día ' + ${param.error[0].substring(14)}"></span>
+            <span th:if="${param.error[0].startsWith('formato_hora_')}" th:text="'Formato de hora incorrecto para el día ' + ${param.error[0].substring(13)}"></span>
+            <span th:if="${param.error[0].startsWith('missing_time2_')}" th:text="'Falta completar el segundo intervalo del día ' + ${param.error[0].substring(14)}"></span>
+            <span th:if="${param.error[0].startsWith('solapamiento_intervalos_')}" th:text="'Los dos intervalos se solapan para el día ' + ${param.error[0].substring(24)}"></span>
         </span>
     </div>
 
