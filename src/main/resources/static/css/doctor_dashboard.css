@@ -771,12 +771,14 @@
    ============================================== */
 .estado-badge {
     display: inline-block;
+    min-width: 100px;
     padding: 3px 11px;
     border-radius: 20px;
     font-size: 10px;
     font-weight: 400;
     letter-spacing: 0.12em;
     text-transform: uppercase;
+    text-align: center;
     border: 1px solid transparent;
     white-space: nowrap;
 }
