@@ -67,10 +67,10 @@ public class RolSelectionController {
 
         UserRegistrationDTO dto = new UserRegistrationDTO();
         dto.setEmail(email);
-        dto.setNombre(nombre != null ? nombre : "Usuario");
-        dto.setApellido(apellido != null ? apellido : "Google");
-        dto.setTelefono(telefono != null ? telefono : "");
-        dto.setIdentificacion(identificacion != null ? identificacion : "");
+        dto.setNombre(nombre);
+        dto.setApellido(apellido);
+        dto.setTelefono(telefono);
+        dto.setIdentificacion(identificacion);
         dto.setPassword(UUID.randomUUID().toString());
         dto.setRole(role);
         dto.setEspecialidad(especialidad);
@@ -82,6 +82,8 @@ public class RolSelectionController {
         if (error != null) {
             model.addAttribute("error", error);
             model.addAttribute("email", email);
+            model.addAttribute("nombre", nombre);
+            model.addAttribute("apellido", apellido);
             return "elegir_rol";
         }
 
@@ -89,6 +91,8 @@ public class RolSelectionController {
         if (duplicado != null) {
             model.addAttribute("error", duplicado);
             model.addAttribute("email", email);
+            model.addAttribute("nombre", nombre);
+            model.addAttribute("apellido", apellido);
             return "elegir_rol";
         }
 
@@ -96,6 +100,8 @@ public class RolSelectionController {
         if (resultado != null) {
             model.addAttribute("error", resultado);
             model.addAttribute("email", email);
+            model.addAttribute("nombre", nombre);
+            model.addAttribute("apellido", apellido);
             return "elegir_rol";
         }
 

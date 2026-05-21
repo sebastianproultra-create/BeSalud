@@ -38,9 +38,11 @@ public class RegistroService {
      * Los campos básicos (notBlank, email, size) ya fueron validados con @Valid antes de llegar aquí.
      */
     public String validar(UserRegistrationDTO user) {
-        if (!user.getTelefono().trim().matches("^3\\d{1,9}$"))
+        if (esVacio(user.getNombre())) return "El nombre es obligatorio";
+        if (esVacio(user.getApellido())) return "El apellido es obligatorio";
+        if (esVacio(user.getTelefono()) || !user.getTelefono().trim().matches("^3\\d{1,9}$"))
             return "El teléfono debe empezar por 3 y tener máximo 10 dígitos";
-        if (!user.getIdentificacion().trim().matches("^\\d{1,10}$"))
+        if (esVacio(user.getIdentificacion()) || !user.getIdentificacion().trim().matches("^\\d{1,10}$"))
             return "La identificación debe contener solo números y máximo 10 dígitos";
         if (!"PACIENTE".equals(user.getRole()) && !"DOCTOR".equals(user.getRole()))
             return "Debe seleccionar un rol válido (Paciente o Doctor)";
