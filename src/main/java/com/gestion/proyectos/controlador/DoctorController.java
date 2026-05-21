@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -109,6 +110,16 @@ public class DoctorController {
     public String eliminar(@PathVariable String id) {
         doctorService.eliminar(id);
         return REDIRECT_DOCTORES;
+    }
+
+    @PostMapping("/perfil/foto")
+    public String actualizarFoto(@RequestParam("foto") MultipartFile foto) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        Doctor doctor = doctorService.buscarPorEmail(auth.getName()).orElse(null);
+        if (doctor == null) return REDIRECT_DOCTORES;
+        String error = doctorService.actualizarFoto(doctor, foto);
+        if (error != null) return "redirect:/doctores?fotoError=" + error + "#perfil";
+        return "redirect:/doctores?fotoOk=1#perfil";
     }
 
     @GetMapping("/{id}/horarios")

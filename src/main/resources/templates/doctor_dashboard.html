@@ -141,11 +141,18 @@
     <!-- ═══════════════ MI PERFIL ═══════════════ -->
     <section id="perfil" class="card" aria-labelledby="perfil-title">
         <h2 id="perfil-title">Mi Perfil</h2>
+        <div th:if="${param.fotoOk}" class="alert alert-success" style="margin-bottom:12px;">Foto de perfil actualizada.</div>
+        <div th:if="${param.fotoError}" class="alert alert-error" style="margin-bottom:12px;"
+             th:text="${param.fotoError[0] == 'vacio' ? 'Selecciona una imagen' : (param.fotoError[0] == 'tipo' ? 'Tipo no permitido (solo PNG/JPG/WEBP)' : (param.fotoError[0] == 'tamano' ? 'Imagen demasiado grande (máx 2 MB)' : 'Error procesando imagen'))}"></div>
         <div class="doctor-profile">
             <div class="doctor-photo">
                 <img th:src="${doctor.foto != null ? doctor.foto : '/images/default-avatar.jpg'}"
                      th:alt="'Foto de ' + ${doctor.nombre}"
                      onerror="this.src='/images/default-avatar.jpg'">
+                <form th:action="@{/doctores/perfil/foto}" method="post" enctype="multipart/form-data" style="margin-top:12px; display:flex; flex-direction:column; gap:8px;">
+                    <input type="file" name="foto" accept="image/png,image/jpeg,image/webp" required style="font-size:12px;" />
+                    <button type="submit" class="btn btn-primary btn-sm">Cambiar foto</button>
+                </form>
             </div>
             <div class="doctor-info">
                 <h3 th:text="${doctor.nombre + ' ' + doctor.apellido}">Nombre</h3>

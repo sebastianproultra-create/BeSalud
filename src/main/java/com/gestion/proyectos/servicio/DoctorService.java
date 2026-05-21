@@ -122,6 +122,26 @@ public class DoctorService {
         return result;
     }
 
+    public String actualizarFoto(Doctor doctor, org.springframework.web.multipart.MultipartFile foto) {
+        if (foto == null || foto.isEmpty()) return "vacio";
+        String tipo = foto.getContentType();
+        if (tipo == null
+                || !(tipo.equals("image/png") || tipo.equals("image/jpeg") || tipo.equals("image/webp")))
+            return "tipo";
+        if (foto.getSize() > 2L * 1024 * 1024) return "tamano";
+        try {
+            byte[] bytes = foto.getBytes();
+            String base64 = "data:" + tipo + ";base64," + java.util.Base64.getEncoder().encodeToString(bytes);
+            doctor.setFoto(base64);
+            personaRepo.save(doctor);
+            log.info("Foto actualizada para doctor {}", doctor.getEmail());
+            return null;
+        } catch (Exception e) {
+            log.warn("Error al procesar foto del doctor {}: {}", doctor.getEmail(), e.getMessage());
+            return "procesando";
+        }
+    }
+
     public List<Paciente> pacientesDelDoctor(String doctorId) {
         List<String> ids = citaRepo.findByDoctorId(doctorId).stream()
                 .map(Cita::getPacienteId)
