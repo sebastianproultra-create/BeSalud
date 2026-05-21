@@ -1,33 +1,44 @@
 package com.gestion.proyectos.controlador;
 
 import com.gestion.proyectos.modelo.UserRegistrationDTO;
-import com.gestion.proyectos.modelo.Doctor;
-import com.gestion.proyectos.modelo.Paciente;
-import com.gestion.proyectos.repositorio.DoctorRepositorio;
-import com.gestion.proyectos.repositorio.PacienteRepositorio;
+import com.gestion.proyectos.seguridad.JwtCookieService;
+import com.gestion.proyectos.seguridad.JwtService;
+import com.gestion.proyectos.servicio.RegistroService;
 
-import org.springframework.security.crypto.password.PasswordEncoder;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-
-import java.util.Base64;
+import org.springframework.web.bind.annotation.RequestParam;
 
 @Controller
 @RequestMapping
 public class LoginController {
 
-    private final PacienteRepositorio pacienteRepositorio;
-    private final DoctorRepositorio doctorRepositorio;
-    private final PasswordEncoder passwordEncoder;
+    private static final String VIEW_REGISTER = "register";
+    private static final String ATTR_ERROR = "error";
 
-    public LoginController(PacienteRepositorio pacienteRepositorio, DoctorRepositorio doctorRepositorio,
-            PasswordEncoder passwordEncoder) {
-        this.pacienteRepositorio = pacienteRepositorio;
-        this.doctorRepositorio = doctorRepositorio;
-        this.passwordEncoder = passwordEncoder;
+    private final RegistroService registroService;
+    private final AuthenticationManager authenticationManager;
+    private final JwtService jwtService;
+    private final JwtCookieService jwtCookieService;
+
+    public LoginController(RegistroService registroService,
+            AuthenticationManager authenticationManager,
+            JwtService jwtService,
+            JwtCookieService jwtCookieService) {
+        this.registroService = registroService;
+        this.authenticationManager = authenticationManager;
+        this.jwtService = jwtService;
+        this.jwtCookieService = jwtCookieService;
     }
 
     @GetMapping("/login")
@@ -35,42 +46,64 @@ public class LoginController {
         return "login";
     }
 
+    @PostMapping("/login")
+    public String loginPost(@RequestParam String email, @RequestParam String password,
+            HttpServletResponse response) {
+        try {
+            Authentication authentication = authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(email, password));
+            String token = jwtService.generateToken((UserDetails) authentication.getPrincipal());
+            jwtCookieService.addJwtCookie(response, token);
+
+            boolean isAdmin = authentication.getAuthorities().stream()
+                    .anyMatch(a -> "ROLE_ADMIN".equals(a.getAuthority()));
+            boolean isDoctor = authentication.getAuthorities().stream()
+                    .anyMatch(a -> "ROLE_DOCTOR".equals(a.getAuthority()));
+
+            if (isAdmin)
+                return "redirect:/admin";
+            if (isDoctor)
+                return "redirect:/doctores";
+            return "redirect:/pacientes/landing";
+        } catch (Exception e) {
+            return "redirect:/login?error=true";
+        }
+    }
+
     @GetMapping("/register")
     public String register(Model model) {
         model.addAttribute("user", new UserRegistrationDTO());
-        return "register";
+        return VIEW_REGISTER;
     }
 
     @PostMapping("/register/save")
-    public String registerSave(UserRegistrationDTO user, Model model) {
-        // Check if email already exists in either repo
-        if (pacienteRepositorio.findByEmail(user.getEmail()).isPresent()
-                || doctorRepositorio.findByEmail(user.getEmail()).isPresent()) {
-            model.addAttribute("error", "Ya existe un usuario registrado con ese correo");
-            return "register";
+    public String registerSave(@Valid UserRegistrationDTO user, BindingResult binding, Model model) {
+        if (binding.hasErrors()) {
+            String msg = binding.getAllErrors().get(0).getDefaultMessage();
+            model.addAttribute("user", user);
+            model.addAttribute(ATTR_ERROR, msg);
+            return VIEW_REGISTER;
         }
 
-        if ("PACIENTE".equals(user.getRole())) {
-            Paciente paciente = new Paciente(user.getNombre(), user.getApellido(), user.getTelefono(),
-                    user.getIdentificacion(), user.getEmail(), passwordEncoder.encode(user.getPassword()));
-            pacienteRepositorio.save(paciente);
-        } else if ("DOCTOR".equals(user.getRole())) {
-            String fotoBase64 = null;
-            if (user.getFotoFile() != null && !user.getFotoFile().isEmpty()) {
-                try {
-                    byte[] bytes = user.getFotoFile().getBytes();
-                    fotoBase64 = "data:" + user.getFotoFile().getContentType() + ";base64,"
-                            + Base64.getEncoder().encodeToString(bytes);
-                } catch (Exception e) {
-                    model.addAttribute("error", "Error al procesar la imagen");
-                    return "register";
-                }
-            }
-            Doctor doctor = new Doctor(user.getNombre(), user.getApellido(), user.getTelefono(),
-                    user.getIdentificacion(), user.getEmail(), passwordEncoder.encode(user.getPassword()),
-                    user.getEspecialidad(), java.time.LocalDate.parse(user.getFechaNacimiento()), fotoBase64,
-                    user.getBiografia());
-            doctorRepositorio.save(doctor);
+        String error = registroService.validar(user);
+        if (error != null) {
+            model.addAttribute("user", user);
+            model.addAttribute(ATTR_ERROR, error);
+            return VIEW_REGISTER;
+        }
+
+        error = registroService.verificarDuplicado(user);
+        if (error != null) {
+            model.addAttribute("user", user);
+            model.addAttribute(ATTR_ERROR, error);
+            return VIEW_REGISTER;
+        }
+
+        error = registroService.registrar(user);
+        if (error != null) {
+            model.addAttribute("user", user);
+            model.addAttribute(ATTR_ERROR, error);
+            return VIEW_REGISTER;
         }
 
         return "redirect:/login?registerSuccess";

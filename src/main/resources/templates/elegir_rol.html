@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Elegir Rol - BeSalud</title>
+    <link rel="stylesheet" th:href="@{/css/global.css}">
+    <link rel="stylesheet" th:href="@{/css/register.css}">
+</head>
+<body>
+<header th:replace="~{fragments/layout :: header-brand}"></header>
+
+<div class="container">
+    <div class="card" style="max-width: 600px; margin: 30px auto;">
+        <h2>Completa tu registro</h2>
+        <p>Tu cuenta de Google: <strong th:text="${email}"></strong></p>
+
+        <div th:if="${error}" class="alert alert-error" th:text="${error}"></div>
+
+        <form th:action="@{/elegir-rol}" method="post">
+            <input type="hidden" name="_csrf" th:value="${_csrf.token}"/>
+
+            <label for="role">Rol:</label>
+            <select id="role" name="role" required onchange="toggleDoctorFields()" class="styled-select">
+                <option value="">Selecciona un rol</option>
+                <option value="PACIENTE">Paciente</option>
+                <option value="DOCTOR">Doctor</option>
+            </select>
+
+            <label for="nombre">Nombre:</label>
+            <input type="text" id="nombre" name="nombre" th:value="${nombre}" required/>
+
+            <label for="apellido">Apellido:</label>
+            <input type="text" id="apellido" name="apellido" th:value="${apellido}" required/>
+
+            <label for="telefono">Teléfono:</label>
+            <input type="text" id="telefono" name="telefono" maxlength="10" pattern="^3\d{1,9}$" inputmode="numeric" required/>
+
+            <label for="identificacion">Identificación:</label>
+            <input type="text" id="identificacion" name="identificacion" maxlength="10" pattern="^\d{1,10}$" inputmode="numeric" required/>
+
+            <div id="doctor-fields" style="display:none;">
+                <label for="especialidad">Especialidad:</label>
+                <input type="text" id="especialidad" name="especialidad"/>
+
+                <label for="fechaNacimiento">Fecha de Nacimiento:</label>
+                <input type="date" id="fechaNacimiento" name="fechaNacimiento"/>
+
+                <label for="biografia">Biografía (opcional):</label>
+                <textarea id="biografia" name="biografia" rows="3" maxlength="500"></textarea>
+            </div>
+
+            <button type="submit">Continuar</button>
+        </form>
+    </div>
+</div>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+<script>
+function toggleDoctorFields() {
+    const role = document.getElementById('role').value;
+    const doctorFields = document.getElementById('doctor-fields');
+    doctorFields.style.display = role === 'DOCTOR' ? 'block' : 'none';
+    const especialidad = document.getElementById('especialidad');
+    const fechaNac = document.getElementById('fechaNacimiento');
+    especialidad.required = role === 'DOCTOR';
+    fechaNac.required = role === 'DOCTOR';
+}
+</script>
+</body>
+</html>

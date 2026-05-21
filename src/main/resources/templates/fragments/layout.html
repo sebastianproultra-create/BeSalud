@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
+<!-- ── Header de marca ── -->
+<header th:fragment="header-brand">
+    <div class="header-brand">
+        <h1>BeSalud</h1>
+        <p>Sistema de Gestión de Citas Médicas</p>
+    </div>
+</header>
+
+<!-- ── Navegación admin (Doctores / Pacientes / Citas + logout) ── -->
+<nav th:fragment="nav-admin" aria-label="Navegación principal">
+    <a th:href="@{/doctores}">Doctores</a>
+    <a th:href="@{/pacientes}">Pacientes</a>
+    <a th:href="@{/citas}">Citas</a>
+    <form th:action="@{/logout}" method="post" class="nav-logout-form">
+
+        <button type="submit" class="btn btn-link nav-logout-btn">Cerrar Sesión</button>
+    </form>
+</nav>
+
+<!-- ── Footer ── -->
+<footer th:fragment="footer">
+    <p>&copy; 2026 BeSalud - Sistema de Citas Médicas. Todos los derechos reservados.</p>
+</footer>
+
+</html>

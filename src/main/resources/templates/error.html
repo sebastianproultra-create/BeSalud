@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Error - BeSalud</title>
+    <link rel="stylesheet" th:href="@{/css/global.css}">
+</head>
+<body>
+<header th:replace="~{fragments/layout :: header-brand}"></header>
+
+<div class="container">
+    <div class="card" style="max-width: 500px; margin: 60px auto; text-align: center;">
+        <h2 th:text="${status}">Error</h2>
+        <p th:text="${mensaje}">Ha ocurrido un error.</p>
+        <a th:href="@{/}">Volver al inicio</a>
+    </div>
+</div>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+</body>
+</html>

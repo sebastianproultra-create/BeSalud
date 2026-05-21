@@ -20,6 +20,15 @@
     text-align: center;
 }
 
+/* Neutraliza el form global dentro de la card */
+.card form {
+    background: none;
+    padding: 0;
+    border: none;
+    border-radius: 0;
+    box-shadow: none;
+}
+
 .register-card form label {
     font-weight: 600;
     margin-top: 15px;
@@ -88,4 +97,21 @@
         margin: 20px;
         padding: 20px;
     }
+}
+
+.field-hint {
+    display: block;
+    font-size: 0.78rem;
+    margin-top: -8px;
+    margin-bottom: 8px;
+}
+.field-hint.error { color: #e53e3e; }
+
+input.input-error {
+    border: 2px solid #e53e3e !important;
+    outline: none;
+}
+input.input-success {
+    border: 2px solid #38a169 !important;
+    outline: none;
 }

@@ -13,7 +13,7 @@ public class Cita {
     private String id;
     private String doctorId;
     private String pacienteId;
-    private LocalTime Hora;
+    private LocalTime hora;
     private LocalDate fecha;
     private String motivo;
 
@@ -26,7 +26,7 @@ public class Cita {
     public Cita(String doctorId, String pacienteId, LocalTime hora, LocalDate fecha, String motivo, EstadoCita estado) {
         this.doctorId = doctorId;
         this.pacienteId = pacienteId;
-        Hora = hora;
+        this.hora = hora;
         this.fecha = fecha;
         this.motivo = motivo;
         this.estado = estado;
@@ -57,11 +57,11 @@ public class Cita {
     }
 
     public LocalTime getHora() {
-        return Hora;
+        return hora;
     }
 
     public void setHora(LocalTime hora) {
-        Hora = hora;
+        this.hora = hora;
     }
 
     public LocalDate getFecha() {
@@ -86,6 +86,14 @@ public class Cita {
 
     public void setEstado(EstadoCita estado) {
         this.estado = estado;
+    }
+
+    public Dictamen getDictamen() {
+        return dictamen;
+    }
+
+    public void setDictamen(Dictamen dictamen) {
+        this.dictamen = dictamen;
     }
 
 }

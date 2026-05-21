@@ -2,42 +2,56 @@ package com.gestion.proyectos.seguridad;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import com.gestion.proyectos.oauth2.OAuth2LoginSuccessHandler;
 
 @Configuration
+@EnableMethodSecurity
 public class SecurityConfig {
 
+        private static final String LOGIN_URL = "/login";
+
         @Bean
-        public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+        public SecurityFilterChain filterChain(HttpSecurity http,
+                        JwtAuthenticationFilter jwtAuthenticationFilter,
+                        JwtCookieService jwtCookieService,
+                        OAuth2LoginSuccessHandler oauth2LoginSuccessHandler) throws Exception {
                 http
-                                // Se definen qué URLs puede usar cada rol
+                                .csrf(org.springframework.security.config.Customizer.withDefaults())
                                 .authorizeHttpRequests(auth -> auth
-                                                .requestMatchers("/", "/login", "/register", "/register/save",
-                                                                "/css/**",
-                                                                "/js/**", "/error")
+                                                .requestMatchers("/", LOGIN_URL, "/register", "/register/save",
+                                                                "/css/**", "/images/**",
+                                                                "/js/**", "/error", "/elegir-rol")
                                                 .permitAll()
                                                 .requestMatchers("/admin/**").hasRole("ADMIN")
                                                 .requestMatchers("/doctores/**", "/pacientes/**", "/citas/**")
                                                 .authenticated()
                                                 .anyRequest().authenticated())
-
-                                // Se habilita el formulario de login
-                                .formLogin(form -> form
-                                                .loginPage("/login") // Nuestra página personalizada
-                                                .loginProcessingUrl("/login") // URL que procesa el login
-                                                .successHandler(customAuthenticationSuccessHandler())
-                                                .failureUrl("/login?error=true")
-                                                .permitAll())
-                                // Se habilita el logout
+                                .formLogin(form -> form.disable())
+                                .oauth2Login(oauth2 -> oauth2
+                                                .loginPage(LOGIN_URL)
+                                                .successHandler(oauth2LoginSuccessHandler))
                                 .logout(logout -> logout
                                                 .logoutUrl("/logout")
-                                                .logoutSuccessUrl("/login?logout=true")
-                                                .permitAll());
+                                                .addLogoutHandler((request, response, authentication) ->
+                                                                jwtCookieService.clearJwtCookie(response))
+                                                .logoutSuccessUrl(LOGIN_URL + "?logout=true")
+                                                .permitAll())
+                                .sessionManagement(session -> session
+                                                .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
+                                .exceptionHandling(ex -> ex
+                                                .authenticationEntryPoint((request, response, authException) ->
+                                                                response.sendRedirect(LOGIN_URL + "?error=true")))
+                                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
                 return http.build();
         }
@@ -56,22 +70,8 @@ public class SecurityConfig {
         }
 
         @Bean
-        public AuthenticationSuccessHandler customAuthenticationSuccessHandler() {
-                return (request, response, authentication) -> {
-                        String role = authentication.getAuthorities().stream()
-                                        .map(grantedAuthority -> grantedAuthority.getAuthority())
-                                        .findFirst()
-                                        .orElse("");
-                        if ("ROLE_ADMIN".equals(role)) {
-                                response.sendRedirect("/admin");
-                        } else if ("ROLE_DOCTOR".equals(role)) {
-                                response.sendRedirect("/doctores");
-                        } else if ("ROLE_PACIENTE".equals(role)) {
-                                response.sendRedirect("/pacientes/landing");
-                        } else {
-                                response.sendRedirect("/login?error=true");
-                        }
-                };
+        public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration) throws Exception {
+                return configuration.getAuthenticationManager();
         }
 
 }

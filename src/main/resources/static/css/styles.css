@@ -236,6 +236,10 @@ table tr:last-child td {
     border-bottom: none;
 }
 
+table td:last-child {
+    white-space: nowrap;
+}
+
 /* ============================================== 
    MENSAJES (ALERTAS) 
    ============================================== */

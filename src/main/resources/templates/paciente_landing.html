@@ -1,56 +1,161 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title>Catálogo de Doctores - BeHealth</title>
+    <title>Catálogo de Doctores - BeSalud</title>
     <link rel="stylesheet" th:href="@{/css/global.css}">
     <link rel="stylesheet" th:href="@{/css/paciente_landing.css}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
 </head>
 <body>
 <header>
-    <h1>BeHealth</h1>
-    <p>Encuentra tu Doctor Ideal</p>
+    <div class="header-brand">
+        <h1>BeSalud</h1>
+        <p>Encuentra tu Doctor Ideal</p>
+    </div>
     <nav>
         <form th:action="@{/logout}" method="post" style="display: inline;">
-            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+
             <button type="submit" class="btn btn-secondary">Cerrar Sesión</button>
         </form>
     </nav>
 </header>
 
-<div class="container">
-    <div class="filter-section">
-        <h2>Filtrar Doctores</h2>
-        <form th:action="@{/pacientes/landing}" method="get">
-            <label for="especialidad">Especialidad:</label>
-            <select id="especialidad" name="especialidad">
-                <option value="">Todas las especialidades</option>
-                <option th:each="esp : ${especialidades}" th:value="${esp}" th:text="${esp}"></option>
-            </select>
-            <button type="submit" class="btn btn-primary">Filtrar</button>
-        </form>
-    </div>
+<div class="page-layout" id="pageLayout">
 
-    <div class="doctors-grid">
-        <div th:each="doctor : ${doctores}" class="doctor-card">
-            <div class="doctor-photo">
-                <img th:src="${doctor.foto != null ? doctor.foto : '/images/default-avatar.jpg'}" alt="Foto del doctor" onerror="this.src='/images/default-avatar.jpg'">
+    <!-- Main content -->
+    <main class="main-content">
+        <div th:if="${param.success != null and param.success[0] == 'cita_agendada'}" class="alert" style="background:#d1e7dd; color:#0f5132; padding:15px; border-radius:6px; margin-bottom:20px;">
+            ¡Tu cita ha sido agendada exitosamente!
+        </div>
+        <div th:if="${param.success != null and param.success[0] == 'cita_reprogramada'}" class="alert" style="background:#d1e7dd; color:#0f5132; padding:15px; border-radius:6px; margin-bottom:20px;">
+            ¡Tu cita ha sido reprogramada exitosamente!
+        </div>
+
+        <div class="filter-section">
+            <h2>Filtrar Doctores</h2>
+            <div th:if="${modoPaciente}" class="alert alert-info" style="margin-bottom: 16px; padding: 12px; border-radius: 8px; background: #e9f5ff; color: #0f4a7a;">
+                Estás usando el modo paciente. No se mostrará tu perfil médico para agendarte citas a ti mismo.
             </div>
-            <div class="doctor-info">
-                <h3 th:text="${doctor.nombre + ' ' + doctor.apellido}"></h3>
-                <p class="specialty" th:text="${doctor.especialidad}"></p>
-                <p class="bio" th:text="${doctor.biografia != null ? doctor.biografia : 'Sin biografía disponible'}"></p>
-                <a th:href="@{/citas/nueva(doctorId=${doctor.id})}" class="btn btn-primary">Agendar Cita</a>
+            <form th:action="@{/pacientes/landing}" method="get" class="filter-form">
+                <label for="especialidad">Especialidad:</label>
+                <select id="especialidad" name="especialidad" class="styled-select">
+                    <option value="">Todas las especialidades</option>
+                    <option th:each="esp : ${especialidades}" th:value="${esp}" th:text="${esp}"></option>
+                </select>
+                <button type="submit" class="btn btn-primary">Filtrar</button>
+            </form>
+        </div>
+
+        <div class="doctors-grid">
+            <div th:each="doctor : ${doctores}" class="doctor-card">
+                <div class="doctor-photo">
+                    <img th:src="${doctor.foto != null ? doctor.foto : '/images/default-avatar.jpg'}" alt="Foto del doctor" onerror="this.src='/images/default-avatar.jpg'">
+                </div>
+                <div class="doctor-info">
+                    <h3 th:text="${'Dr. ' + doctor.nombre + ' ' + doctor.apellido}"></h3>
+                    <p class="specialty" th:text="${doctor.especialidad}"></p>
+                    <p class="bio" th:text="${doctor.biografia != null ? doctor.biografia : 'Sin biografía disponible'}"></p>
+                    <a th:href="@{/citas/nueva(doctorId=${doctor.id})}" class="btn btn-primary">Agendar Cita</a>
+                </div>
             </div>
         </div>
-    </div>
 
-    <div th:if="${#lists.isEmpty(doctores)}" class="no-doctors">
-        <p>No se encontraron doctores con los criterios seleccionados.</p>
-    </div>
-</div>
+        <div th:if="${#lists.isEmpty(doctores)}" class="no-doctors">
+            <p>No se encontraron doctores con los criterios seleccionados.</p>
+        </div>
+    </main>
 
-<footer>
-    <p>&copy; 2026 BeHealth - Sistema de Citas Médicas. Todos los derechos reservados.</p>
-</footer>
+    <!-- Mis Citas Sidebar -->
+    <aside class="citas-sidebar" id="citasSidebar">
+
+        <!-- Tab to reopen sidebar (visible when closed) -->
+        <button class="sidebar-tab" id="sidebarTab" onclick="openSidebar()" aria-label="Abrir Mis Citas">
+            <span class="tab-icon"><i class="fa-solid fa-clipboard-list"></i></span>
+            <span class="tab-text">Mis Citas</span>
+            <span class="tab-badge"
+                  th:if="${misCitas != null and not #lists.isEmpty(misCitas)}"
+                  th:text="${#lists.size(misCitas)}"></span>
+        </button>
+
+        <div class="sidebar-inner">
+            <div class="sidebar-header">
+                <div class="sidebar-title">
+                    <span><i class="fa-solid fa-clipboard-list"></i></span>
+                    <h3>Mis Citas</h3>
+                    <span class="sidebar-count"
+                          th:if="${misCitas != null and not #lists.isEmpty(misCitas)}"
+                          th:text="${#lists.size(misCitas)}"></span>
+                </div>
+                <button class="sidebar-close" onclick="closeSidebar()" aria-label="Cerrar">&#8250;</button>
+            </div>
+
+            <div class="sidebar-body">
+                <div th:if="${misCitas == null or #lists.isEmpty(misCitas)}" class="sidebar-empty">
+                    <div class="sidebar-empty-icon"><i class="fa-regular fa-calendar-xmark fa-3x"></i></div>
+                    <p>No tienes citas<br>agendadas aún.</p>
+                </div>
+                <div th:if="${misCitas != null and not #lists.isEmpty(misCitas)}" class="citas-list">
+                    <div th:each="cita : ${misCitas}" class="cita-item">
+                        <div class="cita-item-top">
+                            <span class="cita-doctor" th:text="${doctoresMap[cita.doctorId] != null ? doctoresMap[cita.doctorId] : 'Doctor no encontrado'}"></span>
+                            <span th:text="${cita.estado.descripcion}"
+                                  th:class="${'cita-badge ' + (cita.estado.name() == 'PENDIENTE' ? 'badge-pendiente' : (cita.estado.name() == 'CANCELADA' ? 'badge-cancelada' : 'badge-confirmada'))}"></span>
+                        </div>
+                        <div class="cita-item-bottom">
+                            <span class="cita-meta"><i class="fa-regular fa-calendar"></i> <span th:text="${#temporals.format(cita.fecha, 'dd/MM/yyyy')}"></span></span>
+                            <span class="cita-meta"><i class="fa-regular fa-clock"></i> <span th:text="${#temporals.format(cita.hora, 'hh:mm a')}"></span></span>
+                        </div>
+                        <div class="cita-motivo" th:if="${cita.motivo}" th:text="${cita.motivo}"></div>
+                        <div class="cita-actions">
+                            <a th:href="@{/citas/{id}/reprogramar(id=${cita.id})}"
+                               class="btn btn-secondary btn-small"
+                               th:if="${cita.estado.name() == 'PENDIENTE'}">Reprogramar</a>
+                        </div>
+                        <!-- Dictamen visible para citas completadas -->
+                        <div th:if="${cita.estado.name() == 'COMPLETADA' and cita.dictamen != null}" class="cita-dictamen">
+                            <div class="dictamen-header"><i class="fa-solid fa-file-medical"></i> Dictamen Médico</div>
+                            <div class="dictamen-field">
+                                <strong>Diagnóstico:</strong>
+                                <span th:text="${cita.dictamen.diagnostico}"></span>
+                            </div>
+                            <div class="dictamen-field">
+                                <strong>Tratamiento:</strong>
+                                <span th:text="${cita.dictamen.tratamiento}"></span>
+                            </div>
+                            <div th:if="${cita.dictamen.observaciones != null and !cita.dictamen.observaciones.isEmpty()}" class="dictamen-field">
+                                <strong>Observaciones:</strong>
+                                <span th:text="${cita.dictamen.observaciones}"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+</div><!-- end .page-layout -->
+
+<!-- Backdrop for mobile sidebar overlay -->
+<div class="sidebar-backdrop" id="sidebarBackdrop" onclick="closeSidebar()"></div>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+
+<script>
+const sidebar  = document.getElementById('citasSidebar');
+const layout   = document.getElementById('pageLayout');
+const backdrop = document.getElementById('sidebarBackdrop');
+
+function closeSidebar() {
+    sidebar.classList.add('collapsed');
+    layout.classList.add('sidebar-collapsed');
+    if (backdrop) backdrop.style.display = 'none';
+}
+function openSidebar() {
+    sidebar.classList.remove('collapsed');
+    layout.classList.remove('sidebar-collapsed');
+    if (backdrop && window.innerWidth <= 900) backdrop.style.display = 'block';
+}
+</script>
+<script th:src="@{/js/custom-select.js}"></script>
 </body>
 </html>

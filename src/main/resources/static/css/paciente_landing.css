@@ -36,6 +36,19 @@
     font-size: 20px;
 }
 
+/* Neutraliza el form global dentro del filtro */
+.filter-section form {
+    background: none;
+    padding: 0;
+    border: none;
+    border-radius: 0;
+    box-shadow: none;
+}
+
+.filter-section form .btn {
+    margin-top: 18px;
+}
+
 .filter-form {
     display: flex;
     gap: 10px;
@@ -74,6 +87,8 @@
     box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
     overflow: hidden;
     transition: transform 0.3s ease, box-shadow 0.3s ease;
+    display: flex;
+    flex-direction: column;
 }
 
 .doctor-card:hover {
@@ -106,6 +121,9 @@
 
 .doctor-info {
     padding: 20px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
 }
 
 .doctor-info h3 {
@@ -133,7 +151,7 @@
     width: 100%;
     padding: 10px;
     text-align: center;
-    margin-top: 10px;
+    margin-top: auto;
 }
 
 /* No Results */
@@ -162,11 +180,440 @@
         width: 100%;
     }
 
-    .doctors-grid {
-        grid-template-columns: 1fr;
-    }
-
     .header-section h1 {
         font-size: 24px;
+    }
+}
+
+/* Estado badges */
+.badge-pendiente {
+    background-color: #e0eaff;
+    color: #2d5fb3;
+    padding: 3px 10px;
+    border-radius: 12px;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.badge-cancelada {
+    background-color: #f8d7da;
+    color: #842029;
+    padding: 3px 10px;
+    border-radius: 12px;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.badge-confirmada {
+    background-color: #d1e7dd;
+    color: #0f5132;
+    padding: 3px 10px;
+    border-radius: 12px;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+/* ============================================== 
+   PAGE LAYOUT — content + sidebar
+   ============================================== */
+
+.page-layout {
+    display: flex;
+    align-items: flex-start;
+    min-height: calc(100vh - 120px);
+    transition: gap 0.35s ease;
+}
+
+.main-content {
+    flex: 1;
+    min-width: 0;
+    padding: 30px 24px 60px;
+    transition: all 0.35s ease;
+}
+
+/* ============================================== 
+   MIS CITAS — SIDEBAR PERSISTENTE
+   ============================================== */
+
+.citas-sidebar {
+    width: 320px;
+    flex-shrink: 0;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    display: flex;
+    flex-direction: row;
+    align-items: stretch;
+    transition: width 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    overflow: visible;
+}
+
+/* When collapsed, sidebar slides out but leaves the tab visible */
+.citas-sidebar.collapsed {
+    width: 0;
+}
+
+/* The actual visible sidebar panel */
+.sidebar-inner {
+    width: 320px;
+    flex-shrink: 0;
+    height: 100vh;
+    background: var(--white);
+    border-left: 1px solid var(--border-color);
+    box-shadow: -3px 0 20px rgba(0, 0, 0, 0.07);
+    display: flex;
+    flex-direction: column;
+    transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    transform: translateX(0);
+    overflow: hidden;
+}
+
+.citas-sidebar.collapsed .sidebar-inner {
+    transform: translateX(100%);
+}
+
+/* Header */
+.sidebar-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 18px 18px 16px;
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    color: var(--white);
+    flex-shrink: 0;
+}
+
+.sidebar-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.sidebar-title h3 {
+    font-size: 16px;
+    font-weight: 700;
+    margin: 0;
+    color: var(--white);
+    font-family: 'DM Sans', sans-serif;
+}
+.sidebar-count {
+    background: rgba(255, 255, 255, 0.25);
+    color: var(--white);
+    font-size: 12px;
+    font-weight: 700;
+    border-radius: 10px;
+    padding: 1px 8px;
+}
+
+/* Close button — arrow pointing right */
+.sidebar-close {
+    background: rgba(255, 255, 255, 0.15);
+    border: none;
+    color: var(--white);
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    font-size: 22px;
+    line-height: 1;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s;
+    flex-shrink: 0;
+}
+.sidebar-close:hover {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+/* Body */
+.sidebar-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 14px 12px;
+}
+.sidebar-body::-webkit-scrollbar { width: 4px; }
+.sidebar-body::-webkit-scrollbar-track { background: var(--light-bg); }
+.sidebar-body::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 2px; }
+
+/* Empty state */
+.sidebar-empty {
+    text-align: center;
+    padding: 40px 16px;
+    color: var(--text-light);
+}
+.sidebar-empty-icon { font-size: 40px; margin-bottom: 12px; }
+.sidebar-empty p { font-size: 14px; line-height: 1.5; }
+
+/* Cita list */
+.citas-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.cita-item {
+    background: var(--light-bg);
+    border-radius: 10px;
+    padding: 12px 14px;
+    border-left: 4px solid var(--secondary-color);
+    transition: box-shadow 0.2s;
+}
+.cita-item:hover {
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.cita-item-top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 8px;
+    margin-bottom: 8px;
+}
+.cita-doctor {
+    font-weight: 700;
+    font-size: 13px;
+    color: var(--primary-color);
+    flex: 1;
+    min-width: 0;
+    line-height: 1.3;
+}
+.cita-badge {
+    flex-shrink: 0;
+    padding: 2px 9px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.cita-item-bottom {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+.cita-meta {
+    font-size: 12px;
+    color: var(--text-dark);
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 3px;
+}
+
+.cita-motivo {
+    margin-top: 8px;
+    font-size: 12px;
+    color: var(--text-dark);
+    font-weight: 700;
+    border-top: 1px solid var(--border-color);
+    padding-top: 7px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.cita-actions {
+    margin-top: 8px;
+    display: flex;
+    gap: 6px;
+}
+
+.btn-small {
+    padding: 4px 12px;
+    font-size: 11px;
+    font-weight: 600;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    transition: background 0.2s;
+}
+
+.btn-small.btn-secondary {
+    background: var(--light-bg);
+    color: var(--primary-color);
+    border: 1px solid var(--border-color);
+}
+
+.btn-small.btn-secondary:hover {
+    background: var(--border-color);
+}
+
+.cita-dictamen {
+    margin-top: 10px;
+    padding: 10px 12px;
+    background: rgba(13, 59, 46, 0.04);
+    border-left: 3px solid var(--accent-color);
+    border-radius: 0 6px 6px 0;
+    font-size: 12px;
+}
+.dictamen-header {
+    font-weight: 700;
+    color: var(--primary-color);
+    font-size: 12px;
+    margin-bottom: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+.dictamen-header i {
+    margin-right: 4px;
+    color: var(--accent-color);
+}
+.dictamen-field {
+    margin-bottom: 4px;
+    line-height: 1.4;
+    color: var(--text-dark);
+    font-weight: 600;
+}
+.dictamen-field strong {
+    color: var(--primary-color);
+    font-weight: 700;
+}
+
+/* Backdrop for mobile overlay */
+.sidebar-backdrop {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.35);
+    z-index: 199;
+    transition: opacity 0.3s ease;
+}
+
+/* Tab button — visible only when sidebar is collapsed */
+.sidebar-tab {
+    position: absolute;
+    left: -36px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: var(--secondary-color);
+    color: var(--white);
+    border: none;
+    border-radius: 8px 0 0 8px;
+    padding: 12px 6px;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    box-shadow: -3px 0 12px rgba(0, 102, 204, 0.35);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.25s ease, background 0.2s;
+    z-index: 10;
+}
+.citas-sidebar.collapsed .sidebar-tab {
+    opacity: 1;
+    pointer-events: auto;
+}
+.sidebar-tab:hover {
+    background: var(--primary-color);
+}
+
+.tab-icon { font-size: 16px; }
+.tab-text {
+    font-size: 11px;
+    font-weight: 700;
+    writing-mode: vertical-rl;
+    text-orientation: mixed;
+    letter-spacing: 0.5px;
+}
+.tab-badge {
+    background: #e74c3c;
+    color: var(--white);
+    border-radius: 10px;
+    font-size: 11px;
+    font-weight: 800;
+    min-width: 18px;
+    height: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 3px;
+}
+
+/* Responsive — on small screens sidebar becomes a fixed overlay drawer */
+@media (max-width: 900px) {
+    .page-layout {
+        flex-direction: row;
+    }
+
+    .main-content {
+        width: 100%;
+        padding: 20px 16px 60px;
+    }
+
+    /* Sidebar becomes a fixed overlay drawer on the right */
+    .citas-sidebar {
+        position: fixed;
+        right: 0;
+        top: 0;
+        width: 300px;
+        height: 100vh;
+        z-index: 200;
+        flex-direction: row;
+        flex-shrink: 0;
+        transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+        transform: translateX(0);
+        overflow: visible;
+    }
+
+    .citas-sidebar.collapsed {
+        width: 300px;
+        transform: translateX(300px);
+    }
+
+    .sidebar-inner {
+        width: 300px;
+        height: 100vh;
+        border-left: 1px solid var(--border-color);
+        box-shadow: -4px 0 24px rgba(0, 0, 0, 0.15);
+        transform: none !important;
+    }
+
+    .citas-sidebar.collapsed .sidebar-inner {
+        transform: none !important;
+    }
+
+    /* Tab stays on left edge of the drawer (absolute within sidebar) */
+    .sidebar-tab {
+        position: absolute;
+        left: -36px;
+        top: 50%;
+        transform: translateY(-50%);
+        flex-direction: column;
+        border-radius: 8px 0 0 8px;
+        width: auto;
+        height: auto;
+        padding: 12px 6px;
+        opacity: 0;
+        pointer-events: none;
+    }
+
+    .citas-sidebar.collapsed .sidebar-tab {
+        opacity: 1;
+        pointer-events: auto;
+    }
+
+    .tab-text {
+        writing-mode: vertical-rl;
+    }
+
+    .sidebar-close::before {
+        content: none;
+    }
+
+    .sidebar-close {
+        font-size: 22px;
+    }
+
+    /* Backdrop for overlay */
+    .sidebar-backdrop {
+        display: block;
+    }
+
+    .doctors-grid {
+        grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
     }
 }

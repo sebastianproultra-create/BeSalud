@@ -1,252 +1,359 @@
 /* ============================================== 
-   CITA FORM PACIENTE STYLES 
+   CITA FORM PACIENTE STYLES — Redesigned
    ============================================== */
 
-.cita-form-container {
-    max-width: 700px;
-    margin: 30px auto;
-}
-
-.doctor-summary {
-    background: linear-gradient(135deg, #f5f7fa, #c3cfe2);
-    border: 2px solid var(--secondary-color);
-    border-radius: 10px;
-    padding: 25px;
-    margin-bottom: 25px;
-}
-
-.doctor-summary h3 {
-    color: var(--primary-color);
-    margin-bottom: 15px;
-    font-size: 18px;
-}
-
-.doctor-info {
-    display: flex;
-    align-items: center;
-    gap: 20px;
-}
-
-.doctor-photo {
-    width: 100px;
-    height: 100px;
-    border-radius: 50%;
-    object-fit: cover;
-    border: 4px solid var(--white);
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
-    flex-shrink: 0;
-}
-
-.doctor-details p {
-    margin: 8px 0;
-    color: var(--text-dark);
-}
-
-.doctor-details p:first-child {
-    font-size: 18px;
-    font-weight: bold;
-    color: var(--primary-color);
-}
-
-.doctor-details p:nth-child(2) {
-    color: var(--secondary-color);
-    font-weight: 600;
-}
-
-.doctor-details p:nth-child(3) {
-    color: var(--text-light);
-    font-style: italic;
-    margin-top: 5px;
-}
-
-/* Date Selection Form */
-.date-selection-form {
-    background-color: var(--white);
-    border-radius: 8px;
-    padding: 20px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-    margin-bottom: 25px;
-}
-
-.date-selection-form label {
-    font-weight: 600;
-    margin-bottom: 10px;
-}
-
-.date-selection-form input {
-    width: 100%;
-    padding: 10px;
-    margin-bottom: 15px;
-}
-
-.date-selection-form button {
-    width: 100%;
-    padding: 12px;
-}
-
-/* Slots Section */
-.slots-section {
-    margin-top: 30px;
-}
-
-.slots-section h3 {
-    color: var(--primary-color);
-    margin-bottom: 20px;
-    font-size: 18px;
-}
-
-.slots-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-    gap: 15px;
-    margin-top: 20px;
-}
-
-.slot-card {
-    background: white;
-    border: 2px solid var(--border-color);
-    border-radius: 8px;
-    padding: 20px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-    transition: all 0.3s ease;
-    text-align: center;
-}
-
-.slot-card:hover {
-    border-color: var(--secondary-color);
-    box-shadow: 0 4px 12px rgba(0, 102, 204, 0.2);
-    transform: translateY(-3px);
-}
-
-.slot-time {
-    font-size: 20px;
-    font-weight: bold;
-    color: var(--secondary-color);
-    margin-bottom: 15px;
-}
-
-.slot-card label {
-    text-align: left;
-    font-weight: 600;
-    margin-bottom: 8px;
-    display: block;
-}
-
-.slot-card textarea {
-    width: 100%;
-    padding: 8px;
-    border: 1px solid var(--border-color);
-    border-radius: 4px;
-    margin-bottom: 12px;
-    font-size: 13px;
-    resize: vertical;
-}
-
-.slot-card .btn {
-    width: 100%;
-    padding: 10px;
-    font-size: 14px;
-}
-
-.slot-card form {
-    padding: 0;
-    box-shadow: none;
-}
-
-/* No Slots Message */
-.no-slots {
-    text-align: center;
-    padding: 40px;
-    background: linear-gradient(135deg, #f5f7fa, #c3cfe2);
-    border-radius: 8px;
-    color: var(--text-dark);
-    font-size: 16px;
-    margin-top: 20px;
-}
-
-
-
-/* Contenedor principal del Nav */
+/* Nav */
 .nav-main {
-    background-color: var(--secondary-color);
-    padding: 10px 0;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    background-color: var(--primary-color);
+    padding: 12px 0;
+    border-bottom: 3px solid var(--secondary-color);
 }
-
 .nav-container {
-    max-width: 1000px;
+    max-width: 860px;
     margin: 0 auto;
     display: flex;
-    justify-content: space-between; /* Empuja el botón a la derecha */
+    justify-content: space-between;
     align-items: center;
     padding: 0 20px;
 }
+.nav-main .nav-item,
+.nav-main a.nav-item {
+    display: inline-block;
+    color: var(--white) !important;
+    text-decoration: none !important;
+    font-weight: 600;
+    font-size: 13px !important;
+    letter-spacing: 0 !important;
+    text-transform: none !important;
+    background-color: rgba(255,255,255,0.12) !important;
+    border: 1px solid rgba(255,255,255,0.28) !important;
+    padding: 8px 18px !important;
+    border-radius: 6px !important;
+    cursor: pointer;
+    transition: background 0.2s, border-color 0.2s;
+    line-height: 1.4;
+    margin-right: 0 !important;
+    opacity: 1 !important;
+}
+.nav-main .nav-item:hover,
+.nav-main a.nav-item:hover {
+    background-color: rgba(255,255,255,0.22) !important;
+    border-color: rgba(255,255,255,0.5) !important;
+    color: var(--white) !important;
+    opacity: 1 !important;
+}
+.nav-main .nav-item.nav-logout:hover,
+.nav-main a.nav-item.nav-logout:hover {
+    background-color: var(--danger-color) !important;
+    border-color: var(--danger-color) !important;
+}
 
-/* Estilo para el enlace "Volver" */
-.nav-item {
+/* Main layout */
+.booking-container {
+    max-width: 860px;
+    margin: 32px auto;
+    padding: 0 16px 60px;
+    flex: 1;
+}
+
+/* Doctor card */
+.doctor-card-header {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    background: var(--white);
+    border-radius: 14px;
+    padding: 24px 28px;
+    box-shadow: 0 2px 16px rgba(0,0,0,0.08);
+    margin-bottom: 32px;
+}
+.doc-avatar {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid var(--secondary-color);
+    flex-shrink: 0;
+}
+.doc-avatar-placeholder {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 32px;
+    font-weight: 700;
     color: var(--white);
+    flex-shrink: 0;
+}
+.doc-info h2 {
+    font-size: 20px;
+    color: var(--primary-color);
+    margin-bottom: 6px;
+}
+.specialty-tag {
+    display: inline-block;
+    background: #e8f4fd;
+    color: var(--secondary-color);
+    border-radius: 20px;
+    padding: 3px 14px;
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: 8px;
+}
+.doc-bio {
+    color: var(--text-light);
+    font-size: 13px;
+    margin-top: 6px;
+    line-height: 1.5;
+}
+
+/* No availability */
+.no-availability {
+    text-align: center;
+    background: var(--white);
+    border-radius: 14px;
+    padding: 50px 30px;
+    box-shadow: 0 2px 16px rgba(0,0,0,0.08);
+}
+.no-avail-icon { font-size: 48px; margin-bottom: 16px; }
+.no-availability h3 { color: var(--primary-color); font-size: 20px; margin-bottom: 8px; }
+.no-availability p { color: var(--text-light); margin-bottom: 24px; }
+.btn-back {
+    display: inline-block;
+    padding: 10px 24px;
+    background: var(--secondary-color);
+    color: var(--white);
+    border-radius: 8px;
     text-decoration: none;
     font-weight: 600;
-    font-size: 14px;
-    transition: transform 0.2s;
+    transition: background 0.2s;
+}
+.btn-back:hover { background: var(--primary-color); }
+
+/* Step sections */
+.step-section {
+    background: var(--white);
+    border-radius: 14px;
+    padding: 24px 28px;
+    box-shadow: 0 2px 16px rgba(0,0,0,0.08);
+    margin-bottom: 20px;
+    animation: fadeIn 0.3s ease;
+}
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+.step-label {
+    font-size: 17px;
+    font-weight: 700;
+    color: var(--primary-color);
+    margin-bottom: 16px;
+    text-transform: none;
+    letter-spacing: 0;
+    display: flex;
+    align-items: center;
+    gap: 0;
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 10px;
+}
+
+/* Date strip */
+.date-strip {
+    display: flex;
+    gap: 10px;
+    overflow-x: auto;
+    padding: 6px 4px 8px;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+}
+.date-strip::-webkit-scrollbar { height: 4px; }
+.date-strip::-webkit-scrollbar-track { background: var(--light-bg); border-radius: 2px; }
+.date-strip::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 2px; }
+
+.date-card {
+    flex-shrink: 0;
+    scroll-snap-align: start;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    padding: 12px 16px;
+    border: 2px solid var(--border-color);
+    border-radius: 12px;
+    background: var(--light-bg);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    min-width: 72px;
+}
+.date-card:hover {
+    border-color: var(--secondary-color);
+    background: #e8f4fd;
+    transform: translateY(-2px);
+}
+.date-card.selected {
+    border-color: var(--secondary-color);
+    background: var(--secondary-color);
+    color: var(--white);
+    box-shadow: 0 4px 12px rgba(0,102,204,0.35);
+    transform: translateY(-2px);
+}
+.date-dow {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    opacity: 0.75;
+}
+.date-num {
+    font-size: 24px;
+    font-weight: 800;
+    line-height: 1;
+}
+.date-month {
+    font-size: 12px;
+    font-weight: 500;
+}
+.date-slots {
+    font-size: 11px;
+    margin-top: 4px;
+    background: rgba(255,255,255,0.25);
+    border-radius: 10px;
+    padding: 2px 8px;
+}
+.date-card:not(.selected) .date-slots {
+    background: rgba(0,102,204,0.1);
+    color: var(--secondary-color);
+}
+
+/* Slots grid */
+.slots-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+}
+.slot-btn {
+    padding: 10px 12px;
+    border: 2px solid var(--border-color);
+    border-radius: 8px;
+    background: var(--light-bg);
+    color: var(--text-dark);
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    min-width: 80px;
+}
+.slot-btn:hover {
+    border-color: var(--secondary-color);
+    background: #eaf2fb;
+    color: var(--primary-color);
+}
+.slot-btn.selected {
+    border-color: var(--secondary-color);
+    background: var(--secondary-color);
+    color: var(--white);
+    box-shadow: 0 3px 10px rgba(0,102,204,0.30);
+}
+
+/* Confirm card */
+.confirm-card {
+    border-radius: 10px;
+}
+
+/* Neutraliza el form global dentro del confirm card */
+.confirm-card form,
+.logout-form {
+    background: none;
+    padding: 0;
+    border: none;
+    border-radius: 0;
+    box-shadow: none;
+}
+.confirm-summary {
+    display: flex;
+    gap: 24px;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
+    padding: 16px 20px;
+    background: #eef3f8;
+    border-radius: 10px;
+    border-left: 4px solid var(--secondary-color);
+}
+.summary-item {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text-dark);
     display: flex;
     align-items: center;
     gap: 8px;
 }
-
-.nav-item:hover {
-    text-decoration: underline;
-    transform: translateX(-3px); /* Pequeño efecto visual al volver */
+.form-group label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: var(--text-dark);
 }
-
-/* Botón de Cerrar Sesión personalizado */
-.btn-logout {
-    background-color: rgba(255, 255, 255, 0.15); /* Fondo sutil */
+.form-group textarea {
+    width: 100%;
+    border: 2px solid var(--border-color);
+    border-radius: 8px;
+    padding: 12px;
+    font-size: 14px;
+    font-family: inherit;
+    resize: vertical;
+    transition: border-color 0.2s;
+}
+.form-group textarea:focus {
+    outline: none;
+    border-color: var(--secondary-color);
+}
+.btn-confirm {
+    width: 100%;
+    padding: 14px;
+    background: var(--secondary-color);
     color: var(--white);
-    border: 1px solid rgba(255, 255, 255, 0.3);
-    padding: 8px 16px;
-    border-radius: 6px;
-    font-size: 13px;
-    font-weight: 500;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 700;
     cursor: pointer;
-    transition: all 0.3s ease;
+    margin-top: 16px;
+    transition: background 0.2s, transform 0.1s;
 }
-
-.btn-logout:hover {
-    background-color: var(--danger-color); /* Cambia a rojo al pasar el mouse */
-    border-color: var(--danger-color);
-    box-shadow: 0 2px 8px rgba(231, 76, 60, 0.4);
+.btn-confirm:hover { background: var(--primary-color); transform: translateY(-1px); }
+.btn-confirm:active { transform: translateY(0); }
+.btn-change {
+    width: 100%;
+    padding: 10px;
+    background: transparent;
+    color: var(--text-light);
+    border: none;
+    font-size: 14px;
+    cursor: pointer;
+    margin-top: 10px;
+    text-decoration: underline;
 }
+.btn-change:hover { color: var(--danger-color); }
 
-/* Ajuste para dispositivos móviles */
-@media (max-width: 600px) {
-    .nav-container {
-        flex-direction: column;
-        gap: 15px;
-        text-align: center;
-    }
+/* Error alerts */
+.alert-error {
+    background: #f8d7da;
+    color: #842029;
+    border-radius: 8px;
+    padding: 14px 18px;
+    margin-top: 10px;
+    font-weight: 500;
 }
-
-
 
 /* Responsive */
-@media (max-width: 768px) {
-    .doctor-info {
-        flex-direction: column;
-        align-items: center;
-        text-align: center;
-    }
-
-    .doctor-photo {
-        width: 80px;
-        height: 80px;
-    }
-
-    .slots-grid {
-        grid-template-columns: 1fr;
-    }
-
-    .cita-form-container {
-        margin: 20px;
-    }
+@media (max-width: 600px) {
+    .doctor-card-header { flex-direction: column; text-align: center; }
+    .nav-container { flex-direction: column; gap: 10px; }
+    .step-section { padding: 18px 16px; }
+    .confirm-summary { flex-direction: column; gap: 10px; }
+    .booking-container { margin: 16px auto; }
 }
+

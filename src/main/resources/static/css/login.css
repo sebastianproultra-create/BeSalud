@@ -4,7 +4,11 @@
 
 .login-container {
     max-width: 500px;
-    margin: 50px auto;
+    margin: 0 auto;
+    min-height: calc(100vh - 120px);
+    display: flex;
+    align-items: center;
+    padding: 40px 0;
 }
 
 .login-card {
@@ -18,6 +22,15 @@
     text-align: center;
     color: var(--primary-color);
     margin-bottom: 30px;
+}
+
+/* Neutraliza el form global dentro de la card */
+.card form {
+    background: none;
+    padding: 0;
+    border: none;
+    border-radius: 0;
+    box-shadow: none;
 }
 
 .login-card form label {
