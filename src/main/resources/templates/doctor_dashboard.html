@@ -563,6 +563,73 @@ document.addEventListener('keydown', function(e) {
     }, { rootMargin: '-30% 0px -60% 0px' });
     sections.forEach(s => observer.observe(s));
 })();
+
+/* ── Paginación Frontend para Pacientes ── */
+document.addEventListener('DOMContentLoaded', function() {
+    const grid = document.querySelector('.pacientes-grid');
+    if (!grid) return;
+    
+    const cards = grid.querySelectorAll('.paciente-card');
+    const itemsPerPage = 6; // Ajusta este número para cambiar la cantidad por página
+    const totalPages = Math.ceil(cards.length / itemsPerPage);
+    
+    if (totalPages > 1) {
+        const paginationContainer = document.createElement('div');
+        paginationContainer.className = 'pagination';
+        paginationContainer.style.marginTop = '24px';
+        paginationContainer.style.textAlign = 'center';
+        grid.parentNode.insertBefore(paginationContainer, grid.nextSibling);
+
+        function showPage(page) {
+            cards.forEach((card, index) => {
+                card.style.display = (index >= (page - 1) * itemsPerPage && index < page * itemsPerPage) ? '' : 'none';
+            });
+            renderPagination(page);
+        }
+
+        function renderPagination(currentPage) {
+            paginationContainer.innerHTML = '';
+            
+            if (currentPage > 1) {
+                const prev = document.createElement('button');
+                prev.type = 'button';
+                prev.className = 'btn btn-link';
+                prev.textContent = 'Anterior';
+                prev.onclick = () => showPage(currentPage - 1);
+                paginationContainer.appendChild(prev);
+            }
+
+            for (let i = 1; i <= totalPages; i++) {
+                if (i === 1 || i === totalPages || (i >= currentPage - 1 && i <= currentPage + 1)) {
+                    const btn = document.createElement('button');
+                    btn.type = 'button';
+                    btn.className = i === currentPage ? 'btn btn-accent' : 'btn btn-link';
+                    btn.style.margin = '0 4px';
+                    btn.textContent = i;
+                    btn.onclick = () => showPage(i);
+                    paginationContainer.appendChild(btn);
+                } else if (i === currentPage - 2 || i === currentPage + 2) {
+                    const dots = document.createElement('span');
+                    dots.textContent = '...';
+                    dots.style.color = '#666';
+                    dots.style.margin = '0 4px';
+                    paginationContainer.appendChild(dots);
+                }
+            }
+
+            if (currentPage < totalPages) {
+                const next = document.createElement('button');
+                next.type = 'button';
+                next.className = 'btn btn-link';
+                next.textContent = 'Siguiente';
+                next.onclick = () => showPage(currentPage + 1);
+                paginationContainer.appendChild(next);
+            }
+        }
+
+        showPage(1);
+    }
+});
 </script>
 
 <script th:inline="javascript">
