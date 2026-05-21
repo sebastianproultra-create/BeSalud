@@ -349,8 +349,6 @@ button[type="submit"]:hover,
     background-color: transparent;
     color: var(--danger-color);
     border: 1px solid var(--danger-color);
-    padding: 8px 16px;
-    font-size: 11px;
 }
 
 .btn-danger:hover {
