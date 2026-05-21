@@ -49,6 +49,18 @@ public class RegistroService {
         if ("DOCTOR".equals(user.getRole())) {
             if (esVacio(user.getEspecialidad())) return "La especialidad es obligatoria para doctores";
             if (esVacio(user.getFechaNacimiento())) return "La fecha de nacimiento es obligatoria para doctores";
+            LocalDate fechaNac;
+            try {
+                fechaNac = LocalDate.parse(user.getFechaNacimiento().trim());
+            } catch (Exception e) {
+                return "La fecha de nacimiento no tiene un formato válido (YYYY-MM-DD)";
+            }
+            LocalDate hoy = LocalDate.now();
+            if (!fechaNac.isBefore(hoy))
+                return "La fecha de nacimiento no puede ser hoy ni una fecha futura";
+            int edad = java.time.Period.between(fechaNac, hoy).getYears();
+            if (edad < 23) return "El doctor debe tener al menos 23 años";
+            if (edad > 100) return "Fecha de nacimiento fuera de rango razonable";
         }
         return null;
     }
@@ -60,6 +72,9 @@ public class RegistroService {
             return "Ya existe un usuario registrado con ese correo";
         if (personaRepo.findByEmail(email).isPresent())
             return "Ya existe un usuario registrado con ese correo";
+        if (user.getIdentificacion() != null
+                && personaRepo.findByIdentificacion(user.getIdentificacion().trim()).isPresent())
+            return "Ya existe un usuario registrado con esa identificación";
         return null;
     }
 

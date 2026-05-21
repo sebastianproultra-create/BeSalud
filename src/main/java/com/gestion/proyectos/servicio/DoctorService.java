@@ -202,6 +202,8 @@ public class DoctorService {
     @Transactional
     public String guardarHorariosSemanales(String doctorId, List<String> days,
             Map<String, String> allParams, int duracionCitaMinutos) {
+        if (duracionCitaMinutos <= 0) return "duracion_invalida";
+        if (duracionCitaMinutos > 480) return "duracion_excesiva";
         List<HorarioAtencion> nuevos = new ArrayList<>();
         List<DayOfWeek> diasAfectados = new ArrayList<>();
 

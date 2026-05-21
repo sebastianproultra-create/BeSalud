@@ -16,6 +16,9 @@ public interface PersonaRepositorio extends MongoRepository<Persona, String> {
     @Query("{ 'email': ?0 }")
     Optional<Persona> findByEmail(String email);
 
+    @Query("{ 'identificacion': ?0 }")
+    Optional<Persona> findByIdentificacion(String identificacion);
+
     @Query("{ 'email': ?0, 'role': 'DOCTOR' }")
     Optional<Doctor> findDoctorByEmail(String email);
 
