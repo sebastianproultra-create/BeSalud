@@ -382,7 +382,7 @@
                                             th:data-cita-id="${cita.id}" onclick="abrirDictamen(this.dataset.citaId)">Dar Dictamen</button>
                                 </th:block>
                                 <th:block th:if="${cita.estado.name() == 'COMPLETADA' and cita.dictamen != null}">
-                                    <button type="button" class="btn btn-danger btn-sm"
+                                    <button type="button" class="btn btn-primary btn-sm"
                                             th:data-cita-id="${cita.id}" onclick="verDictamen(this.dataset.citaId)">Ver Dictamen</button>
                                 </th:block>
                                 <span th:if="${cita.estado.name() == 'NO_ASISTIO' or cita.estado.name() == 'CANCELADA' or (cita.estado.name() == 'COMPLETADA' and cita.dictamen == null)}" class="text-muted">—</span>
