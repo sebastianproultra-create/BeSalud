@@ -4,7 +4,8 @@
 
 /* Card principal: llena el container */
 .login-card-main {
-    margin: 60px auto;
+    max-width: 500px;
+    margin: 50px auto;
     padding: 48px 52px;
 }
 
