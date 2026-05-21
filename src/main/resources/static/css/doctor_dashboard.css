@@ -229,7 +229,8 @@
     align-items: center;
     gap: 10px;
 }
-.foto-upload-form { margin: 0; }
+.foto-upload-form { margin: 0; background: none !important; padding: 0 !important; border: none !important; border-radius: 0 !important; box-shadow: none !important; margin-bottom: 0 !important; }
+.foto-upload-form label { display: inline-flex; margin-top: 0; margin-bottom: 0; }
 .foto-upload-label {
     display: inline-flex;
     align-items: center;
