@@ -374,7 +374,7 @@
                                     </th:block>
                                     <form th:action="@{'/doctores/citas/' + ${cita.id} + '/cancelar'}" method="post" class="inline-form">
 
-                                        <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('¿Cancelar esta cita?')">Cancelar</button>
+                                        <button type="submit" class="btn btn-danger btn-sm" style="padding:6px 14px;font-size:10px;letter-spacing:0.14em;text-transform:uppercase;line-height:1.4;" onclick="return confirm('¿Cancelar esta cita?')">Cancelar</button>
                                     </form>
                                 </th:block>
                                 <th:block th:if="${cita.estado.name() == 'ASISTIO'}">
