@@ -224,6 +224,38 @@
 }
 .doctor-photo {
     flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+}
+.foto-upload-form { margin: 0; }
+.foto-upload-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--primary-color);
+    background: transparent;
+    border: 1px solid var(--accent-color);
+    border-radius: 20px;
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s;
+}
+.foto-upload-label:hover {
+    background: var(--primary-color);
+    color: var(--white);
+}
+.foto-upload-label input[type="file"] {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    opacity: 0;
+    pointer-events: none;
 }
 .doctor-photo img {
     width: 110px;

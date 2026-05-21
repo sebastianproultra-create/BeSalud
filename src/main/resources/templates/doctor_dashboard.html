@@ -149,9 +149,12 @@
                 <img th:src="${doctor.foto != null ? doctor.foto : '/images/default-avatar.jpg'}"
                      th:alt="'Foto de ' + ${doctor.nombre}"
                      onerror="this.src='/images/default-avatar.jpg'">
-                <form th:action="@{/doctores/perfil/foto}" method="post" enctype="multipart/form-data" style="margin-top:12px; display:flex; flex-direction:column; gap:8px;">
-                    <input type="file" name="foto" accept="image/png,image/jpeg,image/webp" required style="font-size:12px;" />
-                    <button type="submit" class="btn btn-primary btn-sm">Cambiar foto</button>
+                <form th:action="@{/doctores/perfil/foto}" method="post" enctype="multipart/form-data" class="foto-upload-form">
+                    <label class="foto-upload-label">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+                        <span>Cambiar foto</span>
+                        <input type="file" name="foto" accept="image/png,image/jpeg,image/webp" required onchange="this.form.submit()" />
+                    </label>
                 </form>
             </div>
             <div class="doctor-info">
