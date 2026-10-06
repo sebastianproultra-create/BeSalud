@@ -29,18 +29,6 @@ public class AdminService {
         this.personaRepo = personaRepo;
     }
 
-    public List<Doctor> listarDoctores() {
-        List<Doctor> result = personaRepo.findAllDoctores();
-        log.debug("listarDoctores → {} registros", result.size());
-        return result;
-    }
-
-    public List<Paciente> listarPacientes() {
-        List<Paciente> result = personaRepo.findAllPacientes();
-        log.debug("listarPacientes → {} registros", result.size());
-        return result;
-    }
-
     public List<Admin> listarAdmins() {
         List<Admin> result = adminRepo.findAll();
         log.debug("listarAdmins → {} registros", result.size());

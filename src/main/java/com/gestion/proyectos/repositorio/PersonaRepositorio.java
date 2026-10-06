@@ -38,9 +38,6 @@ public interface PersonaRepositorio extends MongoRepository<Persona, String> {
     Page<Paciente> findAllPacientes(Pageable pageable);
 
     @Query("{ 'especialidad': { $regex: ?0, $options: 'i' }, 'role': 'DOCTOR' }")
-    List<Doctor> findDoctoresByEspecialidadContainingIgnoreCase(String especialidad);
-
-    @Query("{ 'especialidad': { $regex: ?0, $options: 'i' }, 'role': 'DOCTOR' }")
     Page<Doctor> findDoctoresByEspecialidadContainingIgnoreCase(String especialidad, Pageable pageable);
 
     @Query("{ $or: [ { 'nombre': { $regex: ?0, $options: 'i' } }, { 'apellido': { $regex: ?0, $options: 'i' } }, { 'email': { $regex: ?0, $options: 'i' } } ], 'role': 'DOCTOR' }")
@@ -49,13 +46,10 @@ public interface PersonaRepositorio extends MongoRepository<Persona, String> {
     @Query("{ $and: [ { 'nombre': { $regex: ?0, $options: 'i' } }, { 'apellido': { $regex: ?1, $options: 'i' } } ], 'role': 'DOCTOR' }")
     Page<Doctor> searchDoctoresByNombreYApellido(String nombre, String apellido, Pageable pageable);
 
-    // Añade esta consulta personalizada en tu archivo PersonaRepositorio.java
-    @org.springframework.data.mongodb.repository.Query("{ '_class': 'com.gestion.proyectos.modelo.Doctor', $and: [ " +
+    @Query("{ '_class': 'com.gestion.proyectos.modelo.Doctor', $and: [ " +
             "  { $or: [ { 'nombre': { $regex: ?0, $options: 'i' } }, { 'apellido': { $regex: ?0, $options: 'i' } }, { 'email': { $regex: ?0, $options: 'i' } } ] }, "
             +
             "  { 'especialidad': { $regex: ?1, $options: 'i' } } " +
             "] }")
-    org.springframework.data.domain.Page<com.gestion.proyectos.modelo.Doctor> searchDoctoresCombinado(
-            String search, String especialidad, org.springframework.data.domain.Pageable pageable);
-
+    Page<Doctor> searchDoctoresCombinado(String search, String especialidad, Pageable pageable);
 }

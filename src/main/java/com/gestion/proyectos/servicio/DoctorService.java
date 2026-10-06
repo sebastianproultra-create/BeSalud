@@ -58,14 +58,6 @@ public class DoctorService {
         return personaRepo.findById(id).filter(p -> p instanceof Doctor).map(p -> (Doctor) p);
     }
 
-    public List<Doctor> listarTodos() {
-        return personaRepo.findAllDoctores();
-    }
-
-    public List<Doctor> listarPorEspecialidad(String especialidad) {
-        return personaRepo.findDoctoresByEspecialidadContainingIgnoreCase(especialidad);
-    }
-
     public Page<Doctor> listarDoctoresPaginated(int page, int size, String especialidad, String search) {
         Pageable pageable = PageRequest.of(Math.max(0, page), Math.max(1, size));
         boolean hasSearch = search != null && !search.isBlank();
@@ -288,12 +280,6 @@ public class DoctorService {
         horarioRepo.saveAll(nuevos);
         log.info("Horarios guardados para doctor {}: {} registros", doctorId, nuevos.size());
         return null;
-    }
-
-    /** @deprecated usar guardarHorariosSemanales */
-    public String guardarHorarioDia(String doctorId, String day, Map<String, String> allParams,
-            int duracionCitaMinutos) {
-        return guardarHorariosSemanales(doctorId, List.of(day), allParams, duracionCitaMinutos);
     }
 
     public void eliminarHorario(String horarioId, String doctorId) {

@@ -23,18 +23,6 @@ public class Cita {
     private EstadoCita estado = EstadoCita.PENDIENTE;
     private Dictamen dictamen;
 
-    public Cita() {
-    }
-
-    public Cita(String doctorId, String pacienteId, LocalTime hora, LocalDate fecha, String motivo, EstadoCita estado) {
-        this.doctorId = doctorId;
-        this.pacienteId = pacienteId;
-        this.hora = hora;
-        this.fecha = fecha;
-        this.motivo = motivo;
-        this.estado = estado;
-    }
-
     public String getId() {
         return id;
     }
