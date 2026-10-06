@@ -1,5 +1,7 @@
 package com.gestion.proyectos.seguridad;
 
+import com.gestion.proyectos.oauth2.OAuth2LoginSuccessHandler;
+import com.gestion.proyectos.servicio.DoctorService;
 import com.gestion.proyectos.controlador.LoginController;
 import com.gestion.proyectos.repositorio.AdminRepositorio;
 import com.gestion.proyectos.repositorio.PersonaRepositorio;
@@ -41,6 +43,12 @@ class SecurityRulesTest {
 
     @MockBean
     private JwtCookieService jwtCookieService;
+
+    @MockBean
+    private DoctorService doctorService;
+
+    @MockBean
+    private OAuth2LoginSuccessHandler oauth2LoginSuccessHandler;
 
     @MockBean
     private org.springframework.security.authentication.AuthenticationManager authenticationManager;
