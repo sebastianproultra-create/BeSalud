@@ -1,26 +1,33 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org"
+<html lang="es" xmlns:th="http://www.thymeleaf.org"
       xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pacientes - BeSalud</title>
     <link rel="stylesheet" th:href="@{/css/global.css}">
-    <link rel="stylesheet" th:href="@{/css/pacientes.css}">
 </head>
 <body>
-<header th:replace="~{fragments/layout :: header-brand}"></header>
-<nav th:replace="~{fragments/layout :: nav-admin}"></nav>
+<header th:replace="~{fragments/layout :: shell-admin('pacientes')}"></header>
 
-<div class="container">
-    <div class="card">
-        <h2>Pacientes Registrados</h2>
-        
-        <table th:if="${!pacientes.isEmpty()}">
+<main class="container">
+    <section class="page-header" aria-labelledby="page-title">
+        <div>
+            <p class="page-eyebrow">Directorio</p>
+            <h1 id="page-title" class="page-title">Pacientes registrados</h1>
+        </div>
+        <a href="#registrar" class="btn btn-primary">+ Registrar paciente</a>
+    </section>
+
+    <div class="card table-card">
+        <div class="table-scroll" th:if="${!pacientes.isEmpty()}">
+        <table>
             <thead>
                 <tr>
-                    <th>Nombre</th>
-                    <th>Apellido</th>
-                    <th>Email</th>
-                    <th>Teléfono</th>
+                    <th scope="col">Nombre</th>
+                    <th scope="col">Apellido</th>
+                    <th scope="col">Email</th>
+                    <th scope="col">Teléfono</th>
                 </tr>
             </thead>
             <tbody>
@@ -32,39 +39,45 @@
                 </tr>
             </tbody>
         </table>
-
-        <div th:if="${pacientes.isEmpty()}" class="alert alert-info">
-            No hay pacientes registrados
         </div>
+        <p th:if="${pacientes.isEmpty()}" class="empty-note">No hay pacientes registrados.</p>
     </div>
 
-    <div class="card">
-        <h2>Registrar Paciente</h2>
-        <form th:action="@{/pacientes/guardar}" method="post">
-
-            
-            <label>Nombre:</label>
-            <input type="text" name="nombre" required/>
-
-            <label>Apellido:</label>
-            <input type="text" name="apellido" required/>
-
-            <label>Teléfono:</label>
-            <input type="text" name="telefono"/>
-
-            <label>Identificación:</label>
-            <input type="text" name="identificacion"/>
-
-            <label>Email:</label>
-            <input type="email" name="email" required autocomplete="off"/>
-
-            <label>Contraseña:</label>
-            <input type="password" name="password" required autocomplete="new-password"/>
-
-            <button type="submit" class="btn btn-success">Guardar</button>
+    <section id="registrar" class="card" aria-labelledby="register-title">
+        <h2 id="register-title">Registrar paciente</h2>
+        <form th:action="@{/pacientes/guardar}" method="post" class="card-form">
+            <div class="form-grid">
+                <div class="form-field">
+                    <label for="nombre">Nombre *</label>
+                    <input id="nombre" type="text" name="nombre" required autocomplete="given-name"/>
+                </div>
+                <div class="form-field">
+                    <label for="apellido">Apellido *</label>
+                    <input id="apellido" type="text" name="apellido" required autocomplete="family-name"/>
+                </div>
+                <div class="form-field">
+                    <label for="telefono">Teléfono</label>
+                    <input id="telefono" type="text" name="telefono" autocomplete="tel"/>
+                </div>
+                <div class="form-field">
+                    <label for="identificacion">Identificación</label>
+                    <input id="identificacion" type="text" name="identificacion"/>
+                </div>
+                <div class="form-field">
+                    <label for="email">Email *</label>
+                    <input id="email" type="email" name="email" required autocomplete="off"/>
+                </div>
+                <div class="form-field">
+                    <label for="password">Contraseña *</label>
+                    <input id="password" type="password" name="password" required autocomplete="new-password"/>
+                </div>
+            </div>
+            <div class="form-actions">
+                <button type="submit" class="btn btn-success">Guardar paciente</button>
+            </div>
         </form>
-    </div>
-</div>
+    </section>
+</main>
 
 <footer th:replace="~{fragments/layout :: footer}"></footer>
 <script th:src="@{/js/form-submit.js}"></script>

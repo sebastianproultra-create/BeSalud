@@ -141,8 +141,8 @@
     <!-- ═══════════════ MI PERFIL ═══════════════ -->
     <section id="perfil" class="card" aria-labelledby="perfil-title">
         <h2 id="perfil-title">Mi Perfil</h2>
-        <div th:if="${param.fotoOk}" class="alert alert-success" style="margin-bottom:12px;">Foto de perfil actualizada.</div>
-        <div th:if="${param.fotoError}" class="alert alert-error" style="margin-bottom:12px;"
+        <div th:if="${param.fotoOk}" class="alert alert-success">Foto de perfil actualizada.</div>
+        <div th:if="${param.fotoError}" class="alert alert-error"
              th:text="${param.fotoError[0] == 'vacio' ? 'Selecciona una imagen' : (param.fotoError[0] == 'tipo' ? 'Tipo no permitido (solo PNG/JPG/WEBP)' : (param.fotoError[0] == 'tamano' ? 'Imagen demasiado grande (máx 2 MB)' : 'Error procesando imagen'))}"></div>
         <div class="doctor-profile">
             <div class="doctor-photo">

@@ -10,15 +10,34 @@
     </div>
 </header>
 
-<!-- ── Navegación admin (Doctores / Pacientes / Citas + logout) ── -->
-<nav th:fragment="nav-admin" aria-label="Navegación principal">
-    <a th:href="@{/doctores}">Doctores</a>
-    <a th:href="@{/pacientes}">Pacientes</a>
-    <a th:href="@{/citas}">Citas</a>
-    <form th:action="@{/logout}" method="post" class="nav-logout-form">
+<!-- ── Shell admin: marca + navegación + usuario + logout (active: doctores|pacientes|citas|panel) ── -->
+<header th:fragment="shell-admin(active)" class="app-header">
+    <div class="app-header-inner">
+        <a th:href="@{/}" class="app-brand"><span aria-hidden="true">✦ </span>BeSalud</a>
+        <nav class="app-nav" aria-label="Navegación principal">
+            <a sec:authorize="hasRole('ADMIN')" th:href="@{/admin}" th:classappend="${active == 'panel'} ? 'is-active'">Panel</a>
+            <a sec:authorize="hasRole('ADMIN')" th:href="@{/doctores}" th:classappend="${active == 'doctores'} ? 'is-active'">Doctores</a>
+            <a sec:authorize="hasRole('ADMIN')" th:href="@{/pacientes}" th:classappend="${active == 'pacientes'} ? 'is-active'">Pacientes</a>
+            <a th:href="@{/citas}" th:classappend="${active == 'citas'} ? 'is-active'">Citas</a>
+        </nav>
+        <div class="app-user">
+            <span class="app-user-name" sec:authentication="name">Administrador</span>
+            <form th:action="@{/logout}" method="post" class="form-inline">
+                <button type="submit" class="app-logout">Cerrar sesión</button>
+            </form>
+        </div>
+    </div>
+</header>
 
-        <button type="submit" class="btn btn-link nav-logout-btn">Cerrar Sesión</button>
-    </form>
+<!-- ── Paginación reutilizable (page: Page, url: ruta base, search y especialidad: filtros o null) ── -->
+<nav th:fragment="pagination(page, url, search, especialidad)" th:if="${page.totalPages > 1}" class="pagination" aria-label="Paginación"
+     th:with="start=${(page.number - 2 < 0) ? 0 : (page.number - 2)}, end=${(page.number + 2 >= page.totalPages) ? (page.totalPages - 1) : (page.number + 2)}">
+    <a th:if="${page.hasPrevious()}" th:href="@{${url}(page=${page.number - 1}, size=${page.size}, search=${search}, especialidad=${especialidad})}" class="pagination-step">Anterior</a>
+    <a th:each="i : ${#numbers.sequence(start, end)}"
+       th:href="@{${url}(page=${i}, size=${page.size}, search=${search}, especialidad=${especialidad})}"
+       th:text="${i + 1}" th:classappend="${i == page.number} ? 'is-current'" class="pagination-page"
+       th:aria-current="${i == page.number} ? 'page'"></a>
+    <a th:if="${page.hasNext()}" th:href="@{${url}(page=${page.number + 1}, size=${page.size}, search=${search}, especialidad=${especialidad})}" class="pagination-step">Siguiente</a>
 </nav>
 
 <!-- ── Footer ── -->

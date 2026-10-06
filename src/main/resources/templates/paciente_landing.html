@@ -1,6 +1,8 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Catálogo de Doctores - BeSalud</title>
     <link rel="stylesheet" th:href="@{/css/global.css}">
     <link rel="stylesheet" th:href="@{/css/paciente_landing.css}">
@@ -13,7 +15,7 @@
         <p>Encuentra tu Doctor Ideal</p>
     </div>
     <nav>
-        <form th:action="@{/logout}" method="post" style="display: inline;">
+        <form th:action="@{/logout}" method="post" class="form-inline">
 
             <button type="submit" class="btn btn-secondary">Cerrar Sesión</button>
         </form>
@@ -24,16 +26,16 @@
 
     <!-- Main content -->
     <main class="main-content">
-        <div th:if="${param.success != null and param.success[0] == 'cita_agendada'}" class="alert" style="background:#d1e7dd; color:#0f5132; padding:15px; border-radius:6px; margin-bottom:20px;">
+        <div th:if="${param.success != null and param.success[0] == 'cita_agendada'}" class="alert alert-success">
             ¡Tu cita ha sido agendada exitosamente!
         </div>
-        <div th:if="${param.success != null and param.success[0] == 'cita_reprogramada'}" class="alert" style="background:#d1e7dd; color:#0f5132; padding:15px; border-radius:6px; margin-bottom:20px;">
+        <div th:if="${param.success != null and param.success[0] == 'cita_reprogramada'}" class="alert alert-success">
             ¡Tu cita ha sido reprogramada exitosamente!
         </div>
 
         <div class="filter-section">
             <h2>Filtrar Doctores</h2>
-            <div th:if="${modoPaciente}" class="alert alert-info" style="margin-bottom: 16px; padding: 12px; border-radius: 8px; background: #e9f5ff; color: #0f4a7a;">
+            <div th:if="${modoPaciente}" class="alert alert-info">
                 Estás usando el modo paciente. No se mostrará tu perfil médico para agendarte citas a ti mismo.
             </div>
             <form th:action="@{/pacientes/landing}" method="get" class="filter-form">
@@ -68,19 +70,7 @@
             <p>No se encontraron doctores con los criterios seleccionados.</p>
         </div>
 
-        <div th:if="${doctores.totalPages > 1}" style="margin-top:16px; text-align:center;"
-             th:with="start=${(doctores.number - 2 < 0) ? 0 : (doctores.number - 2)}, end=${(doctores.number + 2 >= doctores.totalPages) ? (doctores.totalPages - 1) : (doctores.number + 2)}">
-            <a th:if="${doctores.hasPrevious()}" th:href="@{/pacientes/landing(page=${doctores.number-1},size=${size},especialidad=${especialidad},search=${search})}" class="btn btn-link">Anterior</a>
-            <span th:if="${start > 0}" style="color: #666; margin: 0 4px;">...</span>
-            <span th:each="i : ${#numbers.sequence(start, end)}">
-                <a th:href="@{/pacientes/landing(page=${i},size=${size},especialidad=${especialidad},search=${search})}"
-                   th:text="${i+1}"
-                   th:classappend="${i == doctores.number} ? ' btn btn-accent' : ' btn btn-link'"
-                   style="margin:0 4px;"></a>
-            </span>
-            <span th:if="${end < doctores.totalPages - 1}" style="color: #666; margin: 0 4px;">...</span>
-            <a th:if="${doctores.hasNext()}" th:href="@{/pacientes/landing(page=${doctores.number+1},size=${size},especialidad=${especialidad},search=${search})}" class="btn btn-link">Siguiente</a>
-        </div>
+        <nav th:replace="~{fragments/layout :: pagination(${doctores}, '/pacientes/landing', ${search}, ${especialidad})}"></nav>
     </main>
 
     <!-- Mis Citas Sidebar -->

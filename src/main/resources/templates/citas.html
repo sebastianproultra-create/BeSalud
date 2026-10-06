@@ -1,64 +1,68 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org"
+<html lang="es" xmlns:th="http://www.thymeleaf.org"
       xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Citas - BeSalud</title>
     <link rel="stylesheet" th:href="@{/css/global.css}">
-    <link rel="stylesheet" th:href="@{/css/citas.css}">
 </head>
 <body>
-<header th:replace="~{fragments/layout :: header-brand}"></header>
-<nav th:replace="~{fragments/layout :: nav-admin}"></nav>
+<header th:replace="~{fragments/layout :: shell-admin('citas')}"></header>
 
-<div class="container">
-    <div class="card">
-        <h2>Citas Médicas</h2>
+<main class="container">
+    <section class="page-header" aria-labelledby="page-title">
+        <div>
+            <p class="page-eyebrow">Agenda</p>
+            <h1 id="page-title" class="page-title">Citas médicas</h1>
+        </div>
         <!-- Solo el administrador puede crear citas desde esta vista -->
-        <a th:href="@{/citas/crear}" class="btn btn-success" style="margin-bottom: 20px;"
-           sec:authorize="hasRole('ADMIN')">+ Agendar Nueva Cita</a>
-        
-        <table th:if="${!citas.isEmpty()}">
+        <a th:href="@{/citas/crear}" class="btn btn-primary" sec:authorize="hasRole('ADMIN')">+ Agendar nueva cita</a>
+    </section>
+
+    <div class="card table-card">
+        <div class="table-scroll" th:if="${!citas.isEmpty()}">
+        <table>
             <thead>
                 <tr>
-                    <th>Doctor</th>
-                    <th>Paciente</th>
-                    <th>Fecha</th>
-                    <th>Hora</th>
-                    <th>Motivo</th>
-                    <th>Estado</th>
-                    <th>Acciones</th>
+                    <th scope="col">Fecha</th>
+                    <th scope="col">Hora</th>
+                    <th scope="col">Doctor</th>
+                    <th scope="col">Paciente</th>
+                    <th scope="col">Motivo</th>
+                    <th scope="col">Estado</th>
+                    <th scope="col" class="table-actions">Acciones</th>
                 </tr>
             </thead>
             <tbody>
                 <tr th:each="c : ${citas}">
-                    <td th:text="${doctoresMap != null and doctoresMap[c.doctorId] != null ? doctoresMap[c.doctorId] : c.doctorId}"></td>
-                    <td th:text="${pacientesMap != null and pacientesMap[c.pacienteId] != null ? pacientesMap[c.pacienteId] : c.pacienteId}"></td>
                     <td th:text="${c.fecha != null ? #temporals.format(c.fecha, 'dd/MM/yyyy') : '—'}"></td>
                     <td th:text="${c.hora != null ? #temporals.format(c.hora, 'HH:mm') : '—'}"></td>
+                    <td th:text="${doctoresMap != null and doctoresMap[c.doctorId] != null ? doctoresMap[c.doctorId] : c.doctorId}"></td>
+                    <td th:text="${pacientesMap != null and pacientesMap[c.pacienteId] != null ? pacientesMap[c.pacienteId] : c.pacienteId}"></td>
                     <td th:text="${c.motivo}"></td>
                     <td>
-                        <span th:if="${c.estado != null}" class="badge"
+                        <span th:if="${c.estado != null}"
                               th:text="${c.estado.descripcion}"
                               th:class="${'badge ' + (c.estado.name() == 'PENDIENTE' ? 'badge-pending' : c.estado.name() == 'COMPLETADA' ? 'badge-success' : 'badge-cancelled')}"></span>
                         <span th:if="${c.estado == null}" class="badge">—</span>
                     </td>
-                    <td>
+                    <td class="table-actions">
                         <!-- Solo pacientes y administradores pueden cancelar citas -->
-                        <form th:action="@{/citas/{id}/cancelar(id=${c.id})}" method="post" style="display:inline;"
+                        <form th:action="@{/citas/{id}/cancelar(id=${c.id})}" method="post" class="form-inline"
                               sec:authorize="hasRole('PACIENTE') or hasRole('ADMIN')">
 
-                            <button type="submit" class="btn btn-danger" th:if="${c.estado.name() == 'PENDIENTE'}">Cancelar</button>
+                            <button type="submit" class="btn btn-danger btn-sm" th:if="${c.estado != null and c.estado.name() == 'PENDIENTE'}">Cancelar</button>
                         </form>
                     </td>
                 </tr>
             </tbody>
         </table>
-
-        <div th:if="${citas.isEmpty()}" class="alert alert-info">
-            No hay citas registradas
         </div>
+
+        <p th:if="${citas.isEmpty()}" class="empty-note">No hay citas registradas.</p>
     </div>
-</div>
+</main>
 
 <footer th:replace="~{fragments/layout :: footer}"></footer>
 <script th:src="@{/js/form-submit.js}"></script>

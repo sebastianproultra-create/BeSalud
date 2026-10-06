@@ -1,6 +1,8 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Elegir Rol - BeSalud</title>
     <link rel="stylesheet" th:href="@{/css/global.css}">
     <link rel="stylesheet" th:href="@{/css/register.css}">
@@ -9,7 +11,7 @@
 <header th:replace="~{fragments/layout :: header-brand}"></header>
 
 <div class="container">
-    <div class="card" style="max-width: 600px; margin: 30px auto;">
+    <div class="card card-center">
         <h2>Completa tu registro</h2>
         <p>Tu cuenta de Google: <strong th:text="${email}"></strong></p>
 

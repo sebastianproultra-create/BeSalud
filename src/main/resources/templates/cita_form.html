@@ -1,20 +1,26 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org"
+<html lang="es" xmlns:th="http://www.thymeleaf.org"
       xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Agendar Cita - BeSalud</title>
     <link rel="stylesheet" th:href="@{/css/global.css}">
-    <link rel="stylesheet" th:href="@{/css/cita_form.css}">
 </head>
 <body>
-<header th:replace="~{fragments/layout :: header-brand}"></header>
-<nav th:replace="~{fragments/layout :: nav-admin}"></nav>
+<header th:replace="~{fragments/layout :: shell-admin('citas')}"></header>
 
-<div class="container">
-    <div class="card" style="max-width: 600px; margin: 30px auto;">
-        <h2>Agendar Nueva Cita</h2>
+<main class="container container-narrow">
+    <section class="page-header" aria-labelledby="page-title">
+        <div>
+            <p class="page-eyebrow">Agenda</p>
+            <h1 id="page-title" class="page-title">Agendar nueva cita</h1>
+        </div>
+    </section>
+
+    <div class="card">
         
-        <form th:action="@{/citas/guardar}" method="post">
+        <form th:action="@{/citas/guardar}" method="post" class="card-form">
 
             
             <label for="doctorId">Doctor:</label>
@@ -40,11 +46,13 @@
             <label for="motivo">Motivo de la Consulta:</label>
             <textarea id="motivo" name="motivo" rows="4" placeholder="Describe el motivo de la cita" required></textarea>
 
-            <button type="submit" class="btn btn-success">Agendar Cita</button>
-            <a th:href="@{/citas}" class="btn btn-link" style="margin-left: 10px;">Cancelar</a>
+            <div class="form-actions">
+                <button type="submit" class="btn btn-success">Agendar cita</button>
+            <a th:href="@{/citas}" class="btn btn-secondary">Cancelar</a>
+            </div>
         </form>
     </div>
-</div>
+</main>
 
 <footer th:replace="~{fragments/layout :: footer}"></footer>
 <script th:src="@{/js/custom-select.js}"></script>
