@@ -16,7 +16,9 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(LoginController.class)
@@ -164,5 +166,63 @@ class SecurityRulesTest {
                     assertNotEquals(302, status, "No debe redirigir al login");
                     assertNotEquals(403, status, "No debe ser prohibido para PACIENTE");
                 });
+    }
+
+    // --- Rutas de gestión exclusivas por rol ---
+
+    @Test
+    @WithMockUser(roles = "PACIENTE")
+    void listaPacientesConRolPaciente_esForbidden() throws Exception {
+        mockMvc.perform(get("/pacientes"))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    @WithMockUser(roles = "DOCTOR")
+    void guardarPacienteConRolDoctor_esForbidden() throws Exception {
+        mockMvc.perform(post("/pacientes/guardar").with(csrf()))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    @WithMockUser(roles = "PACIENTE")
+    void eliminarDoctorConRolPaciente_esForbidden() throws Exception {
+        mockMvc.perform(post("/doctores/123/eliminar").with(csrf()))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    @WithMockUser(roles = "DOCTOR")
+    void guardarDoctorConRolDoctor_esForbidden() throws Exception {
+        mockMvc.perform(post("/doctores/guardar").with(csrf()))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    @WithMockUser(roles = "PACIENTE")
+    void doctoresConRolPaciente_esForbidden() throws Exception {
+        mockMvc.perform(get("/doctores"))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    @WithMockUser(roles = "PACIENTE")
+    void citaAdminConRolPaciente_esForbidden() throws Exception {
+        mockMvc.perform(post("/citas/guardar").with(csrf()))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    @WithMockUser(roles = "DOCTOR")
+    void landingPacienteConRolDoctor_esForbidden() throws Exception {
+        mockMvc.perform(get("/pacientes/landing"))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    @WithMockUser(roles = "ADMIN")
+    void agendarComoPacienteConRolAdmin_esForbidden() throws Exception {
+        mockMvc.perform(post("/citas/guardar-paciente").with(csrf()))
+                .andExpect(status().isForbidden());
     }
 }

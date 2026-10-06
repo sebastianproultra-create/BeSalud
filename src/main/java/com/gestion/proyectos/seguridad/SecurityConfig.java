@@ -33,8 +33,16 @@ public class SecurityConfig {
                                                                 "/js/**", "/error", "/elegir-rol")
                                                 .permitAll()
                                                 .requestMatchers("/admin/**").hasRole("ADMIN")
-                                                .requestMatchers("/doctores/**", "/pacientes/**", "/citas/**")
-                                                .authenticated()
+                                                .requestMatchers("/pacientes/landing", "/citas/nueva",
+                                                                "/citas/guardar-paciente", "/citas/*/reprogramar")
+                                                .hasRole("PACIENTE")
+                                                .requestMatchers("/pacientes", "/pacientes/**",
+                                                                "/citas/crear", "/citas/guardar",
+                                                                "/doctores/guardar", "/doctores/*/eliminar")
+                                                .hasRole("ADMIN")
+                                                .requestMatchers("/doctores/perfil/foto").hasRole("DOCTOR")
+                                                .requestMatchers("/doctores", "/doctores/*/horarios")
+                                                .hasAnyRole("ADMIN", "DOCTOR")
                                                 .anyRequest().authenticated())
                                 .formLogin(form -> form.disable())
                                 .oauth2Login(oauth2 -> oauth2
