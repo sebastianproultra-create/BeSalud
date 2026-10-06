@@ -402,6 +402,8 @@ body {
     background: var(--off-white);
 }
 
+.card-icon svg, .contact-icon svg { display: block; margin: 0 auto; }
+
 .card-icon {
     font-size: 28px;
     margin-bottom: 24px;
