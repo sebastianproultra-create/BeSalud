@@ -10,6 +10,5 @@ import java.util.List;
 // Repositorio para administrar los horarios de atención en MongoDB
 public interface HorarioAtencionRepositorio extends MongoRepository<HorarioAtencion, String> {
     List<HorarioAtencion> findByDoctorId(String doctorId);
-    List<HorarioAtencion> findByDoctorIdAndDiaSemana(String doctorId, DayOfWeek diaSemana);
     void deleteByDoctorIdAndDiaSemanaIn(String doctorId, Collection<DayOfWeek> dias);
 }

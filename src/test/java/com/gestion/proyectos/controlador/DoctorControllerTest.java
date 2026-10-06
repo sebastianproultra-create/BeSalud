@@ -1,6 +1,7 @@
 package com.gestion.proyectos.controlador;
 
 import com.gestion.proyectos.modelo.Doctor;
+import com.gestion.proyectos.oauth2.OAuth2LoginSuccessHandler;
 import com.gestion.proyectos.repositorio.AdminRepositorio;
 import com.gestion.proyectos.repositorio.PersonaRepositorio;
 import com.gestion.proyectos.seguridad.CustomUserDetailsService;
@@ -15,6 +16,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.util.List;
 import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.*;
@@ -37,6 +39,7 @@ class DoctorControllerTest {
     @MockBean private AdminRepositorio adminRepositorio;
     @MockBean private JwtService jwtService;
     @MockBean private JwtCookieService jwtCookieService;
+    @MockBean private OAuth2LoginSuccessHandler oauth2LoginSuccessHandler;
 
     // ── guardar horario ──────────────────────────────────────────────────────
 
@@ -45,7 +48,7 @@ class DoctorControllerTest {
         Doctor doctor = new Doctor();
         doctor.setId("d1");
         when(doctorService.buscarPorEmail("doc@test.com")).thenReturn(Optional.of(doctor));
-        when(doctorService.guardarHorarioDia(eq("d1"), eq("MONDAY"), any(), eq(30))).thenReturn(null);
+        when(doctorService.guardarHorariosSemanales(eq("d1"), eq(List.of("MONDAY")), any(), eq(30))).thenReturn(null);
 
         mockMvc.perform(post("/doctores/horarios/guardar")
                         .param("days", "MONDAY")
@@ -57,7 +60,7 @@ class DoctorControllerTest {
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/doctores"));
 
-        verify(doctorService).guardarHorarioDia(eq("d1"), eq("MONDAY"), any(), eq(30));
+        verify(doctorService).guardarHorariosSemanales(eq("d1"), eq(List.of("MONDAY")), any(), eq(30));
     }
 
     @Test
@@ -69,7 +72,7 @@ class DoctorControllerTest {
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/doctores?error=no_days_selected"));
 
-        verify(doctorService, never()).guardarHorarioDia(any(), any(), any(), anyInt());
+        verify(doctorService, never()).guardarHorariosSemanales(any(), any(), any(), anyInt());
     }
 
     @Test
@@ -77,7 +80,7 @@ class DoctorControllerTest {
         Doctor doctor = new Doctor();
         doctor.setId("d1");
         when(doctorService.buscarPorEmail("doc@test.com")).thenReturn(Optional.of(doctor));
-        when(doctorService.guardarHorarioDia(eq("d1"), eq("MONDAY"), any(), eq(30)))
+        when(doctorService.guardarHorariosSemanales(eq("d1"), eq(List.of("MONDAY")), any(), eq(30)))
                 .thenReturn("hora_invalida");
 
         mockMvc.perform(post("/doctores/horarios/guardar")

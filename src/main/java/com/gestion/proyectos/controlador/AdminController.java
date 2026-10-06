@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 @Controller
 @RequestMapping("/admin")
@@ -20,10 +21,10 @@ public class AdminController {
 
     @GetMapping
     public String dashboard(Model model,
-            @org.springframework.web.bind.annotation.RequestParam(defaultValue = "0") int page,
-            @org.springframework.web.bind.annotation.RequestParam(defaultValue = "10") int size,
-            @org.springframework.web.bind.annotation.RequestParam(required = false) String especialidad,
-            @org.springframework.web.bind.annotation.RequestParam(required = false) String search) {
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(required = false) String especialidad,
+            @RequestParam(required = false) String search) {
 
         var doctoresPage = adminService.listarDoctoresPaginated(page, size, especialidad, search);
         var pacientesPage = adminService.listarPacientesPaginated(page, size);

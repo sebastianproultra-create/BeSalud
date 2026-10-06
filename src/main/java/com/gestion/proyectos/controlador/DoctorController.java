@@ -38,11 +38,11 @@ public class DoctorController {
 
     @GetMapping
     public String listar(Model model,
-            @org.springframework.web.bind.annotation.RequestParam(required = false) String especialidad,
-            @org.springframework.web.bind.annotation.RequestParam(required = false) String estado,
-            @org.springframework.web.bind.annotation.RequestParam(defaultValue = "0") int page,
-            @org.springframework.web.bind.annotation.RequestParam(defaultValue = "10") int size,
-            @org.springframework.web.bind.annotation.RequestParam(required = false) String search) {
+            @RequestParam(required = false) String especialidad,
+            @RequestParam(required = false) String estado,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(required = false) String search) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         String role = auth.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)

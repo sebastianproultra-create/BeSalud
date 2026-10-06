@@ -1,5 +1,7 @@
 package com.gestion.proyectos.controlador;
 
+import com.gestion.proyectos.oauth2.OAuth2LoginSuccessHandler;
+import com.gestion.proyectos.servicio.DoctorService;
 import com.gestion.proyectos.repositorio.AdminRepositorio;
 import com.gestion.proyectos.repositorio.PersonaRepositorio;
 import com.gestion.proyectos.seguridad.CustomUserDetailsService;
@@ -46,6 +48,12 @@ class LoginControllerTest {
 
     @MockBean
     private JwtCookieService jwtCookieService;
+
+    @MockBean
+    private DoctorService doctorService;
+
+    @MockBean
+    private OAuth2LoginSuccessHandler oauth2LoginSuccessHandler;
 
     @MockBean
     private AuthenticationManager authenticationManager;

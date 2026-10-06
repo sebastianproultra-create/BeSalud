@@ -1,5 +1,6 @@
 package com.gestion.proyectos.controlador;
 
+import com.gestion.proyectos.oauth2.OAuth2LoginSuccessHandler;
 import com.gestion.proyectos.modelo.Cita;
 import com.gestion.proyectos.modelo.Doctor;
 import com.gestion.proyectos.modelo.EstadoCita;
@@ -19,8 +20,6 @@ import org.springframework.context.annotation.Import;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.time.LocalDate;
-import java.time.LocalTime;
-import java.util.Collections;
 import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.*;
@@ -43,8 +42,16 @@ class CitaControllerTest {
     @MockBean private AdminRepositorio adminRepositorio;
     @MockBean private JwtService jwtService;
     @MockBean private JwtCookieService jwtCookieService;
+    @MockBean private OAuth2LoginSuccessHandler oauth2LoginSuccessHandler;
 
     // ── guardar-paciente ────────────────────────────────────────────────────
+
+    private static Doctor doctorActivo() {
+        Doctor doctor = new Doctor();
+        doctor.setId("d1");
+        doctor.setEstado("ACTIVO");
+        return doctor;
+    }
 
     @Test
     void guardarPaciente_exitoso_redirigeLandingConExito() throws Exception {
@@ -54,6 +61,7 @@ class CitaControllerTest {
 
         when(citaService.buscarPacientePorEmail("paciente@test.com")).thenReturn(Optional.of(paciente));
         when(citaService.esFechaHoraPasada(any(), any())).thenReturn(false);
+        when(citaService.buscarDoctorPorId("d1")).thenReturn(Optional.of(doctorActivo()));
         when(citaService.esHorarioValido(eq("d1"), any(), any())).thenReturn(true);
         when(citaService.hayConflicto(eq("d1"), any(), any(), isNull())).thenReturn(false);
 
@@ -115,6 +123,7 @@ class CitaControllerTest {
         paciente.setId("p1");
         when(citaService.buscarPacientePorEmail(anyString())).thenReturn(Optional.of(paciente));
         when(citaService.esFechaHoraPasada(any(), any())).thenReturn(false);
+        when(citaService.buscarDoctorPorId("d1")).thenReturn(Optional.of(doctorActivo()));
         when(citaService.esHorarioValido(eq("d1"), any(), any())).thenReturn(false);
 
         mockMvc.perform(post("/citas/guardar-paciente")
@@ -134,6 +143,7 @@ class CitaControllerTest {
         paciente.setId("p1");
         when(citaService.buscarPacientePorEmail(anyString())).thenReturn(Optional.of(paciente));
         when(citaService.esFechaHoraPasada(any(), any())).thenReturn(false);
+        when(citaService.buscarDoctorPorId("d1")).thenReturn(Optional.of(doctorActivo()));
         when(citaService.esHorarioValido(eq("d1"), any(), any())).thenReturn(true);
         when(citaService.hayConflicto(eq("d1"), any(), any(), isNull())).thenReturn(true);
 

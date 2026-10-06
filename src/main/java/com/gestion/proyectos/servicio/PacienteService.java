@@ -57,12 +57,6 @@ public class PacienteService {
         return null;
     }
 
-    public List<Doctor> listarDoctores(String especialidad) {
-        if (especialidad != null && !especialidad.isEmpty())
-            return personaRepo.findDoctoresByEspecialidadContainingIgnoreCase(especialidad);
-        return personaRepo.findAllDoctores();
-    }
-
     public Page<Doctor> listarDoctoresPaginated(int page, int size, String especialidad, String search) {
         Pageable pageable = PageRequest.of(Math.max(0, page), Math.max(1, size));
         boolean hasSearch = search != null && !search.isBlank();

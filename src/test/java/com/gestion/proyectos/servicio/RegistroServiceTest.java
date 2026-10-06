@@ -86,7 +86,7 @@ class RegistroServiceTest {
     @Test
     void verificarDuplicado_emailNuevo_retornaNull() {
         when(adminRepo.findByEmail(anyString())).thenReturn(Optional.empty());
-        when(personaRepo.findPacienteByEmail(anyString())).thenReturn(Optional.empty());
+        when(personaRepo.findByEmail(anyString())).thenReturn(Optional.empty());
         assertThat(service.verificarDuplicado(dto)).isNull();
     }
 }
