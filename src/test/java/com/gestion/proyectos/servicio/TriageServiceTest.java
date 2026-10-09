@@ -79,6 +79,18 @@ class TriageServiceTest {
     }
 
     @Test
+    void senalesDeAlarma_combinadas_tambienSeDetectan() {
+        assertThat(service.pareceEmergencia("tengo un dolor muy fuerte en el pecho que se va al brazo")).isTrue();
+        assertThat(service.pareceEmergencia("me falta mucho el aire al caminar")).isTrue();
+    }
+
+    @Test
+    void sintomasLeves_noSonEmergencia() {
+        assertThat(service.pareceEmergencia("me duele un poco la garganta y tengo mocos")).isFalse();
+        assertThat(service.pareceEmergencia("tengo tos y un poco de dolor en el pecho al toser")).isFalse();
+    }
+
+    @Test
     void resumen_largo_seRecorta() {
         ResultadoTriage r = service.evaluar("dolor de cabeza ".repeat(40));
         assertThat(r.resumen().length()).isLessThanOrEqualTo(200);

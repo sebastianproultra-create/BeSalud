@@ -74,6 +74,14 @@ public class TriageService {
             "sangrado abundante", "mucha sangre", "suicid", "quitarme la vida", "no quiero vivir",
             "cara caida", "no puedo mover", "paralisis", "se me hincho la garganta");
 
+    // Una palabra principal + alguna que la agrave, en cualquier orden ("dolor muy fuerte en el pecho").
+    private static final Map<String, List<String>> ALARMA_COMBINADA = Map.of(
+            "pecho", List.of("fuerte", "intenso", "opresi", "aprieta", "brazo", "mandibula", "sudo", "sudando"),
+            "respirar", List.of("no puedo", "dificultad", "cuesta mucho", "me ahogo"),
+            "aire", List.of("me falta", "no me entra"),
+            "sangre", List.of("mucha", "abundante", "no para", "vomit"),
+            "cabeza", List.of("el peor", "golpe fuerte", "perdi"));
+
     public record DoctorSugerido(Doctor doctor, String fecha, List<String> horas) {
         public String fechaLegible() {
             if (fecha == null) return null;
@@ -92,19 +100,19 @@ public class TriageService {
     private final ObjectMapper mapper;
     private final RestClient http;
     private final String apiKey;
-    private final String modelo;
+    private final List<String> modelos;
 
     public TriageService(PersonaRepositorio personaRepo, CitaService citaService, ObjectMapper mapper,
             @Value("${app.gemini.api-key:}") String apiKey,
-            @Value("${app.gemini.model:gemini-flash-latest}") String modelo) {
+            @Value("${app.gemini.model:gemini-flash-lite-latest,gemini-flash-latest}") String modelos) {
         this.personaRepo = personaRepo;
         this.citaService = citaService;
         this.mapper = mapper;
         this.apiKey = apiKey == null ? "" : apiKey.trim();
-        this.modelo = modelo;
+        this.modelos = java.util.Arrays.stream(modelos.split(",")).map(String::trim).filter(m -> !m.isEmpty()).toList();
         SimpleClientHttpRequestFactory timeouts = new SimpleClientHttpRequestFactory();
-        timeouts.setConnectTimeout(5_000);
-        timeouts.setReadTimeout(15_000);
+        timeouts.setConnectTimeout(4_000);
+        timeouts.setReadTimeout(8_000);
         this.http = RestClient.builder().requestFactory(timeouts).build();
     }
 
@@ -121,11 +129,15 @@ public class TriageService {
     public ResultadoTriage evaluar(String sintomas) {
         List<String> especialidades = especialidadesActivas();
         ResultadoTriage resultado = null;
+        // En el plan gratis un modelo puede estar saturado (503): se prueba el siguiente.
         if (!apiKey.isBlank()) {
-            try {
-                resultado = consultarGemini(sintomas, especialidades);
-            } catch (Exception e) {
-                log.warn("Triage con Gemini falló, se usa el respaldo: {}", e.getMessage());
+            for (String modelo : modelos) {
+                try {
+                    resultado = consultarGemini(modelo, sintomas, especialidades);
+                    break;
+                } catch (Exception e) {
+                    log.warn("Triage con Gemini ({}) falló: {}", modelo, e.getMessage());
+                }
             }
         }
         if (resultado == null) resultado = respaldo(sintomas, especialidades);
@@ -159,7 +171,7 @@ public class TriageService {
         return sugeridos;
     }
 
-    private ResultadoTriage consultarGemini(String sintomas, List<String> especialidades) throws Exception {
+    private ResultadoTriage consultarGemini(String modelo, String sintomas, List<String> especialidades) throws Exception {
         List<String> permitidas = especialidades.isEmpty() ? List.of(ESPECIALIDAD_GENERAL) : especialidades;
 
         Map<String, Object> esquema = Map.of(
@@ -233,7 +245,9 @@ public class TriageService {
 
     boolean pareceEmergencia(String sintomas) {
         String texto = normalizar(sintomas);
-        return SENALES_ALARMA.stream().anyMatch(texto::contains);
+        if (SENALES_ALARMA.stream().anyMatch(texto::contains)) return true;
+        return ALARMA_COMBINADA.entrySet().stream()
+                .anyMatch(e -> texto.contains(e.getKey()) && e.getValue().stream().anyMatch(texto::contains));
     }
 
     private static String elegirEspecialidad(String propuesta, List<String> permitidas) {
