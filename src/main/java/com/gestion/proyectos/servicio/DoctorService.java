@@ -1,11 +1,14 @@
 package com.gestion.proyectos.servicio;
 
+import static com.gestion.proyectos.util.ValidacionUtil.esVacio;
+
 import com.gestion.proyectos.modelo.Cita;
 import com.gestion.proyectos.modelo.Dictamen;
 import com.gestion.proyectos.modelo.Doctor;
 import com.gestion.proyectos.modelo.EstadoCita;
 import com.gestion.proyectos.modelo.HorarioAtencion;
 import com.gestion.proyectos.modelo.Paciente;
+import com.gestion.proyectos.modelo.UserRegistrationDTO;
 import com.gestion.proyectos.repositorio.CitaRepositorio;
 import com.gestion.proyectos.repositorio.HorarioAtencionRepositorio;
 import com.gestion.proyectos.repositorio.PersonaRepositorio;
@@ -40,12 +43,14 @@ public class DoctorService {
     private final PersonaRepositorio personaRepo;
     private final HorarioAtencionRepositorio horarioRepo;
     private final CitaRepositorio citaRepo;
+    private final RegistroService registroService;
 
     public DoctorService(PersonaRepositorio personaRepo, HorarioAtencionRepositorio horarioRepo,
-            CitaRepositorio citaRepo) {
+            CitaRepositorio citaRepo, RegistroService registroService) {
         this.personaRepo = personaRepo;
         this.horarioRepo = horarioRepo;
         this.citaRepo = citaRepo;
+        this.registroService = registroService;
     }
 
     // ── Consultas ────────────────────────────────────────────────────────────
@@ -115,12 +120,14 @@ public class DoctorService {
     }
 
     public String actualizarFoto(Doctor doctor, org.springframework.web.multipart.MultipartFile foto) {
-        if (foto == null || foto.isEmpty()) return "vacio";
+        if (foto == null || foto.isEmpty())
+            return "vacio";
         String tipo = foto.getContentType();
         if (tipo == null
                 || !(tipo.equals("image/png") || tipo.equals("image/jpeg") || tipo.equals("image/webp")))
             return "tipo";
-        if (foto.getSize() > 2L * 1024 * 1024) return "tamano";
+        if (foto.getSize() > 2L * 1024 * 1024)
+            return "tamano";
         try {
             byte[] bytes = foto.getBytes();
             String base64 = "data:" + tipo + ";base64," + java.util.Base64.getEncoder().encodeToString(bytes);
@@ -142,7 +149,8 @@ public class DoctorService {
                 .toList();
         List<Paciente> pacientes = new ArrayList<>();
         personaRepo.findAllById(ids).forEach(p -> {
-            if (p instanceof Paciente pac) pacientes.add(pac);
+            if (p instanceof Paciente pac)
+                pacientes.add(pac);
         });
         return pacientes;
     }
@@ -191,6 +199,118 @@ public class DoctorService {
 
     // ── Doctor CRUD ──────────────────────────────────────────────────────────
 
+    // ── Registro de doctores por el administrador ────────────────────────────
+
+    private static final java.util.regex.Pattern PATRON_NOMBRE = java.util.regex.Pattern
+            .compile("^\\p{L}[\\p{L} '.\\-]*$");
+    private static final java.util.regex.Pattern PATRON_ESPECIALIDAD = java.util.regex.Pattern
+            .compile("^\\p{L}[\\p{L} .,'()\\-]*$");
+    private static final java.util.regex.Pattern PATRON_TELEFONO = java.util.regex.Pattern.compile("^3\\d{9}$");
+    private static final java.util.regex.Pattern PATRON_IDENTIFICACION = java.util.regex.Pattern
+            .compile("^\\d{6,10}$");
+    private static final java.util.regex.Pattern PATRON_EMAIL = java.util.regex.Pattern
+            .compile("^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$");
+
+    /**
+     * Valida y registra un doctor creado desde el panel de administración.
+     * Reutiliza las reglas del registro público ({@link RegistroService}) y añade
+     * reglas más
+     * estrictas (formato, longitudes, contraseña). La contraseña se guarda con
+     * BCrypt y el correo
+     * en minúsculas, igual que en el registro público.
+     *
+     * @return null si el doctor quedó registrado, o el mensaje de error para
+     *         mostrar al admin.
+     */
+    public String registrarPorAdmin(UserRegistrationDTO dto) {
+        if (dto == null)
+            return "Faltan los datos del doctor";
+
+        // Estos campos nunca deben venir del formulario del admin
+        dto.setRole("DOCTOR");
+        dto.setFotoFile(null);
+        dto.setFotoUrl(null);
+
+        normalizar(dto);
+
+        String error = registroService.validar(dto);
+        if (error == null)
+            error = validarReglasAdmin(dto);
+        if (error == null)
+            error = registroService.verificarDuplicado(dto);
+        if (error == null)
+            error = registroService.registrar(dto);
+        if (error == null)
+            log.info("Doctor registrado por el admin: {}", dto.getEmail());
+        return error;
+    }
+
+    private static String limpiar(String s) {
+        return s == null ? null : s.trim().replaceAll("\\s+", " ");
+    }
+
+    private static void normalizar(UserRegistrationDTO d) {
+        d.setNombre(limpiar(d.getNombre()));
+        d.setApellido(limpiar(d.getApellido()));
+        d.setEspecialidad(limpiar(d.getEspecialidad()));
+        if (d.getTelefono() != null)
+            d.setTelefono(d.getTelefono().replaceAll("\\s+", ""));
+        if (d.getIdentificacion() != null)
+            d.setIdentificacion(d.getIdentificacion().replaceAll("\\s+", ""));
+        if (d.getEmail() != null)
+            d.setEmail(d.getEmail().trim().toLowerCase());
+        if (d.getBiografia() != null) {
+            String bio = d.getBiografia().trim();
+            d.setBiografia(bio.isEmpty() ? null : bio);
+        }
+    }
+
+    private String validarReglasAdmin(UserRegistrationDTO d) {
+        String nombre = d.getNombre();
+        if (esVacio(nombre) || nombre.length() < 2 || nombre.length() > 50
+                || !PATRON_NOMBRE.matcher(nombre).matches())
+            return "El nombre debe tener entre 2 y 50 letras (sin números ni símbolos)";
+
+        String apellido = d.getApellido();
+        if (esVacio(apellido) || apellido.length() < 2 || apellido.length() > 50
+                || !PATRON_NOMBRE.matcher(apellido).matches())
+            return "El apellido debe tener entre 2 y 50 letras (sin números ni símbolos)";
+
+        if (esVacio(d.getIdentificacion()) || !PATRON_IDENTIFICACION.matcher(d.getIdentificacion()).matches())
+            return "La identificación debe tener entre 6 y 10 dígitos";
+
+        if (esVacio(d.getTelefono()) || !PATRON_TELEFONO.matcher(d.getTelefono()).matches())
+            return "El teléfono debe tener 10 dígitos y empezar por 3 (ej: 3001234567)";
+
+        String email = d.getEmail();
+        if (esVacio(email))
+            return "El correo electrónico es obligatorio";
+        if (email.length() > 100)
+            return "El correo no puede superar los 100 caracteres";
+        if (!PATRON_EMAIL.matcher(email).matches())
+            return "El correo electrónico no tiene un formato válido";
+
+        String password = d.getPassword();
+        if (esVacio(password))
+            return "La contraseña es obligatoria";
+        if (password.length() < 8)
+            return "La contraseña debe tener al menos 8 caracteres";
+        if (password.getBytes(java.nio.charset.StandardCharsets.UTF_8).length > 72)
+            return "La contraseña no puede superar los 72 caracteres";
+        if (password.chars().noneMatch(Character::isLetter) || password.chars().noneMatch(Character::isDigit))
+            return "La contraseña debe incluir al menos una letra y un número";
+
+        String especialidad = d.getEspecialidad();
+        if (esVacio(especialidad) || especialidad.length() < 3 || especialidad.length() > 60
+                || !PATRON_ESPECIALIDAD.matcher(especialidad).matches())
+            return "La especialidad debe tener entre 3 y 60 caracteres y contener solo letras";
+
+        if (d.getBiografia() != null && d.getBiografia().length() > 500)
+            return "La biografía no puede superar los 500 caracteres";
+
+        return null;
+    }
+
     public boolean emailDuplicado(String email) {
         return personaRepo.findDoctorByEmail(email.trim()).isPresent();
     }
@@ -214,8 +334,10 @@ public class DoctorService {
     @Transactional
     public String guardarHorariosSemanales(String doctorId, List<String> days,
             Map<String, String> allParams, int duracionCitaMinutos) {
-        if (duracionCitaMinutos <= 0) return "duracion_invalida";
-        if (duracionCitaMinutos > 480) return "duracion_excesiva";
+        if (duracionCitaMinutos <= 0)
+            return "duracion_invalida";
+        if (duracionCitaMinutos > 480)
+            return "duracion_excesiva";
         List<HorarioAtencion> nuevos = new ArrayList<>();
         List<DayOfWeek> diasAfectados = new ArrayList<>();
 
