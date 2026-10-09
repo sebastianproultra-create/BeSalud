@@ -20,8 +20,12 @@ public class PacienteController {
     }
 
     @GetMapping
-    public String listar(Model model) {
-        model.addAttribute("pacientes", pacienteService.listarTodos());
+    public String listar(@RequestParam(defaultValue = "0") int page,
+                         @RequestParam(defaultValue = "10") int size,
+                         Model model) {
+        var pagina = pacienteService.listarPaginado(page, size);
+        model.addAttribute("pacientes", pagina);
+        model.addAttribute("queryPacientes", "size=" + pagina.getSize());
         model.addAttribute("paciente", new Paciente());
         return "pacientes";
     }
@@ -31,7 +35,9 @@ public class PacienteController {
         String error = pacienteService.validarYGuardar(paciente);
         if (error != null) {
             model.addAttribute("error", error);
-            model.addAttribute("pacientes", pacienteService.listarTodos());
+            var pagina = pacienteService.listarPaginado(0, 10);
+            model.addAttribute("pacientes", pagina);
+            model.addAttribute("queryPacientes", "size=" + pagina.getSize());
             model.addAttribute("paciente", paciente);
             return "pacientes";
         }

@@ -33,7 +33,10 @@ public class SecurityConfig {
                                                                 "/js/**", "/error", "/elegir-rol", "/privacidad")
                                                 .permitAll()
                                                 .requestMatchers("/admin/**").hasRole("ADMIN")
-                                                .requestMatchers("/pacientes/landing", "/triage", "/citas/nueva",
+                                                .requestMatchers("/citas").hasRole("ADMIN")
+                                                .requestMatchers("/citas/*/cancelar").hasAnyRole("PACIENTE", "ADMIN")
+                                                .requestMatchers("/doctores/*/horarios").hasRole("ADMIN")
+                                                .requestMatchers("/pacientes/landing", "/triage", "/triage/agendar", "/citas/nueva",
                                                                 "/citas/guardar-paciente", "/citas/*/reprogramar")
                                                 .hasRole("PACIENTE")
                                                 .requestMatchers("/pacientes", "/pacientes/**",
@@ -41,7 +44,7 @@ public class SecurityConfig {
                                                                 "/doctores/guardar", "/doctores/*/eliminar")
                                                 .hasRole("ADMIN")
                                                 .requestMatchers("/doctores/perfil/foto").hasRole("DOCTOR")
-                                                .requestMatchers("/doctores", "/doctores/*/horarios")
+                                                .requestMatchers("/doctores")
                                                 .hasAnyRole("ADMIN", "DOCTOR")
                                                 .anyRequest().authenticated())
                                 .formLogin(form -> form.disable())

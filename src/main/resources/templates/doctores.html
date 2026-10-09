@@ -24,6 +24,7 @@
     </section>
 
     <div th:if="${exitoRegistro}" class="alert alert-success" role="status" th:text="${exitoRegistro}"></div>
+    <div th:if="${errorGeneral}" class="alert alert-error" role="alert" th:text="${errorGeneral}"></div>
 
     <form th:action="@{/doctores}" method="get" class="toolbar" role="search">
         <label for="search" class="visually-hidden">Buscar por nombre o email</label>
@@ -56,6 +57,10 @@
                           th:classappend="${doctor.estado == 'ACTIVO'} ? 'is-active' : 'is-inactive'"
                           th:text="${doctor.estado == 'ACTIVO'} ? 'Activo' : 'Inactivo'">Activo</span>
                     <a th:href="@{/doctores/{id}/horarios(id=${doctor.id})}" class="btn btn-secondary btn-sm">Ver horarios</a>
+                    <form th:action="@{/doctores/{id}/eliminar(id=${doctor.id})}" method="post" class="form-inline"
+                          onsubmit="return confirm('¿Eliminar a este doctor? Solo es posible si nunca tuvo citas.');">
+                        <button type="submit" class="btn btn-danger btn-sm">Eliminar</button>
+                    </form>
                 </div>
             </article>
         </div>
@@ -116,9 +121,10 @@
                 </div>
                 <div class="form-field">
                     <label for="especialidad">Especialidad *</label>
-                    <input id="especialidad" type="text" name="especialidad" required minlength="3" maxlength="60"
-                           placeholder="Ej: Cardiología, Pediatría, Medicina General"
-                           th:value="${formDoctor != null} ? ${formDoctor['especialidad']}"/>
+                    <select id="especialidad" name="especialidad" required class="styled-select">
+                        <option value="">Seleccione una especialidad</option>
+                        <th:block th:replace="~{fragments/layout :: especialidadOpcionesSel(${formDoctor != null ? formDoctor['especialidad'] : null})}"></th:block>
+                    </select>
                 </div>
             </div>
 
@@ -130,6 +136,7 @@
 </main>
 
 <footer th:replace="~{fragments/layout :: footer}"></footer>
+<script th:src="@{/js/custom-select.js}"></script>
 <script th:src="@{/js/form-submit.js}"></script>
 <script>
     // El doctor debe tener entre 23 y 100 años (misma regla que valida el servidor)

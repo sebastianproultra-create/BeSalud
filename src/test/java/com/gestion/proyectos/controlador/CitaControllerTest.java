@@ -265,24 +265,13 @@ class CitaControllerTest {
     }
 
     @Test
-    void cancelar_doctorPropietario_redirigeDoctores() throws Exception {
-        Doctor doctor = new Doctor();
-        doctor.setId("d1");
-        Cita cita = new Cita();
-        cita.setId("c1");
-        cita.setDoctorId("d1");
-        cita.setEstado(EstadoCita.PENDIENTE);
-
-        when(citaService.buscarPorId("c1")).thenReturn(Optional.of(cita));
-        when(citaService.buscarDoctorPorEmail("doc@test.com")).thenReturn(Optional.of(doctor));
-
+    void cancelar_doctor_rechazado() throws Exception {
         mockMvc.perform(post("/citas/c1/cancelar")
                         .with(csrf())
                         .with(user("doc@test.com").roles("DOCTOR")))
-                .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl("/doctores"));
+                .andExpect(status().isForbidden());
 
-        verify(citaService).cancelar(cita);
+        verify(citaService, never()).cancelar(any());
     }
 
     @Test

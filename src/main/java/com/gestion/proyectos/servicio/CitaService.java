@@ -13,12 +13,18 @@ import com.gestion.proyectos.repositorio.PersonaRepositorio;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -43,28 +49,19 @@ public class CitaService {
         this.eventos = eventos;
     }
 
-    public List<Cita> listarPorRol(String role, String email, String pacienteId, String doctorId) {
-        if ("ROLE_DOCTOR".equals(role)) {
-            Doctor doctor = personaRepo.findDoctorByEmail(email).orElse(null);
-            return doctor != null ? citaRepo.findByDoctorId(doctor.getId()) : List.of();
-        }
-        if ("ROLE_PACIENTE".equals(role)) {
-            Paciente paciente = personaRepo.findPacienteByEmail(email).orElse(null);
-            return paciente != null ? citaRepo.findByPacienteId(paciente.getId()) : List.of();
-        }
-        if (pacienteId != null && !pacienteId.isBlank()) return citaRepo.findByPacienteId(pacienteId);
-        if (doctorId != null && !doctorId.isBlank()) return citaRepo.findByDoctorId(doctorId);
-        return citaRepo.findAll();
+    public Page<Cita> listarPaginado(String pacienteId, String doctorId, int page, int size) {
+        Pageable pageable = PageRequest.of(Math.max(0, page), Math.min(100, Math.max(1, size)),
+                Sort.by(Sort.Direction.DESC, "fecha", "hora"));
+        if (pacienteId != null && !pacienteId.isBlank()) return citaRepo.findByPacienteId(pacienteId, pageable);
+        if (doctorId != null && !doctorId.isBlank()) return citaRepo.findByDoctorId(doctorId, pageable);
+        return citaRepo.findAll(pageable);
     }
 
-    public Map<String, String> mapDoctores() {
-        return personaRepo.findAllDoctores().stream()
-                .collect(Collectors.toMap(Doctor::getId, d -> d.getNombre() + " " + d.getApellido()));
-    }
-
-    public Map<String, String> mapPacientes() {
-        return personaRepo.findAllPacientes().stream()
-                .collect(Collectors.toMap(Paciente::getId, p -> p.getNombre() + " " + p.getApellido()));
+    /** Nombres de las personas pedidas (solo las de la página, no toda la colección). */
+    public Map<String, String> nombresPorId(Collection<String> ids) {
+        Map<String, String> nombres = new HashMap<>();
+        personaRepo.findAllById(ids).forEach(p -> nombres.put(p.getId(), p.getNombre() + " " + p.getApellido()));
+        return nombres;
     }
 
     public LinkedHashMap<String, List<String>> slotsDisponibles(String doctorId, String excludeCitaId,

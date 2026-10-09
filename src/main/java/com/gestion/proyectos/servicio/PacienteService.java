@@ -5,6 +5,7 @@ import com.gestion.proyectos.modelo.Doctor;
 import com.gestion.proyectos.modelo.Paciente;
 import com.gestion.proyectos.repositorio.CitaRepositorio;
 import com.gestion.proyectos.repositorio.PersonaRepositorio;
+import com.gestion.proyectos.util.ValidacionUtil;
 
 import static com.gestion.proyectos.util.ValidacionUtil.literalRegex;
 
@@ -13,6 +14,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -42,6 +44,11 @@ public class PacienteService {
         return personaRepo.findAllPacientes();
     }
 
+    public Page<Paciente> listarPaginado(int page, int size) {
+        return personaRepo.findAllPacientes(PageRequest.of(Math.max(0, page), Math.min(100, Math.max(1, size)),
+                Sort.by("apellido", "nombre")));
+    }
+
     public Optional<Paciente> buscarPorEmail(String email) {
         return personaRepo.findPacienteByEmail(email);
     }
@@ -59,9 +66,16 @@ public class PacienteService {
         var conflicto = personaRepo.findPacienteByEmail(paciente.getEmail().trim());
         if (conflicto.isPresent() && !conflicto.get().getId().equals(paciente.getId()))
             return "Ya existe un paciente registrado con ese correo";
+        if (!ValidacionUtil.telefonoValido(paciente.getTelefono()))
+            return ValidacionUtil.ERROR_TELEFONO;
+        if (!ValidacionUtil.identificacionValida(paciente.getIdentificacion()))
+            return ValidacionUtil.ERROR_IDENTIFICACION;
+        if (personaRepo.findByIdentificacion(paciente.getIdentificacion().trim()).isPresent())
+            return "Ya existe un usuario registrado con esa identificación";
         String clave = paciente.getPassword();
-        if (clave == null || clave.length() < 8 || !clave.matches(".*[A-Za-z].*") || !clave.matches(".*\\d.*"))
-            return "La contraseña debe tener al menos 8 caracteres, con una letra y un número";
+        String errorClave = ValidacionUtil.errorClave(clave);
+        if (errorClave != null)
+            return errorClave;
         paciente.setPassword(passwordEncoder.encode(clave));
         paciente.setEmail(paciente.getEmail().trim().toLowerCase());
         personaRepo.save(paciente);

@@ -118,8 +118,13 @@ public class DoctorController {
     }
 
     @PostMapping("/{id}/eliminar")
-    public String eliminar(@PathVariable String id) {
-        doctorService.eliminar(id);
+    public String eliminar(@PathVariable String id, RedirectAttributes redirectAttributes) {
+        String error = doctorService.eliminar(id);
+        if (error != null)
+            redirectAttributes.addFlashAttribute("errorGeneral",
+                    "No se puede eliminar: el doctor tiene citas registradas. Desactívalo desde el panel de administración.");
+        else
+            redirectAttributes.addFlashAttribute("exitoRegistro", "Doctor eliminado correctamente.");
         return REDIRECT_DOCTORES;
     }
 

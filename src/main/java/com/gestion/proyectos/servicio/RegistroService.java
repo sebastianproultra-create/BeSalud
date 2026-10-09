@@ -7,6 +7,8 @@ import com.gestion.proyectos.modelo.Paciente;
 import com.gestion.proyectos.modelo.UserRegistrationDTO;
 import com.gestion.proyectos.repositorio.AdminRepositorio;
 import com.gestion.proyectos.repositorio.PersonaRepositorio;
+import com.gestion.proyectos.util.Especialidades;
+import com.gestion.proyectos.util.ValidacionUtil;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,14 +42,15 @@ public class RegistroService {
     public String validar(UserRegistrationDTO user) {
         if (esVacio(user.getNombre())) return "El nombre es obligatorio";
         if (esVacio(user.getApellido())) return "El apellido es obligatorio";
-        if (esVacio(user.getTelefono()) || !user.getTelefono().trim().matches("^3\\d{1,9}$"))
-            return "El teléfono debe empezar por 3 y tener máximo 10 dígitos";
-        if (esVacio(user.getIdentificacion()) || !user.getIdentificacion().trim().matches("^\\d{1,10}$"))
-            return "La identificación debe contener solo números y máximo 10 dígitos";
+        if (!ValidacionUtil.telefonoValido(user.getTelefono()))
+            return ValidacionUtil.ERROR_TELEFONO;
+        if (!ValidacionUtil.identificacionValida(user.getIdentificacion()))
+            return ValidacionUtil.ERROR_IDENTIFICACION;
         if (!"PACIENTE".equals(user.getRole()) && !"DOCTOR".equals(user.getRole()))
             return "Debe seleccionar un rol válido (Paciente o Doctor)";
         if ("DOCTOR".equals(user.getRole())) {
             if (esVacio(user.getEspecialidad())) return "La especialidad es obligatoria para doctores";
+            if (!Especialidades.esValida(user.getEspecialidad())) return "Selecciona una especialidad de la lista";
             if (esVacio(user.getFechaNacimiento())) return "La fecha de nacimiento es obligatoria para doctores";
             LocalDate fechaNac;
             try {

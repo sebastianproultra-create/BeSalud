@@ -8,7 +8,9 @@ import com.gestion.proyectos.modelo.EstadoCita;
 import com.gestion.proyectos.modelo.Paciente;
 import com.gestion.proyectos.servicio.CitaService;
 
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.util.UriComponentsBuilder;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -20,6 +22,9 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.time.LocalDate;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 import java.time.LocalTime;
 
 @Controller
@@ -39,14 +44,25 @@ public class CitaController {
     @GetMapping
     public String listar(@RequestParam(required = false) String pacienteId,
                          @RequestParam(required = false) String doctorId,
+                         @RequestParam(defaultValue = "0") int page,
+                         @RequestParam(defaultValue = "10") int size,
                          Model model) {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        String role = auth.getAuthorities().stream().map(GrantedAuthority::getAuthority).findFirst().orElse("");
-        String email = auth.getName();
+        Page<Cita> citas = citaService.listarPaginado(pacienteId, doctorId, page, size);
+        Set<String> ids = new HashSet<>();
+        citas.forEach(c -> {
+            if (c.getDoctorId() != null) ids.add(c.getDoctorId());
+            if (c.getPacienteId() != null) ids.add(c.getPacienteId());
+        });
+        Map<String, String> nombres = citaService.nombresPorId(ids);
 
-        model.addAttribute("citas", citaService.listarPorRol(role, email, pacienteId, doctorId));
-        model.addAttribute("doctoresMap", citaService.mapDoctores());
-        model.addAttribute("pacientesMap", citaService.mapPacientes());
+        UriComponentsBuilder query = UriComponentsBuilder.newInstance().queryParam("size", citas.getSize());
+        if (!esVacio(pacienteId)) query.queryParam("pacienteId", pacienteId.trim());
+        if (!esVacio(doctorId)) query.queryParam("doctorId", doctorId.trim());
+
+        model.addAttribute("citas", citas);
+        model.addAttribute("queryCitas", query.build().encode().getQuery());
+        model.addAttribute("doctoresMap", nombres);
+        model.addAttribute("pacientesMap", nombres);
         return "citas";
     }
 
@@ -231,13 +247,6 @@ public class CitaController {
                 return "redirect:/pacientes/landing?error=no_autorizado";
             citaService.cancelar(cita);
             return "redirect:/pacientes/landing?success=cita_cancelada";
-        }
-        if ("ROLE_DOCTOR".equals(role)) {
-            Doctor doctor = citaService.buscarDoctorPorEmail(email).orElse(null);
-            if (doctor == null || !doctor.getId().equals(cita.getDoctorId()))
-                return "redirect:/doctores?error=no_autorizado";
-            citaService.cancelar(cita);
-            return "redirect:/doctores";
         }
         if ("ROLE_ADMIN".equals(role)) {
             citaService.cancelar(cita);

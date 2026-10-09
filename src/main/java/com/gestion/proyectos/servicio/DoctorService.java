@@ -325,9 +325,17 @@ public class DoctorService {
         log.info("Doctor guardado: {}", doctor.getEmail());
     }
 
-    public void eliminar(String id) {
+    /**
+     * Elimina un doctor solo si nunca tuvo citas (si las tuvo, hay que desactivarlo para no dejar
+     * citas huérfanas). Retorna null si se eliminó o el código de error.
+     */
+    public String eliminar(String id) {
+        if (!citaRepo.findByDoctorId(id).isEmpty())
+            return "tiene_citas";
+        horarioRepo.deleteAll(horarioRepo.findByDoctorId(id));
         personaRepo.deleteById(id);
         log.info("Doctor eliminado: id={}", id);
+        return null;
     }
 
     // ── Horarios ─────────────────────────────────────────────────────────────

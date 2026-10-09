@@ -9,15 +9,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
 </head>
 <body>
-<header>
-    <div class="header-brand">
-        <h1>BeSalud</h1>
-        <p>Asistente de síntomas</p>
-    </div>
-    <nav>
-        <a th:href="@{/pacientes/landing}" class="btn btn-secondary">Volver al catálogo</a>
-    </nav>
-</header>
+<header th:replace="~{fragments/layout :: shell-paciente('triage')}"></header>
 
 <main class="container container-narrow">
     <section class="page-header">
@@ -105,8 +97,11 @@
                     </p>
                     <p th:if="${s.fecha == null}" class="triage-turno">Sin turnos libres en los próximos 30 días.</p>
                 </div>
-                <a th:if="${s.fecha != null}" class="btn btn-primary"
-                   th:href="@{/citas/nueva(doctorId=${s.doctor.id}, motivo=${resultado.resumen})}">Agendar</a>
+                <form th:if="${s.fecha != null}" th:action="@{/triage/agendar}" method="post" class="form-inline">
+                    <input type="hidden" name="doctorId" th:value="${s.doctor.id}"/>
+                    <input type="hidden" name="motivo" th:value="${resultado.resumen}"/>
+                    <button type="submit" class="btn btn-primary">Agendar</button>
+                </form>
             </div>
         </div>
     </th:block>

@@ -53,6 +53,20 @@ class RegistroServiceTest {
     }
 
     @Test
+    void validar_especialidadFueraDeLista_retornaError() {
+        dto.setRole("DOCTOR");
+        dto.setFechaNacimiento("1990-01-01");
+        dto.setEspecialidad("Cardiologia");
+        assertThat(service.validar(dto)).contains("lista");
+    }
+
+    @Test
+    void validar_telefonoCorto_retornaError() {
+        dto.setTelefono("300123");
+        assertThat(service.validar(dto)).contains("10 dígitos");
+    }
+
+    @Test
     void validar_rolInvalido_retornaError() {
         dto.setRole("ADMIN");
         assertThat(service.validar(dto)).contains("rol válido");

@@ -40,10 +40,13 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.flash;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 /** Comprueba que las plantillas con mensajes de error y botones nuevos renderizan sin fallar. */
-@WebMvcTest({DoctorController.class, PacienteController.class, CitaController.class})
+@WebMvcTest({DoctorController.class, PacienteController.class, CitaController.class, LoginController.class,
+        RolSelectionController.class, TriageController.class})
 @Import(SecurityConfig.class)
 class VistasRenderTest {
 
@@ -52,6 +55,9 @@ class VistasRenderTest {
     @MockBean private PacienteService pacienteService;
     @MockBean private CitaService citaService;
     @MockBean private RateLimiter rateLimiter;
+    @MockBean private com.gestion.proyectos.servicio.RegistroService registroService;
+    @MockBean private com.gestion.proyectos.servicio.TriageService triageService;
+    @MockBean private org.springframework.security.authentication.AuthenticationManager authenticationManager;
     @MockBean private CustomUserDetailsService customUserDetailsService;
     @MockBean private PersonaRepositorio personaRepositorio;
     @MockBean private AdminRepositorio adminRepositorio;
@@ -86,7 +92,7 @@ class VistasRenderTest {
     @Test
     void pacientesAdmin_muestraErrorYConservaDatos() throws Exception {
         when(pacienteService.validarYGuardar(any())).thenReturn("Ya existe un paciente registrado con ese correo");
-        when(pacienteService.listarTodos()).thenReturn(List.of());
+        when(pacienteService.listarPaginado(anyInt(), anyInt())).thenReturn(new PageImpl<>(List.of()));
 
         mockMvc.perform(post("/pacientes/guardar").with(csrf()).with(user("a@test.com").roles("ADMIN"))
                         .param("nombre", "Luis").param("apellido", "Gil").param("email", "luis@test.com"))
@@ -144,5 +150,82 @@ class VistasRenderTest {
                 .andExpect(status().isOk())
                 .andExpect(content().string(containsString("ya pasaron")))
                 .andExpect(content().string(not(containsString("id=\"motivo\""))));
+    }
+
+    @Test
+    void registro_usaLaListaUnicaDeEspecialidades() throws Exception {
+        mockMvc.perform(get("/register"))
+                .andExpect(status().isOk())
+                .andExpect(content().string(containsString("Seleccione una especialidad")))
+                .andExpect(content().string(containsString("<optgroup label=\"Salud Mental y Rehabilitación\"")))
+                .andExpect(content().string(containsString("value=\"Cardiología\"")))
+                .andExpect(content().string(containsString("minlength=\"8\"")));
+    }
+
+    @Test
+    void elegirRol_usaLaListaUnicaDeEspecialidades() throws Exception {
+        mockMvc.perform(get("/elegir-rol").sessionAttr("oauth2Email", "g@test.com"))
+                .andExpect(status().isOk())
+                .andExpect(content().string(containsString("value=\"Pediatría\"")));
+    }
+
+    @Test
+    void altaDoctorAdmin_esUnSelectConLaListaUnica() throws Exception {
+        when(doctorService.listarDoctoresPaginated(anyInt(), anyInt(), any(), any())).thenReturn(new PageImpl<>(List.of()));
+
+        mockMvc.perform(get("/doctores").with(user("a@test.com").roles("ADMIN")))
+                .andExpect(status().isOk())
+                .andExpect(content().string(containsString("<select id=\"especialidad\"")))
+                .andExpect(content().string(containsString("value=\"Neurología\"")));
+    }
+
+    @Test
+    void citasAdmin_paginaYMuestraNombres() throws Exception {
+        Cita c = new Cita();
+        c.setId("c1");
+        c.setDoctorId("d1");
+        c.setPacienteId("p1");
+        c.setFecha(LocalDate.now());
+        c.setHora(LocalTime.of(9, 0));
+        c.setEstado(EstadoCita.ASISTIO);
+        List<Cita> filas = new java.util.ArrayList<>(java.util.Collections.nCopies(10, c));
+        when(citaService.listarPaginado(any(), any(), eq(0), eq(10)))
+                .thenReturn(new PageImpl<>(filas, org.springframework.data.domain.PageRequest.of(0, 10), 25));
+        when(citaService.nombresPorId(any())).thenReturn(Map.of("d1", "Dr. Ruiz", "p1", "Ana Gil"));
+
+        mockMvc.perform(get("/citas").with(user("a@test.com").roles("ADMIN")))
+                .andExpect(status().isOk())
+                .andExpect(content().string(containsString("Dr. Ruiz")))
+                .andExpect(content().string(containsString("badge-success")))
+                .andExpect(content().string(containsString("/citas?size=10&amp;page=1")));
+    }
+
+    @Test
+    void citasListado_soloAdmin() throws Exception {
+        mockMvc.perform(get("/citas").with(user("pac@test.com").roles("PACIENTE"))).andExpect(status().isForbidden());
+        mockMvc.perform(get("/citas").with(user("doc@test.com").roles("DOCTOR"))).andExpect(status().isForbidden());
+    }
+
+    @Test
+    void horariosDeUnDoctor_soloAdmin() throws Exception {
+        mockMvc.perform(get("/doctores/d9/horarios").with(user("doc@test.com").roles("DOCTOR")))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    void triageAgendar_noPoneSintomasEnLaUrl() throws Exception {
+        mockMvc.perform(post("/triage/agendar").with(csrf()).with(user("pac@test.com").roles("PACIENTE"))
+                        .param("doctorId", "d1").param("motivo", "dolor de pecho desde ayer"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/citas/nueva?doctorId=d1"));
+    }
+
+    @Test
+    void eliminarDoctorConCitas_noLoElimina() throws Exception {
+        when(doctorService.eliminar("d1")).thenReturn("tiene_citas");
+
+        mockMvc.perform(post("/doctores/d1/eliminar").with(csrf()).with(user("a@test.com").roles("ADMIN")))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(flash().attributeExists("errorGeneral"));
     }
 }

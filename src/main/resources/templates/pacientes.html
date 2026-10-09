@@ -31,7 +31,7 @@
                 </tr>
             </thead>
             <tbody>
-                <tr th:each="p : ${pacientes}">
+                <tr th:each="p : ${pacientes.content}">
                     <td th:text="${p.nombre}"></td>
                     <td th:text="${p.apellido}"></td>
                     <td th:text="${p.email}"></td>
@@ -41,6 +41,7 @@
         </table>
         </div>
         <p th:if="${pacientes.isEmpty()}" class="empty-note">No hay pacientes registrados.</p>
+        <nav th:replace="~{fragments/layout :: paginationQ(${pacientes}, '/pacientes', ${queryPacientes}, 'page')}"></nav>
     </div>
 
     <section id="registrar" class="card" aria-labelledby="register-title">
@@ -57,12 +58,12 @@
                     <input id="apellido" type="text" name="apellido" required autocomplete="family-name" th:value="${paciente.apellido}"/>
                 </div>
                 <div class="form-field">
-                    <label for="telefono">Teléfono</label>
-                    <input id="telefono" type="text" name="telefono" autocomplete="tel" th:value="${paciente.telefono}"/>
+                    <label for="telefono">Teléfono *</label>
+                    <input id="telefono" type="tel" name="telefono" required inputmode="numeric" pattern="3[0-9]{9}" maxlength="10" placeholder="3001234567" title="10 dígitos, debe empezar por 3" autocomplete="tel" th:value="${paciente.telefono}"/>
                 </div>
                 <div class="form-field">
-                    <label for="identificacion">Identificación</label>
-                    <input id="identificacion" type="text" name="identificacion" th:value="${paciente.identificacion}"/>
+                    <label for="identificacion">Identificación *</label>
+                    <input id="identificacion" type="text" name="identificacion" required inputmode="numeric" pattern="[0-9]{6,10}" maxlength="10" title="Entre 6 y 10 dígitos, solo números" th:value="${paciente.identificacion}"/>
                 </div>
                 <div class="form-field">
                     <label for="email">Email *</label>

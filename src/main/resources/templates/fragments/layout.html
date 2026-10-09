@@ -13,7 +13,7 @@
 <!-- ── Shell admin: marca + navegación + usuario + logout (active: doctores|pacientes|citas|panel) ── -->
 <header th:fragment="shell-admin(active)" class="app-header">
     <div class="app-header-inner">
-        <a th:href="@{/}" class="app-brand"><span aria-hidden="true">✦ </span>BeSalud</a>
+        <a th:href="@{/admin}" class="app-brand"><span aria-hidden="true">✦ </span>BeSalud</a>
         <nav class="app-nav" aria-label="Navegación principal">
             <a sec:authorize="hasRole('ADMIN')" th:href="@{/admin}" th:classappend="${active == 'panel'} ? 'is-active'">Panel</a>
             <a sec:authorize="hasRole('ADMIN')" th:href="@{/admin/estadisticas}" th:classappend="${active == 'estadisticas'} ? 'is-active'">Estadísticas</a>
@@ -23,6 +23,39 @@
         </nav>
         <div class="app-user">
             <span class="app-user-name" sec:authentication="name">Administrador</span>
+            <form th:action="@{/logout}" method="post" class="form-inline">
+                <button type="submit" class="app-logout">Cerrar sesión</button>
+            </form>
+        </div>
+    </div>
+</header>
+
+<!-- ── Shell paciente (active: catalogo|triage) ── -->
+<header th:fragment="shell-paciente(active)" class="app-header">
+    <div class="app-header-inner">
+        <a th:href="@{/pacientes/landing}" class="app-brand"><span aria-hidden="true">✦ </span>BeSalud</a>
+        <nav class="app-nav" aria-label="Navegación principal">
+            <a th:href="@{/pacientes/landing}" th:classappend="${active == 'catalogo'} ? 'is-active'">Doctores</a>
+            <a th:href="@{/triage}" th:classappend="${active == 'triage'} ? 'is-active'">Asistente de síntomas</a>
+        </nav>
+        <div class="app-user">
+            <span class="app-user-name" sec:authentication="name">Paciente</span>
+            <form th:action="@{/logout}" method="post" class="form-inline">
+                <button type="submit" class="app-logout">Cerrar sesión</button>
+            </form>
+        </div>
+    </div>
+</header>
+
+<!-- ── Shell doctor ── -->
+<header th:fragment="shell-doctor" class="app-header">
+    <div class="app-header-inner">
+        <a th:href="@{/doctores}" class="app-brand"><span aria-hidden="true">✦ </span>BeSalud</a>
+        <nav class="app-nav" aria-label="Navegación principal">
+            <a th:href="@{/doctores}" class="is-active">Mi panel médico</a>
+        </nav>
+        <div class="app-user">
+            <span class="app-user-name" sec:authentication="name">Doctor</span>
             <form th:action="@{/logout}" method="post" class="form-inline">
                 <button type="submit" class="app-logout">Cerrar sesión</button>
             </form>
@@ -51,6 +84,20 @@
        th:aria-current="${i == page.number} ? 'page'"></a>
     <a th:if="${page.hasNext()}" th:href="@{${url + '?' + query + '&' + pageParam + '=' + (page.number + 1)}}" class="pagination-step">Siguiente</a>
 </nav>
+
+<!-- ── Opciones de especialidad (dentro de un select con th:field) ── -->
+<th:block th:fragment="especialidadOpciones">
+    <optgroup th:each="g : ${gruposEspecialidad}" th:label="${g.key}">
+        <option th:each="e : ${g.value}" th:value="${e}" th:text="${e}"></option>
+    </optgroup>
+</th:block>
+
+<!-- ── Opciones de especialidad con una preseleccionada ── -->
+<th:block th:fragment="especialidadOpcionesSel(seleccionada)">
+    <optgroup th:each="g : ${gruposEspecialidad}" th:label="${g.key}">
+        <option th:each="e : ${g.value}" th:value="${e}" th:text="${e}" th:selected="${e == seleccionada}"></option>
+    </optgroup>
+</th:block>
 
 <!-- ── Footer ── -->
 <footer th:fragment="footer">

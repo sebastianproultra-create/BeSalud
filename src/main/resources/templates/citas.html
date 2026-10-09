@@ -35,7 +35,7 @@
                 </tr>
             </thead>
             <tbody>
-                <tr th:each="c : ${citas}">
+                <tr th:each="c : ${citas.content}">
                     <td th:text="${c.fecha != null ? #temporals.format(c.fecha, 'dd/MM/yyyy') : '—'}"></td>
                     <td th:text="${c.hora != null ? #temporals.format(c.hora, 'HH:mm') : '—'}"></td>
                     <td th:text="${doctoresMap != null and doctoresMap[c.doctorId] != null ? doctoresMap[c.doctorId] : c.doctorId}"></td>
@@ -61,6 +61,7 @@
         </div>
 
         <p th:if="${citas.isEmpty()}" class="empty-note">No hay citas registradas.</p>
+        <nav th:replace="~{fragments/layout :: paginationQ(${citas}, '/citas', ${queryCitas}, 'page')}"></nav>
     </div>
 </main>
 
