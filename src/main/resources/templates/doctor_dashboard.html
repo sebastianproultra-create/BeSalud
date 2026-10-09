@@ -602,7 +602,7 @@ document.addEventListener('DOMContentLoaded', function() {
             if (currentPage > 1) {
                 const prev = document.createElement('button');
                 prev.type = 'button';
-                prev.className = 'btn btn-link';
+                prev.className = 'pagination-step';
                 prev.textContent = 'Anterior';
                 prev.onclick = () => showPage(currentPage - 1);
                 paginationContainer.appendChild(prev);
@@ -612,8 +612,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (i === 1 || i === totalPages || (i >= currentPage - 1 && i <= currentPage + 1)) {
                     const btn = document.createElement('button');
                     btn.type = 'button';
-                    btn.className = i === currentPage ? 'btn btn-accent' : 'btn btn-link';
-                    btn.style.margin = '0 4px';
+                    btn.className = 'pagination-page' + (i === currentPage ? ' is-current' : '');
                     btn.textContent = i;
                     btn.onclick = () => showPage(i);
                     paginationContainer.appendChild(btn);
@@ -629,7 +628,7 @@ document.addEventListener('DOMContentLoaded', function() {
             if (currentPage < totalPages) {
                 const next = document.createElement('button');
                 next.type = 'button';
-                next.className = 'btn btn-link';
+                next.className = 'pagination-step';
                 next.textContent = 'Siguiente';
                 next.onclick = () => showPage(currentPage + 1);
                 paginationContainer.appendChild(next);

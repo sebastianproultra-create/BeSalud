@@ -1004,7 +1004,11 @@ form.toolbar { margin-bottom: 28px; }
     padding: 12px 0;
 }
 
-.pagination a {
+.pagination a,
+.pagination button {
+    background: none;
+    cursor: pointer;
+    font-family: inherit;
     min-width: 44px;
     min-height: 44px;
     padding: 0 14px;

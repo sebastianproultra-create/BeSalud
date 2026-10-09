@@ -521,6 +521,8 @@ footer {
     letter-spacing: 0.08em;
     color: rgba(255, 255, 255, 0.42);
 }
+.footer-copy a { color: var(--accent-light); text-decoration: underline; }
+.footer-copy a:hover { color: var(--white); }
 
 /* ─── ANIMATIONS ─── */
 @keyframes fadeUp {
