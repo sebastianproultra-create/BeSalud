@@ -1,6 +1,5 @@
 package com.gestion.proyectos.servicio;
 
-import com.gestion.proyectos.util.Especialidades;
 import com.gestion.proyectos.util.ValidacionUtil;
 import com.gestion.proyectos.modelo.Cita;
 import com.gestion.proyectos.modelo.CitaEvento;
@@ -208,83 +207,33 @@ public class DoctorService {
 
     // ── Registro de doctores por el administrador ────────────────────────────
 
-    /**
-     * Valida y registra un doctor creado desde el panel de administración.
-     * Reutiliza las reglas del registro público ({@link RegistroService}) y añade
-     * reglas de formato, longitudes y contraseña. La contraseña se guarda con
-     * BCrypt y el correo en minúsculas, igual que en el registro público.
-     *
-     * @return null si el doctor quedó registrado, o el mensaje de error para
-     *         mostrar al admin.
-     */
+    /** Alta de doctor desde el panel admin: mismas reglas que el registro público más contraseña y biografía. */
     public String registrarPorAdmin(UserRegistrationDTO dto) {
         if (dto == null)
             return "Faltan los datos del doctor";
 
-        // Estos campos nunca deben venir del formulario del admin
         dto.setRole("DOCTOR");
         dto.setFotoFile(null);
         dto.setFotoUrl(null);
+        if (dto.getBiografia() != null) {
+            String bio = dto.getBiografia().trim();
+            dto.setBiografia(bio.isEmpty() ? null : bio);
+        }
 
-        normalizar(dto);
-
-        // Reglas locales primero; registroService.validar() deja la consulta DNS del
-        // correo al final.
-        String error = validarReglasAdmin(dto);
+        String error = registroService.validar(dto);
         if (error == null)
-            error = registroService.validar(dto);
+            error = ValidacionUtil.errorClave(dto.getPassword());
+        if (error == null && dto.getBiografia() != null && dto.getBiografia().length() > 500)
+            error = "La biografía no puede superar los 500 caracteres";
         if (error == null)
             error = registroService.verificarDuplicado(dto);
+        if (error == null)
+            error = registroService.validarEmail(dto.getEmail());
         if (error == null)
             error = registroService.registrar(dto);
         if (error == null)
             log.info("Doctor registrado por el admin: {}", dto.getEmail());
         return error;
-    }
-
-    private static void normalizar(UserRegistrationDTO d) {
-        d.setNombre(ValidacionUtil.limpiarEspacios(d.getNombre()));
-        d.setApellido(ValidacionUtil.limpiarEspacios(d.getApellido()));
-        d.setEspecialidad(ValidacionUtil.limpiarEspacios(d.getEspecialidad()));
-        if (d.getTelefono() != null)
-            d.setTelefono(d.getTelefono().replaceAll("\\s+", ""));
-        if (d.getIdentificacion() != null)
-            d.setIdentificacion(d.getIdentificacion().replaceAll("\\s+", ""));
-        if (d.getEmail() != null)
-            d.setEmail(d.getEmail().trim().toLowerCase());
-        if (d.getBiografia() != null) {
-            String bio = d.getBiografia().trim();
-            d.setBiografia(bio.isEmpty() ? null : bio);
-        }
-    }
-
-    private String validarReglasAdmin(UserRegistrationDTO d) {
-        String error = ValidacionUtil.errorNombre(d.getNombre(), "nombre");
-        if (error == null)
-            error = ValidacionUtil.errorNombre(d.getApellido(), "apellido");
-        if (error != null)
-            return error;
-
-        if (!ValidacionUtil.identificacionValida(d.getIdentificacion()))
-            return ValidacionUtil.ERROR_IDENTIFICACION;
-        if (!ValidacionUtil.telefonoValido(d.getTelefono()))
-            return ValidacionUtil.ERROR_TELEFONO;
-
-        error = ValidacionUtil.errorEmail(d.getEmail());
-        if (error != null)
-            return error;
-
-        error = ValidacionUtil.errorClave(d.getPassword());
-        if (error != null)
-            return error;
-
-        if (!Especialidades.esValida(d.getEspecialidad()))
-            return "Seleccione una especialidad válida de la lista";
-
-        if (d.getBiografia() != null && d.getBiografia().length() > 500)
-            return "La biografía no puede superar los 500 caracteres";
-
-        return null;
     }
 
     public boolean emailDuplicado(String email) {

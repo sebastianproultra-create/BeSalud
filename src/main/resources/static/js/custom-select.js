@@ -69,9 +69,11 @@
             opciones().forEach(function (o) { o.classList.remove('is-active'); });
             if (!opt) return;
             opt.classList.add('is-active');
-            // Mantiene la opción a la vista dentro del área desplazable
+            // El encabezado de grupo es sticky: sin restar su alto, la opción queda tapada debajo
+            var cab = optionsContainer.querySelector('.custom-select-group');
+            var alto = cab ? cab.offsetHeight : 0;
             var top = opt.offsetTop, bottom = top + opt.offsetHeight;
-            if (top < optionsContainer.scrollTop) optionsContainer.scrollTop = top;
+            if (top - alto < optionsContainer.scrollTop) optionsContainer.scrollTop = Math.max(0, top - alto);
             else if (bottom > optionsContainer.scrollTop + optionsContainer.clientHeight)
                 optionsContainer.scrollTop = bottom - optionsContainer.clientHeight;
         }

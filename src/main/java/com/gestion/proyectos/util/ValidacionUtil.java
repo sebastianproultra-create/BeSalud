@@ -24,9 +24,7 @@ public final class ValidacionUtil {
         return s != null && s.trim().matches("^\\d{6,10}$");
     }
 
-    /**
-     * Regla única de contraseña. Retorna el mensaje de error o null si es válida.
-     */
+    /** Regla única de contraseña. Retorna el mensaje de error o null si es válida. */
     public static String errorClave(String p) {
         if (esVacio(p))
             return "La contraseña es obligatoria";
@@ -39,21 +37,15 @@ public final class ValidacionUtil {
         return null;
     }
 
-    /**
-     * Escapa el texto para usarlo como literal dentro de un $regex de MongoDB ("("
-     * no rompe la consulta).
-     */
+    /** Escapa el texto para usarlo como literal dentro de un $regex de MongoDB ("(" no rompe la consulta). */
     public static String literalRegex(String s) {
         return s == null ? "" : s.replaceAll("[\\\\^$.|?*+()\\[\\]{}]", "\\\\$0");
     }
 
     // ── Nombres y correos ────────────────────────────────────────────────────
 
-    /**
-     * Letras (con tildes/ñ) separadas por UN espacio, apóstrofo o guion: "De la
-     * Cruz", "O'Brien", "Ana-María".
-     */
-    private static final Pattern NOMBRE = Pattern.compile("^\\p{L}+(?:[ '\\-]\\p{L}+)*$");
+    /** Letras (con tildes/ñ) separadas por UN espacio, apóstrofo o guion; punto tras abreviatura: "Ma. José", "O'Brien". */
+    private static final Pattern NOMBRE = Pattern.compile("^[\\p{L}\\p{M}]+\\.?(?:[ '\\-][\\p{L}\\p{M}]+\\.?)*$");
     private static final Pattern EMAIL = Pattern.compile(
             "^[A-Za-z0-9]+(?:[._%+\\-][A-Za-z0-9]+)*@"
                     + "(?:[A-Za-z0-9](?:[A-Za-z0-9\\-]{0,61}[A-Za-z0-9])?\\.)+[A-Za-z]{2,}$");
@@ -69,15 +61,13 @@ public final class ValidacionUtil {
             Map.entry("outlook.con", "outlook.com"), Map.entry("yahooo.com", "yahoo.com"),
             Map.entry("yahoo.con", "yahoo.com"));
 
-    /** Recorta y unifica espacios internos. */
+    /** Recorta, unifica espacios internos y compone tildes (NFD de algunos teclados → NFC). */
     public static String limpiarEspacios(String s) {
-        return s == null ? null : s.trim().replaceAll("\\s+", " ");
+        return s == null ? null : java.text.Normalizer.normalize(s.trim().replaceAll("\\s+", " "),
+                java.text.Normalizer.Form.NFC);
     }
 
-    /**
-     * @param campo "nombre" o "apellido" (se usa en el mensaje). Retorna el error o
-     *              null.
-     */
+    /** campo: "nombre" o "apellido" (se usa en el mensaje). Retorna el error o null. */
     public static String errorNombre(String valor, String campo) {
         if (esVacio(valor))
             return "El " + campo + " es obligatorio";
@@ -86,10 +76,7 @@ public final class ValidacionUtil {
         return null;
     }
 
-    /**
-     * Formato, longitud, dominio mal escrito y reglas de Gmail. Retorna el error o
-     * null.
-     */
+    /** Formato, longitud, dominio mal escrito y reglas de Gmail. Retorna el error o null. */
     public static String errorEmail(String valor) {
         if (esVacio(valor))
             return "El correo electrónico es obligatorio";

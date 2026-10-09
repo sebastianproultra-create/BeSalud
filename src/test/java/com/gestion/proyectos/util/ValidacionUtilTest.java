@@ -22,4 +22,13 @@ class ValidacionUtilTest {
         assertThat(p.matcher(raro).matches()).isTrue();
         assertThat(Pattern.compile(ValidacionUtil.literalRegex(".*")).matcher("cualquier cosa").find()).isFalse();
     }
+
+    @Test
+    void errorNombre_aceptaAbreviaturasYTildesDescompuestas() {
+        assertThat(ValidacionUtil.errorNombre("Ma. Fernanda", "nombre")).isNull();
+        assertThat(ValidacionUtil.errorNombre("O'Brien-Pérez", "apellido")).isNull();
+        assertThat(ValidacionUtil.errorNombre(ValidacionUtil.limpiarEspacios("José"), "nombre")).isNull();
+        assertThat(ValidacionUtil.errorNombre("Juan2", "nombre")).isNotNull();
+        assertThat(ValidacionUtil.errorNombre("Juan..", "nombre")).isNotNull();
+    }
 }

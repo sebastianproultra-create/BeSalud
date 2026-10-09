@@ -1,19 +1,8 @@
-/**
- * BeSalud – Validación en vivo de formularios (alta de doctores y pacientes desde el panel admin).
- *
- * Uso: añadir data-validar="nombre|identificacion|telefono|email|password" al <input>.
- * Las reglas son las mismas que aplica el servidor (ValidacionUtil.java): el servidor sigue siendo
- * la validación definitiva, esto solo avisa al instante.
- *
- * El mensaje se muestra bajo el campo y también se registra con setCustomValidity(), de modo que
- * el navegador bloquea el envío mientras haya errores.
- */
+// Validación en vivo (data-validar="nombre|identificacion|telefono|email|password"); espejo de ValidacionUtil.java.
 (function () {
     'use strict';
 
-    // ── Reglas (espejo de ValidacionUtil.java) ───────────────────────────────
-
-    var NOMBRE = /^\p{L}+(?:[ '\-]\p{L}+)*$/u;
+    var NOMBRE = /^[\p{L}\p{M}]+\.?(?:[ '\-][\p{L}\p{M}]+\.?)*$/u;
     var EMAIL = /^[A-Za-z0-9]+(?:[._%+\-][A-Za-z0-9]+)*@(?:[A-Za-z0-9](?:[A-Za-z0-9\-]{0,61}[A-Za-z0-9])?\.)+[A-Za-z]{2,}$/;
     var GMAIL_USUARIO = /^[a-z0-9]+(?:\.[a-z0-9]+)*$/;
     var DOMINIOS_ERRADOS = {

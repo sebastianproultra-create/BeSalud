@@ -38,12 +38,7 @@ public class RegistroService {
         this.emailDominio = emailDominio;
     }
 
-    /**
-     * Valida reglas no cubiertas por Bean Validation: formatos de patrón y campos
-     * condicionales de DOCTOR.
-     * Los campos básicos (notBlank, email, size) ya fueron validados con @Valid
-     * antes de llegar aquí.
-     */
+    /** Formatos y campos condicionales de DOCTOR; el correo se revisa aparte con validarEmail. */
     public String validar(UserRegistrationDTO user) {
         normalizar(user);
         String errorCuenta = ValidacionUtil.errorNombre(user.getNombre(), "nombre");
@@ -55,9 +50,6 @@ public class RegistroService {
             return ValidacionUtil.ERROR_TELEFONO;
         if (!ValidacionUtil.identificacionValida(user.getIdentificacion()))
             return ValidacionUtil.ERROR_IDENTIFICACION;
-        errorCuenta = ValidacionUtil.errorEmail(user.getEmail());
-        if (errorCuenta != null)
-            return errorCuenta;
         if (!"PACIENTE".equals(user.getRole()) && !"DOCTOR".equals(user.getRole()))
             return "Debe seleccionar un rol válido (Paciente o Doctor)";
         if ("DOCTOR".equals(user.getRole())) {
@@ -82,17 +74,22 @@ public class RegistroService {
             if (edad > 100)
                 return "Fecha de nacimiento fuera de rango razonable";
         }
-        // Última porque es la única que consulta la red (DNS)
-        return emailDominio.verificar(user.getEmail());
+        return null;
     }
 
     /**
-     * Espacios sobrantes en nombres, teléfono e identificación; correo en
-     * minúsculas.
+     * Correos escritos a mano (registro público y panel admin). El de Google OAuth no pasa por aquí:
+     * ya viene verificado y el usuario no puede corregirlo. Llamar al final porque consulta DNS.
      */
+    public String validarEmail(String email) {
+        String error = ValidacionUtil.errorEmail(email);
+        return error != null ? error : emailDominio.verificar(email);
+    }
+
     private static void normalizar(UserRegistrationDTO u) {
         u.setNombre(ValidacionUtil.limpiarEspacios(u.getNombre()));
         u.setApellido(ValidacionUtil.limpiarEspacios(u.getApellido()));
+        u.setEspecialidad(ValidacionUtil.limpiarEspacios(u.getEspecialidad()));
         if (u.getTelefono() != null)
             u.setTelefono(u.getTelefono().replaceAll("\\s+", ""));
         if (u.getIdentificacion() != null)

@@ -11,33 +11,27 @@ import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.InitialDirContext;
 import java.util.Hashtable;
-import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
-/**
- * Comprueba que el dominio del correo exista en DNS (registro MX, A o AAAA).
- * Solo rechaza cuando el DNS responde que el dominio NO existe; si el DNS falla
- * o tarda (sin red, timeout) deja pasar el correo para no bloquear registros.
- * Se puede apagar con app.validacion.email-dns=false.
- */
+// Rechaza solo si el DNS confirma que el dominio no existe; ante fallos de red deja pasar. Apagable con app.validacion.email-dns=false.
 @Component
 public class EmailDominioValidator {
 
     private static final Logger log = LoggerFactory.getLogger(EmailDominioValidator.class);
 
     private static final String DOMINIO_CONTROL = "google.com";
+    private static final int MAX_CACHE = 1000;
 
     private final boolean habilitado;
-    private final Map<String, Boolean> cache = new ConcurrentHashMap<>();
+    // Solo dominios existentes: un negativo cacheado bloquearía para siempre un dominio recién creado o un NXDOMAIN pasajero.
+    private final Set<String> existentes = ConcurrentHashMap.newKeySet();
 
     public EmailDominioValidator(@Value("${app.validacion.email-dns:true}") boolean habilitado) {
         this.habilitado = habilitado;
     }
 
-    /**
-     * @return null si el dominio es válido (o no se pudo comprobar), o el mensaje
-     *         de error.
-     */
+    /** null si el dominio es válido (o no se pudo comprobar), o el mensaje de error. */
     public String verificar(String email) {
         if (!habilitado || email == null)
             return null;
@@ -45,25 +39,22 @@ public class EmailDominioValidator {
         if (arroba < 0 || arroba == email.length() - 1)
             return null;
         String dominio = email.substring(arroba + 1).toLowerCase();
+        if (existentes.contains(dominio))
+            return null;
 
-        Boolean existe = cache.get(dominio);
-        if (existe == null) {
-            existe = consultar(dominio);
-            if (existe != null)
-                cache.put(dominio, existe); // solo se cachean respuestas definitivas
+        Boolean existe = consultar(dominio);
+        if (Boolean.TRUE.equals(existe)) {
+            if (existentes.size() >= MAX_CACHE)
+                existentes.clear();
+            existentes.add(dominio);
         }
-        if (existe == null || existe)
+        if (!Boolean.FALSE.equals(existe))
             return null;
         return "El dominio del correo (" + dominio + ") no existe o no puede recibir correos";
     }
 
-    /**
-     * true = existe, false = no existe, null = no se pudo determinar.
-     * Si el DNS dice "no existe", se confirma con un dominio que seguro existe: si
-     * ese tampoco
-     * resuelve, el DNS de este servidor no es confiable (red filtrada) y no se
-     * rechaza el correo.
-     */
+    // true = existe, false = no existe, null = indeterminado. Un "no existe" se contrasta con google.com:
+    // si ese tampoco resuelve, el DNS del servidor no es confiable y no se rechaza el correo.
     protected Boolean consultar(String dominio) {
         Boolean existe = resolver(dominio);
         if (Boolean.FALSE.equals(existe) && !Boolean.TRUE.equals(resolver(DOMINIO_CONTROL))) {
@@ -73,10 +64,7 @@ public class EmailDominioValidator {
         return existe;
     }
 
-    /**
-     * Consulta cruda: true = tiene registros, false = NXDOMAIN o sin registros,
-     * null = error de red.
-     */
+    /** true = tiene registros, false = NXDOMAIN o sin registros, null = error de red. */
     protected Boolean resolver(String dominio) {
         Hashtable<String, String> env = new Hashtable<>();
         env.put("java.naming.factory.initial", "com.sun.jndi.dns.DnsContextFactory");

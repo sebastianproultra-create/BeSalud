@@ -3,6 +3,7 @@ package com.gestion.proyectos.servicio;
 import com.gestion.proyectos.modelo.Cita;
 import com.gestion.proyectos.modelo.Doctor;
 import com.gestion.proyectos.modelo.Paciente;
+import com.gestion.proyectos.repositorio.AdminRepositorio;
 import com.gestion.proyectos.repositorio.CitaRepositorio;
 import com.gestion.proyectos.repositorio.PersonaRepositorio;
 import com.gestion.proyectos.util.EmailDominioValidator;
@@ -31,14 +32,15 @@ public class PacienteService {
 
     private final PersonaRepositorio personaRepo;
     private final CitaRepositorio citaRepo;
-
+    private final AdminRepositorio adminRepo;
     private final PasswordEncoder passwordEncoder;
     private final EmailDominioValidator emailDominio;
 
-    public PacienteService(PersonaRepositorio personaRepo, CitaRepositorio citaRepo,
+    public PacienteService(PersonaRepositorio personaRepo, CitaRepositorio citaRepo, AdminRepositorio adminRepo,
             PasswordEncoder passwordEncoder, EmailDominioValidator emailDominio) {
         this.personaRepo = personaRepo;
         this.citaRepo = citaRepo;
+        this.adminRepo = adminRepo;
         this.passwordEncoder = passwordEncoder;
         this.emailDominio = emailDominio;
     }
@@ -58,7 +60,6 @@ public class PacienteService {
 
     /** null = OK, mensaje de error si falla validación o duplicado */
     public String validarYGuardar(Paciente paciente) {
-        // Espacios sobrantes y correo en minúsculas antes de validar
         paciente.setNombre(ValidacionUtil.limpiarEspacios(paciente.getNombre()));
         paciente.setApellido(ValidacionUtil.limpiarEspacios(paciente.getApellido()));
         if (paciente.getTelefono() != null)
@@ -84,12 +85,12 @@ public class PacienteService {
         String errorClave = ValidacionUtil.errorClave(clave);
         if (errorClave != null)
             return errorClave;
-        var conflicto = personaRepo.findPacienteByEmail(paciente.getEmail());
-        if (conflicto.isPresent() && !conflicto.get().getId().equals(paciente.getId()))
-            return "Ya existe un paciente registrado con ese correo";
+        var conflicto = personaRepo.findByEmail(paciente.getEmail());
+        if ((conflicto.isPresent() && !conflicto.get().getId().equals(paciente.getId()))
+                || adminRepo.findByEmail(paciente.getEmail()).isPresent())
+            return "Ya existe un usuario registrado con ese correo";
         if (personaRepo.findByIdentificacion(paciente.getIdentificacion()).isPresent())
             return "Ya existe un usuario registrado con esa identificación";
-        // Última porque es la única que consulta la red (DNS)
         error = emailDominio.verificar(paciente.getEmail());
         if (error != null)
             return error;

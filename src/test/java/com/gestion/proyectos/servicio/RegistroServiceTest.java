@@ -95,6 +95,13 @@ class RegistroServiceTest {
     }
 
     @Test
+    void validar_noRevisaFormatoDelCorreo_porqueGoogleOAuthLoTraeVerificado() {
+        dto.setEmail("12345@empresa.co");
+        assertThat(service.validar(dto)).isNull();
+        assertThat(service.validarEmail(dto.getEmail())).contains("solo por números");
+    }
+
+    @Test
     void verificarDuplicado_emailExisteEnAdmin_retornaError() {
         when(adminRepo.findByEmail(anyString())).thenReturn(Optional.of(new com.gestion.proyectos.modelo.Admin()));
         assertThat(service.verificarDuplicado(dto)).contains("correo");

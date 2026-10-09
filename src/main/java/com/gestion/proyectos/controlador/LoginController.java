@@ -141,6 +141,8 @@ public class LoginController {
         }
 
         error = registroService.verificarDuplicado(user);
+        if (error == null)
+            error = registroService.validarEmail(user.getEmail());
         if (error != null) {
             model.addAttribute("user", user);
             model.addAttribute(ATTR_ERROR, error);

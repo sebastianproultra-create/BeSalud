@@ -593,7 +593,7 @@ footer a:hover {
     border: 1px solid var(--border-mid);
     border-radius: 3px;
     box-shadow: 0 8px 24px rgba(13, 59, 46, 0.12);
-     max-height: 260px;
+    max-height: 260px;
     overflow-y: scroll;
     overscroll-behavior: contain;
     z-index: 100;
@@ -1168,8 +1168,6 @@ form.card-form { padding: 0; border: none; box-shadow: none; margin: 0; backgrou
 }
 .field-hint:empty { display: none; }
 .field-hint.error { color: #c53030; }
-.field-hint.ok { color: #2f855a; }
-.field-hint.aviso { color: #b7791f; }
 
 input.input-error,
 input.input-error:focus,
