@@ -1,6 +1,7 @@
 package com.gestion.proyectos.servicio;
 
 import com.gestion.proyectos.modelo.Cita;
+import com.gestion.proyectos.modelo.CitaEvento;
 import com.gestion.proyectos.modelo.Doctor;
 import com.gestion.proyectos.modelo.EstadoCita;
 import com.gestion.proyectos.modelo.HorarioAtencion;
@@ -11,6 +12,7 @@ import com.gestion.proyectos.repositorio.PersonaRepositorio;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -31,12 +33,14 @@ public class CitaService {
     private final CitaRepositorio citaRepo;
     private final PersonaRepositorio personaRepo;
     private final HorarioAtencionRepositorio horarioRepo;
+    private final ApplicationEventPublisher eventos;
 
     public CitaService(CitaRepositorio citaRepo, PersonaRepositorio personaRepo,
-                       HorarioAtencionRepositorio horarioRepo) {
+                       HorarioAtencionRepositorio horarioRepo, ApplicationEventPublisher eventos) {
         this.citaRepo = citaRepo;
         this.personaRepo = personaRepo;
         this.horarioRepo = horarioRepo;
+        this.eventos = eventos;
     }
 
     public List<Cita> listarPorRol(String role, String email, String pacienteId, String doctorId) {
@@ -89,6 +93,7 @@ public class CitaService {
         cita.setMotivo(motivo.trim());
         Cita guardada = citaRepo.save(cita);
         log.info("Cita creada: id={} doctor={} paciente={} fecha={} hora={}", guardada.getId(), doctorId, pacienteId, fecha, hora);
+        eventos.publishEvent(new CitaEvento(CitaEvento.Tipo.CREADA, guardada.getId()));
         return guardada;
     }
 
@@ -98,8 +103,10 @@ public class CitaService {
         }
         cita.setFecha(fecha);
         cita.setHora(hora);
+        cita.setRecordatorioEnviado(false);
         citaRepo.save(cita);
         log.info("Cita reprogramada: id={} nueva fecha={} hora={}", cita.getId(), fecha, hora);
+        eventos.publishEvent(new CitaEvento(CitaEvento.Tipo.REPROGRAMADA, cita.getId()));
     }
 
     public void cancelar(Cita cita) {
@@ -110,6 +117,7 @@ public class CitaService {
         cita.setEstado(EstadoCita.CANCELADA);
         citaRepo.save(cita);
         log.info("Cita cancelada: id={}", cita.getId());
+        eventos.publishEvent(new CitaEvento(CitaEvento.Tipo.CANCELADA, cita.getId()));
     }
 
     public Optional<Cita> buscarPorId(String id) {

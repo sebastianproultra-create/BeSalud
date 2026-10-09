@@ -22,6 +22,7 @@ public class Cita {
 
     private EstadoCita estado = EstadoCita.PENDIENTE;
     private Dictamen dictamen;
+    private boolean recordatorioEnviado;
 
     public String getId() {
         return id;
@@ -85,6 +86,14 @@ public class Cita {
 
     public void setDictamen(Dictamen dictamen) {
         this.dictamen = dictamen;
+    }
+
+    public boolean isRecordatorioEnviado() {
+        return recordatorioEnviado;
+    }
+
+    public void setRecordatorioEnviado(boolean recordatorioEnviado) {
+        this.recordatorioEnviado = recordatorioEnviado;
     }
 
 }
