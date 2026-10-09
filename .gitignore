@@ -8,3 +8,4 @@ target/
 .claude/
 mvn_output.log
 targetapp-run.log
+.railway-credenciales.txt
