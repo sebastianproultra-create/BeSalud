@@ -1,5 +1,6 @@
 package com.gestion.proyectos.servicio;
 
+import com.gestion.proyectos.util.ValidacionUtil;
 import com.gestion.proyectos.modelo.Admin;
 import com.gestion.proyectos.modelo.Doctor;
 import com.gestion.proyectos.modelo.Paciente;
@@ -41,11 +42,11 @@ public class AdminService {
         boolean hasEspecialidad = especialidad != null && !especialidad.isBlank();
 
         if (hasSearch && hasEspecialidad) {
-            return personaRepo.searchDoctoresCombinado(search.trim(), especialidad.trim(), pageable);
+            return personaRepo.searchDoctoresCombinado(ValidacionUtil.literalRegex(search.trim()), ValidacionUtil.literalRegex(especialidad.trim()), pageable);
         } else if (hasSearch) {
-            return personaRepo.searchDoctoresByNombreApellidoEmail(search.trim(), pageable);
+            return personaRepo.searchDoctoresByNombreApellidoEmail(ValidacionUtil.literalRegex(search.trim()), pageable);
         } else if (hasEspecialidad) {
-            return personaRepo.findDoctoresByEspecialidadContainingIgnoreCase(especialidad.trim(), pageable);
+            return personaRepo.findDoctoresByEspecialidadContainingIgnoreCase(ValidacionUtil.literalRegex(especialidad.trim()), pageable);
         } else {
             return personaRepo.findAllDoctores(pageable);
         }

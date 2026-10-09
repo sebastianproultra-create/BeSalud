@@ -2,7 +2,9 @@ package com.gestion.proyectos.servicio;
 
 import static com.gestion.proyectos.util.ValidacionUtil.esVacio;
 
+import com.gestion.proyectos.util.ValidacionUtil;
 import com.gestion.proyectos.modelo.Cita;
+import com.gestion.proyectos.modelo.CitaEvento;
 import com.gestion.proyectos.modelo.Dictamen;
 import com.gestion.proyectos.modelo.Doctor;
 import com.gestion.proyectos.modelo.EstadoCita;
@@ -19,6 +21,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -44,13 +47,15 @@ public class DoctorService {
     private final HorarioAtencionRepositorio horarioRepo;
     private final CitaRepositorio citaRepo;
     private final RegistroService registroService;
+    private final ApplicationEventPublisher eventos;
 
     public DoctorService(PersonaRepositorio personaRepo, HorarioAtencionRepositorio horarioRepo,
-            CitaRepositorio citaRepo, RegistroService registroService) {
+            CitaRepositorio citaRepo, RegistroService registroService, ApplicationEventPublisher eventos) {
         this.personaRepo = personaRepo;
         this.horarioRepo = horarioRepo;
         this.citaRepo = citaRepo;
         this.registroService = registroService;
+        this.eventos = eventos;
     }
 
     // ── Consultas ────────────────────────────────────────────────────────────
@@ -69,11 +74,11 @@ public class DoctorService {
         boolean hasEspecialidad = especialidad != null && !especialidad.isBlank();
 
         if (hasSearch && hasEspecialidad) {
-            return personaRepo.searchDoctoresCombinado(search.trim(), especialidad.trim(), pageable);
+            return personaRepo.searchDoctoresCombinado(ValidacionUtil.literalRegex(search.trim()), ValidacionUtil.literalRegex(especialidad.trim()), pageable);
         } else if (hasSearch) {
-            return personaRepo.searchDoctoresByNombreApellidoEmail(search.trim(), pageable);
+            return personaRepo.searchDoctoresByNombreApellidoEmail(ValidacionUtil.literalRegex(search.trim()), pageable);
         } else if (hasEspecialidad) {
-            return personaRepo.findDoctoresByEspecialidadContainingIgnoreCase(especialidad.trim(), pageable);
+            return personaRepo.findDoctoresByEspecialidadContainingIgnoreCase(ValidacionUtil.literalRegex(especialidad.trim()), pageable);
         } else {
             return personaRepo.findAllDoctores(pageable);
         }
@@ -438,6 +443,7 @@ public class DoctorService {
         cita.setEstado(EstadoCita.CANCELADA);
         citaRepo.save(cita);
         log.info("Cita {} CANCELADA por doctor {}", citaId, doctorId);
+        eventos.publishEvent(new CitaEvento(CitaEvento.Tipo.CANCELADA, citaId));
     }
 
     public void guardarDictamen(String citaId, String doctorId,

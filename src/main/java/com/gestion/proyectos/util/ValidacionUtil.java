@@ -8,4 +8,9 @@ public final class ValidacionUtil {
     public static boolean esVacio(String s) {
         return s == null || s.isBlank();
     }
+
+    /** Escapa el texto para usarlo como literal dentro de un $regex de MongoDB ("(" no rompe la consulta). */
+    public static String literalRegex(String s) {
+        return s == null ? "" : s.replaceAll("[\\\\^$.|?*+()\\[\\]{}]", "\\\\$0");
+    }
 }

@@ -1,6 +1,7 @@
 package com.gestion.proyectos.controlador;
 
 import com.gestion.proyectos.servicio.AdminService;
+import com.gestion.proyectos.servicio.EstadisticasService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -14,9 +15,11 @@ import org.springframework.web.bind.annotation.RequestParam;
 public class AdminController {
 
     private final AdminService adminService;
+    private final EstadisticasService estadisticasService;
 
-    public AdminController(AdminService adminService) {
+    public AdminController(AdminService adminService, EstadisticasService estadisticasService) {
         this.adminService = adminService;
+        this.estadisticasService = estadisticasService;
     }
 
     @GetMapping
@@ -37,6 +40,12 @@ public class AdminController {
         model.addAttribute("search", search == null ? "" : search);
         model.addAttribute("especialidad", especialidad == null ? "" : especialidad);
         return "admin_dashboard";
+    }
+
+    @GetMapping("/estadisticas")
+    public String estadisticas(Model model) {
+        model.addAttribute("est", estadisticasService.calcular());
+        return "estadisticas";
     }
 
     @PostMapping("/doctores/{id}/activar")

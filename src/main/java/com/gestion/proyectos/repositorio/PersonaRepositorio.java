@@ -55,4 +55,22 @@ public interface PersonaRepositorio extends MongoRepository<Persona, String> {
             "  { 'especialidad': { $regex: ?1, $options: 'i' } } " +
             "] }")
     Page<Doctor> searchDoctoresCombinado(String search, String especialidad, Pageable pageable);
+
+    // Catálogo del paciente: solo doctores aprobados por el admin.
+
+    @Query("{ 'role': 'DOCTOR', 'estado': 'ACTIVO' }")
+    Page<Doctor> findDoctoresActivos(Pageable pageable);
+
+    @Query("{ 'especialidad': { $regex: ?0, $options: 'i' }, 'role': 'DOCTOR', 'estado': 'ACTIVO' }")
+    Page<Doctor> findDoctoresActivosByEspecialidad(String especialidad, Pageable pageable);
+
+    @Query("{ $or: [ { 'nombre': { $regex: ?0, $options: 'i' } }, { 'apellido': { $regex: ?0, $options: 'i' } }, { 'email': { $regex: ?0, $options: 'i' } } ], 'role': 'DOCTOR', 'estado': 'ACTIVO' }")
+    Page<Doctor> searchDoctoresActivosByNombreApellidoEmail(String q, Pageable pageable);
+
+    @Query("{ 'nombre': { $regex: ?0, $options: 'i' }, 'apellido': { $regex: ?1, $options: 'i' }, 'role': 'DOCTOR', 'estado': 'ACTIVO' }")
+    Page<Doctor> searchDoctoresActivosByNombreYApellido(String nombre, String apellido, Pageable pageable);
+
+    @Query("{ $or: [ { 'nombre': { $regex: ?0, $options: 'i' } }, { 'apellido': { $regex: ?0, $options: 'i' } }, { 'email': { $regex: ?0, $options: 'i' } } ], " +
+            "'especialidad': { $regex: ?1, $options: 'i' }, 'role': 'DOCTOR', 'estado': 'ACTIVO' }")
+    Page<Doctor> searchDoctoresActivosCombinado(String search, String especialidad, Pageable pageable);
 }

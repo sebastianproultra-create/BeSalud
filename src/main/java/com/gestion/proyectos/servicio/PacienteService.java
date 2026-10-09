@@ -6,6 +6,8 @@ import com.gestion.proyectos.modelo.Paciente;
 import com.gestion.proyectos.repositorio.CitaRepositorio;
 import com.gestion.proyectos.repositorio.PersonaRepositorio;
 
+import static com.gestion.proyectos.util.ValidacionUtil.literalRegex;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
@@ -62,22 +64,24 @@ public class PacienteService {
         boolean hasSearch = search != null && !search.isBlank();
         boolean hasEspecialidad = especialidad != null && !especialidad.isBlank();
         if (hasSearch && hasEspecialidad)
-            return personaRepo.searchDoctoresCombinado(search.trim(), especialidad.trim(), pageable);
+            return personaRepo.searchDoctoresActivosCombinado(literalRegex(search.trim()),
+                    literalRegex(especialidad.trim()), pageable);
         if (hasSearch) {
             String limpio = search.trim().replaceAll("(?i)^(dra?\\.?)\\s+", "").trim();
             if (limpio.isEmpty()) limpio = search.trim();
             String[] partes = limpio.split("\\s+");
             if (partes.length >= 2)
-                return personaRepo.searchDoctoresByNombreYApellido(partes[0], partes[1], pageable);
-            return personaRepo.searchDoctoresByNombreApellidoEmail(limpio, pageable);
+                return personaRepo.searchDoctoresActivosByNombreYApellido(literalRegex(partes[0]),
+                        literalRegex(partes[1]), pageable);
+            return personaRepo.searchDoctoresActivosByNombreApellidoEmail(literalRegex(limpio), pageable);
         }
         if (hasEspecialidad)
-            return personaRepo.findDoctoresByEspecialidadContainingIgnoreCase(especialidad.trim(), pageable);
-        return personaRepo.findAllDoctores(pageable);
+            return personaRepo.findDoctoresActivosByEspecialidad(literalRegex(especialidad.trim()), pageable);
+        return personaRepo.findDoctoresActivos(pageable);
     }
 
     public List<String> especialidadesDisponibles() {
-        return personaRepo.findAllDoctores().stream()
+        return personaRepo.findDoctoresActivos().stream()
                 .map(Doctor::getEspecialidad)
                 .filter(e -> e != null)
                 .distinct()

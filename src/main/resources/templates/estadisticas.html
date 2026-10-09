@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Estadísticas - BeSalud</title>
+    <link rel="stylesheet" th:href="@{/css/global.css}">
+    <link rel="stylesheet" th:href="@{/css/estadisticas.css}">
+</head>
+<body>
+<header th:replace="~{fragments/layout :: shell-admin('estadisticas')}"></header>
+
+<main class="container">
+    <section class="page-header" aria-labelledby="page-title">
+        <div>
+            <p class="page-eyebrow">Panel de administración</p>
+            <h1 id="page-title" class="page-title">Estadísticas</h1>
+            <p class="page-subtitle">Actividad de las citas, demanda por especialidad y ocupación de la próxima semana.</p>
+        </div>
+    </section>
+
+    <!-- Cifras clave -->
+    <section class="kpis" aria-label="Cifras clave">
+        <div class="kpi">
+            <span class="kpi-etiqueta">Citas registradas</span>
+            <span class="kpi-valor" th:text="${est.totalCitas}">0</span>
+        </div>
+        <div class="kpi">
+            <span class="kpi-etiqueta">Próximos 7 días</span>
+            <span class="kpi-valor" th:text="${est.proximasSemana}">0</span>
+            <span class="kpi-nota">citas pendientes</span>
+        </div>
+        <div class="kpi">
+            <span class="kpi-etiqueta">Asistencia</span>
+            <span class="kpi-valor"><span th:text="${est.tasaAsistencia}">0</span><small>%</small></span>
+            <span class="kpi-nota">de las citas ya ocurridas</span>
+        </div>
+        <div class="kpi">
+            <span class="kpi-etiqueta">Cancelaciones</span>
+            <span class="kpi-valor"><span th:text="${est.tasaCancelacion}">0</span><small>%</small></span>
+            <span class="kpi-nota">del total de citas</span>
+        </div>
+        <div class="kpi">
+            <span class="kpi-etiqueta">Doctores activos</span>
+            <span class="kpi-valor" th:text="${est.doctoresActivos}">0</span>
+            <a th:if="${est.doctoresPendientes > 0}" th:href="@{/admin}" class="kpi-nota kpi-enlace"
+               th:text="${est.doctoresPendientes + ' pendientes de aprobación'}"></a>
+        </div>
+        <div class="kpi">
+            <span class="kpi-etiqueta">Pacientes</span>
+            <span class="kpi-valor" th:text="${est.pacientes}">0</span>
+        </div>
+    </section>
+
+    <section class="card grafica grafica-ancha">
+        <div class="grafica-cabecera">
+            <h2>Citas por día</h2>
+            <p>Últimos 30 días y próximas 2 semanas · sin canceladas</p>
+        </div>
+        <div class="grafica-lienzo grafica-lienzo-bajo"><canvas id="gPorDia" role="img" aria-label="Citas por día"></canvas></div>
+        <details class="grafica-tabla"><summary>Ver como tabla</summary>
+            <table><thead><tr><th>Día</th><th>Citas</th></tr></thead>
+                <tbody><tr th:each="d : ${est.porDia}"><td th:text="${d.etiqueta}"></td><td th:text="${d.valor}"></td></tr></tbody>
+            </table>
+        </details>
+    </section>
+
+    <div class="graficas-fila">
+        <section class="card grafica">
+            <div class="grafica-cabecera">
+                <h2>Demanda por especialidad</h2>
+                <p>Citas no canceladas</p>
+            </div>
+            <div class="grafica-lienzo" th:style="${'height:' + (40 + #lists.size(est.porEspecialidad) * 26) + 'px'}">
+                <canvas id="gEspecialidad" role="img" aria-label="Citas por especialidad"></canvas>
+            </div>
+            <details class="grafica-tabla"><summary>Ver como tabla</summary>
+                <table><thead><tr><th>Especialidad</th><th>Citas</th></tr></thead>
+                    <tbody><tr th:each="d : ${est.porEspecialidad}"><td th:text="${d.etiqueta}"></td><td th:text="${d.valor}"></td></tr></tbody>
+                </table>
+            </details>
+        </section>
+
+        <div class="graficas-columna">
+            <section class="card grafica">
+                <div class="grafica-cabecera">
+                    <h2>Citas por estado</h2>
+                </div>
+                <div class="grafica-lienzo" style="height: 190px"><canvas id="gEstado" role="img" aria-label="Citas por estado"></canvas></div>
+                <details class="grafica-tabla"><summary>Ver como tabla</summary>
+                    <table><thead><tr><th>Estado</th><th>Citas</th></tr></thead>
+                        <tbody><tr th:each="d : ${est.porEstado}"><td th:text="${d.etiqueta}"></td><td th:text="${d.valor}"></td></tr></tbody>
+                    </table>
+                </details>
+            </section>
+
+            <section class="card grafica">
+                <div class="grafica-cabecera">
+                    <h2>Horas más solicitadas</h2>
+                    <p>Hora de inicio de la cita</p>
+                </div>
+                <div class="grafica-lienzo" style="height: 190px"><canvas id="gHora" role="img" aria-label="Citas por hora del día"></canvas></div>
+                <details class="grafica-tabla"><summary>Ver como tabla</summary>
+                    <table><thead><tr><th>Hora</th><th>Citas</th></tr></thead>
+                        <tbody><tr th:each="d : ${est.porHora}"><td th:text="${d.etiqueta}"></td><td th:text="${d.valor}"></td></tr></tbody>
+                    </table>
+                </details>
+            </section>
+        </div>
+    </div>
+
+    <section class="card grafica">
+        <div class="grafica-cabecera">
+            <h2>Doctores con más ocupación</h2>
+            <p>Próximos 7 días: citas pendientes sobre los turnos que ofrece cada doctor</p>
+        </div>
+        <p th:if="${#lists.isEmpty(est.ocupacion)}" class="empty-note">Ningún doctor activo tiene horarios cargados.</p>
+        <table th:unless="${#lists.isEmpty(est.ocupacion)}" class="ocupacion">
+            <thead><tr><th>Doctor</th><th>Especialidad</th><th class="num">Citas / turnos</th><th>Ocupación</th></tr></thead>
+            <tbody>
+            <tr th:each="o : ${est.ocupacion}">
+                <td th:text="${o.nombre}"></td>
+                <td th:text="${o.especialidad}"></td>
+                <td class="num" th:text="${o.citas + ' / ' + o.capacidad}"></td>
+                <td>
+                    <div class="barra" role="img" th:aria-label="${o.porcentaje + '% de ocupación'}">
+                        <span class="barra-relleno" th:style="${'width:' + (o.porcentaje > 100 ? 100 : o.porcentaje) + '%'}"></span>
+                    </div>
+                    <span class="barra-valor" th:text="${o.porcentaje + '%'}"></span>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </section>
+</main>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script th:inline="javascript">
+    const est = /*[[${est}]]*/ {};
+
+    // Un solo tono de la marca: cada gráfica mide una magnitud, las etiquetas del eje dan la identidad.
+    const css = getComputedStyle(document.documentElement);
+    const COLOR = css.getPropertyValue('--secondary-color').trim() || '#1A5C45';
+    const COLOR_SUAVE = 'rgba(26, 92, 69, 0.12)';
+    const COLOR_FUTURO = 'rgba(26, 92, 69, 0.45)';
+    const TINTA = css.getPropertyValue('--text-dark').trim() || '#1C1C1A';
+    const TINTA_SUAVE = css.getPropertyValue('--text-light').trim() || '#6B6B65';
+    const REJILLA = 'rgba(13, 59, 46, 0.08)';
+
+    Chart.defaults.font.family = "'DM Sans', 'Segoe UI', sans-serif";
+    Chart.defaults.font.size = 12;
+    Chart.defaults.color = TINTA_SUAVE;
+    Chart.defaults.plugins.legend.display = false;
+    Chart.defaults.plugins.tooltip.backgroundColor = '#FDFCF9';
+    Chart.defaults.plugins.tooltip.titleColor = TINTA;
+    Chart.defaults.plugins.tooltip.bodyColor = TINTA;
+    Chart.defaults.plugins.tooltip.borderColor = 'rgba(13, 59, 46, 0.24)';
+    Chart.defaults.plugins.tooltip.borderWidth = 1;
+    Chart.defaults.plugins.tooltip.padding = 10;
+    Chart.defaults.plugins.tooltip.displayColors = false;
+    Chart.defaults.maintainAspectRatio = false;
+
+    const etiquetas = lista => lista.map(d => d.etiqueta);
+    const valores = lista => lista.map(d => d.valor);
+    const plural = n => n === 1 ? '1 cita' : `${n} citas`;
+    const ejeValor = { beginAtZero: true, ticks: { precision: 0 }, grid: { color: REJILLA }, border: { display: false } };
+    const ejeCategoria = { grid: { display: false }, border: { color: REJILLA } };
+    const barras = { borderRadius: 4, borderSkipped: 'start', maxBarThickness: 18 };
+
+    // Las etiquetas de los ejes se miden con la fuente: esperar a que cargue para no cortarlas.
+    document.fonts.ready.then(() => {
+
+    // Citas por día: línea con área suave; los días futuros más claros y una marca en "hoy".
+    const hoy = est.indiceHoy;
+    new Chart(document.getElementById('gPorDia'), {
+        type: 'line',
+        data: {
+            labels: etiquetas(est.porDia),
+            datasets: [{
+                data: valores(est.porDia),
+                borderColor: COLOR, borderWidth: 2, backgroundColor: COLOR_SUAVE, fill: true, cubicInterpolationMode: 'monotone',
+                pointRadius: 0, pointHoverRadius: 5, pointHoverBackgroundColor: COLOR,
+                pointHoverBorderColor: '#FDFCF9', pointHoverBorderWidth: 2,
+                segment: { borderColor: c => c.p0DataIndex >= hoy ? COLOR_FUTURO : COLOR, borderDash: c => c.p0DataIndex >= hoy ? [5, 4] : undefined },
+            }],
+        },
+        options: {
+            layout: { padding: { top: 16 } },
+            interaction: { mode: 'index', intersect: false },
+            scales: { y: ejeValor, x: { ...ejeCategoria, ticks: { maxRotation: 0, autoSkip: true, maxTicksLimit: 9 } } },
+            plugins: {
+                tooltip: { callbacks: {
+                    title: items => items[0].label + (items[0].dataIndex === hoy ? ' · hoy' : items[0].dataIndex > hoy ? ' · agendadas' : ''),
+                    label: item => plural(item.parsed.y),
+                } },
+            },
+        },
+        plugins: [{
+            id: 'marcaHoy',
+            afterDatasetsDraw(chart) {
+                const x = chart.scales.x.getPixelForValue(hoy), { top, bottom } = chart.chartArea, ctx = chart.ctx;
+                ctx.save();
+                ctx.strokeStyle = 'rgba(13, 59, 46, 0.35)'; ctx.lineWidth = 1; ctx.setLineDash([3, 3]);
+                ctx.beginPath(); ctx.moveTo(x, top); ctx.lineTo(x, bottom); ctx.stroke();
+                ctx.setLineDash([]); ctx.fillStyle = TINTA_SUAVE; ctx.font = "11px 'DM Sans', sans-serif"; ctx.textAlign = 'center';
+                ctx.fillText('hoy', x, top - 4);
+                ctx.restore();
+            },
+        }],
+    });
+
+    // Barras horizontales: especialidades y estados (ordenadas de mayor a menor).
+    const barrasHorizontales = (id, lista) => new Chart(document.getElementById(id), {
+        type: 'bar',
+        data: { labels: etiquetas(lista), datasets: [{ data: valores(lista), backgroundColor: COLOR, hoverBackgroundColor: '#0D3B2E', ...barras }] },
+        options: {
+            indexAxis: 'y',
+            scales: { x: ejeValor, y: { ...ejeCategoria, ticks: { color: TINTA, autoSkip: false,
+                // Nombres largos abreviados en el eje; el tooltip muestra el completo.
+                callback(valor) { const t = this.getLabelForValue(valor); return t.length > 18 ? t.slice(0, 17) + '…' : t; } } } },
+            plugins: { tooltip: { callbacks: { label: item => plural(item.parsed.x) } } },
+        },
+    });
+    barrasHorizontales('gEspecialidad', est.porEspecialidad);
+    barrasHorizontales('gEstado', est.porEstado);
+
+    new Chart(document.getElementById('gHora'), {
+        type: 'bar',
+        data: { labels: etiquetas(est.porHora), datasets: [{ data: valores(est.porHora), backgroundColor: COLOR, hoverBackgroundColor: '#0D3B2E', ...barras }] },
+        options: {
+            scales: { y: ejeValor, x: { ...ejeCategoria, ticks: { maxRotation: 0 } } },
+            plugins: { tooltip: { callbacks: { label: item => plural(item.parsed.y) } } },
+        },
+    });
+    });
+</script>
+</body>
+</html>

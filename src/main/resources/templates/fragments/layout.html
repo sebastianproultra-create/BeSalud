@@ -16,6 +16,7 @@
         <a th:href="@{/}" class="app-brand"><span aria-hidden="true">✦ </span>BeSalud</a>
         <nav class="app-nav" aria-label="Navegación principal">
             <a sec:authorize="hasRole('ADMIN')" th:href="@{/admin}" th:classappend="${active == 'panel'} ? 'is-active'">Panel</a>
+            <a sec:authorize="hasRole('ADMIN')" th:href="@{/admin/estadisticas}" th:classappend="${active == 'estadisticas'} ? 'is-active'">Estadísticas</a>
             <a sec:authorize="hasRole('ADMIN')" th:href="@{/doctores}" th:classappend="${active == 'doctores'} ? 'is-active'">Doctores</a>
             <a sec:authorize="hasRole('ADMIN')" th:href="@{/pacientes}" th:classappend="${active == 'pacientes'} ? 'is-active'">Pacientes</a>
             <a th:href="@{/citas}" th:classappend="${active == 'citas'} ? 'is-active'">Citas</a>

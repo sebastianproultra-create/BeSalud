@@ -1,6 +1,7 @@
 package com.gestion.proyectos.servicio;
 
 import com.gestion.proyectos.modelo.Cita;
+import com.gestion.proyectos.modelo.CitaEvento;
 import com.gestion.proyectos.modelo.EstadoCita;
 import com.gestion.proyectos.modelo.HorarioAtencion;
 import com.gestion.proyectos.repositorio.CitaRepositorio;
@@ -11,6 +12,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.context.ApplicationEventPublisher;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
@@ -29,6 +31,7 @@ class CitaServiceTest {
     @Mock CitaRepositorio citaRepo;
     @Mock PersonaRepositorio personaRepo;
     @Mock HorarioAtencionRepositorio horarioRepo;
+    @Mock ApplicationEventPublisher eventos;
 
     @InjectMocks CitaService service;
 
@@ -75,6 +78,7 @@ class CitaServiceTest {
         service.cancelar(cita);
         assertThat(cita.getEstado()).isEqualTo(EstadoCita.CANCELADA);
         verify(citaRepo).save(cita);
+        verify(eventos).publishEvent(new CitaEvento(CitaEvento.Tipo.CANCELADA, cita.getId()));
     }
 
     @Test
