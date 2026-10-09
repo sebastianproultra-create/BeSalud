@@ -247,4 +247,12 @@ class VistasRenderTest {
                 .andExpect(status().is3xxRedirection())
                 .andExpect(flash().attributeExists("errorGeneral"));
     }
+
+    @Test
+    void rutaInexistenteYParametroFaltante_noSonError500() throws Exception {
+        mockMvc.perform(get("/no-existe").with(user("a@test.com").roles("ADMIN")))
+                .andExpect(status().isNotFound());
+        mockMvc.perform(get("/citas/nueva").with(user("p@test.com").roles("PACIENTE")))
+                .andExpect(status().isBadRequest());
+    }
 }
