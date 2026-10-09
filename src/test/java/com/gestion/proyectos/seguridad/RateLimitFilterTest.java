@@ -45,6 +45,12 @@ class RateLimitFilterTest {
     }
 
     @Test
+    void triage_masDe5PorMinuto_retorna429() throws Exception {
+        for (int i = 0; i < 5; i++) assertThat(enviar("POST", "/triage", "7.7.7.7")).isEqualTo(200);
+        assertThat(enviar("POST", "/triage", "7.7.7.7")).isEqualTo(429);
+    }
+
+    @Test
     void get_noSeLimita() throws Exception {
         for (int i = 0; i < 100; i++) assertThat(enviar("GET", "/register", "6.6.6.6")).isEqualTo(200);
     }

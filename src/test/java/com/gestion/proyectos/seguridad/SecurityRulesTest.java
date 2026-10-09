@@ -212,6 +212,19 @@ class SecurityRulesTest {
     }
 
     @Test
+    @WithMockUser(roles = "DOCTOR")
+    void triageConRolDoctor_esForbidden() throws Exception {
+        mockMvc.perform(get("/triage"))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    void triageSinAutenticar_redirigeALogin() throws Exception {
+        mockMvc.perform(get("/triage"))
+                .andExpect(status().is3xxRedirection());
+    }
+
+    @Test
     @WithMockUser(roles = "PACIENTE")
     void doctoresConRolPaciente_esForbidden() throws Exception {
         mockMvc.perform(get("/doctores"))

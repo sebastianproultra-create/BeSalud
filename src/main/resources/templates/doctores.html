@@ -23,6 +23,8 @@
         </div>
     </section>
 
+    <div th:if="${exitoRegistro}" class="alert alert-success" role="status" th:text="${exitoRegistro}"></div>
+
     <form th:action="@{/doctores}" method="get" class="toolbar" role="search">
         <label for="search" class="visually-hidden">Buscar por nombre o email</label>
         <input id="search" type="text" name="search" th:value="${search}" placeholder="Buscar por nombre o email"/>
@@ -66,37 +68,57 @@
         <h2 id="register-title">Registrar Doctor</h2>
         <p class="form-subtitle">Crea una nueva cuenta médica con acceso al panel de control.</p>
 
-        <form th:action="@{/doctores/guardar}" method="post" class="card-form register-form">
+        <div th:if="${errorRegistro}" class="alert alert-error" role="alert" th:text="${errorRegistro}"></div>
 
+        <form th:action="@{/doctores/guardar}" method="post" class="card-form register-form">
 
             <div class="form-grid">
                 <div class="form-field">
                     <label for="nombre">Nombre *</label>
-                    <input id="nombre" type="text" name="nombre" required autocomplete="given-name"/>
+                    <input id="nombre" type="text" name="nombre" required minlength="2" maxlength="50"
+                           autocomplete="given-name"
+                           th:value="${formDoctor != null} ? ${formDoctor['nombre']}"/>
                 </div>
                 <div class="form-field">
                     <label for="apellido">Apellido *</label>
-                    <input id="apellido" type="text" name="apellido" required autocomplete="family-name"/>
+                    <input id="apellido" type="text" name="apellido" required minlength="2" maxlength="50"
+                           autocomplete="family-name"
+                           th:value="${formDoctor != null} ? ${formDoctor['apellido']}"/>
                 </div>
                 <div class="form-field">
-                    <label for="identificacion">Identificación</label>
-                    <input id="identificacion" type="text" name="identificacion"/>
+                    <label for="identificacion">Identificación *</label>
+                    <input id="identificacion" type="text" name="identificacion" required inputmode="numeric"
+                           pattern="[0-9]{6,10}" maxlength="10" title="Entre 6 y 10 dígitos, solo números"
+                           th:value="${formDoctor != null} ? ${formDoctor['identificacion']}"/>
                 </div>
                 <div class="form-field">
-                    <label for="telefono">Teléfono</label>
-                    <input id="telefono" type="text" name="telefono" autocomplete="tel"/>
+                    <label for="telefono">Teléfono *</label>
+                    <input id="telefono" type="tel" name="telefono" required inputmode="numeric"
+                           pattern="3[0-9]{9}" maxlength="10" placeholder="3001234567"
+                           title="10 dígitos, debe empezar por 3" autocomplete="tel"
+                           th:value="${formDoctor != null} ? ${formDoctor['telefono']}"/>
                 </div>
                 <div class="form-field">
                     <label for="email">Email *</label>
-                    <input id="email" type="email" name="email" required autocomplete="email"/>
+                    <input id="email" type="email" name="email" required maxlength="100" autocomplete="email"
+                           th:value="${formDoctor != null} ? ${formDoctor['email']}"/>
                 </div>
                 <div class="form-field">
                     <label for="password">Contraseña *</label>
-                    <input id="password" type="password" name="password" required minlength="8" autocomplete="new-password"/>
+                    <input id="password" type="password" name="password" required minlength="8" maxlength="72"
+                           title="Mínimo 8 caracteres, con al menos una letra y un número"
+                           autocomplete="new-password"/>
                 </div>
-                <div class="form-field form-field--full">
+                <div class="form-field">
+                    <label for="fechaNacimiento">Fecha de nacimiento *</label>
+                    <input id="fechaNacimiento" type="date" name="fechaNacimiento" required
+                           th:value="${formDoctor != null} ? ${formDoctor['fechaNacimiento']}"/>
+                </div>
+                <div class="form-field">
                     <label for="especialidad">Especialidad *</label>
-                    <input id="especialidad" type="text" name="especialidad" required placeholder="Ej: Cardiología, Pediatría, Medicina General"/>
+                    <input id="especialidad" type="text" name="especialidad" required minlength="3" maxlength="60"
+                           placeholder="Ej: Cardiología, Pediatría, Medicina General"
+                           th:value="${formDoctor != null} ? ${formDoctor['especialidad']}"/>
                 </div>
             </div>
 
@@ -109,5 +131,19 @@
 
 <footer th:replace="~{fragments/layout :: footer}"></footer>
 <script th:src="@{/js/form-submit.js}"></script>
+<script>
+    // El doctor debe tener entre 23 y 100 años (misma regla que valida el servidor)
+    (function () {
+        var campo = document.getElementById('fechaNacimiento');
+        if (!campo) return;
+        var hoy = new Date();
+        function haceAnios(n) {
+            var d = new Date(hoy.getFullYear() - n, hoy.getMonth(), hoy.getDate());
+            return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+        }
+        campo.max = haceAnios(23);
+        campo.min = haceAnios(100);
+    })();
+</script>
 </body>
 </html>

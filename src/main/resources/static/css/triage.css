@@ -1,0 +1,175 @@
+.triage-form label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: var(--primary-color);
+}
+
+.triage-form textarea {
+    width: 100%;
+    resize: vertical;
+    min-height: 110px;
+}
+
+.triage-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    margin-top: 12px;
+}
+
+.triage-contador {
+    font-size: 0.85rem;
+    color: var(--text-light);
+}
+
+.triage-aviso {
+    margin-top: 16px;
+    font-size: 0.85rem;
+    color: var(--text-light);
+}
+
+.triage-emergencia {
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+    margin: 24px 0;
+    padding: 20px;
+    border-radius: 8px;
+    background: #FBEDED;
+    border: 1px solid var(--danger-color);
+    color: var(--danger-color);
+}
+
+.triage-emergencia > i {
+    font-size: 1.8rem;
+    margin-top: 2px;
+}
+
+.triage-emergencia p {
+    color: var(--text-dark);
+    margin: 6px 0 12px;
+}
+
+.triage-resultado {
+    margin-top: 24px;
+    border-left: 4px solid var(--accent-color);
+}
+
+.triage-resultado-cabecera {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 8px;
+}
+
+.triage-resultado-cabecera h2 {
+    margin: 0;
+    color: var(--primary-color);
+}
+
+.triage-prioridad {
+    padding: 6px 12px;
+    border-radius: 999px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.triage-prioridad-baja { background: #E4F1EA; color: var(--secondary-color); }
+.triage-prioridad-media { background: var(--accent-light); color: #6B5320; }
+.triage-prioridad-alta { background: #FBEDED; color: var(--danger-color); }
+
+.triage-resumen {
+    margin-top: 12px;
+    padding: 12px;
+    background: var(--light-bg);
+    border-radius: 6px;
+}
+
+.triage-resumen span {
+    display: block;
+    font-size: 0.8rem;
+    color: var(--text-light);
+    margin-bottom: 4px;
+}
+
+.triage-fuente {
+    margin-top: 12px;
+    font-size: 0.8rem;
+    color: var(--text-light);
+}
+
+.triage-subtitulo {
+    margin: 32px 0 12px;
+    color: var(--primary-color);
+}
+
+.triage-doctores {
+    display: grid;
+    gap: 12px;
+}
+
+.triage-doctor {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.triage-avatar {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    object-fit: cover;
+    flex-shrink: 0;
+}
+
+.triage-doctor-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.triage-doctor-info h3 {
+    margin: 0;
+    font-size: 1.05rem;
+}
+
+.triage-doctor-esp {
+    margin: 2px 0 6px;
+    color: var(--text-light);
+    font-size: 0.9rem;
+}
+
+.triage-turno {
+    margin: 0;
+    font-size: 0.9rem;
+}
+
+.triage-horas {
+    display: inline-flex;
+    gap: 6px;
+    margin-left: 6px;
+    flex-wrap: wrap;
+}
+
+.triage-hora {
+    padding: 2px 8px;
+    border-radius: 4px;
+    background: var(--light-bg);
+    border: 1px solid var(--border-color);
+    font-size: 0.8rem;
+}
+
+@media (max-width: 600px) {
+    .triage-doctor {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    .triage-doctor .btn {
+        width: 100%;
+        text-align: center;
+    }
+}

@@ -37,6 +37,9 @@ public interface PersonaRepositorio extends MongoRepository<Persona, String> {
     @Query("{ 'role': 'PACIENTE' }")
     Page<Paciente> findAllPacientes(Pageable pageable);
 
+    @Query("{ 'role': 'DOCTOR', 'estado': 'ACTIVO' }")
+    List<Doctor> findDoctoresActivos();
+
     @Query("{ 'especialidad': { $regex: ?0, $options: 'i' }, 'role': 'DOCTOR' }")
     Page<Doctor> findDoctoresByEspecialidadContainingIgnoreCase(String especialidad, Pageable pageable);
 

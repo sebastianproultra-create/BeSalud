@@ -25,6 +25,8 @@ public class RateLimitFilter extends OncePerRequestFilter {
     private static final Set<String> RUTAS_REGISTRO = Set.of("/register/save", "/elegir-rol");
     private static final int MAX_REGISTROS = 10;
     private static final Duration VENTANA_REGISTRO = Duration.ofMinutes(10);
+    private static final String RUTA_TRIAGE = "/triage";
+    private static final int MAX_TRIAGE = 5;
     private static final int MAX_POST = 60;
     private static final Duration VENTANA_POST = Duration.ofMinutes(1);
 
@@ -47,9 +49,14 @@ public class RateLimitFilter extends OncePerRequestFilter {
         String ruta = request.getServletPath();
         log.debug("POST {} remoteAddr={} xff={}", ruta, ip, request.getHeader("X-Forwarded-For"));
 
-        boolean permitido = RUTAS_REGISTRO.contains(ruta)
-                ? rateLimiter.permitir("registro:" + ip, MAX_REGISTROS, VENTANA_REGISTRO)
-                : rateLimiter.permitir("post:" + ip, MAX_POST, VENTANA_POST);
+        boolean permitido;
+        if (RUTAS_REGISTRO.contains(ruta))
+            permitido = rateLimiter.permitir("registro:" + ip, MAX_REGISTROS, VENTANA_REGISTRO);
+        else if (RUTA_TRIAGE.equals(ruta))
+            // Cada evaluación consume cuota de la API de Gemini.
+            permitido = rateLimiter.permitir("triage:" + ip, MAX_TRIAGE, VENTANA_POST);
+        else
+            permitido = rateLimiter.permitir("post:" + ip, MAX_POST, VENTANA_POST);
 
         if (!permitido) {
             log.warn("Límite de peticiones excedido: ip={} ruta={}", ip, ruta);

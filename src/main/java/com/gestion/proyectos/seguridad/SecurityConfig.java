@@ -33,7 +33,7 @@ public class SecurityConfig {
                                                                 "/js/**", "/error", "/elegir-rol", "/privacidad")
                                                 .permitAll()
                                                 .requestMatchers("/admin/**").hasRole("ADMIN")
-                                                .requestMatchers("/pacientes/landing", "/citas/nueva",
+                                                .requestMatchers("/pacientes/landing", "/triage", "/citas/nueva",
                                                                 "/citas/guardar-paciente", "/citas/*/reprogramar")
                                                 .hasRole("PACIENTE")
                                                 .requestMatchers("/pacientes", "/pacientes/**",
