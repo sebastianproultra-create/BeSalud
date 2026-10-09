@@ -1,7 +1,6 @@
 package com.gestion.proyectos.servicio;
 
-import static com.gestion.proyectos.util.ValidacionUtil.esVacio;
-
+import com.gestion.proyectos.util.Especialidades;
 import com.gestion.proyectos.util.ValidacionUtil;
 import com.gestion.proyectos.modelo.Cita;
 import com.gestion.proyectos.modelo.CitaEvento;
@@ -74,11 +73,14 @@ public class DoctorService {
         boolean hasEspecialidad = especialidad != null && !especialidad.isBlank();
 
         if (hasSearch && hasEspecialidad) {
-            return personaRepo.searchDoctoresCombinado(ValidacionUtil.literalRegex(search.trim()), ValidacionUtil.literalRegex(especialidad.trim()), pageable);
+            return personaRepo.searchDoctoresCombinado(ValidacionUtil.literalRegex(search.trim()),
+                    ValidacionUtil.literalRegex(especialidad.trim()), pageable);
         } else if (hasSearch) {
-            return personaRepo.searchDoctoresByNombreApellidoEmail(ValidacionUtil.literalRegex(search.trim()), pageable);
+            return personaRepo.searchDoctoresByNombreApellidoEmail(ValidacionUtil.literalRegex(search.trim()),
+                    pageable);
         } else if (hasEspecialidad) {
-            return personaRepo.findDoctoresByEspecialidadContainingIgnoreCase(ValidacionUtil.literalRegex(especialidad.trim()), pageable);
+            return personaRepo.findDoctoresByEspecialidadContainingIgnoreCase(
+                    ValidacionUtil.literalRegex(especialidad.trim()), pageable);
         } else {
             return personaRepo.findAllDoctores(pageable);
         }
@@ -206,23 +208,11 @@ public class DoctorService {
 
     // ── Registro de doctores por el administrador ────────────────────────────
 
-    private static final java.util.regex.Pattern PATRON_NOMBRE = java.util.regex.Pattern
-            .compile("^\\p{L}[\\p{L} '.\\-]*$");
-    private static final java.util.regex.Pattern PATRON_ESPECIALIDAD = java.util.regex.Pattern
-            .compile("^\\p{L}[\\p{L} .,'()\\-]*$");
-    private static final java.util.regex.Pattern PATRON_TELEFONO = java.util.regex.Pattern.compile("^3\\d{9}$");
-    private static final java.util.regex.Pattern PATRON_IDENTIFICACION = java.util.regex.Pattern
-            .compile("^\\d{6,10}$");
-    private static final java.util.regex.Pattern PATRON_EMAIL = java.util.regex.Pattern
-            .compile("^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$");
-
     /**
      * Valida y registra un doctor creado desde el panel de administración.
      * Reutiliza las reglas del registro público ({@link RegistroService}) y añade
-     * reglas más
-     * estrictas (formato, longitudes, contraseña). La contraseña se guarda con
-     * BCrypt y el correo
-     * en minúsculas, igual que en el registro público.
+     * reglas de formato, longitudes y contraseña. La contraseña se guarda con
+     * BCrypt y el correo en minúsculas, igual que en el registro público.
      *
      * @return null si el doctor quedó registrado, o el mensaje de error para
      *         mostrar al admin.
@@ -238,9 +228,11 @@ public class DoctorService {
 
         normalizar(dto);
 
-        String error = registroService.validar(dto);
+        // Reglas locales primero; registroService.validar() deja la consulta DNS del
+        // correo al final.
+        String error = validarReglasAdmin(dto);
         if (error == null)
-            error = validarReglasAdmin(dto);
+            error = registroService.validar(dto);
         if (error == null)
             error = registroService.verificarDuplicado(dto);
         if (error == null)
@@ -250,14 +242,10 @@ public class DoctorService {
         return error;
     }
 
-    private static String limpiar(String s) {
-        return s == null ? null : s.trim().replaceAll("\\s+", " ");
-    }
-
     private static void normalizar(UserRegistrationDTO d) {
-        d.setNombre(limpiar(d.getNombre()));
-        d.setApellido(limpiar(d.getApellido()));
-        d.setEspecialidad(limpiar(d.getEspecialidad()));
+        d.setNombre(ValidacionUtil.limpiarEspacios(d.getNombre()));
+        d.setApellido(ValidacionUtil.limpiarEspacios(d.getApellido()));
+        d.setEspecialidad(ValidacionUtil.limpiarEspacios(d.getEspecialidad()));
         if (d.getTelefono() != null)
             d.setTelefono(d.getTelefono().replaceAll("\\s+", ""));
         if (d.getIdentificacion() != null)
@@ -271,44 +259,27 @@ public class DoctorService {
     }
 
     private String validarReglasAdmin(UserRegistrationDTO d) {
-        String nombre = d.getNombre();
-        if (esVacio(nombre) || nombre.length() < 2 || nombre.length() > 50
-                || !PATRON_NOMBRE.matcher(nombre).matches())
-            return "El nombre debe tener entre 2 y 50 letras (sin números ni símbolos)";
+        String error = ValidacionUtil.errorNombre(d.getNombre(), "nombre");
+        if (error == null)
+            error = ValidacionUtil.errorNombre(d.getApellido(), "apellido");
+        if (error != null)
+            return error;
 
-        String apellido = d.getApellido();
-        if (esVacio(apellido) || apellido.length() < 2 || apellido.length() > 50
-                || !PATRON_NOMBRE.matcher(apellido).matches())
-            return "El apellido debe tener entre 2 y 50 letras (sin números ni símbolos)";
+        if (!ValidacionUtil.identificacionValida(d.getIdentificacion()))
+            return ValidacionUtil.ERROR_IDENTIFICACION;
+        if (!ValidacionUtil.telefonoValido(d.getTelefono()))
+            return ValidacionUtil.ERROR_TELEFONO;
 
-        if (esVacio(d.getIdentificacion()) || !PATRON_IDENTIFICACION.matcher(d.getIdentificacion()).matches())
-            return "La identificación debe tener entre 6 y 10 dígitos";
+        error = ValidacionUtil.errorEmail(d.getEmail());
+        if (error != null)
+            return error;
 
-        if (esVacio(d.getTelefono()) || !PATRON_TELEFONO.matcher(d.getTelefono()).matches())
-            return "El teléfono debe tener 10 dígitos y empezar por 3 (ej: 3001234567)";
+        error = ValidacionUtil.errorClave(d.getPassword());
+        if (error != null)
+            return error;
 
-        String email = d.getEmail();
-        if (esVacio(email))
-            return "El correo electrónico es obligatorio";
-        if (email.length() > 100)
-            return "El correo no puede superar los 100 caracteres";
-        if (!PATRON_EMAIL.matcher(email).matches())
-            return "El correo electrónico no tiene un formato válido";
-
-        String password = d.getPassword();
-        if (esVacio(password))
-            return "La contraseña es obligatoria";
-        if (password.length() < 8)
-            return "La contraseña debe tener al menos 8 caracteres";
-        if (password.getBytes(java.nio.charset.StandardCharsets.UTF_8).length > 72)
-            return "La contraseña no puede superar los 72 caracteres";
-        if (password.chars().noneMatch(Character::isLetter) || password.chars().noneMatch(Character::isDigit))
-            return "La contraseña debe incluir al menos una letra y un número";
-
-        String especialidad = d.getEspecialidad();
-        if (esVacio(especialidad) || especialidad.length() < 3 || especialidad.length() > 60
-                || !PATRON_ESPECIALIDAD.matcher(especialidad).matches())
-            return "La especialidad debe tener entre 3 y 60 caracteres y contener solo letras";
+        if (!Especialidades.esValida(d.getEspecialidad()))
+            return "Seleccione una especialidad válida de la lista";
 
         if (d.getBiografia() != null && d.getBiografia().length() > 500)
             return "La biografía no puede superar los 500 caracteres";
@@ -326,7 +297,8 @@ public class DoctorService {
     }
 
     /**
-     * Elimina un doctor solo si nunca tuvo citas (si las tuvo, hay que desactivarlo para no dejar
+     * Elimina un doctor solo si nunca tuvo citas (si las tuvo, hay que desactivarlo
+     * para no dejar
      * citas huérfanas). Retorna null si se eliminó o el código de error.
      */
     public String eliminar(String id) {

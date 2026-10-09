@@ -5,6 +5,7 @@ import com.gestion.proyectos.modelo.Doctor;
 import com.gestion.proyectos.modelo.Paciente;
 import com.gestion.proyectos.repositorio.CitaRepositorio;
 import com.gestion.proyectos.repositorio.PersonaRepositorio;
+import com.gestion.proyectos.util.EmailDominioValidator;
 import com.gestion.proyectos.util.ValidacionUtil;
 
 import static com.gestion.proyectos.util.ValidacionUtil.literalRegex;
@@ -32,12 +33,14 @@ public class PacienteService {
     private final CitaRepositorio citaRepo;
 
     private final PasswordEncoder passwordEncoder;
+    private final EmailDominioValidator emailDominio;
 
     public PacienteService(PersonaRepositorio personaRepo, CitaRepositorio citaRepo,
-                           PasswordEncoder passwordEncoder) {
+            PasswordEncoder passwordEncoder, EmailDominioValidator emailDominio) {
         this.personaRepo = personaRepo;
         this.citaRepo = citaRepo;
         this.passwordEncoder = passwordEncoder;
+        this.emailDominio = emailDominio;
     }
 
     public List<Paciente> listarTodos() {
@@ -55,29 +58,42 @@ public class PacienteService {
 
     /** null = OK, mensaje de error si falla validación o duplicado */
     public String validarYGuardar(Paciente paciente) {
-        if (paciente.getNombre() == null || paciente.getNombre().isBlank())
-            return "El nombre es obligatorio";
-        if (paciente.getApellido() == null || paciente.getApellido().isBlank())
-            return "El apellido es obligatorio";
-        if (paciente.getEmail() == null || paciente.getEmail().isBlank())
-            return "El correo es obligatorio";
-        if (!paciente.getEmail().trim().matches("^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$"))
-            return "El correo no tiene un formato válido";
-        var conflicto = personaRepo.findPacienteByEmail(paciente.getEmail().trim());
-        if (conflicto.isPresent() && !conflicto.get().getId().equals(paciente.getId()))
-            return "Ya existe un paciente registrado con ese correo";
+        // Espacios sobrantes y correo en minúsculas antes de validar
+        paciente.setNombre(ValidacionUtil.limpiarEspacios(paciente.getNombre()));
+        paciente.setApellido(ValidacionUtil.limpiarEspacios(paciente.getApellido()));
+        if (paciente.getTelefono() != null)
+            paciente.setTelefono(paciente.getTelefono().replaceAll("\\s+", ""));
+        if (paciente.getIdentificacion() != null)
+            paciente.setIdentificacion(paciente.getIdentificacion().replaceAll("\\s+", ""));
+        if (paciente.getEmail() != null)
+            paciente.setEmail(paciente.getEmail().trim().toLowerCase());
+
+        String error = ValidacionUtil.errorNombre(paciente.getNombre(), "nombre");
+        if (error == null)
+            error = ValidacionUtil.errorNombre(paciente.getApellido(), "apellido");
+        if (error != null)
+            return error;
         if (!ValidacionUtil.telefonoValido(paciente.getTelefono()))
             return ValidacionUtil.ERROR_TELEFONO;
         if (!ValidacionUtil.identificacionValida(paciente.getIdentificacion()))
             return ValidacionUtil.ERROR_IDENTIFICACION;
-        if (personaRepo.findByIdentificacion(paciente.getIdentificacion().trim()).isPresent())
-            return "Ya existe un usuario registrado con esa identificación";
+        error = ValidacionUtil.errorEmail(paciente.getEmail());
+        if (error != null)
+            return error;
         String clave = paciente.getPassword();
         String errorClave = ValidacionUtil.errorClave(clave);
         if (errorClave != null)
             return errorClave;
+        var conflicto = personaRepo.findPacienteByEmail(paciente.getEmail());
+        if (conflicto.isPresent() && !conflicto.get().getId().equals(paciente.getId()))
+            return "Ya existe un paciente registrado con ese correo";
+        if (personaRepo.findByIdentificacion(paciente.getIdentificacion()).isPresent())
+            return "Ya existe un usuario registrado con esa identificación";
+        // Última porque es la única que consulta la red (DNS)
+        error = emailDominio.verificar(paciente.getEmail());
+        if (error != null)
+            return error;
         paciente.setPassword(passwordEncoder.encode(clave));
-        paciente.setEmail(paciente.getEmail().trim().toLowerCase());
         personaRepo.save(paciente);
         log.info("Paciente guardado: {}", paciente.getEmail());
         return null;
@@ -92,7 +108,8 @@ public class PacienteService {
                     literalRegex(especialidad.trim()), pageable);
         if (hasSearch) {
             String limpio = search.trim().replaceAll("(?i)^(dra?\\.?)\\s+", "").trim();
-            if (limpio.isEmpty()) limpio = search.trim();
+            if (limpio.isEmpty())
+                limpio = search.trim();
             String[] partes = limpio.split("\\s+");
             if (partes.length >= 2)
                 return personaRepo.searchDoctoresActivosByNombreYApellido(literalRegex(partes[0]),

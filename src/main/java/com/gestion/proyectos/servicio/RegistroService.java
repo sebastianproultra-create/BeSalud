@@ -7,6 +7,7 @@ import com.gestion.proyectos.modelo.Paciente;
 import com.gestion.proyectos.modelo.UserRegistrationDTO;
 import com.gestion.proyectos.repositorio.AdminRepositorio;
 import com.gestion.proyectos.repositorio.PersonaRepositorio;
+import com.gestion.proyectos.util.EmailDominioValidator;
 import com.gestion.proyectos.util.Especialidades;
 import com.gestion.proyectos.util.ValidacionUtil;
 
@@ -27,31 +28,45 @@ public class RegistroService {
     private final PersonaRepositorio personaRepo;
     private final AdminRepositorio adminRepo;
     private final PasswordEncoder passwordEncoder;
+    private final EmailDominioValidator emailDominio;
 
     public RegistroService(PersonaRepositorio personaRepo, AdminRepositorio adminRepo,
-                           PasswordEncoder passwordEncoder) {
+            PasswordEncoder passwordEncoder, EmailDominioValidator emailDominio) {
         this.personaRepo = personaRepo;
         this.adminRepo = adminRepo;
         this.passwordEncoder = passwordEncoder;
+        this.emailDominio = emailDominio;
     }
 
     /**
-     * Valida reglas no cubiertas por Bean Validation: formatos de patrón y campos condicionales de DOCTOR.
-     * Los campos básicos (notBlank, email, size) ya fueron validados con @Valid antes de llegar aquí.
+     * Valida reglas no cubiertas por Bean Validation: formatos de patrón y campos
+     * condicionales de DOCTOR.
+     * Los campos básicos (notBlank, email, size) ya fueron validados con @Valid
+     * antes de llegar aquí.
      */
     public String validar(UserRegistrationDTO user) {
-        if (esVacio(user.getNombre())) return "El nombre es obligatorio";
-        if (esVacio(user.getApellido())) return "El apellido es obligatorio";
+        normalizar(user);
+        String errorCuenta = ValidacionUtil.errorNombre(user.getNombre(), "nombre");
+        if (errorCuenta == null)
+            errorCuenta = ValidacionUtil.errorNombre(user.getApellido(), "apellido");
+        if (errorCuenta != null)
+            return errorCuenta;
         if (!ValidacionUtil.telefonoValido(user.getTelefono()))
             return ValidacionUtil.ERROR_TELEFONO;
         if (!ValidacionUtil.identificacionValida(user.getIdentificacion()))
             return ValidacionUtil.ERROR_IDENTIFICACION;
+        errorCuenta = ValidacionUtil.errorEmail(user.getEmail());
+        if (errorCuenta != null)
+            return errorCuenta;
         if (!"PACIENTE".equals(user.getRole()) && !"DOCTOR".equals(user.getRole()))
             return "Debe seleccionar un rol válido (Paciente o Doctor)";
         if ("DOCTOR".equals(user.getRole())) {
-            if (esVacio(user.getEspecialidad())) return "La especialidad es obligatoria para doctores";
-            if (!Especialidades.esValida(user.getEspecialidad())) return "Selecciona una especialidad de la lista";
-            if (esVacio(user.getFechaNacimiento())) return "La fecha de nacimiento es obligatoria para doctores";
+            if (esVacio(user.getEspecialidad()))
+                return "La especialidad es obligatoria para doctores";
+            if (!Especialidades.esValida(user.getEspecialidad()))
+                return "Selecciona una especialidad de la lista";
+            if (esVacio(user.getFechaNacimiento()))
+                return "La fecha de nacimiento es obligatoria para doctores";
             LocalDate fechaNac;
             try {
                 fechaNac = LocalDate.parse(user.getFechaNacimiento().trim());
@@ -62,13 +77,34 @@ public class RegistroService {
             if (!fechaNac.isBefore(hoy))
                 return "La fecha de nacimiento no puede ser hoy ni una fecha futura";
             int edad = java.time.Period.between(fechaNac, hoy).getYears();
-            if (edad < 23) return "El doctor debe tener al menos 23 años";
-            if (edad > 100) return "Fecha de nacimiento fuera de rango razonable";
+            if (edad < 23)
+                return "El doctor debe tener al menos 23 años";
+            if (edad > 100)
+                return "Fecha de nacimiento fuera de rango razonable";
         }
-        return null;
+        // Última porque es la única que consulta la red (DNS)
+        return emailDominio.verificar(user.getEmail());
     }
 
-    /** Verifica duplicados en todos los repositorios. Retorna mensaje de error o null si OK. */
+    /**
+     * Espacios sobrantes en nombres, teléfono e identificación; correo en
+     * minúsculas.
+     */
+    private static void normalizar(UserRegistrationDTO u) {
+        u.setNombre(ValidacionUtil.limpiarEspacios(u.getNombre()));
+        u.setApellido(ValidacionUtil.limpiarEspacios(u.getApellido()));
+        if (u.getTelefono() != null)
+            u.setTelefono(u.getTelefono().replaceAll("\\s+", ""));
+        if (u.getIdentificacion() != null)
+            u.setIdentificacion(u.getIdentificacion().replaceAll("\\s+", ""));
+        if (u.getEmail() != null)
+            u.setEmail(u.getEmail().trim().toLowerCase());
+    }
+
+    /**
+     * Verifica duplicados en todos los repositorios. Retorna mensaje de error o
+     * null si OK.
+     */
     public String verificarDuplicado(UserRegistrationDTO user) {
         String email = user.getEmail().trim().toLowerCase();
         if (adminRepo.findByEmail(email).isPresent())
