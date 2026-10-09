@@ -12,4 +12,5 @@ public interface CitaRepositorio extends MongoRepository<Cita, String> {
     List<Cita> findByPacienteId(String pacienteId);
     List<Cita> findByDoctorIdAndEstado(String doctorId, EstadoCita estado);
     List<Cita> findByDoctorIdAndFecha(String doctorId, LocalDate fecha);
+    List<Cita> findByPacienteIdAndFecha(String pacienteId, LocalDate fecha);
 }

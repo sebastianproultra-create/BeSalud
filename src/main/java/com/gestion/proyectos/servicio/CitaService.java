@@ -178,6 +178,24 @@ public class CitaService {
         });
     }
 
+    public boolean pacienteTieneConflicto(String pacienteId, String doctorId, LocalDate fecha, LocalTime hora,
+                                          String excludeCitaId) {
+        LocalDateTime inicioNuevo = LocalDateTime.of(fecha, hora);
+        LocalDateTime finNuevo = inicioNuevo.plusMinutes(
+                duracionDesdeHorarios(horarioRepo.findByDoctorId(doctorId), fecha, hora));
+
+        return citaRepo.findByPacienteIdAndFecha(pacienteId, fecha).stream()
+                .filter(c -> (excludeCitaId == null || !excludeCitaId.equals(c.getId()))
+                        && c.getEstado() != EstadoCita.CANCELADA
+                        && c.getEstado() != EstadoCita.NO_ASISTIO)
+                .anyMatch(c -> {
+                    LocalDateTime inicio = LocalDateTime.of(c.getFecha(), c.getHora());
+                    LocalDateTime fin = inicio.plusMinutes(duracionDesdeHorarios(
+                            horarioRepo.findByDoctorId(c.getDoctorId()), c.getFecha(), c.getHora()));
+                    return inicioNuevo.isBefore(fin) && finNuevo.isAfter(inicio);
+                });
+    }
+
     private List<LocalTime> calcularSlotsDisponibles(String doctorId, LocalDate fecha, String excludeCitaId,
                                                       LocalDate fechaActual, LocalTime horaActual) {
         List<HorarioAtencion> horarios = horarioRepo.findByDoctorId(doctorId);

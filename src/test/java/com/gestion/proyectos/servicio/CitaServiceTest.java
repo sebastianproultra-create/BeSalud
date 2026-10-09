@@ -84,4 +84,46 @@ class CitaServiceTest {
         LocalDate fecha = LocalDate.now().plusDays(1);
         assertThat(service.hayConflicto("doc1", fecha, LocalTime.of(10, 0), null)).isFalse();
     }
+
+    private Cita citaDelPaciente(String id, String doctorId, LocalDate fecha, LocalTime hora, EstadoCita estado) {
+        Cita c = new Cita();
+        c.setId(id);
+        c.setPacienteId("pac1");
+        c.setDoctorId(doctorId);
+        c.setFecha(fecha);
+        c.setHora(hora);
+        c.setEstado(estado);
+        return c;
+    }
+
+    @Test
+    void pacienteTieneConflicto_mismaHoraConOtroDoctor_retornaTrue() {
+        LocalDate fecha = LocalDate.now().plusDays(1);
+        when(horarioRepo.findByDoctorId(anyString())).thenReturn(List.of());
+        when(citaRepo.findByPacienteIdAndFecha("pac1", fecha)).thenReturn(
+                List.of(citaDelPaciente("c1", "docA", fecha, LocalTime.of(10, 0), EstadoCita.PENDIENTE)));
+
+        assertThat(service.pacienteTieneConflicto("pac1", "docB", fecha, LocalTime.of(10, 15), null)).isTrue();
+    }
+
+    @Test
+    void pacienteTieneConflicto_horasQueNoSeCruzan_retornaFalse() {
+        LocalDate fecha = LocalDate.now().plusDays(1);
+        when(horarioRepo.findByDoctorId(anyString())).thenReturn(List.of());
+        when(citaRepo.findByPacienteIdAndFecha("pac1", fecha)).thenReturn(
+                List.of(citaDelPaciente("c1", "docA", fecha, LocalTime.of(10, 0), EstadoCita.PENDIENTE)));
+
+        assertThat(service.pacienteTieneConflicto("pac1", "docB", fecha, LocalTime.of(10, 30), null)).isFalse();
+    }
+
+    @Test
+    void pacienteTieneConflicto_ignoraCitasCanceladasYLaQueSeReprograma() {
+        LocalDate fecha = LocalDate.now().plusDays(1);
+        when(horarioRepo.findByDoctorId(anyString())).thenReturn(List.of());
+        when(citaRepo.findByPacienteIdAndFecha("pac1", fecha)).thenReturn(List.of(
+                citaDelPaciente("c1", "docA", fecha, LocalTime.of(10, 0), EstadoCita.CANCELADA),
+                citaDelPaciente("c2", "docB", fecha, LocalTime.of(10, 0), EstadoCita.PENDIENTE)));
+
+        assertThat(service.pacienteTieneConflicto("pac1", "docB", fecha, LocalTime.of(10, 0), "c2")).isFalse();
+    }
 }

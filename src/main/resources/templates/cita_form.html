@@ -32,6 +32,7 @@
             <span th:case="'paciente_no_existe'">El paciente seleccionado no existe.</span>
             <span th:case="'horario_invalido'">El doctor no atiende ese día o a esa hora. Revisa su horario de atención.</span>
             <span th:case="'conflicto_cita'">El doctor ya tiene una cita a esa hora. Elige otro horario.</span>
+            <span th:case="'conflicto_paciente'">El paciente ya tiene otra cita a esa hora. Elige otro horario.</span>
             <span th:case="*">No se pudo agendar la cita. Revisa los datos e intenta de nuevo.</span>
         </div>
 

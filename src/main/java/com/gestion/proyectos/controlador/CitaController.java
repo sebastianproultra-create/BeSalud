@@ -129,6 +129,8 @@ public class CitaController {
             return "redirect:/citas/" + id + "/reprogramar?error=horario_invalido";
         if (citaService.hayConflicto(cita.getDoctorId(), fechaCita, horaCita, cita.getId()))
             return "redirect:/citas/" + id + "/reprogramar?error=conflicto_cita";
+        if (citaService.pacienteTieneConflicto(cita.getPacienteId(), cita.getDoctorId(), fechaCita, horaCita, cita.getId()))
+            return "redirect:/citas/" + id + "/reprogramar?error=conflicto_paciente";
 
         citaService.reprogramar(cita, fechaCita, horaCita);
         return "redirect:/pacientes/landing?success=cita_reprogramada";
@@ -159,6 +161,7 @@ public class CitaController {
         if (!citaService.pacienteExiste(pacienteId)) return "redirect:/citas/crear?error=paciente_no_existe";
         if (!citaService.esHorarioValido(doctorId, fechaCita, horaCita)) return "redirect:/citas/crear?error=horario_invalido";
         if (citaService.hayConflicto(doctorId, fechaCita, horaCita, null)) return "redirect:/citas/crear?error=conflicto_cita";
+        if (citaService.pacienteTieneConflicto(pacienteId, doctorId, fechaCita, horaCita, null)) return "redirect:/citas/crear?error=conflicto_paciente";
 
         citaService.crearCita(doctorId, pacienteId, fechaCita, horaCita, motivo);
         return REDIRECT_CITAS;
@@ -203,6 +206,8 @@ public class CitaController {
             return "redirect:/citas/nueva?doctorId=" + doctorId + "&error=horario_invalido";
         if (citaService.hayConflicto(doctorId, fechaCita, horaCita, null))
             return "redirect:/citas/nueva?doctorId=" + doctorId + "&error=conflicto_cita";
+        if (citaService.pacienteTieneConflicto(paciente.getId(), doctorId, fechaCita, horaCita, null))
+            return "redirect:/citas/nueva?doctorId=" + doctorId + "&error=conflicto_paciente";
 
         citaService.crearCita(doctorId, paciente.getId(), fechaCita, horaCita, motivo);
         return "redirect:/pacientes/landing?success=cita_agendada";

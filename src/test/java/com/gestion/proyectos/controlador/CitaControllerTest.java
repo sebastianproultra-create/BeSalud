@@ -158,6 +158,29 @@ class CitaControllerTest {
                 .andExpect(redirectedUrl("/citas/nueva?doctorId=d1&error=conflicto_cita"));
     }
 
+    @Test
+    void guardarPaciente_pacienteYaTieneCitaEsaHora_redirigeConError() throws Exception {
+        Paciente paciente = new Paciente();
+        paciente.setId("p1");
+        when(citaService.buscarPacientePorEmail(anyString())).thenReturn(Optional.of(paciente));
+        when(citaService.esFechaHoraPasada(any(), any())).thenReturn(false);
+        when(citaService.buscarDoctorPorId("d1")).thenReturn(Optional.of(doctorActivo()));
+        when(citaService.esHorarioValido(eq("d1"), any(), any())).thenReturn(true);
+        when(citaService.hayConflicto(eq("d1"), any(), any(), isNull())).thenReturn(false);
+        when(citaService.pacienteTieneConflicto(eq("p1"), eq("d1"), any(), any(), isNull())).thenReturn(true);
+
+        mockMvc.perform(post("/citas/guardar-paciente")
+                        .param("doctorId", "d1")
+                        .param("fecha", LocalDate.now().plusDays(1).toString())
+                        .param("hora", "09:00")
+                        .param("motivo", "Motivo")
+                        .with(csrf())
+                        .with(user("pac@test.com").roles("PACIENTE")))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/citas/nueva?doctorId=d1&error=conflicto_paciente"));
+        verify(citaService, never()).crearCita(any(), any(), any(), any(), any());
+    }
+
     // ── reprogramar ─────────────────────────────────────────────────────────
 
     @Test
