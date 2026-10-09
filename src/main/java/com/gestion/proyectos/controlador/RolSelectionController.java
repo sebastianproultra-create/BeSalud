@@ -105,7 +105,6 @@ public class RolSelectionController {
             return "elegir_rol";
         }
 
-        session.setAttribute("selectedRole", "ROLE_" + role);
         session.removeAttribute("oauth2Email");
         session.removeAttribute("oauth2Nombre");
         session.removeAttribute("oauth2Apellido");

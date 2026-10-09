@@ -3,7 +3,6 @@ package com.gestion.proyectos.controlador;
 import com.gestion.proyectos.modelo.Paciente;
 import com.gestion.proyectos.servicio.PacienteService;
 
-import jakarta.servlet.http.HttpSession;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
@@ -44,17 +43,15 @@ public class PacienteController {
                           @RequestParam(value = "search", required = false) String search,
                           @RequestParam(value = "page", defaultValue = "0") int page,
                           @RequestParam(value = "size", defaultValue = "6") int size,
-                          Model model, HttpSession session) {
+                          Model model) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         String currentEmail = auth != null ? auth.getName() : null;
-        boolean modoPaciente = "ROLE_PACIENTE".equals(session.getAttribute("selectedRole"));
 
         model.addAttribute("doctores", pacienteService.listarDoctoresPaginated(page, size, especialidad, search));
         model.addAttribute("especialidades", pacienteService.especialidadesDisponibles());
         model.addAttribute("especialidad", especialidad);
         model.addAttribute("search", search);
         model.addAttribute("size", size);
-        model.addAttribute("modoPaciente", modoPaciente);
 
         if (auth != null && auth.isAuthenticated()) {
             pacienteService.buscarPorEmail(currentEmail).ifPresent(paciente -> {

@@ -35,9 +35,6 @@
 
         <div class="filter-section">
             <h2>Filtrar Doctores</h2>
-            <div th:if="${modoPaciente}" class="alert alert-info">
-                Estás usando el modo paciente. No se mostrará tu perfil médico para agendarte citas a ti mismo.
-            </div>
             <form th:action="@{/pacientes/landing}" method="get" class="filter-form">
                 <label for="search">Buscar:</label>
                 <input type="text" id="search" name="search" th:value="${search}" placeholder="Nombre o email del doctor" />
