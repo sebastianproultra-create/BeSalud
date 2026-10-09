@@ -19,7 +19,22 @@
     </section>
 
     <div class="card">
-        
+        <div th:if="${param.error != null}" class="alert alert-error" th:switch="${param.error[0]}">
+            <span th:case="'doctor_requerido'">Selecciona un doctor.</span>
+            <span th:case="'paciente_requerido'">Selecciona un paciente.</span>
+            <span th:case="'fecha_requerida'">Indica la fecha de la cita.</span>
+            <span th:case="'hora_requerida'">Indica la hora de la cita.</span>
+            <span th:case="'motivo_requerido'">Escribe el motivo de la cita.</span>
+            <span th:case="'fecha_invalida'">La fecha no es válida.</span>
+            <span th:case="'hora_invalida'">La hora no es válida.</span>
+            <span th:case="'fecha_pasada'">No se puede agendar una cita en una fecha u hora que ya pasó.</span>
+            <span th:case="'doctor_no_existe'">El doctor seleccionado no existe.</span>
+            <span th:case="'paciente_no_existe'">El paciente seleccionado no existe.</span>
+            <span th:case="'horario_invalido'">El doctor no atiende ese día o a esa hora. Revisa su horario de atención.</span>
+            <span th:case="'conflicto_cita'">El doctor ya tiene una cita a esa hora. Elige otro horario.</span>
+            <span th:case="*">No se pudo agendar la cita. Revisa los datos e intenta de nuevo.</span>
+        </div>
+
         <form th:action="@{/citas/guardar}" method="post" class="card-form">
 
             
