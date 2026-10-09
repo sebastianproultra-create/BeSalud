@@ -9,3 +9,5 @@ target/
 mvn_output.log
 targetapp-run.log
 .railway-credenciales.txt
+.claude/settings.local.json
+.env

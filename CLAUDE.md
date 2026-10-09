@@ -6,11 +6,6 @@ Java 17 + Spring Boot 3.2.0 | MongoDB localhost:27017/besalud | Thymeleaf + Spri
 ## Auth
 Login por email. Busca: Admin → Paciente → Doctor. Sesión: 45min, máx 1 por usuario. Redirect post-login por rol.
 
-## Modelos clave
-- Cita: doctorId, pacienteId, fecha, hora, motivo, EstadoCita, dictamen
-- EstadoCita: PENDIENTE, ASISTIO, NO_ASISTIO, CANCELADA, COMPLETADA
-- HorarioAtencion: doctorId, diaSemana, horaInicio, horaFin, duracionCitaMinutos
-
 ## Convenciones
 - esVacio(String s) → helper para nulos/blancos
 - Errores form: model.addAttribute("error", msg) → retorno vista
