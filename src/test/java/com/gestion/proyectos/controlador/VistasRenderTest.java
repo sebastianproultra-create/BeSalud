@@ -42,8 +42,10 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.flash;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -254,5 +256,10 @@ class VistasRenderTest {
                 .andExpect(status().isNotFound());
         mockMvc.perform(get("/citas/nueva").with(user("p@test.com").roles("PACIENTE")))
                 .andExpect(status().isBadRequest());
+        mockMvc.perform(get("/doctores").param("page", "abc").with(user("d@test.com").roles("DOCTOR")))
+                .andExpect(status().isBadRequest());
+        mockMvc.perform(put("/citas/nueva").param("doctorId", "x").with(csrf()).with(user("p@test.com").roles("PACIENTE")))
+                .andExpect(status().isMethodNotAllowed())
+                .andExpect(header().exists("Allow"));
     }
 }

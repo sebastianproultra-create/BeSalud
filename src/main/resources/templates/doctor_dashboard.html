@@ -585,8 +585,6 @@ document.addEventListener('DOMContentLoaded', function() {
     if (totalPages > 1) {
         const paginationContainer = document.createElement('div');
         paginationContainer.className = 'pagination';
-        paginationContainer.style.marginTop = '24px';
-        paginationContainer.style.textAlign = 'center';
         grid.parentNode.insertBefore(paginationContainer, grid.nextSibling);
 
         function showPage(page) {
@@ -619,8 +617,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 } else if (i === currentPage - 2 || i === currentPage + 2) {
                     const dots = document.createElement('span');
                     dots.textContent = '...';
-                    dots.style.color = '#666';
-                    dots.style.margin = '0 4px';
                     paginationContainer.appendChild(dots);
                 }
             }
