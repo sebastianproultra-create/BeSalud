@@ -33,6 +33,15 @@
             ¡Tu cita ha sido reprogramada exitosamente!
         </div>
 
+        <a th:href="@{/triage}" class="triage-cta">
+            <i class="fa-solid fa-wand-magic-sparkles"></i>
+            <span>
+                <strong>¿No sabes a qué especialista ir?</strong>
+                Cuéntanos tus síntomas y te orientamos.
+            </span>
+            <i class="fa-solid fa-arrow-right"></i>
+        </a>
+
         <div class="filter-section">
             <h2>Filtrar Doctores</h2>
             <form th:action="@{/pacientes/landing}" method="get" class="filter-form">

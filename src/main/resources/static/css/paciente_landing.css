@@ -618,3 +618,35 @@
         grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
     }
 }
+
+.triage-cta {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 24px;
+    padding: 18px 22px;
+    border-radius: 10px;
+    background: linear-gradient(120deg, var(--primary-color), var(--secondary-color));
+    color: var(--white);
+    text-decoration: none;
+    box-shadow: var(--shadow-md);
+    transition: transform 0.15s ease;
+}
+
+.triage-cta:hover {
+    transform: translateY(-2px);
+}
+
+.triage-cta span {
+    flex: 1;
+}
+
+.triage-cta strong {
+    display: block;
+    color: var(--accent-light);
+}
+
+.triage-cta > i:first-child {
+    font-size: 1.6rem;
+    color: var(--accent-color);
+}

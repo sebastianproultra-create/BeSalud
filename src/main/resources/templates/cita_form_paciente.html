@@ -83,7 +83,8 @@
                     <input type="hidden" name="hora" id="inputHora"/>
                     <div class="form-group">
                         <label for="motivo">Motivo de la consulta</label>
-                        <textarea id="motivo" name="motivo" rows="3" placeholder="Describe brevemente el motivo de tu visita..." required></textarea>
+                        <textarea id="motivo" name="motivo" rows="3" placeholder="Describe brevemente el motivo de tu visita..." required
+                                  th:text="${param.motivo != null ? #strings.abbreviate(param.motivo[0], 300) : ''}"></textarea>
                     </div>
                     <button type="submit" class="btn-confirm" th:text="${submitLabel != null ? submitLabel : 'Confirmar Cita'}">Confirmar Cita</button>
                     <button type="button" class="btn-change" onclick="clearSlot()">Cambiar horario</button>

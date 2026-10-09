@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Asistente de síntomas - BeSalud</title>
+    <link rel="stylesheet" th:href="@{/css/global.css}">
+    <link rel="stylesheet" th:href="@{/css/triage.css}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+</head>
+<body>
+<header>
+    <div class="header-brand">
+        <h1>BeSalud</h1>
+        <p>Asistente de síntomas</p>
+    </div>
+    <nav>
+        <a th:href="@{/pacientes/landing}" class="btn btn-secondary">Volver al catálogo</a>
+    </nav>
+</header>
+
+<main class="container container-narrow">
+    <section class="page-header">
+        <div>
+            <p class="page-eyebrow">Orientación</p>
+            <h1 class="page-title">¿Qué estás sintiendo?</h1>
+            <p class="page-subtitle">Cuéntalo con tus palabras y te sugerimos qué especialista consultar y cuándo hay turno.</p>
+        </div>
+    </section>
+
+    <div class="card">
+        <form th:action="@{/triage}" method="post" class="triage-form" id="triageForm">
+            <label for="sintomas">Describe tus síntomas</label>
+            <textarea id="sintomas" name="sintomas" rows="4" maxlength="1000" required
+                      placeholder="Ej: desde hace tres días me duele la garganta, tengo fiebre y me cuesta tragar"
+                      th:text="${sintomas}"></textarea>
+            <div class="triage-actions">
+                <span class="triage-contador"><span id="contador">0</span>/1000</span>
+                <button type="submit" class="btn btn-primary" id="btnEvaluar">
+                    <i class="fa-solid fa-wand-magic-sparkles"></i> Orientarme
+                </button>
+            </div>
+        </form>
+        <div th:if="${error}" class="alert alert-error" th:text="${error}"></div>
+        <p class="triage-aviso">
+            <i class="fa-solid fa-circle-info"></i>
+            Esta orientación es automática y <strong>no reemplaza una consulta médica</strong>.
+            Si es una emergencia, llama al <strong>123</strong> o acude a urgencias.
+        </p>
+    </div>
+
+    <th:block th:if="${resultado}">
+        <div th:if="${resultado.emergencia}" class="triage-emergencia">
+            <i class="fa-solid fa-triangle-exclamation"></i>
+            <div>
+                <strong>Posible emergencia</strong>
+                <p th:text="${resultado.recomendacion}"></p>
+                <a href="tel:123" class="btn btn-danger">Llamar al 123</a>
+            </div>
+        </div>
+
+        <div class="card triage-resultado">
+            <div class="triage-resultado-cabecera">
+                <div>
+                    <p class="page-eyebrow">Te recomendamos</p>
+                    <h2 th:text="${resultado.especialidad}">Especialidad</h2>
+                </div>
+                <span class="triage-prioridad"
+                      th:classappend="${'triage-prioridad-' + #strings.toLowerCase(resultado.prioridad)}"
+                      th:text="${resultado.prioridad == 'ALTA' ? 'Prioridad alta' : (resultado.prioridad == 'MEDIA' ? 'Prioridad media' : 'Prioridad baja')}">
+                </span>
+            </div>
+            <p th:unless="${resultado.emergencia}" th:text="${resultado.recomendacion}"></p>
+            <p class="triage-resumen">
+                <span>Motivo que verá el médico:</span>
+                <em th:text="${resultado.resumen}"></em>
+            </p>
+            <p class="triage-fuente">
+                <i th:class="${resultado.generadoPorIa} ? 'fa-solid fa-microchip' : 'fa-solid fa-list-check'"></i>
+                <span th:text="${resultado.generadoPorIa} ? 'Analizado con IA' : 'Orientación por palabras clave'"></span>
+            </p>
+        </div>
+
+        <h2 class="triage-subtitulo">Especialistas disponibles</h2>
+        <p th:if="${#lists.isEmpty(doctores)}" class="empty-note">
+            Por ahora no hay especialistas activos en <span th:text="${resultado.especialidad}"></span>.
+            Puedes buscar otro médico en el <a th:href="@{/pacientes/landing}">catálogo</a>.
+        </p>
+
+        <div class="triage-doctores">
+            <div class="card triage-doctor" th:each="s : ${doctores}">
+                <img th:src="${s.doctor.foto != null and !#strings.isEmpty(s.doctor.foto)} ? ${s.doctor.foto} : @{/images/default-avatar.jpg}"
+                     alt="" class="triage-avatar" onerror="this.src='/images/default-avatar.jpg'"/>
+                <div class="triage-doctor-info">
+                    <h3 th:text="${'Dr. ' + s.doctor.nombre + ' ' + s.doctor.apellido}"></h3>
+                    <p class="triage-doctor-esp" th:text="${s.doctor.especialidad}"></p>
+                    <p th:if="${s.fecha != null}" class="triage-turno">
+                        <i class="fa-regular fa-calendar"></i>
+                        Próximo turno: <strong th:text="${s.fechaLegible()}"></strong>
+                        <span class="triage-horas">
+                            <span class="triage-hora" th:each="h : ${s.horas}" th:text="${h}"></span>
+                        </span>
+                    </p>
+                    <p th:if="${s.fecha == null}" class="triage-turno">Sin turnos libres en los próximos 30 días.</p>
+                </div>
+                <a th:if="${s.fecha != null}" class="btn btn-primary"
+                   th:href="@{/citas/nueva(doctorId=${s.doctor.id}, motivo=${resultado.resumen})}">Agendar</a>
+            </div>
+        </div>
+    </th:block>
+</main>
+
+<script>
+    const area = document.getElementById('sintomas');
+    const contador = document.getElementById('contador');
+    const actualizar = () => contador.textContent = area.value.length;
+    area.addEventListener('input', actualizar);
+    actualizar();
+    document.getElementById('triageForm').addEventListener('submit', () => {
+        const btn = document.getElementById('btnEvaluar');
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Analizando…';
+    });
+</script>
+</body>
+</html>
