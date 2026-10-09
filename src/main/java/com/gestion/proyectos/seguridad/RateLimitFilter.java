@@ -42,7 +42,7 @@ public class RateLimitFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
             throws ServletException, IOException {
-        // Detrás del proxy de Railway, forward-headers-strategy=NATIVE deja aquí la IP real del cliente.
+        // Con forward-headers-strategy=NATIVE e internal-proxies (ver application.properties) es la IP real del cliente.
         String ip = request.getRemoteAddr();
         String ruta = request.getServletPath();
         log.debug("POST {} remoteAddr={} xff={}", ruta, ip, request.getHeader("X-Forwarded-For"));
