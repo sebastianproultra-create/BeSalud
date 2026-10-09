@@ -7,90 +7,66 @@
     <link rel="stylesheet" th:href="@{/css/global.css}">
 </head>
 <body>
-<nav th:replace="~{fragments/layout :: nav-admin}"></nav>
+<header th:replace="~{fragments/layout :: shell-admin('doctores')}"></header>
 
-<div class="container doctores-page">
+<main class="container">
 
-    <!-- ═══════════════ HEADER + STATS ═══════════════ -->
     <section class="page-header" aria-labelledby="page-title">
-        <div class="page-header-text">
+        <div>
             <p class="page-eyebrow">Cuerpo médico</p>
-            <h2 id="page-title" class="page-title">Doctores Registrados</h2>
+            <h1 id="page-title" class="page-title">Doctores registrados</h1>
             <p class="page-subtitle">Administra el equipo médico y consulta sus horarios.</p>
         </div>
-                <input type="text" name="especialidad" th:value="${filtroEspecialidad}"
-                       placeholder="Filtrar por especialidad (ej: Cardiología)"
-                       class="search-input" aria-label="Filtrar por especialidad"/>
-                <input type="text" name="search" th:value="${search}"
-                       placeholder="Buscar por nombre o email" class="search-input" aria-label="Buscar" style="margin-left:12px;"/>
+        <div class="page-actions">
+            <span class="card-counter" th:text="${doctores.totalElements} + ' en total'">0 en total</span>
+            <a href="#registrar" class="btn btn-primary">+ Registrar doctor</a>
         </div>
     </section>
-            <a th:if="${filtroEspecialidad != null and !filtroEspecialidad.isEmpty()} or ${search != null and !search.isEmpty()}"
-               th:href="@{/doctores}" class="btn btn-secondary">Limpiar</a>
-    <section class="card filter-card" aria-labelledby="filter-title">
-        <h3 id="filter-title" class="filter-title">Buscar</h3>
-        <form th:action="@{/doctores}" method="get" class="search-form">
-            <div class="search-input-wrap">
-                <input type="text" name="especialidad" th:value="${filtroEspecialidad}"
-                       placeholder="Filtrar por especialidad (ej: Cardiología)"
-                       class="search-input" aria-label="Filtrar por especialidad"/>
-            </div>
+
+    <form th:action="@{/doctores}" method="get" class="toolbar" role="search">
+        <label for="search" class="visually-hidden">Buscar por nombre o email</label>
+        <input id="search" type="text" name="search" th:value="${search}" placeholder="Buscar por nombre o email"/>
+        <label for="especialidad-filtro" class="visually-hidden">Especialidad</label>
+        <input id="especialidad-filtro" type="text" name="especialidad" th:value="${filtroEspecialidad}" placeholder="Especialidad (ej: Cardiología)"/>
+        <div class="toolbar-actions">
             <button type="submit" class="btn btn-primary">Buscar</button>
-            <a th:if="${filtroEspecialidad != null and !filtroEspecialidad.isEmpty()}"
+            <a th:if="${(filtroEspecialidad != null and !filtroEspecialidad.isEmpty()) or (search != null and !search.isEmpty())}"
                th:href="@{/doctores}" class="btn btn-secondary">Limpiar</a>
-        </form>
-    </section>
-
-    <!-- ═══════════════ GRID DE DOCTORES ═══════════════ -->
-    <section class="card" aria-labelledby="equipo-title">
-        <h2 id="equipo-title">Equipo Médico
-            <span class="card-counter" th:if="${!doctores.isEmpty()}" th:text="${doctores.totalElements}">0</span>
-        </h2>
-
-        <div th:if="${doctores.isEmpty()}" class="empty-state">
-            <svg class="empty-state-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true">
-                <circle cx="9" cy="8" r="4"/>
-                <path d="M2 21c0-4 3-7 7-7s7 3 7 7"/>
-                <circle cx="17" cy="8" r="2"/>
-            </svg>
-            <p>No hay doctores que coincidan con tu búsqueda.</p>
         </div>
+    </form>
 
+    <section aria-label="Equipo médico">
+        <div th:if="${doctores.isEmpty()}" class="card empty-note">No hay doctores que coincidan con tu búsqueda.</div>
 
-        <!-- Pagination -->
-        <div th:if="${doctores.totalPages > 1}" class="pagination" style="margin-top:18px; text-align:center;">
-            <a th:if="${doctores.hasPrevious()}" th:href="@{/doctores(page=${doctores.number-1},size=${size},especialidad=${filtroEspecialidad},search=${search})}" class="btn btn-link">Anterior</a>
-            <span th:each="i : ${#numbers.sequence(0, doctores.totalPages-1)}">
-                <a th:href="@{/doctores(page=${i},size=${size},especialidad=${filtroEspecialidad},search=${search})}"
-                   th:text="${i+1}"
-                   th:classappend="${i == doctores.number} ? ' btn btn-accent' : ' btn btn-link'"
-                   style="margin:0 4px;"></a>
-            </span>
-            <a th:if="${doctores.hasNext()}" th:href="@{/doctores(page=${doctores.number+1},size=${size},especialidad=${filtroEspecialidad},search=${search})}" class="btn btn-link">Siguiente</a>
-        </div>
-        <div th:if="${!doctores.isEmpty()}" class="doctores-grid">
-            <article th:each="doctor : ${doctores.content}" class="doctor-card">
-                <div class="doctor-card-avatar" aria-hidden="true">
-                    <span th:text="${#strings.toUpperCase(doctor.nombre.substring(0,1)) + #strings.toUpperCase(doctor.apellido.substring(0,1))}">DR</span>
+        <div th:if="${!doctores.isEmpty()}" class="card-grid">
+            <article th:each="doctor : ${doctores.content}" class="person-card">
+                <div class="person-card-head">
+                    <div class="avatar" aria-hidden="true"
+                         th:text="${#strings.toUpperCase(doctor.nombre.substring(0,1)) + #strings.toUpperCase(doctor.apellido.substring(0,1))}">DR</div>
+                    <div>
+                        <h2 class="person-card-name" th:text="'Dr. ' + ${doctor.nombre + ' ' + doctor.apellido}">Nombre</h2>
+                        <span class="person-card-meta" th:text="${doctor.especialidad}">Especialidad</span>
+                    </div>
                 </div>
-                <div class="doctor-card-body">
-                    <h3 class="doctor-card-name" th:text="'Dr. ' + ${doctor.nombre + ' ' + doctor.apellido}">Nombre</h3>
-                    <span class="doctor-card-specialty" th:text="${doctor.especialidad}">Especialidad</span>
-                    <p class="doctor-card-email" th:text="${doctor.email}" th:title="${doctor.email}">email</p>
-                </div>
-                <div class="doctor-card-actions">
-                    <a th:href="@{/doctores/{id}/horarios(id=${doctor.id})}" class="btn btn-outline btn-sm">Ver Horarios</a>
+                <p class="person-card-email" th:text="${doctor.email}" th:title="${doctor.email}">email</p>
+                <div class="person-card-foot">
+                    <span th:if="${doctor.estado != null}" class="status-dot"
+                          th:classappend="${doctor.estado == 'ACTIVO'} ? 'is-active' : 'is-inactive'"
+                          th:text="${doctor.estado == 'ACTIVO'} ? 'Activo' : 'Inactivo'">Activo</span>
+                    <a th:href="@{/doctores/{id}/horarios(id=${doctor.id})}" class="btn btn-secondary btn-sm">Ver horarios</a>
                 </div>
             </article>
         </div>
+
+        <nav th:replace="~{fragments/layout :: pagination(${doctores}, '/doctores', ${search}, ${filtroEspecialidad})}"></nav>
     </section>
 
     <!-- ═══════════════ REGISTRAR DOCTOR ═══════════════ -->
-    <section class="card" aria-labelledby="register-title">
+    <section id="registrar" class="card" aria-labelledby="register-title">
         <h2 id="register-title">Registrar Doctor</h2>
         <p class="form-subtitle">Crea una nueva cuenta médica con acceso al panel de control.</p>
 
-        <form th:action="@{/doctores/guardar}" method="post" class="register-form">
+        <form th:action="@{/doctores/guardar}" method="post" class="card-form register-form">
 
 
             <div class="form-grid">
@@ -129,7 +105,7 @@
             </div>
         </form>
     </section>
-</div>
+</main>
 
 <footer th:replace="~{fragments/layout :: footer}"></footer>
 <script th:src="@{/js/form-submit.js}"></script>

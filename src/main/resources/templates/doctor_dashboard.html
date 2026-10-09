@@ -141,8 +141,8 @@
     <!-- ═══════════════ MI PERFIL ═══════════════ -->
     <section id="perfil" class="card" aria-labelledby="perfil-title">
         <h2 id="perfil-title">Mi Perfil</h2>
-        <div th:if="${param.fotoOk}" class="alert alert-success" style="margin-bottom:12px;">Foto de perfil actualizada.</div>
-        <div th:if="${param.fotoError}" class="alert alert-error" style="margin-bottom:12px;"
+        <div th:if="${param.fotoOk}" class="alert alert-success">Foto de perfil actualizada.</div>
+        <div th:if="${param.fotoError}" class="alert alert-error"
              th:text="${param.fotoError[0] == 'vacio' ? 'Selecciona una imagen' : (param.fotoError[0] == 'tipo' ? 'Tipo no permitido (solo PNG/JPG/WEBP)' : (param.fotoError[0] == 'tamano' ? 'Imagen demasiado grande (máx 2 MB)' : 'Error procesando imagen'))}"></div>
         <div class="doctor-profile">
             <div class="doctor-photo">
@@ -329,8 +329,8 @@
                 <option value="NO_ASISTIO">No Asistió</option>
                 <option value="CANCELADA">Cancelada</option>
             </select>
-            <label for="busquedaPaciente" style="margin-left:12px;">Buscar paciente</label>
-            <input type="text" id="busquedaPaciente" placeholder="Nombre del paciente" oninput="filtrarCitas()" style="padding:8px; border:1px solid var(--border-color, #ccc); border-radius:4px;" />
+            <label for="busquedaPaciente">Buscar paciente</label>
+            <input type="text" id="busquedaPaciente" placeholder="Nombre del paciente" oninput="filtrarCitas()" />
         </div>
 
         <div th:if="${#lists.isEmpty(citas)}" class="empty-state">
@@ -386,7 +386,7 @@
                                     </th:block>
                                     <form th:action="@{'/doctores/citas/' + ${cita.id} + '/cancelar'}" method="post" class="inline-form">
 
-                                        <button type="submit" class="btn btn-danger btn-sm" style="padding:6px 14px;font-size:10px;letter-spacing:0.14em;text-transform:uppercase;line-height:1.4;" onclick="return confirm('¿Cancelar esta cita?')">Cancelar</button>
+                                        <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('¿Cancelar esta cita?')">Cancelar</button>
                                     </form>
                                 </th:block>
                                 <th:block th:if="${cita.estado.name() == 'ASISTIO'}">
@@ -417,7 +417,7 @@
         </h2>
         <div th:if="${!#lists.isEmpty(misPacientes)}" class="filter-bar">
             <label for="busquedaMisPacientes">Buscar paciente</label>
-            <input type="text" id="busquedaMisPacientes" placeholder="Nombre del paciente" oninput="filtrarPacientes()" style="padding:8px; border:1px solid var(--border-color, #ccc); border-radius:4px;" />
+            <input type="text" id="busquedaMisPacientes" placeholder="Nombre del paciente" oninput="filtrarPacientes()" />
         </div>
         <div th:if="${#lists.isEmpty(misPacientes)}" class="empty-state">
             <svg class="empty-state-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true">

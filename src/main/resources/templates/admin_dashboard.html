@@ -1,62 +1,62 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org"
+<html lang="es" xmlns:th="http://www.thymeleaf.org"
       xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Panel de Administración - BeSalud</title>
     <link rel="stylesheet" th:href="@{/css/global.css}">
     <link rel="stylesheet" th:href="@{/css/admin_dashboard.css}">
 </head>
 <body>
-<header>
-    <div class="header-brand">
-        <h1>BeSalud</h1>
-        <p>Panel de Administración</p>
-    </div>
-    <nav class="header-nav" aria-label="Navegación principal">
-        <span class="header-user" sec:authentication="name" style="margin-right: 15px; font-weight: 500;">Administrador</span>
-        <form th:action="@{/logout}" method="post" style="display: inline;">
-            <button type="submit" class="btn btn-secondary">Cerrar Sesión</button>
-        </form>
-    </nav>
-</header>
+<header th:replace="~{fragments/layout :: shell-admin('panel')}"></header>
 
-<div class="container">
+<main class="container">
+    <section class="page-header" aria-labelledby="page-title">
+        <div>
+            <p class="page-eyebrow">Panel de administración</p>
+            <h1 id="page-title" class="page-title">Resumen general</h1>
+        </div>
+    </section>
+
     <div class="stats-grid">
         <div class="stat-card">
-            <h3>Total Doctores</h3>
+            <h2>Total doctores</h2>
             <div class="stat-number" th:text="${doctores.totalElements}"></div>
         </div>
         <div class="stat-card">
-            <h3>Total Pacientes</h3>
+            <h2>Total pacientes</h2>
             <div class="stat-number" th:text="${pacientes.totalElements}"></div>
         </div>
         <div class="stat-card">
-            <h3>Total Administradores</h3>
+            <h2>Total administradores</h2>
             <div class="stat-number" th:text="${#lists.size(admins)}"></div>
         </div>
     </div>
 
     <div class="card">
-        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 16px;">
-            <h2 style="margin: 0;">Doctores Registrados</h2>
-            <form th:action="@{/admin}" method="get" style="display:flex; gap:8px; align-items:center;">
-                <input type="text" name="search" th:value="${search}" placeholder="Buscar nombre o email..." style="padding:8px; border: 1px solid var(--border-color, #ccc); border-radius: 4px;" />
-                <input type="text" name="especialidad" th:value="${especialidad}" placeholder="Filtrar especialidad" style="padding:8px; border: 1px solid var(--border-color, #ccc); border-radius: 4px;" />
-                <input type="hidden" name="size" th:value="${size}" />
-                <button type="submit" class="btn btn-primary btn-sm">Buscar</button>
-                <a th:if="${search != null and !search.isEmpty() or especialidad != null and !especialidad.isEmpty()}" 
-                   th:href="@{/admin}" class="btn btn-secondary btn-sm">Limpiar</a>
-            </form>
-        </div>
-        <div style="overflow-x: auto;">
+        <h2>Doctores registrados</h2>
+        <form th:action="@{/admin}" method="get" class="toolbar" role="search">
+            <label for="search" class="visually-hidden">Buscar por nombre o email</label>
+            <input id="search" type="text" name="search" th:value="${search}" placeholder="Buscar nombre o email"/>
+            <label for="especialidad" class="visually-hidden">Especialidad</label>
+            <input id="especialidad" type="text" name="especialidad" th:value="${especialidad}" placeholder="Filtrar especialidad"/>
+            <input type="hidden" name="size" th:value="${size}" />
+            <div class="toolbar-actions">
+                <button type="submit" class="btn btn-primary">Buscar</button>
+                <a th:if="${(search != null and !search.isEmpty()) or (especialidad != null and !especialidad.isEmpty())}"
+                   th:href="@{/admin}" class="btn btn-secondary">Limpiar</a>
+            </div>
+        </form>
+        <div class="table-scroll">
         <table>
             <thead>
                 <tr>
-                    <th>Nombre</th>
-                    <th>Email</th>
-                    <th>Especialidad</th>
-                    <th>Estado</th>
-                    <th>Acciones</th>
+                    <th scope="col">Nombre</th>
+                    <th scope="col">Email</th>
+                    <th scope="col">Especialidad</th>
+                    <th scope="col">Estado</th>
+                    <th scope="col" class="table-actions">Acciones</th>
                 </tr>
             </thead>
             <tbody>
@@ -68,12 +68,12 @@
                             <span th:if="${doctor.estado == 'ACTIVO'}" class="status-badge status-activo">Activo</span>
                             <span th:if="${doctor.estado == 'INACTIVO'}" class="status-badge status-inactivo">Inactivo</span>
                         </td>
-                        <td>
-                            <a th:href="@{/doctores/{id}/horarios(id=${doctor.id})}" class="btn btn-sm">Ver Horarios</a>
-                            <form th:if="${doctor.estado == 'INACTIVO'}" th:action="@{/admin/doctores/{id}/activar(id=${doctor.id})}" method="post" style="display: inline;">
+                        <td class="table-actions">
+                            <a th:href="@{/doctores/{id}/horarios(id=${doctor.id})}" class="btn btn-secondary btn-sm">Ver horarios</a>
+                            <form th:if="${doctor.estado == 'INACTIVO'}" th:action="@{/admin/doctores/{id}/activar(id=${doctor.id})}" method="post" class="form-inline">
                                 <button type="submit" class="btn btn-sm btn-success">Activar</button>
                             </form>
-                            <form th:if="${doctor.estado == 'ACTIVO'}" th:action="@{/admin/doctores/{id}/desactivar(id=${doctor.id})}" method="post" style="display: inline;">
+                            <form th:if="${doctor.estado == 'ACTIVO'}" th:action="@{/admin/doctores/{id}/desactivar(id=${doctor.id})}" method="post" class="form-inline">
                                 <button type="submit" class="btn btn-sm btn-warning">Desactivar</button>
                             </form>
                         </td>
@@ -81,33 +81,19 @@
             </tbody>
         </table>
         </div>
-        <div th:if="${doctores.totalPages > 1}" style="margin-top:16px; text-align:center;"
-             th:with="start=${(doctores.number - 2 < 0) ? 0 : (doctores.number - 2)}, end=${(doctores.number + 2 >= doctores.totalPages) ? (doctores.totalPages - 1) : (doctores.number + 2)}">
-                <a th:if="${doctores.hasPrevious()}" th:href="@{/admin(page=${doctores.number-1},size=${size},search=${search},especialidad=${especialidad})}" class="btn btn-link">Anterior</a>
-                <span th:if="${start > 0}" style="color: #666; margin: 0 4px;">...</span>
-                <span th:each="i : ${#numbers.sequence(start, end)}">
-                    <a th:href="@{/admin(page=${i},size=${size},search=${search},especialidad=${especialidad})}"
-                       th:text="${i+1}"
-                       th:classappend="${i == doctores.number} ? ' btn btn-accent' : ' btn btn-link'"
-                       style="margin:0 4px;"></a>
-                </span>
-                <span th:if="${end < doctores.totalPages - 1}" style="color: #666; margin: 0 4px;">...</span>
-                <a th:if="${doctores.hasNext()}" th:href="@{/admin(page=${doctores.number+1},size=${size},search=${search},especialidad=${especialidad})}" class="btn btn-link">Siguiente</a>
-            </div>
+        <nav th:replace="~{fragments/layout :: pagination(${doctores}, '/admin', ${search}, ${especialidad})}"></nav>
     </div>
 
     <div class="card">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
-            <h2 style="margin: 0;">Pacientes Registrados</h2>
-        </div>
-        <div style="overflow-x: auto;">
+        <h2>Pacientes registrados</h2>
+        <div class="table-scroll">
         <table>
             <thead>
                 <tr>
-                    <th>Nombre</th>
-                    <th>Email</th>
-                    <th>Teléfono</th>
-                    <th>Acciones</th>
+                    <th scope="col">Nombre</th>
+                    <th scope="col">Email</th>
+                    <th scope="col">Teléfono</th>
+                    <th scope="col" class="table-actions">Acciones</th>
                 </tr>
             </thead>
             <tbody>
@@ -115,28 +101,16 @@
                     <td th:text="${paciente.nombre + ' ' + paciente.apellido}"></td>
                     <td th:text="${paciente.email}"></td>
                     <td th:text="${paciente.telefono}"></td>
-                    <td>
-                        <a th:href="@{/citas?pacienteId={id}(id=${paciente.id})}" class="btn btn-sm">Ver Citas</a>
+                    <td class="table-actions">
+                        <a th:href="@{/citas?pacienteId={id}(id=${paciente.id})}" class="btn btn-secondary btn-sm">Ver citas</a>
                     </td>
                 </tr>
             </tbody>
         </table>
         </div>
-        <div th:if="${pacientes.totalPages > 1}" style="margin-top:16px; text-align:center;"
-             th:with="start=${(pacientes.number - 2 < 0) ? 0 : (pacientes.number - 2)}, end=${(pacientes.number + 2 >= pacientes.totalPages) ? (pacientes.totalPages - 1) : (pacientes.number + 2)}">
-            <a th:if="${pacientes.hasPrevious()}" th:href="@{/admin(page=${pacientes.number-1},size=${size})}" class="btn btn-link">Anterior</a>
-            <span th:if="${start > 0}" style="color: #666; margin: 0 4px;">...</span>
-            <span th:each="i : ${#numbers.sequence(start, end)}">
-                <a th:href="@{/admin(page=${i},size=${size})}"
-                   th:text="${i+1}"
-                   th:classappend="${i == pacientes.number} ? ' btn btn-accent' : ' btn btn-link'"
-                   style="margin:0 4px;"></a>
-            </span>
-            <span th:if="${end < pacientes.totalPages - 1}" style="color: #666; margin: 0 4px;">...</span>
-            <a th:if="${pacientes.hasNext()}" th:href="@{/admin(page=${pacientes.number+1},size=${size})}" class="btn btn-link">Siguiente</a>
-        </div>
+        <nav th:replace="~{fragments/layout :: pagination(${pacientes}, '/admin', null, null)}"></nav>
     </div>
-</div>
+</main>
 
 <footer th:replace="~{fragments/layout :: footer}"></footer>
 </body>
