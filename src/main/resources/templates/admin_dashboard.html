@@ -22,11 +22,11 @@
     <div class="stats-grid">
         <div class="stat-card">
             <h2>Total doctores</h2>
-            <div class="stat-number" th:text="${doctores.totalElements}"></div>
+            <div class="stat-number" th:text="${totalDoctores}"></div>
         </div>
         <div class="stat-card">
             <h2>Total pacientes</h2>
-            <div class="stat-number" th:text="${pacientes.totalElements}"></div>
+            <div class="stat-number" th:text="${totalPacientes}"></div>
         </div>
         <div class="stat-card">
             <h2>Total administradores</h2>
@@ -81,7 +81,7 @@
             </tbody>
         </table>
         </div>
-        <nav th:replace="~{fragments/layout :: pagination(${doctores}, '/admin', ${search}, ${especialidad})}"></nav>
+        <nav th:replace="~{fragments/layout :: paginationQ(${doctores}, '/admin', ${queryDoctores}, 'pageDoctores')}"></nav>
     </div>
 
     <div class="card">
@@ -108,7 +108,7 @@
             </tbody>
         </table>
         </div>
-        <nav th:replace="~{fragments/layout :: pagination(${pacientes}, '/admin', null, null)}"></nav>
+        <nav th:replace="~{fragments/layout :: paginationQ(${pacientes}, '/admin', ${queryPacientes}, 'pagePacientes')}"></nav>
     </div>
 </main>
 

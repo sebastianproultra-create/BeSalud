@@ -696,6 +696,12 @@ footer p {
     border-color: rgba(26, 92, 69, 0.3);
 }
 
+.badge-warning {
+    background-color: rgba(200, 120, 20, 0.12);
+    color: #6B3F00;
+    border-color: rgba(200, 120, 20, 0.4);
+}
+
 .badge-cancelled {
     background-color: rgba(185, 64, 64, 0.08);
     color: #7A2020;

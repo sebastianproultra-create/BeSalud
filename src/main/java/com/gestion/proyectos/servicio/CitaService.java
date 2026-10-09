@@ -144,6 +144,10 @@ public class CitaService {
         return personaRepo.findAllDoctores();
     }
 
+    public List<Doctor> listarDoctoresActivos() {
+        return personaRepo.findDoctoresActivos();
+    }
+
     public List<Paciente> listarPacientes() {
         return personaRepo.findAllPacientes();
     }

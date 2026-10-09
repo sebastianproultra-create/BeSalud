@@ -13,6 +13,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -28,9 +29,13 @@ public class PacienteService {
     private final PersonaRepositorio personaRepo;
     private final CitaRepositorio citaRepo;
 
-    public PacienteService(PersonaRepositorio personaRepo, CitaRepositorio citaRepo) {
+    private final PasswordEncoder passwordEncoder;
+
+    public PacienteService(PersonaRepositorio personaRepo, CitaRepositorio citaRepo,
+                           PasswordEncoder passwordEncoder) {
         this.personaRepo = personaRepo;
         this.citaRepo = citaRepo;
+        this.passwordEncoder = passwordEncoder;
     }
 
     public List<Paciente> listarTodos() {
@@ -54,6 +59,11 @@ public class PacienteService {
         var conflicto = personaRepo.findPacienteByEmail(paciente.getEmail().trim());
         if (conflicto.isPresent() && !conflicto.get().getId().equals(paciente.getId()))
             return "Ya existe un paciente registrado con ese correo";
+        String clave = paciente.getPassword();
+        if (clave == null || clave.length() < 8 || !clave.matches(".*[A-Za-z].*") || !clave.matches(".*\\d.*"))
+            return "La contraseña debe tener al menos 8 caracteres, con una letra y un número";
+        paciente.setPassword(passwordEncoder.encode(clave));
+        paciente.setEmail(paciente.getEmail().trim().toLowerCase());
         personaRepo.save(paciente);
         log.info("Paciente guardado: {}", paciente.getEmail());
         return null;

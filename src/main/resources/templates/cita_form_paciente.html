@@ -46,6 +46,21 @@
         </div>
     </div>
 
+    <div th:if="${param.error != null}" class="alert-error" role="alert" th:switch="${param.error[0]}">
+        <span th:case="'horario_invalido'">El horario seleccionado ya no está disponible. Por favor, elige otro.</span>
+        <span th:case="'conflicto_cita'">Ese horario ya fue reservado por otro paciente. Por favor elige otro.</span>
+        <span th:case="'conflicto_paciente'">Ya tienes otra cita a esa hora. Elige un horario distinto.</span>
+        <span th:case="'doctor_invalido'">No puedes agendar una cita contigo mismo. Elige otro doctor.</span>
+        <span th:case="'fecha_pasada'">Esa fecha y hora ya pasaron. Elige un horario futuro.</span>
+        <span th:case="'estado_invalido'">Solo se pueden reprogramar citas pendientes.</span>
+        <span th:case="'fecha_requerida'">Elige una fecha.</span>
+        <span th:case="'hora_requerida'">Elige una hora.</span>
+        <span th:case="'motivo_requerido'">Escribe el motivo de la consulta.</span>
+        <span th:case="'fecha_invalida'">La fecha no es válida.</span>
+        <span th:case="'hora_invalida'">La hora no es válida.</span>
+        <span th:case="*">No se pudo guardar la cita. Intenta de nuevo.</span>
+    </div>
+
     <!-- No availability message -->
     <div th:if="${#maps.isEmpty(slotsDisponibles)}" class="no-availability">
         <div class="no-avail-icon"><i class="fa-regular fa-calendar-xmark fa-3x"></i></div>
@@ -81,7 +96,7 @@
                     <input type="hidden" name="doctorId" th:value="${doctorSeleccionado.id}"/>
                     <input type="hidden" name="fecha" id="inputFecha"/>
                     <input type="hidden" name="hora" id="inputHora"/>
-                    <div class="form-group">
+                    <div class="form-group" th:if="${cita == null}">
                         <label for="motivo">Motivo de la consulta</label>
                         <textarea id="motivo" name="motivo" rows="3" placeholder="Describe brevemente el motivo de tu visita..." required
                                   th:text="${param.motivo != null ? #strings.abbreviate(param.motivo[0], 300) : ''}"></textarea>
@@ -90,20 +105,6 @@
                     <button type="button" class="btn-change" onclick="clearSlot()">Cambiar horario</button>
                 </form>
             </div>
-        </div>
-
-        <!-- Error messages -->
-        <div th:if="${param.error != null and param.error[0] == 'horario_invalido'}" class="alert-error">
-            El horario seleccionado ya no está disponible. Por favor, elige otro.
-        </div>
-        <div th:if="${param.error != null and param.error[0] == 'conflicto_cita'}" class="alert-error">
-            Ese horario ya fue reservado por otro paciente. Por favor elige otro.
-        </div>
-        <div th:if="${param.error != null and param.error[0] == 'conflicto_paciente'}" class="alert-error">
-            Ya tienes otra cita a esa hora. Elige un horario distinto.
-        </div>
-        <div th:if="${param.error != null and param.error[0] == 'doctor_invalido'}" class="alert-error">
-            No puedes agendar una cita contigo mismo. Elige otro doctor.
         </div>
 
     </div>

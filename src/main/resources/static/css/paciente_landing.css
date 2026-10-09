@@ -205,6 +205,15 @@
     font-weight: 600;
 }
 
+.badge-noasistio {
+    background-color: #fff3cd;
+    color: #664d03;
+    padding: 3px 10px;
+    border-radius: 12px;
+    font-size: 13px;
+    font-weight: 600;
+}
+
 .badge-confirmada {
     background-color: #d1e7dd;
     color: #0f5132;

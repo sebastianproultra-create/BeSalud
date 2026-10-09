@@ -222,4 +222,22 @@ class DoctorControllerTest {
 
         verify(doctorService).marcarNoAsistio("c1", "d1");
     }
+
+    // ── foto demasiado grande ────────────────────────────────────────────────
+
+    @Test
+    void actualizarFoto_archivoMuyGrande_redirigeConErrorTamano() throws Exception {
+        Doctor doctor = new Doctor();
+        when(doctorService.buscarPorEmail("doc@test.com")).thenReturn(Optional.of(doctor));
+        when(doctorService.actualizarFoto(any(), any()))
+                .thenThrow(new org.springframework.web.multipart.MaxUploadSizeExceededException(2L * 1024 * 1024));
+
+        mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders
+                        .multipart("/doctores/perfil/foto")
+                        .file(new org.springframework.mock.web.MockMultipartFile("foto", "f.png", "image/png", new byte[10]))
+                        .with(csrf())
+                        .with(user("doc@test.com").roles("DOCTOR")))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/doctores?fotoError=tamano#perfil"));
+    }
 }

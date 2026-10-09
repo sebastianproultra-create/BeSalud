@@ -259,7 +259,7 @@ class CitaControllerTest {
                         .with(csrf())
                         .with(user("pac@test.com").roles("PACIENTE")))
                 .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl("/pacientes/landing"));
+                .andExpect(redirectedUrl("/pacientes/landing?success=cita_cancelada"));
 
         verify(citaService).cancelar(cita);
     }

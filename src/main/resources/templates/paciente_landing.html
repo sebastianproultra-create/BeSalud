@@ -33,6 +33,18 @@
             ¡Tu cita ha sido reprogramada exitosamente!
         </div>
 
+        <div th:if="${param.success != null and param.success[0] == 'cita_cancelada'}" class="alert alert-success" role="status">
+            Tu cita fue cancelada.
+        </div>
+        <div th:if="${param.error != null}" class="alert alert-error" role="alert" th:switch="${param.error[0]}">
+            <span th:case="'doctor_inactivo'">Ese doctor no está disponible por ahora.</span>
+            <span th:case="'doctor_no_existe'">El doctor seleccionado no existe.</span>
+            <span th:case="'doctor_requerido'">Selecciona un doctor para agendar.</span>
+            <span th:case="'paciente_no_encontrado'">No encontramos tu perfil de paciente.</span>
+            <span th:case="'no_autorizado'">No tienes permiso para realizar esa acción.</span>
+            <span th:case="*">No se pudo completar la acción. Intenta de nuevo.</span>
+        </div>
+
         <a th:href="@{/triage}" class="triage-cta">
             <i class="fa-solid fa-wand-magic-sparkles"></i>
             <span>
@@ -113,7 +125,7 @@
                         <div class="cita-item-top">
                             <span class="cita-doctor" th:text="${doctoresMap[cita.doctorId] != null ? doctoresMap[cita.doctorId] : 'Doctor no encontrado'}"></span>
                             <span th:text="${cita.estado.descripcion}"
-                                  th:class="${'cita-badge ' + (cita.estado.name() == 'PENDIENTE' ? 'badge-pendiente' : (cita.estado.name() == 'CANCELADA' ? 'badge-cancelada' : 'badge-confirmada'))}"></span>
+                                  th:class="${'cita-badge ' + (cita.estado.name() == 'PENDIENTE' ? 'badge-pendiente' : (cita.estado.name() == 'CANCELADA' ? 'badge-cancelada' : (cita.estado.name() == 'NO_ASISTIO' ? 'badge-noasistio' : 'badge-confirmada')))}"></span>
                         </div>
                         <div class="cita-item-bottom">
                             <span class="cita-meta"><i class="fa-regular fa-calendar"></i> <span th:text="${#temporals.format(cita.fecha, 'dd/MM/yyyy')}"></span></span>
@@ -124,6 +136,11 @@
                             <a th:href="@{/citas/{id}/reprogramar(id=${cita.id})}"
                                class="btn btn-secondary btn-small"
                                th:if="${cita.estado.name() == 'PENDIENTE'}">Reprogramar</a>
+                            <form th:action="@{/citas/{id}/cancelar(id=${cita.id})}" method="post" class="form-inline"
+                                  th:if="${cita.estado.name() == 'PENDIENTE'}"
+                                  onsubmit="return confirm('¿Cancelar esta cita?');">
+                                <button type="submit" class="btn btn-danger btn-small">Cancelar</button>
+                            </form>
                         </div>
                         <!-- Dictamen visible para citas completadas -->
                         <div th:if="${cita.estado.name() == 'COMPLETADA' and cita.dictamen != null}" class="cita-dictamen">

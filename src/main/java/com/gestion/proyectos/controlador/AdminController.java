@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.util.UriComponentsBuilder;
 
 @Controller
 @RequestMapping("/admin")
@@ -24,22 +25,38 @@ public class AdminController {
 
     @GetMapping
     public String dashboard(Model model,
-            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "0") int pageDoctores,
+            @RequestParam(defaultValue = "0") int pagePacientes,
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(required = false) String especialidad,
             @RequestParam(required = false) String search) {
 
-        var doctoresPage = adminService.listarDoctoresPaginated(page, size, especialidad, search);
-        var pacientesPage = adminService.listarPacientesPaginated(page, size);
+        var doctoresPage = adminService.listarDoctoresPaginated(pageDoctores, size, especialidad, search);
+        var pacientesPage = adminService.listarPacientesPaginated(pagePacientes, size);
 
         model.addAttribute("doctores", doctoresPage);
         model.addAttribute("pacientes", pacientesPage);
+        model.addAttribute("totalDoctores", adminService.contarDoctores());
+        model.addAttribute("totalPacientes", adminService.contarPacientes());
         model.addAttribute("admins", adminService.listarAdmins());
-        model.addAttribute("page", page);
         model.addAttribute("size", size);
         model.addAttribute("search", search == null ? "" : search);
         model.addAttribute("especialidad", especialidad == null ? "" : especialidad);
+        // Cada tabla pagina por su cuenta: el enlace de una conserva la página de la otra y los filtros
+        model.addAttribute("queryDoctores", query(size, search, especialidad, "pagePacientes", pagePacientes));
+        model.addAttribute("queryPacientes", query(size, search, especialidad, "pageDoctores", pageDoctores));
         return "admin_dashboard";
+    }
+
+    private static String query(int size, String search, String especialidad, String otraPagina, int valorOtra) {
+        UriComponentsBuilder b = UriComponentsBuilder.newInstance()
+                .queryParam("size", size)
+                .queryParam(otraPagina, valorOtra);
+        if (search != null && !search.isBlank())
+            b.queryParam("search", search.trim());
+        if (especialidad != null && !especialidad.isBlank())
+            b.queryParam("especialidad", especialidad.trim());
+        return b.build().encode().getQuery();
     }
 
     @GetMapping("/estadisticas")

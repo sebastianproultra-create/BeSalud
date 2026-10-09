@@ -57,6 +57,14 @@ public class AdminService {
         return personaRepo.findAllPacientes(pageable);
     }
 
+    public long contarDoctores() {
+        return personaRepo.findAllDoctores(PageRequest.of(0, 1)).getTotalElements();
+    }
+
+    public long contarPacientes() {
+        return personaRepo.findAllPacientes(PageRequest.of(0, 1)).getTotalElements();
+    }
+
     public Optional<Doctor> obtenerDoctor(String id) {
         return personaRepo.findById(id).filter(p -> p instanceof Doctor).map(p -> (Doctor) p);
     }

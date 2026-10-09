@@ -53,7 +53,7 @@ public class CitaController {
     @GetMapping("/crear")
     public String crear(Model model) {
         model.addAttribute("cita", new Cita());
-        model.addAttribute("doctores", citaService.listarDoctores());
+        model.addAttribute("doctores", citaService.listarDoctoresActivos());
         model.addAttribute("pacientes", citaService.listarPacientes());
         return "cita_form";
     }
@@ -158,6 +158,7 @@ public class CitaController {
 
         if (citaService.esFechaHoraPasada(fechaCita, horaCita)) return "redirect:/citas/crear?error=fecha_pasada";
         if (!citaService.doctorExiste(doctorId)) return "redirect:/citas/crear?error=doctor_no_existe";
+        if (!citaService.doctorActivo(doctorId)) return "redirect:/citas/crear?error=doctor_inactivo";
         if (!citaService.pacienteExiste(pacienteId)) return "redirect:/citas/crear?error=paciente_no_existe";
         if (!citaService.esHorarioValido(doctorId, fechaCita, horaCita)) return "redirect:/citas/crear?error=horario_invalido";
         if (citaService.hayConflicto(doctorId, fechaCita, horaCita, null)) return "redirect:/citas/crear?error=conflicto_cita";
@@ -229,7 +230,7 @@ public class CitaController {
             if (paciente == null || !paciente.getId().equals(cita.getPacienteId()))
                 return "redirect:/pacientes/landing?error=no_autorizado";
             citaService.cancelar(cita);
-            return REDIRECT_PACIENTES_LANDING;
+            return "redirect:/pacientes/landing?success=cita_cancelada";
         }
         if ("ROLE_DOCTOR".equals(role)) {
             Doctor doctor = citaService.buscarDoctorPorEmail(email).orElse(null);

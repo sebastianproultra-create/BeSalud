@@ -68,6 +68,9 @@ public class DoctorController {
             model.addAttribute("weeklyAvailability", weeklyAvailability);
             model.addAttribute("weeklySlotTotal", doctorService.weeklySlotTotal(weeklyAvailability));
             model.addAttribute("dailySlotCounts", doctorService.dailySlotCounts(weeklyAvailability));
+            model.addAttribute("diasNombre", Map.of(
+                    "MONDAY", "Lunes", "TUESDAY", "Martes", "WEDNESDAY", "Miércoles",
+                    "THURSDAY", "Jueves", "FRIDAY", "Viernes", "SATURDAY", "Sábado", "SUNDAY", "Domingo"));
             model.addAttribute("diasSemana", List.of(
                     new String[] { "MONDAY", "Lu", "Lunes" },
                     new String[] { "TUESDAY", "Ma", "Martes" },

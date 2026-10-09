@@ -41,6 +41,17 @@
     <a th:if="${page.hasNext()}" th:href="@{${url}(page=${page.number + 1}, size=${page.size}, search=${search}, especialidad=${especialidad})}" class="pagination-step">Siguiente</a>
 </nav>
 
+<!-- ── Paginación con parámetro propio (query: resto de parámetros ya codificados, pageParam: nombre del parámetro de página) ── -->
+<nav th:fragment="paginationQ(page, url, query, pageParam)" th:if="${page.totalPages > 1}" class="pagination" aria-label="Paginación"
+     th:with="start=${(page.number - 2 < 0) ? 0 : (page.number - 2)}, end=${(page.number + 2 >= page.totalPages) ? (page.totalPages - 1) : (page.number + 2)}">
+    <a th:if="${page.hasPrevious()}" th:href="@{${url + '?' + query + '&' + pageParam + '=' + (page.number - 1)}}" class="pagination-step">Anterior</a>
+    <a th:each="i : ${#numbers.sequence(start, end)}"
+       th:href="@{${url + '?' + query + '&' + pageParam + '=' + i}}"
+       th:text="${i + 1}" th:classappend="${i == page.number} ? 'is-current'" class="pagination-page"
+       th:aria-current="${i == page.number} ? 'page'"></a>
+    <a th:if="${page.hasNext()}" th:href="@{${url + '?' + query + '&' + pageParam + '=' + (page.number + 1)}}" class="pagination-step">Siguiente</a>
+</nav>
+
 <!-- ── Footer ── -->
 <footer th:fragment="footer">
     <p>&copy; 2026 BeSalud - Sistema de Citas Médicas. Todos los derechos reservados. · <a th:href="@{/privacidad}">Política de privacidad</a></p>

@@ -44,7 +44,7 @@
                     <td>
                         <span th:if="${c.estado != null}"
                               th:text="${c.estado.descripcion}"
-                              th:class="${'badge ' + (c.estado.name() == 'PENDIENTE' ? 'badge-pending' : c.estado.name() == 'COMPLETADA' ? 'badge-success' : 'badge-cancelled')}"></span>
+                              th:class="${'badge ' + (c.estado.name() == 'PENDIENTE' ? 'badge-pending' : (c.estado.name() == 'COMPLETADA' or c.estado.name() == 'ASISTIO') ? 'badge-success' : c.estado.name() == 'NO_ASISTIO' ? 'badge-warning' : 'badge-cancelled')}"></span>
                         <span th:if="${c.estado == null}" class="badge">—</span>
                     </td>
                     <td class="table-actions">
