@@ -2,6 +2,7 @@ package com.gestion.proyectos.servicio;
 
 import static com.gestion.proyectos.util.ValidacionUtil.esVacio;
 
+import com.gestion.proyectos.util.ValidacionUtil;
 import com.gestion.proyectos.modelo.Cita;
 import com.gestion.proyectos.modelo.Dictamen;
 import com.gestion.proyectos.modelo.Doctor;
@@ -69,11 +70,11 @@ public class DoctorService {
         boolean hasEspecialidad = especialidad != null && !especialidad.isBlank();
 
         if (hasSearch && hasEspecialidad) {
-            return personaRepo.searchDoctoresCombinado(search.trim(), especialidad.trim(), pageable);
+            return personaRepo.searchDoctoresCombinado(ValidacionUtil.literalRegex(search.trim()), ValidacionUtil.literalRegex(especialidad.trim()), pageable);
         } else if (hasSearch) {
-            return personaRepo.searchDoctoresByNombreApellidoEmail(search.trim(), pageable);
+            return personaRepo.searchDoctoresByNombreApellidoEmail(ValidacionUtil.literalRegex(search.trim()), pageable);
         } else if (hasEspecialidad) {
-            return personaRepo.findDoctoresByEspecialidadContainingIgnoreCase(especialidad.trim(), pageable);
+            return personaRepo.findDoctoresByEspecialidadContainingIgnoreCase(ValidacionUtil.literalRegex(especialidad.trim()), pageable);
         } else {
             return personaRepo.findAllDoctores(pageable);
         }
