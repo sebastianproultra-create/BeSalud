@@ -52,6 +52,9 @@
         <div th:if="${param.error}" class="alert alert-error">
             Usuario o contraseña incorrecta
         </div>
+        <div th:if="${param.bloqueado}" class="alert alert-error">
+            Demasiados intentos fallidos. Espera 15 minutos e intenta de nuevo.
+        </div>
 
         <!-- Mensaje de sesión expirada -->
         <div th:if="${param.sessionExpired}" class="alert alert-error">

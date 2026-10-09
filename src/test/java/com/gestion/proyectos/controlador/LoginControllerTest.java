@@ -1,5 +1,6 @@
 package com.gestion.proyectos.controlador;
 
+import com.gestion.proyectos.seguridad.RateLimiter;
 import com.gestion.proyectos.oauth2.OAuth2LoginSuccessHandler;
 import com.gestion.proyectos.servicio.DoctorService;
 import com.gestion.proyectos.repositorio.AdminRepositorio;
@@ -8,6 +9,7 @@ import com.gestion.proyectos.seguridad.CustomUserDetailsService;
 import com.gestion.proyectos.seguridad.JwtCookieService;
 import com.gestion.proyectos.seguridad.JwtService;
 import com.gestion.proyectos.servicio.RegistroService;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import com.gestion.proyectos.seguridad.SecurityConfig;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,9 +17,15 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -30,6 +38,14 @@ class LoginControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
+
+    @MockBean
+    private RateLimiter rateLimiter;
+
+    @BeforeEach
+    void permitirPeticiones() {
+        when(rateLimiter.permitir(anyString(), anyInt(), any())).thenReturn(true);
+    }
 
     @MockBean
     private PersonaRepositorio personaRepositorio;
@@ -57,6 +73,31 @@ class LoginControllerTest {
 
     @MockBean
     private AuthenticationManager authenticationManager;
+
+    @Test
+    void login_conDemasiadosFallos_redirigeBloqueadoSinAutenticar() throws Exception {
+        when(rateLimiter.bloqueado(anyString(), anyInt(), any())).thenReturn(true);
+
+        mockMvc.perform(post("/login")
+                        .param("email", "victima@test.com")
+                        .param("password", "x")
+                        .with(csrf()))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/login?bloqueado=true"));
+        verify(authenticationManager, never()).authenticate(any());
+    }
+
+    @Test
+    void login_credencialesIncorrectas_registraElFallo() throws Exception {
+        when(authenticationManager.authenticate(any())).thenThrow(new BadCredentialsException("mal"));
+
+        mockMvc.perform(post("/login")
+                        .param("email", "Usuario@Test.com")
+                        .param("password", "x")
+                        .with(csrf()))
+                .andExpect(redirectedUrl("/login?error=true"));
+        verify(rateLimiter).registrar(eq("login:127.0.0.1:usuario@test.com"), any());
+    }
 
     @Test
     void loginPage_retornaVistaLogin() throws Exception {

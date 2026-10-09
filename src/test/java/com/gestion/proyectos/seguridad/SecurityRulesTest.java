@@ -7,6 +7,7 @@ import com.gestion.proyectos.repositorio.AdminRepositorio;
 import com.gestion.proyectos.repositorio.PersonaRepositorio;
 import com.gestion.proyectos.seguridad.JwtCookieService;
 import com.gestion.proyectos.seguridad.JwtService;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -16,6 +17,10 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -27,6 +32,14 @@ class SecurityRulesTest {
 
     @Autowired
     private MockMvc mockMvc;
+
+    @MockBean
+    private RateLimiter rateLimiter;
+
+    @BeforeEach
+    void permitirPeticiones() {
+        when(rateLimiter.permitir(anyString(), anyInt(), any())).thenReturn(true);
+    }
 
     @MockBean
     private PersonaRepositorio personaRepositorio;

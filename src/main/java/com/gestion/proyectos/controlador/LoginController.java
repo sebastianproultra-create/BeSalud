@@ -1,16 +1,21 @@
 package com.gestion.proyectos.controlador;
 
+import java.time.Duration;
+
 import com.gestion.proyectos.modelo.UserRegistrationDTO;
 import com.gestion.proyectos.modelo.Doctor;
 import com.gestion.proyectos.seguridad.JwtCookieService;
 import com.gestion.proyectos.seguridad.JwtService;
+import com.gestion.proyectos.seguridad.RateLimiter;
 import com.gestion.proyectos.servicio.RegistroService;
 import com.gestion.proyectos.servicio.DoctorService;
 
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
@@ -33,17 +38,23 @@ public class LoginController {
     private final JwtService jwtService;
     private final JwtCookieService jwtCookieService;
     private final DoctorService doctorService;
+    private final RateLimiter rateLimiter;
+
+    private static final int MAX_FALLOS_LOGIN = 5;
+    private static final Duration VENTANA_LOGIN = Duration.ofMinutes(15);
 
     public LoginController(RegistroService registroService,
             AuthenticationManager authenticationManager,
             JwtService jwtService,
             JwtCookieService jwtCookieService,
-            DoctorService doctorService) {
+            DoctorService doctorService,
+            RateLimiter rateLimiter) {
         this.registroService = registroService;
         this.authenticationManager = authenticationManager;
         this.jwtService = jwtService;
         this.jwtCookieService = jwtCookieService;
         this.doctorService = doctorService;
+        this.rateLimiter = rateLimiter;
     }
 
     @GetMapping("/login")
@@ -53,10 +64,14 @@ public class LoginController {
 
     @PostMapping("/login")
     public String loginPost(@RequestParam String email, @RequestParam String password,
-            HttpServletResponse response, Model model) {
+            HttpServletRequest request, HttpServletResponse response, Model model) {
+        String claveLogin = "login:" + request.getRemoteAddr() + ":" + email.trim().toLowerCase();
+        if (rateLimiter.bloqueado(claveLogin, MAX_FALLOS_LOGIN, VENTANA_LOGIN))
+            return "redirect:/login?bloqueado=true";
         try {
             Authentication authentication = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(email, password));
+            rateLimiter.reiniciar(claveLogin);
 
             // Validar si es doctor inactivo
             boolean isDoctor = authentication.getAuthorities().stream()
@@ -80,6 +95,9 @@ public class LoginController {
             if (isDoctor)
                 return "redirect:/doctores";
             return "redirect:/pacientes/landing";
+        } catch (AuthenticationException e) {
+            rateLimiter.registrar(claveLogin, VENTANA_LOGIN);
+            return "redirect:/login?error=true";
         } catch (Exception e) {
             return "redirect:/login?error=true";
         }

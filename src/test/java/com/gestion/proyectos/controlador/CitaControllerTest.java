@@ -1,5 +1,6 @@
 package com.gestion.proyectos.controlador;
 
+import com.gestion.proyectos.seguridad.RateLimiter;
 import com.gestion.proyectos.oauth2.OAuth2LoginSuccessHandler;
 import com.gestion.proyectos.modelo.Cita;
 import com.gestion.proyectos.modelo.Doctor;
@@ -12,6 +13,7 @@ import com.gestion.proyectos.seguridad.JwtCookieService;
 import com.gestion.proyectos.seguridad.JwtService;
 import com.gestion.proyectos.seguridad.SecurityConfig;
 import com.gestion.proyectos.servicio.CitaService;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -35,6 +37,14 @@ class CitaControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
+
+    @MockBean
+    private RateLimiter rateLimiter;
+
+    @BeforeEach
+    void permitirPeticiones() {
+        when(rateLimiter.permitir(anyString(), anyInt(), any())).thenReturn(true);
+    }
 
     @MockBean private CitaService citaService;
     @MockBean private CustomUserDetailsService customUserDetailsService;
