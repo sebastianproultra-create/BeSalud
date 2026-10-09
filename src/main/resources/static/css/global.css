@@ -526,6 +526,15 @@ footer p {
     opacity: 0.6;
 }
 
+footer a {
+    color: var(--accent-light);
+    text-decoration: underline;
+}
+
+footer a:hover {
+    color: var(--white);
+}
+
 /* ==============================================
    CUSTOM SELECT DROPDOWN
    ============================================== */
@@ -989,6 +998,10 @@ form.toolbar { margin-bottom: 28px; }
     flex-wrap: wrap;
     gap: 6px;
     margin-top: 20px;
+    /* Es un <nav>: anula el fondo verde de la regla general de nav (pensada para el menú). */
+    background: none;
+    border-bottom: 0;
+    padding: 12px 0;
 }
 
 .pagination a {
@@ -1083,5 +1096,8 @@ form.card-form { padding: 0; border: none; box-shadow: none; margin: 0; backgrou
 
 .card-center { max-width: 600px; margin: 30px auto; }
 
-.check-privacidad { display: flex; align-items: flex-start; gap: 8px; margin: 12px 0; font-size: 0.9rem; }
+/* Hereda el estilo de label de formulario (mayúsculas, espaciado): aquí es texto corrido. */
+.check-privacidad { display: flex; align-items: flex-start; gap: 8px; margin: 12px 0; font-size: 0.9rem;
+    text-transform: none; letter-spacing: normal; line-height: 1.5; color: var(--text-dark); }
+.check-privacidad span { flex: 1; }
 .check-privacidad input { width: auto; margin-top: 3px; }
