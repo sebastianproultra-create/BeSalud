@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard Médico — BeSalud</title>
+    <title>Panel médico — BeSalud</title>
     <link rel="stylesheet" th:href="@{/css/global.css}">
     <link rel="stylesheet" th:href="@{/css/doctor_dashboard.css}">
 </head>
@@ -132,7 +132,7 @@
 
     <!-- ═══════════════ MI PERFIL ═══════════════ -->
     <section id="perfil" class="card" aria-labelledby="perfil-title">
-        <h2 id="perfil-title">Mi Perfil</h2>
+        <h2 id="perfil-title">Mi perfil</h2>
         <div th:if="${param.fotoOk}" class="alert alert-success">Foto de perfil actualizada.</div>
         <div th:if="${param.fotoError}" class="alert alert-error"
              th:text="${param.fotoError[0] == 'vacio' ? 'Selecciona una imagen' : (param.fotoError[0] == 'tipo' ? 'Tipo no permitido (solo PNG/JPG/WEBP)' : (param.fotoError[0] == 'tamano' ? 'Imagen demasiado grande (máx 2 MB)' : 'Error procesando imagen'))}"></div>
@@ -168,7 +168,7 @@
 
     <!-- ═══════════════ HORARIOS ═══════════════ -->
     <section id="horarios" class="card" aria-labelledby="horarios-title">
-        <h2 id="horarios-title">Mis Horarios de Atención</h2>
+        <h2 id="horarios-title">Mis Horarios de atención</h2>
 
         <div th:if="${#lists.isEmpty(horarios)}" class="empty-state">
             <svg class="empty-state-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true">
@@ -183,8 +183,8 @@
                 <thead>
                     <tr>
                         <th>Día</th>
-                        <th>Hora Inicio</th>
-                        <th>Hora Fin</th>
+                        <th>Hora inicio</th>
+                        <th>Hora fin</th>
                         <th>Duración</th>
                         <th class="text-right">Acciones</th>
                     </tr>
@@ -203,12 +203,12 @@
                                 <span th:case="*" th:text="${horario.diaSemana}"></span>
                             </span>
                         </td>
-                        <td th:text="${#temporals.format(horario.horaInicio, 'hh:mm a')}"></td>
-                        <td th:text="${#temporals.format(horario.horaFin, 'hh:mm a')}"></td>
+                        <td th:text="${#temporals.format(horario.horaInicio, 'HH:mm')}"></td>
+                        <td th:text="${#temporals.format(horario.horaFin, 'HH:mm')}"></td>
                         <td><span class="duration-pill" th:text="${horario.duracionCitaMinutos + ' min'}"></span></td>
                         <td class="text-right">
                             <form th:action="@{'/doctores/horarios/' + ${horario.id} + '/eliminar'}" method="post"
-                                  class="inline-form" onsubmit="return confirm('¿Está seguro de que desea eliminar este horario?');">
+                                  class="inline-form" onsubmit="return confirm('¿Eliminar este horario?');">
 
                                 <button type="submit" class="btn btn-danger btn-sm" aria-label="Eliminar horario">Eliminar</button>
                             </form>
@@ -218,7 +218,7 @@
             </table>
         </div>
 
-        <h3 class="section-subtitle">Agregar Horarios Semanales</h3>
+        <h3 class="section-subtitle">Agregar horarios semanales</h3>
         <form th:action="@{/doctores/horarios/guardar}" method="post" class="schedule-form">
 
 
@@ -275,7 +275,7 @@
                 </th:block>
             </div>
 
-            <button type="submit" class="btn btn-primary schedule-save-btn">Guardar Horarios</button>
+            <button type="submit" class="btn btn-primary schedule-save-btn">Guardar horarios</button>
         </form>
     </section>
 
@@ -289,7 +289,7 @@
                      th:classappend="${row.cantidad == 0} ? ' availability-card--empty' : ''">
                 <header class="availability-card-head">
                     <span class="availability-day" th:text="${row.diaSemana}"></span>
-                    <span class="availability-date" th:text="${#temporals.format(row.fecha, 'dd MMM')}"></span>
+                    <span class="availability-date" th:text="${#temporals.format(row.fecha, 'dd/MM')}"></span>
                 </header>
                 <div class="availability-count">
                     <span class="availability-number" th:text="${row.cantidad}">0</span>
@@ -310,7 +310,7 @@
 
     <!-- ═══════════════ MIS CITAS ═══════════════ -->
     <section id="citas" class="card" aria-labelledby="citas-title">
-        <h2 id="citas-title">Mis Citas</h2>
+        <h2 id="citas-title">Mis citas</h2>
         <div class="filter-bar">
             <label for="filtroEstadoSelect">Filtrar por estado</label>
             <select id="filtroEstadoSelect" class="styled-select" onchange="filtrarCitas()">
@@ -318,7 +318,7 @@
                 <option value="PENDIENTE">Pendiente</option>
                 <option value="ASISTIO">Asistió</option>
                 <option value="COMPLETADA">Completada</option>
-                <option value="NO_ASISTIO">No Asistió</option>
+                <option value="NO_ASISTIO">No asistió</option>
                 <option value="CANCELADA">Cancelada</option>
             </select>
             <label for="busquedaPaciente">Buscar paciente</label>
@@ -349,7 +349,7 @@
                 <tbody>
                     <tr th:each="cita : ${citas}" th:attr="data-estado=${cita.estado.name()}">
                         <td th:text="${#temporals.format(cita.fecha, 'dd/MM/yyyy')}"></td>
-                        <td th:text="${#temporals.format(cita.hora, 'hh:mm a')}"></td>
+                        <td th:text="${#temporals.format(cita.hora, 'HH:mm')}"></td>
                         <td class="paciente-cell" th:text="${pacienteNombres[cita.pacienteId] ?: 'Desconocido'}"></td>
                         <td class="motivo-cell" th:text="${cita.motivo}" th:title="${cita.motivo}"></td>
                         <td>
@@ -373,7 +373,7 @@
                                         </form>
                                         <form th:action="@{'/doctores/citas/' + ${cita.id} + '/no-asistio'}" method="post" class="inline-form">
 
-                                            <button type="submit" class="btn btn-warning btn-sm">No Asistió</button>
+                                            <button type="submit" class="btn btn-warning btn-sm">No asistió</button>
                                         </form>
                                     </th:block>
                                     <form th:action="@{'/doctores/citas/' + ${cita.id} + '/cancelar'}" method="post" class="inline-form">
@@ -383,11 +383,11 @@
                                 </th:block>
                                 <th:block th:if="${cita.estado.name() == 'ASISTIO'}">
                                     <button type="button" class="btn btn-primary btn-sm"
-                                            th:data-cita-id="${cita.id}" onclick="abrirDictamen(this.dataset.citaId)">Dar Dictamen</button>
+                                            th:data-cita-id="${cita.id}" onclick="abrirDictamen(this.dataset.citaId)">Dar dictamen</button>
                                 </th:block>
                                 <th:block th:if="${cita.estado.name() == 'COMPLETADA' and cita.dictamen != null}">
                                     <button type="button" class="btn btn-primary btn-sm"
-                                            th:data-cita-id="${cita.id}" onclick="verDictamen(this.dataset.citaId)">Ver Dictamen</button>
+                                            th:data-cita-id="${cita.id}" onclick="verDictamen(this.dataset.citaId)">Ver dictamen</button>
                                 </th:block>
                                 <span th:if="${cita.estado.name() == 'NO_ASISTIO' or cita.estado.name() == 'CANCELADA' or (cita.estado.name() == 'COMPLETADA' and cita.dictamen == null)}" class="text-muted">—</span>
                             </div>
@@ -404,7 +404,7 @@
     <!-- ═══════════════ MIS PACIENTES ═══════════════ -->
     <section id="pacientes" class="card" aria-labelledby="pacientes-title">
         <h2 id="pacientes-title">
-            Mis Pacientes
+            Mis pacientes
             <span class="card-counter" th:if="${!#lists.isEmpty(misPacientes)}" th:text="${#lists.size(misPacientes)}">0</span>
         </h2>
         <div th:if="${!#lists.isEmpty(misPacientes)}" class="filter-bar">
@@ -443,7 +443,7 @@
 <!-- ═══════════════ MODAL DICTAMEN ═══════════════ -->
 <div id="dictamenModal" class="modal-overlay" style="display:none" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
     <div class="modal-content">
-        <h3 id="modalTitle">Registrar Dictamen</h3>
+        <h3 id="modalTitle">Registrar dictamen</h3>
         <form id="dictamenForm" method="post">
             <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
 
@@ -461,7 +461,7 @@
             </div>
             <div class="modal-actions">
                 <button type="button" class="btn btn-secondary" onclick="cerrarModal()">Cancelar</button>
-                <button type="submit" class="btn btn-primary">Guardar Dictamen</button>
+                <button type="submit" class="btn btn-primary">Guardar dictamen</button>
             </div>
         </form>
     </div>
@@ -533,7 +533,7 @@ function toggleSecond(day) {
 /* ── Dictamen Modal ── */
 function abrirDictamen(citaId) {
     document.getElementById('dictamenForm').action = '/doctores/citas/' + citaId + '/dictamen';
-    document.getElementById('modalTitle').textContent = 'Registrar Dictamen';
+    document.getElementById('modalTitle').textContent = 'Registrar dictamen';
     document.getElementById('diagnostico').value = '';
     document.getElementById('tratamiento').value = '';
     document.getElementById('observaciones').value = '';

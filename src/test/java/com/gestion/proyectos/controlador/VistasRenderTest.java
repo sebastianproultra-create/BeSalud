@@ -175,7 +175,7 @@ class VistasRenderTest {
     void registro_usaLaListaUnicaDeEspecialidades() throws Exception {
         mockMvc.perform(get("/register"))
                 .andExpect(status().isOk())
-                .andExpect(content().string(containsString("Seleccione una especialidad")))
+                .andExpect(content().string(containsString("Selecciona una especialidad")))
                 .andExpect(content().string(containsString("<optgroup label=\"Salud Mental y Rehabilitación\"")))
                 .andExpect(content().string(containsString("value=\"Cardiología\"")))
                 .andExpect(content().string(containsString("minlength=\"8\"")));
@@ -215,7 +215,7 @@ class VistasRenderTest {
         mockMvc.perform(get("/citas").with(user("a@test.com").roles("ADMIN")))
                 .andExpect(status().isOk())
                 .andExpect(content().string(containsString("Dr. Ruiz")))
-                .andExpect(content().string(containsString("badge-success")))
+                .andExpect(content().string(containsString("estado-asistio")))
                 .andExpect(content().string(containsString("/citas?size=10&amp;page=1")));
     }
 

@@ -52,7 +52,7 @@
 .register-card textarea:focus {
     outline: none;
     border-color: var(--secondary-color);
-    box-shadow: 0 0 5px rgba(0, 102, 204, 0.3);
+    box-shadow: 0 0 5px rgba(26, 92, 69, 0.25);
 }
 
 .register-card button {

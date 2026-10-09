@@ -4,9 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>BeSalud - Inicio</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/vendor/fonts/fonts.css}">
     <link rel="stylesheet" th:href="@{/css/index.css}" href="index.css" />
 </head>
 <body>
@@ -25,17 +23,17 @@
             <li><a th:href="@{/#contact}" href="#contact">Contacto</a></li>
             <li><a class="btn btn-secondary" th:href="@{/login}" href="#">Iniciar sesión</a></li>
         </ul>
-        <button class="nav-toggle" aria-label="Menú">&#9776;</button>
+        <button class="nav-toggle" type="button" aria-label="Menú" aria-expanded="false">&#9776;</button>
     </nav>
 
     <div class="hero-overlay"></div>
 
     <div class="hero-content">
-        <span class="hero-eyebrow">Plataforma Médica Digital</span>
+        <span class="hero-eyebrow">Plataforma médica digital</span>
         <h1>BeSalud</h1>
         <p>Gestión inteligente de citas médicas<br>para pacientes y doctores.</p>
         <div class="hero-actions">
-            <a class="btn btn-primary" th:href="@{/login}" href="#" id="irLogin">Ir a Login</a>
+            <a class="btn btn-primary" th:href="@{/login}" href="#" id="irLogin">Iniciar sesión</a>
             <a class="btn btn-ghost" th:href="@{/#about}" href="#about">Conoce más</a>
         </div>
     </div>
@@ -55,7 +53,7 @@
             <p>BeSalud simplifica la programación de citas médicas y mejora la comunicación entre pacientes y profesionales de la salud. Con un flujo de trabajo claro, control de horarios y perfil médico, ofrecemos una experiencia confiable, segura y humana.</p>
         </div>
         <div class="section-image">
-            <img src="https://images.unsplash.com/photo-1582750433449-648ed127bb54?w=600&q=80&auto=format&fit=crop" alt="Médico con paciente" loading="lazy" />
+            <img src="https://images.unsplash.com/photo-1582750433449-648ed127bb54?w=600&q=80&auto=format&fit=crop" alt="Médico con paciente" loading="lazy" onerror="this.remove()" />
         </div>
     </section>
 
@@ -120,5 +118,21 @@
     </div>
 </footer>
 
+<script>
+(function () {
+    const nav = document.querySelector('.navbar');
+    const toggle = nav.querySelector('.nav-toggle');
+    toggle.addEventListener('click', function () {
+        const open = nav.classList.toggle('open');
+        toggle.setAttribute('aria-expanded', open);
+    });
+    nav.querySelectorAll('.nav-links a').forEach(function (a) {
+        a.addEventListener('click', function () {
+            nav.classList.remove('open');
+            toggle.setAttribute('aria-expanded', 'false');
+        });
+    });
+})();
+</script>
 </body>
 </html>

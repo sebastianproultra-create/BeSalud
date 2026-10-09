@@ -104,6 +104,7 @@ body {
     align-items: center;
     justify-content: center;
     overflow: hidden;
+    background-color: var(--primary);
     background-image: url('https://images.unsplash.com/photo-1631217868264-e5b90bb7e133?w=1600&q=85&auto=format&fit=crop');
     background-size: cover;
     background-position: center 30%;
@@ -336,6 +337,7 @@ body {
 .section-image {
     position: relative;
     height: 520px;
+    background: linear-gradient(160deg, var(--primary-mid), var(--primary));
     border-radius: 4px;
     overflow: hidden;
 }
@@ -536,6 +538,18 @@ footer {
     .navbar { padding: 20px 28px; }
     .nav-links { display: none; }
     .nav-toggle { display: block; }
+    .navbar.open .nav-links {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 22px;
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        padding: 24px 28px 28px;
+        background: var(--primary, #0D3B2E);
+    }
 
     .hero { background-position: 65% center; }
     .hero h1 { font-size: 64px; }

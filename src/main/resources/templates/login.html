@@ -5,7 +5,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - BeSalud</title>
+    <title>Iniciar sesión - BeSalud</title>
     <link rel="stylesheet" th:href="@{/css/global.css}">
     <link rel="stylesheet" th:href="@{/css/login.css(v=2)}">
 </head>
@@ -14,16 +14,42 @@
 
 <div class="container">
     <div class="card login-card-main">
-        <h2>Iniciar Sesión</h2>
-        
+        <h2>Iniciar sesión</h2>
+
+        <div th:if="${param.pendiente}" class="alert alert-info">
+            Tu cuenta de doctor está pendiente de activación. Un administrador debe aprobarla antes de que puedas entrar.
+        </div>
+
+        <!-- Mostrar éxito de registro -->
+        <div th:if="${param.registerSuccess}" class="alert alert-success">
+            Registro exitoso. Si te registraste como doctor, un administrador debe activar tu cuenta antes de que puedas entrar.
+        </div>
+
+        <!-- Mostrar error si existe -->
+        <div th:if="${param.error}" class="alert alert-error">
+            Correo o contraseña incorrectos.
+        </div>
+        <div th:if="${param.bloqueado}" class="alert alert-error">
+            Demasiados intentos fallidos. Espera 15 minutos e intenta de nuevo.
+        </div>
+
+        <!-- Mensaje de sesión expirada -->
+        <div th:if="${param.sessionExpired}" class="alert alert-error">
+            Tu sesión ha expirado o necesitas iniciar sesión para ver esa página.
+        </div>
+
+        <!-- Mensaje de logout exitoso -->
+        <div th:if="${param.logout}" class="alert alert-success">
+            Sesión cerrada correctamente.
+        </div>
         <form th:action="@{/login}" method="post">
-            <label for="email">Email:</label>
+            <label for="email">Correo electrónico:</label>
             <input type="email" id="email" name="email" required/>
 
             <label for="password">Contraseña:</label>
             <input type="password" id="password" name="password" required/>
 
-            <button type="submit" class="login-submit">Ingresar</button>
+            <button type="submit" class="login-submit">Iniciar sesión</button>
         </form>
 
         <div class="oauth-divider"><span>o</span></div>
@@ -43,32 +69,6 @@
             <a th:href="@{/register}">¿No tienes cuenta? Regístrate aquí</a>
         </p>
 
-        <div th:if="${param.pendiente}" class="alert alert-info">
-            Tu cuenta de doctor está pendiente de activación. Un administrador debe aprobarla antes de que puedas entrar.
-        </div>
-
-        <!-- Mostrar éxito de registro -->
-        <div th:if="${param.registerSuccess}" class="alert alert-success">
-            Registro exitoso. Si te registraste como doctor, un administrador debe activar tu cuenta antes de que puedas entrar.
-        </div>
-
-        <!-- Mostrar error si existe -->
-        <div th:if="${param.error}" class="alert alert-error">
-            Usuario o contraseña incorrecta
-        </div>
-        <div th:if="${param.bloqueado}" class="alert alert-error">
-            Demasiados intentos fallidos. Espera 15 minutos e intenta de nuevo.
-        </div>
-
-        <!-- Mensaje de sesión expirada -->
-        <div th:if="${param.sessionExpired}" class="alert alert-error">
-            Tu sesión ha expirado o necesitas iniciar sesión para ver esa página.
-        </div>
-
-        <!-- Mensaje de logout exitoso -->
-        <div th:if="${param.logout}" class="alert alert-success">
-            Sesión cerrada correctamente
-        </div>
     </div>
 </div>
 

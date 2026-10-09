@@ -29,7 +29,7 @@ public class SecurityConfig {
                                 .csrf(org.springframework.security.config.Customizer.withDefaults())
                                 .authorizeHttpRequests(auth -> auth
                                                 .requestMatchers("/", LOGIN_URL, "/register", "/register/save",
-                                                                "/css/**", "/images/**",
+                                                                "/css/**", "/images/**", "/vendor/**",
                                                                 "/js/**", "/error", "/elegir-rol", "/privacidad")
                                                 .permitAll()
                                                 .requestMatchers("/admin/**").hasRole("ADMIN")

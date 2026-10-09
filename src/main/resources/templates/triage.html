@@ -6,7 +6,7 @@
     <title>Asistente de síntomas - BeSalud</title>
     <link rel="stylesheet" th:href="@{/css/global.css}">
     <link rel="stylesheet" th:href="@{/css/triage.css}">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+    <link rel="stylesheet" th:href="@{/vendor/fontawesome/css/all.min.css}"/>
 </head>
 <body>
 <header th:replace="~{fragments/layout :: shell-paciente('triage')}"></header>
@@ -100,12 +100,14 @@
                 <form th:if="${s.fecha != null}" th:action="@{/triage/agendar}" method="post" class="form-inline">
                     <input type="hidden" name="doctorId" th:value="${s.doctor.id}"/>
                     <input type="hidden" name="motivo" th:value="${resultado.resumen}"/>
-                    <button type="submit" class="btn btn-primary">Agendar</button>
+                    <button type="submit" class="btn btn-primary">Agendar cita</button>
                 </form>
             </div>
         </div>
     </th:block>
 </main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
 
 <script>
     const area = document.getElementById('sintomas');

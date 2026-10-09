@@ -70,7 +70,7 @@
 
     <!-- ═══════════════ REGISTRAR DOCTOR ═══════════════ -->
     <section id="registrar" class="card" aria-labelledby="register-title">
-        <h2 id="register-title">Registrar Doctor</h2>
+        <h2 id="register-title">Registrar doctor</h2>
         <p class="form-subtitle">Crea una nueva cuenta médica con acceso al panel de control.</p>
 
         <div th:if="${errorRegistro}" class="alert alert-error" role="alert" th:text="${errorRegistro}"></div>
@@ -122,14 +122,14 @@
                 <div class="form-field">
                     <label for="especialidad">Especialidad *</label>
                     <select id="especialidad" name="especialidad" required class="styled-select">
-                        <option value="">Seleccione una especialidad</option>
+                        <option value="">Selecciona una especialidad</option>
                         <th:block th:replace="~{fragments/layout :: especialidadOpcionesSel(${formDoctor != null ? formDoctor['especialidad'] : null})}"></th:block>
                     </select>
                 </div>
             </div>
 
             <div class="form-actions">
-                <button type="submit" class="btn btn-success">Guardar Doctor</button>
+                <button type="submit" class="btn btn-success">Guardar doctor</button>
             </div>
         </form>
     </section>

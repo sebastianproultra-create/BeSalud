@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Agendar Cita - BeSalud</title>
+    <title>Agendar cita - BeSalud</title>
     <link rel="stylesheet" th:href="@{/css/global.css}">
 </head>
 <body>
@@ -14,7 +14,7 @@
     <section class="page-header" aria-labelledby="page-title">
         <div>
             <p class="page-eyebrow">Agenda</p>
-            <h1 id="page-title" class="page-title">Agendar nueva cita</h1>
+            <h1 id="page-title" class="page-title">Agendar cita</h1>
         </div>
     </section>
 
@@ -42,14 +42,14 @@
             
             <label for="doctorId">Doctor:</label>
             <select id="doctorId" name="doctorId" required class="styled-select">
-                <option value="">Seleccione un doctor</option>
+                <option value="">Selecciona un doctor</option>
                 <option th:each="d : ${doctores}" th:value="${d.id}" 
                         th:text="${d.nombre} + ' ' + ${d.apellido} + ' (' + ${d.especialidad} + ')'"/>
             </select>
 
             <label for="pacienteId">Paciente:</label>
             <select id="pacienteId" name="pacienteId" required class="styled-select">
-                <option value="">Seleccione un paciente</option>
+                <option value="">Selecciona un paciente</option>
                 <option th:each="p : ${pacientes}" th:value="${p.id}" 
                         th:text="${p.nombre} + ' ' + ${p.apellido}"/>
             </select>

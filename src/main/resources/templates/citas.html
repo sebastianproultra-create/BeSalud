@@ -17,7 +17,7 @@
             <h1 id="page-title" class="page-title">Citas médicas</h1>
         </div>
         <!-- Solo el administrador puede crear citas desde esta vista -->
-        <a th:href="@{/citas/crear}" class="btn btn-primary" sec:authorize="hasRole('ADMIN')">+ Agendar nueva cita</a>
+        <a th:href="@{/citas/crear}" class="btn btn-primary" sec:authorize="hasRole('ADMIN')">+ Agendar cita</a>
     </section>
 
     <div class="card table-card">
@@ -44,8 +44,8 @@
                     <td>
                         <span th:if="${c.estado != null}"
                               th:text="${c.estado.descripcion}"
-                              th:class="${'badge ' + (c.estado.name() == 'PENDIENTE' ? 'badge-pending' : (c.estado.name() == 'COMPLETADA' or c.estado.name() == 'ASISTIO') ? 'badge-success' : c.estado.name() == 'NO_ASISTIO' ? 'badge-warning' : 'badge-cancelled')}"></span>
-                        <span th:if="${c.estado == null}" class="badge">—</span>
+                              th:class="${'estado-badge ' + (c.estado.name() == 'PENDIENTE' ? 'estado-pendiente' : c.estado.name() == 'ASISTIO' ? 'estado-asistio' : c.estado.name() == 'COMPLETADA' ? 'estado-completada' : c.estado.name() == 'NO_ASISTIO' ? 'estado-no-asistio' : 'estado-cancelada')}"></span>
+                        <span th:if="${c.estado == null}" class="estado-badge estado-cancelada">—</span>
                     </td>
                     <td class="table-actions">
                         <!-- Solo pacientes y administradores pueden cancelar citas -->

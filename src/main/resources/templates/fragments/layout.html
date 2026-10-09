@@ -5,8 +5,8 @@
 <!-- ── Header de marca ── -->
 <header th:fragment="header-brand">
     <div class="header-brand">
-        <h1>BeSalud</h1>
-        <p>Sistema de Gestión de Citas Médicas</p>
+        <h1><a th:href="@{/}" class="header-brand-link">BeSalud</a></h1>
+        <p>Sistema de gestión de citas médicas</p>
     </div>
 </header>
 
@@ -101,7 +101,7 @@
 
 <!-- ── Footer ── -->
 <footer th:fragment="footer">
-    <p>&copy; 2026 BeSalud - Sistema de Citas Médicas. Todos los derechos reservados. · <a th:href="@{/privacidad}">Política de privacidad</a></p>
+    <p>&copy; 2026 BeSalud - Sistema de citas médicas. Todos los derechos reservados. · <a th:href="@{/privacidad}">Política de privacidad</a></p>
 </footer>
 
 </html>
