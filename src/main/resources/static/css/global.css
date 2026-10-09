@@ -4,7 +4,7 @@
    Tipografía: Cormorant Garamond + DM Sans
    ============================================== */
 
-@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap');
+@import url('../vendor/fonts/fonts.css');
 
 :root {
     /* ── Paleta principal ── */
@@ -91,6 +91,9 @@ header h1,
     letter-spacing: 0.01em;
     color: var(--white);
 }
+
+.header-brand-link { color: inherit; text-decoration: none; }
+.header-brand-link:hover { color: var(--accent-light); }
 
 /* Pequeño ornamento dorado antes del nombre */
 .header-brand h1::before,
@@ -527,6 +530,15 @@ footer p {
     opacity: 0.6;
 }
 
+footer a {
+    color: var(--accent-light);
+    text-decoration: underline;
+}
+
+footer a:hover {
+    color: var(--white);
+}
+
 /* ==============================================
    CUSTOM SELECT DROPDOWN
    ============================================== */
@@ -755,6 +767,48 @@ footer p {
     background-color: rgba(185, 64, 64, 0.08);
     color: #7A2020;
     border-color: rgba(185, 64, 64, 0.3);
+}
+
+/* ==============================================
+   ESTADO BADGES (citas: admin, doctor, paciente)
+   ============================================== */
+.estado-badge {
+    display: inline-block;
+    min-width: 100px;
+    padding: 3px 11px;
+    border-radius: 20px;
+    font-size: 10px;
+    font-weight: 400;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    text-align: center;
+    border: 1px solid transparent;
+    white-space: nowrap;
+}
+.estado-pendiente {
+    background: rgba(200, 169, 110, 0.15);
+    color: #7A5A1A;
+    border-color: rgba(200, 169, 110, 0.4);
+}
+.estado-asistio {
+    background: rgba(26, 92, 69, 0.1);
+    color: var(--secondary-color);
+    border-color: rgba(26, 92, 69, 0.3);
+}
+.estado-completada {
+    background: rgba(13, 59, 46, 0.08);
+    color: var(--primary-color);
+    border-color: rgba(13, 59, 46, 0.25);
+}
+.estado-no-asistio {
+    background: rgba(185, 64, 64, 0.08);
+    color: #7A2020;
+    border-color: rgba(185, 64, 64, 0.3);
+}
+.estado-cancelada {
+    background: var(--off-white);
+    color: var(--text-light);
+    border-color: var(--border-color);
 }
 
 /* ==============================================
@@ -993,9 +1047,17 @@ form.toolbar { margin-bottom: 28px; }
     flex-wrap: wrap;
     gap: 6px;
     margin-top: 20px;
+    /* Es un <nav>: anula el fondo verde de la regla general de nav (pensada para el menú). */
+    background: none;
+    border-bottom: 0;
+    padding: 12px 0;
 }
 
-.pagination a {
+.pagination a,
+.pagination button {
+    background: none;
+    cursor: pointer;
+    font-family: inherit;
     min-width: 44px;
     min-height: 44px;
     padding: 0 14px;
@@ -1087,7 +1149,10 @@ form.card-form { padding: 0; border: none; box-shadow: none; margin: 0; backgrou
 
 .card-center { max-width: 600px; margin: 30px auto; }
 
-.check-privacidad { display: flex; align-items: flex-start; gap: 8px; margin: 12px 0; font-size: 0.9rem; }
+/* Hereda el estilo de label de formulario (mayúsculas, espaciado): aquí es texto corrido. */
+.check-privacidad { display: flex; align-items: flex-start; gap: 8px; margin: 12px 0; font-size: 0.9rem;
+    text-transform: none; letter-spacing: normal; line-height: 1.5; color: var(--text-dark); }
+.check-privacidad span { flex: 1; }
 .check-privacidad input { width: auto; margin-top: 3px; }
 
 /* ==============================================

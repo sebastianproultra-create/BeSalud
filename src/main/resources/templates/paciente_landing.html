@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Catálogo de Doctores - BeSalud</title>
+    <title>Catálogo de doctores - BeSalud</title>
     <link rel="stylesheet" th:href="@{/css/global.css}">
     <link rel="stylesheet" th:href="@{/css/paciente_landing.css}">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+    <link rel="stylesheet" th:href="@{/vendor/fontawesome/css/all.min.css}"/>
 </head>
 <body>
 <header th:replace="~{fragments/layout :: shell-paciente('catalogo')}"></header>
@@ -44,7 +44,7 @@
         </a>
 
         <div class="filter-section">
-            <h2>Filtrar Doctores</h2>
+            <h2>Filtrar doctores</h2>
             <form th:action="@{/pacientes/landing}" method="get" class="filter-form">
                 <label for="search">Buscar:</label>
                 <input type="text" id="search" name="search" th:value="${search}" placeholder="Nombre o email del doctor" />
@@ -68,7 +68,7 @@
                     <h3 th:text="${'Dr. ' + doctor.nombre + ' ' + doctor.apellido}"></h3>
                     <p class="specialty" th:text="${doctor.especialidad}"></p>
                     <p class="bio" th:text="${doctor.biografia != null ? doctor.biografia : 'Sin biografía disponible'}"></p>
-                    <a th:href="@{/citas/nueva(doctorId=${doctor.id})}" class="btn btn-primary">Agendar Cita</a>
+                    <a th:href="@{/citas/nueva(doctorId=${doctor.id})}" class="btn btn-primary">Agendar cita</a>
                 </div>
             </div>
         </div>
@@ -86,7 +86,7 @@
         <!-- Tab to reopen sidebar (visible when closed) -->
         <button class="sidebar-tab" id="sidebarTab" onclick="openSidebar()" aria-label="Abrir Mis Citas">
             <span class="tab-icon"><i class="fa-solid fa-clipboard-list"></i></span>
-            <span class="tab-text">Mis Citas</span>
+            <span class="tab-text">Mis citas</span>
             <span class="tab-badge"
                   th:if="${misCitas != null and not #lists.isEmpty(misCitas)}"
                   th:text="${#lists.size(misCitas)}"></span>
@@ -96,7 +96,7 @@
             <div class="sidebar-header">
                 <div class="sidebar-title">
                     <span><i class="fa-solid fa-clipboard-list"></i></span>
-                    <h3>Mis Citas</h3>
+                    <h3>Mis citas</h3>
                     <span class="sidebar-count"
                           th:if="${misCitas != null and not #lists.isEmpty(misCitas)}"
                           th:text="${#lists.size(misCitas)}"></span>
@@ -114,11 +114,11 @@
                         <div class="cita-item-top">
                             <span class="cita-doctor" th:text="${doctoresMap[cita.doctorId] != null ? doctoresMap[cita.doctorId] : 'Doctor no encontrado'}"></span>
                             <span th:text="${cita.estado.descripcion}"
-                                  th:class="${'cita-badge ' + (cita.estado.name() == 'PENDIENTE' ? 'badge-pendiente' : (cita.estado.name() == 'CANCELADA' ? 'badge-cancelada' : (cita.estado.name() == 'NO_ASISTIO' ? 'badge-noasistio' : 'badge-confirmada')))}"></span>
+                                  th:class="${'cita-badge estado-badge ' + (cita.estado.name() == 'PENDIENTE' ? 'estado-pendiente' : cita.estado.name() == 'ASISTIO' ? 'estado-asistio' : cita.estado.name() == 'COMPLETADA' ? 'estado-completada' : cita.estado.name() == 'NO_ASISTIO' ? 'estado-no-asistio' : 'estado-cancelada')}"></span>
                         </div>
                         <div class="cita-item-bottom">
                             <span class="cita-meta"><i class="fa-regular fa-calendar"></i> <span th:text="${#temporals.format(cita.fecha, 'dd/MM/yyyy')}"></span></span>
-                            <span class="cita-meta"><i class="fa-regular fa-clock"></i> <span th:text="${#temporals.format(cita.hora, 'hh:mm a')}"></span></span>
+                            <span class="cita-meta"><i class="fa-regular fa-clock"></i> <span th:text="${#temporals.format(cita.hora, 'HH:mm')}"></span></span>
                         </div>
                         <div class="cita-motivo" th:if="${cita.motivo}" th:text="${cita.motivo}"></div>
                         <div class="cita-actions">
@@ -133,7 +133,7 @@
                         </div>
                         <!-- Dictamen visible para citas completadas -->
                         <div th:if="${cita.estado.name() == 'COMPLETADA' and cita.dictamen != null}" class="cita-dictamen">
-                            <div class="dictamen-header"><i class="fa-solid fa-file-medical"></i> Dictamen Médico</div>
+                            <div class="dictamen-header"><i class="fa-solid fa-file-medical"></i> Dictamen médico</div>
                             <div class="dictamen-field">
                                 <strong>Diagnóstico:</strong>
                                 <span th:text="${cita.dictamen.diagnostico}"></span>

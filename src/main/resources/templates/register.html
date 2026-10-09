@@ -12,7 +12,7 @@
 
 <div class="container">
     <div class="card card-center">
-        <h2>Registro de Usuario</h2>
+        <h2>Registro de usuario</h2>
 
         <form th:action="@{/register/save}" th:object="${user}" method="post" enctype="multipart/form-data">
             <label for="role">Rol:</label>
@@ -36,7 +36,7 @@
             <input type="text" id="identificacion" th:field="*{identificacion}" required maxlength="10" pattern="[0-9]{6,10}" title="Entre 6 y 10 dígitos, solo números" inputmode="numeric"/>
             <span id="identificacion-hint" class="field-hint"></span>
 
-            <label for="email">Correo Electrónico:</label>
+            <label for="email">Correo electrónico:</label>
             <input type="email" id="email" th:field="*{email}" required/>
 
             <label for="password">Contraseña:</label>
@@ -45,12 +45,12 @@
 
             <div id="doctorFields" style="display: none;">
                 <label for="especialidad">Especialidad:</label>
-                <select id="especialidad" th:field="*{especialidad}" required class="styled-select">
-                    <option value="">Seleccione una especialidad</option>
+                <select id="especialidad" th:field="*{especialidad}" class="styled-select">
+                    <option value="">Selecciona una especialidad</option>
                     <th:block th:replace="~{fragments/layout :: especialidadOpciones}"></th:block>
                 </select>
 
-                <label for="fechaNacimiento">Fecha de Nacimiento:</label>
+                <label for="fechaNacimiento">Fecha de nacimiento:</label>
                 <input type="date" id="fechaNacimiento" th:field="*{fechaNacimiento}"/>
 
                 <label for="foto">Foto:</label>
@@ -62,7 +62,7 @@
 
             <label class="check-privacidad">
                 <input type="checkbox" name="aceptaPrivacidad" required/>
-                Acepto la <a th:href="@{/privacidad}" target="_blank" rel="noopener">política de privacidad</a> y el tratamiento de mis datos.
+                <span>Acepto la <a th:href="@{/privacidad}" target="_blank" rel="noopener">política de privacidad</a> y el tratamiento de mis datos.</span>
             </label>
 
             <div th:if="${error}" class="alert alert-error">
@@ -83,6 +83,7 @@ function toggleDoctorFields() {
     const role = document.getElementById('role').value;
     const doctorFields = document.getElementById('doctorFields');
     doctorFields.style.display = role === 'DOCTOR' ? 'block' : 'none';
+    document.getElementById('especialidad').required = role === 'DOCTOR';
 }
 
 toggleDoctorFields();

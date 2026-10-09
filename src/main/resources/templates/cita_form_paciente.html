@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title th:text="${pageTitle != null ? pageTitle : 'Agendar Cita - BeSalud'}">Agendar Cita - BeSalud</title>
+    <title th:text="${pageTitle != null ? pageTitle : 'Agendar cita - BeSalud'}">Agendar cita - BeSalud</title>
     <link rel="stylesheet" th:href="@{/css/global.css}">
     <link rel="stylesheet" th:href="@{/css/cita_form_paciente.css}">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+    <link rel="stylesheet" th:href="@{/vendor/fontawesome/css/all.min.css}"/>
 </head>
 <body>
 <header th:replace="~{fragments/layout :: shell-paciente('catalogo')}"></header>
@@ -53,7 +53,7 @@
         <div class="no-avail-icon"><i class="fa-regular fa-calendar-xmark fa-3x"></i></div>
         <h3>Sin disponibilidad próxima</h3>
         <p>Este médico no tiene horarios disponibles en los próximos 30 días.</p>
-        <a th:href="@{/pacientes/landing}" class="btn-back">Ver otros médicos</a>
+        <a th:href="@{/pacientes/landing}" class="btn btn-secondary">Ver otros médicos</a>
     </div>
 
     <!-- Booking UI (only if there is availability) -->
@@ -88,8 +88,8 @@
                         <textarea id="motivo" name="motivo" rows="3" placeholder="Describe brevemente el motivo de tu visita..." required
                                   th:text="${motivoSugerido != null ? motivoSugerido : ''}"></textarea>
                     </div>
-                    <button type="submit" class="btn-confirm" th:text="${submitLabel != null ? submitLabel : 'Confirmar Cita'}">Confirmar Cita</button>
-                    <button type="button" class="btn-change" onclick="clearSlot()">Cambiar horario</button>
+                    <button type="submit" class="btn btn-primary btn-confirm" th:text="${submitLabel != null ? submitLabel : 'Confirmar cita'}">Confirmar cita</button>
+                    <button type="button" class="btn btn-link btn-change" onclick="clearSlot()">Cambiar horario</button>
                 </form>
             </div>
         </div>
@@ -109,12 +109,9 @@ const MONTHS_ES = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','
 let selectedDate = null;
 let selectedTime = null;
 
-function toLocal12Hour(time24) {
+function formatHora(time24) {
     const [hour, minute] = time24.split(':').map(Number);
-    const h12 = hour % 12 || 12;
-    const m = String(minute).padStart(2, '0');
-    const period = hour >= 12 ? 'p.m.' : 'a.m.';
-    return `${h12}:${m} ${period}`;
+    return `${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`;
 }
 
 function buildDateStrip() {
@@ -163,7 +160,7 @@ function selectDate(dateStr, cardEl) {
         const btn = document.createElement('button');
         btn.type = 'button';
         btn.className = 'slot-btn';
-        btn.textContent = toLocal12Hour(time);
+        btn.textContent = formatHora(time);
         btn.addEventListener('click', () => selectSlot(time, btn));
         grid.appendChild(btn);
     });
@@ -186,7 +183,7 @@ function selectSlot(time, btnEl) {
     const d = new Date(selectedDate + 'T00:00:00');
     const dayName = ['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'][d.getDay()];
     const dateLabel = `${dayName} ${d.getDate()} de ${['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'][d.getMonth()]}`;
-    const timeLabel = toLocal12Hour(time);
+    const timeLabel = formatHora(time);
     document.getElementById('confirmSummary').innerHTML = `
         <div class="summary-item"><span><i class='fa-regular fa-calendar'></i></span> ${dateLabel}</div>
         <div class="summary-item"><span><i class='fa-regular fa-clock'></i></span> ${timeLabel}</div>

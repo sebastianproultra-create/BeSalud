@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Elegir Rol - BeSalud</title>
+    <title>Elegir rol - BeSalud</title>
     <link rel="stylesheet" th:href="@{/css/global.css}">
     <link rel="stylesheet" th:href="@{/css/register.css}">
 </head>
@@ -42,11 +42,11 @@
             <div id="doctor-fields" style="display:none;">
                 <label for="especialidad">Especialidad:</label>
                 <select id="especialidad" name="especialidad" class="styled-select">
-                    <option value="">Seleccione una especialidad</option>
+                    <option value="">Selecciona una especialidad</option>
                     <th:block th:replace="~{fragments/layout :: especialidadOpciones}"></th:block>
                 </select>
 
-                <label for="fechaNacimiento">Fecha de Nacimiento:</label>
+                <label for="fechaNacimiento">Fecha de nacimiento:</label>
                 <input type="date" id="fechaNacimiento" name="fechaNacimiento"/>
 
                 <label for="biografia">Biografía (opcional):</label>
@@ -55,7 +55,7 @@
 
             <label class="check-privacidad">
                 <input type="checkbox" name="aceptaPrivacidad" required/>
-                Acepto la <a th:href="@{/privacidad}" target="_blank" rel="noopener">política de privacidad</a> y el tratamiento de mis datos.
+                <span>Acepto la <a th:href="@{/privacidad}" target="_blank" rel="noopener">política de privacidad</a> y el tratamiento de mis datos.</span>
             </label>
 
             <button type="submit">Continuar</button>

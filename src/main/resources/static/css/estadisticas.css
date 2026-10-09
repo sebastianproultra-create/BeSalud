@@ -73,9 +73,14 @@
 
 .graficas-fila {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    /* minmax(0, …): sin esto los canvas de Chart.js ensanchan la columna y la derecha se sale de la pantalla. */
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
     gap: 24px;
     align-items: start;
+}
+
+.graficas-fila > * {
+    min-width: 0;
 }
 
 .graficas-columna .grafica:last-child {

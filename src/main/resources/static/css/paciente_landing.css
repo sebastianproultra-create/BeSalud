@@ -186,42 +186,7 @@
     }
 }
 
-/* Estado badges */
-.badge-pendiente {
-    background-color: #e0eaff;
-    color: #2d5fb3;
-    padding: 3px 10px;
-    border-radius: 12px;
-    font-size: 13px;
-    font-weight: 600;
-}
 
-.badge-cancelada {
-    background-color: #f8d7da;
-    color: #842029;
-    padding: 3px 10px;
-    border-radius: 12px;
-    font-size: 13px;
-    font-weight: 600;
-}
-
-.badge-noasistio {
-    background-color: #fff3cd;
-    color: #664d03;
-    padding: 3px 10px;
-    border-radius: 12px;
-    font-size: 13px;
-    font-weight: 600;
-}
-
-.badge-confirmada {
-    background-color: #d1e7dd;
-    color: #0f5132;
-    padding: 3px 10px;
-    border-radius: 12px;
-    font-size: 13px;
-    font-weight: 600;
-}
 
 /* ============================================== 
    PAGE LAYOUT — content + sidebar
@@ -389,10 +354,6 @@
 }
 .cita-badge {
     flex-shrink: 0;
-    padding: 2px 9px;
-    border-radius: 12px;
-    font-size: 11px;
-    font-weight: 600;
 }
 
 .cita-item-bottom {
@@ -507,7 +468,7 @@
     flex-direction: column;
     align-items: center;
     gap: 6px;
-    box-shadow: -3px 0 12px rgba(0, 102, 204, 0.35);
+    box-shadow: -3px 0 12px rgba(13, 59, 46, 0.3);
     opacity: 0;
     pointer-events: none;
     transition: opacity 0.25s ease, background 0.2s;
@@ -530,7 +491,7 @@
     letter-spacing: 0.5px;
 }
 .tab-badge {
-    background: #e74c3c;
+    background: var(--danger-color);
     color: var(--white);
     border-radius: 10px;
     font-size: 11px;

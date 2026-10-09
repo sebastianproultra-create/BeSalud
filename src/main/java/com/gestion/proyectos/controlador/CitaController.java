@@ -82,8 +82,8 @@ public class CitaController {
         model.addAttribute("doctorSeleccionado", doctor);
         model.addAttribute("cita", null);
         model.addAttribute("actionUrl", "/citas/guardar-paciente");
-        model.addAttribute("pageTitle", "Agendar Cita Médica");
-        model.addAttribute("submitLabel", "Confirmar Cita");
+        model.addAttribute("pageTitle", "Agendar cita médica");
+        model.addAttribute("submitLabel", "Confirmar cita");
         model.addAttribute("backLink", "/pacientes/landing");
         model.addAttribute("slotsDisponibles", citaService.slotsDisponibles(doctorId, null, null, null));
         return "cita_form_paciente";
@@ -106,8 +106,8 @@ public class CitaController {
         model.addAttribute("doctorSeleccionado", doctor);
         model.addAttribute("cita", cita);
         model.addAttribute("actionUrl", "/citas/" + cita.getId() + "/reprogramar");
-        model.addAttribute("pageTitle", "Reprogramar Cita Médica");
-        model.addAttribute("submitLabel", "Reprogramar Cita");
+        model.addAttribute("pageTitle", "Reprogramar cita médica");
+        model.addAttribute("submitLabel", "Reprogramar cita");
         model.addAttribute("backLink", "/pacientes/landing");
         model.addAttribute("slotsDisponibles",
                 citaService.slotsDisponibles(doctor.getId(), cita.getId(), cita.getFecha(), cita.getHora()));

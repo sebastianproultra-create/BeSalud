@@ -804,48 +804,6 @@
 }
 
 /* ==============================================
-   ESTADO BADGES
-   ============================================== */
-.estado-badge {
-    display: inline-block;
-    min-width: 100px;
-    padding: 3px 11px;
-    border-radius: 20px;
-    font-size: 10px;
-    font-weight: 400;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    text-align: center;
-    border: 1px solid transparent;
-    white-space: nowrap;
-}
-.estado-pendiente {
-    background: rgba(200, 169, 110, 0.15);
-    color: #7A5A1A;
-    border-color: rgba(200, 169, 110, 0.4);
-}
-.estado-asistio {
-    background: rgba(26, 92, 69, 0.1);
-    color: var(--secondary-color);
-    border-color: rgba(26, 92, 69, 0.3);
-}
-.estado-completada {
-    background: rgba(13, 59, 46, 0.08);
-    color: var(--primary-color);
-    border-color: rgba(13, 59, 46, 0.25);
-}
-.estado-no-asistio {
-    background: rgba(185, 64, 64, 0.08);
-    color: #7A2020;
-    border-color: rgba(185, 64, 64, 0.3);
-}
-.estado-cancelada {
-    background: var(--off-white);
-    color: var(--text-light);
-    border-color: var(--border-color);
-}
-
-/* ==============================================
    CITAS TABLE (acciones, paciente)
    ============================================== */
 .actions-cell {

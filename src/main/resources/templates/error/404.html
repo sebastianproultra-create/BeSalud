@@ -7,15 +7,10 @@
     <link rel="stylesheet" th:href="@{/css/global.css}" />
 </head>
 <body>
-<header>
-    <div class="header-brand">
-        <h1>BeSalud</h1>
-        <p>Sistema de Gestión de Citas Médicas</p>
-    </div>
-</header>
+<header th:replace="~{fragments/layout :: header-brand}"></header>
 
 <div class="container">
-    <div class="card text-center">
+    <div class="card card-center text-center">
         <h2>Página no encontrada</h2>
         <p class="mb-20">
             La página que buscas ya no está disponible o nunca existió. No te preocupes, puedes volver al inicio.
@@ -28,6 +23,6 @@
     </div>
 </div>
 
-
+<footer th:replace="~{fragments/layout :: footer}"></footer>
 </body>
 </html>

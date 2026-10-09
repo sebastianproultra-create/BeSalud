@@ -2,52 +2,6 @@
    CITA FORM PACIENTE STYLES — Redesigned
    ============================================== */
 
-/* Nav */
-.nav-main {
-    background-color: var(--primary-color);
-    padding: 12px 0;
-    border-bottom: 3px solid var(--secondary-color);
-}
-.nav-container {
-    max-width: 860px;
-    margin: 0 auto;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 0 20px;
-}
-.nav-main .nav-item,
-.nav-main a.nav-item {
-    display: inline-block;
-    color: var(--white) !important;
-    text-decoration: none !important;
-    font-weight: 600;
-    font-size: 13px !important;
-    letter-spacing: 0 !important;
-    text-transform: none !important;
-    background-color: rgba(255,255,255,0.12) !important;
-    border: 1px solid rgba(255,255,255,0.28) !important;
-    padding: 8px 18px !important;
-    border-radius: 6px !important;
-    cursor: pointer;
-    transition: background 0.2s, border-color 0.2s;
-    line-height: 1.4;
-    margin-right: 0 !important;
-    opacity: 1 !important;
-}
-.nav-main .nav-item:hover,
-.nav-main a.nav-item:hover {
-    background-color: rgba(255,255,255,0.22) !important;
-    border-color: rgba(255,255,255,0.5) !important;
-    color: var(--white) !important;
-    opacity: 1 !important;
-}
-.nav-main .nav-item.nav-logout:hover,
-.nav-main a.nav-item.nav-logout:hover {
-    background-color: var(--danger-color) !important;
-    border-color: var(--danger-color) !important;
-}
-
 /* Main layout */
 .booking-container {
     max-width: 860px;
@@ -95,7 +49,7 @@
 }
 .specialty-tag {
     display: inline-block;
-    background: #e8f4fd;
+    background: rgba(26, 92, 69, 0.08);
     color: var(--secondary-color);
     border-radius: 20px;
     padding: 3px 14px;
@@ -121,17 +75,6 @@
 .no-avail-icon { font-size: 48px; margin-bottom: 16px; }
 .no-availability h3 { color: var(--primary-color); font-size: 20px; margin-bottom: 8px; }
 .no-availability p { color: var(--text-light); margin-bottom: 24px; }
-.btn-back {
-    display: inline-block;
-    padding: 10px 24px;
-    background: var(--secondary-color);
-    color: var(--white);
-    border-radius: 8px;
-    text-decoration: none;
-    font-weight: 600;
-    transition: background 0.2s;
-}
-.btn-back:hover { background: var(--primary-color); }
 
 /* Step sections */
 .step-section {
@@ -190,14 +133,14 @@
 }
 .date-card:hover {
     border-color: var(--secondary-color);
-    background: #e8f4fd;
+    background: rgba(26, 92, 69, 0.08);
     transform: translateY(-2px);
 }
 .date-card.selected {
     border-color: var(--secondary-color);
     background: var(--secondary-color);
     color: var(--white);
-    box-shadow: 0 4px 12px rgba(0,102,204,0.35);
+    box-shadow: 0 4px 12px rgba(13, 59, 46, 0.25);
     transform: translateY(-2px);
 }
 .date-dow {
@@ -224,7 +167,7 @@
     padding: 2px 8px;
 }
 .date-card:not(.selected) .date-slots {
-    background: rgba(0,102,204,0.1);
+    background: rgba(26, 92, 69, 0.1);
     color: var(--secondary-color);
 }
 
@@ -248,14 +191,14 @@
 }
 .slot-btn:hover {
     border-color: var(--secondary-color);
-    background: #eaf2fb;
+    background: rgba(26, 92, 69, 0.08);
     color: var(--primary-color);
 }
 .slot-btn.selected {
     border-color: var(--secondary-color);
     background: var(--secondary-color);
     color: var(--white);
-    box-shadow: 0 3px 10px rgba(0,102,204,0.30);
+    box-shadow: 0 3px 10px rgba(13, 59, 46, 0.22);
 }
 
 /* Confirm card */
@@ -278,7 +221,7 @@
     flex-wrap: wrap;
     margin-bottom: 20px;
     padding: 16px 20px;
-    background: #eef3f8;
+    background: var(--light-bg);
     border-radius: 10px;
     border-left: 4px solid var(--secondary-color);
 }
@@ -312,36 +255,18 @@
 }
 .btn-confirm {
     width: 100%;
-    padding: 14px;
-    background: var(--secondary-color);
-    color: var(--white);
-    border: none;
-    border-radius: 8px;
-    font-size: 16px;
-    font-weight: 700;
-    cursor: pointer;
     margin-top: 16px;
-    transition: background 0.2s, transform 0.1s;
 }
-.btn-confirm:hover { background: var(--primary-color); transform: translateY(-1px); }
-.btn-confirm:active { transform: translateY(0); }
 .btn-change {
-    width: 100%;
-    padding: 10px;
-    background: transparent;
-    color: var(--text-light);
-    border: none;
-    font-size: 14px;
-    cursor: pointer;
-    margin-top: 10px;
-    text-decoration: underline;
+    display: block;
+    margin: 14px auto 0;
 }
-.btn-change:hover { color: var(--danger-color); }
+.btn-change:hover { color: var(--danger-color); border-bottom-color: var(--danger-color); }
 
 /* Error alerts */
 .alert-error {
-    background: #f8d7da;
-    color: #842029;
+    background: rgba(185, 64, 64, 0.08);
+    color: #7A2020;
     border-radius: 8px;
     padding: 14px 18px;
     margin: 10px 0;
@@ -351,7 +276,6 @@
 /* Responsive */
 @media (max-width: 600px) {
     .doctor-card-header { flex-direction: column; text-align: center; }
-    .nav-container { flex-direction: column; gap: 10px; }
     .step-section { padding: 18px 16px; }
     .confirm-summary { flex-direction: column; gap: 10px; }
     .booking-container { margin: 16px auto; }
