@@ -1,9 +1,8 @@
 package com.gestion.proyectos.controlador;
 
-import static com.gestion.proyectos.util.ValidacionUtil.esVacio;
-
 import com.gestion.proyectos.modelo.Doctor;
 import com.gestion.proyectos.modelo.HorarioAtencion;
+import com.gestion.proyectos.modelo.UserRegistrationDTO;
 import com.gestion.proyectos.servicio.DoctorService;
 
 import org.springframework.stereotype.Controller;
@@ -15,12 +14,14 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.time.LocalDate;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -89,20 +90,27 @@ public class DoctorController {
     }
 
     @PostMapping("/guardar")
-    public String guardar(@ModelAttribute Doctor doctor) {
-        if (esVacio(doctor.getNombre()))
-            return "redirect:/doctores?error=nombre_requerido";
-        if (esVacio(doctor.getApellido()))
-            return "redirect:/doctores?error=apellido_requerido";
-        if (esVacio(doctor.getEmail()))
-            return "redirect:/doctores?error=email_requerido";
-        if (!doctor.getEmail().trim().matches("^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$"))
-            return "redirect:/doctores?error=email_invalido";
-        if (esVacio(doctor.getEspecialidad()))
-            return "redirect:/doctores?error=especialidad_requerida";
-        if (esVacio(doctor.getId()) && doctorService.emailDuplicado(doctor.getEmail()))
-            return "redirect:/doctores?error=email_duplicado";
-        doctorService.guardar(doctor);
+    public String guardar(@ModelAttribute("formDoctor") UserRegistrationDTO form,
+            RedirectAttributes redirectAttributes) {
+        // Se conservan los datos escritos (nunca la contraseña) para no obligar a
+        // rellenar todo de nuevo
+        Map<String, String> datos = new HashMap<>();
+        datos.put("nombre", form.getNombre());
+        datos.put("apellido", form.getApellido());
+        datos.put("identificacion", form.getIdentificacion());
+        datos.put("telefono", form.getTelefono());
+        datos.put("email", form.getEmail());
+        datos.put("especialidad", form.getEspecialidad());
+        datos.put("fechaNacimiento", form.getFechaNacimiento());
+
+        String error = doctorService.registrarPorAdmin(form);
+        if (error != null) {
+            redirectAttributes.addFlashAttribute("errorRegistro", error);
+            redirectAttributes.addFlashAttribute("formDoctor", datos);
+            return "redirect:/doctores#registrar";
+        }
+        redirectAttributes.addFlashAttribute("exitoRegistro",
+                "Doctor registrado correctamente. Su cuenta queda inactiva hasta que la actives desde el panel de administración.");
         return REDIRECT_DOCTORES;
     }
 
@@ -116,9 +124,11 @@ public class DoctorController {
     public String actualizarFoto(@RequestParam("foto") MultipartFile foto) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         Doctor doctor = doctorService.buscarPorEmail(auth.getName()).orElse(null);
-        if (doctor == null) return REDIRECT_DOCTORES;
+        if (doctor == null)
+            return REDIRECT_DOCTORES;
         String error = doctorService.actualizarFoto(doctor, foto);
-        if (error != null) return "redirect:/doctores?fotoError=" + error + "#perfil";
+        if (error != null)
+            return "redirect:/doctores?fotoError=" + error + "#perfil";
         return "redirect:/doctores?fotoOk=1#perfil";
     }
 
