@@ -8,6 +8,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Spy;
+import com.gestion.proyectos.util.EmailDominioValidator;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
@@ -23,6 +25,7 @@ class RegistroServiceTest {
     @Mock PersonaRepositorio personaRepo;
     @Mock AdminRepositorio adminRepo;
     @Mock PasswordEncoder passwordEncoder;
+    @Spy EmailDominioValidator emailDominio = new EmailDominioValidator(false);
 
     @InjectMocks RegistroService service;
 
