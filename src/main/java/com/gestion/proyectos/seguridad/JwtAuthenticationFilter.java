@@ -1,5 +1,7 @@
 package com.gestion.proyectos.seguridad;
 
+import com.gestion.proyectos.modelo.Doctor;
+import com.gestion.proyectos.repositorio.PersonaRepositorio;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
@@ -22,10 +24,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtService jwtService;
     private final UserDetailsService userDetailsService;
+    private final PersonaRepositorio personaRepositorio;
 
-    public JwtAuthenticationFilter(JwtService jwtService, UserDetailsService userDetailsService) {
+    public JwtAuthenticationFilter(JwtService jwtService, UserDetailsService userDetailsService,
+            PersonaRepositorio personaRepositorio) {
         this.jwtService = jwtService;
         this.userDetailsService = userDetailsService;
+        this.personaRepositorio = personaRepositorio;
     }
 
     @Override
@@ -38,7 +43,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 String username = jwtService.extractUsername(token);
                 UserDetails userDetails = userDetailsService.loadUserByUsername(username);
 
-                if (jwtService.isTokenValid(token, userDetails)) {
+                if (jwtService.isTokenValid(token, userDetails) && cuentaActiva(userDetails)) {
                     UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
                             userDetails, null, userDetails.getAuthorities());
                     authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
@@ -50,6 +55,18 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
 
         filterChain.doFilter(request, response);
+    }
+
+    /** Un doctor desactivado pierde el acceso aunque conserve un JWT vigente. */
+    private boolean cuentaActiva(UserDetails userDetails) {
+        boolean esDoctor = userDetails.getAuthorities().stream()
+                .anyMatch(a -> "ROLE_DOCTOR".equals(a.getAuthority()));
+        if (!esDoctor)
+            return true;
+        return personaRepositorio.findDoctorByEmail(userDetails.getUsername())
+                .map(Doctor::getEstado)
+                .map("ACTIVO"::equals)
+                .orElse(false);
     }
 
     private String getTokenFromRequest(HttpServletRequest request) {

@@ -104,6 +104,11 @@
                 <textarea id="biografia" th:field="*{biografia}" rows="3"></textarea>
             </div>
 
+            <label class="check-privacidad">
+                <input type="checkbox" name="aceptaPrivacidad" required/>
+                Acepto la <a th:href="@{/privacidad}" target="_blank" rel="noopener">política de privacidad</a> y el tratamiento de mis datos.
+            </label>
+
             <div th:if="${error}" class="alert alert-error">
                 <p th:text="${error}"></p>
             </div>

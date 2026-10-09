@@ -43,9 +43,13 @@
             <a th:href="@{/register}">¿No tienes cuenta? Regístrate aquí</a>
         </p>
 
+        <div th:if="${param.pendiente}" class="alert alert-info">
+            Tu cuenta de doctor está pendiente de activación. Un administrador debe aprobarla antes de que puedas entrar.
+        </div>
+
         <!-- Mostrar éxito de registro -->
         <div th:if="${param.registerSuccess}" class="alert alert-success">
-            Registro exitoso. Ya puedes iniciar sesión.
+            Registro exitoso. Si te registraste como doctor, un administrador debe activar tu cuenta antes de que puedas entrar.
         </div>
 
         <!-- Mostrar error si existe -->
@@ -58,7 +62,7 @@
 
         <!-- Mensaje de sesión expirada -->
         <div th:if="${param.sessionExpired}" class="alert alert-error">
-            Tu sesión ha expirado. Por favor, inicia sesión de nuevo.
+            Tu sesión ha expirado o necesitas iniciar sesión para ver esa página.
         </div>
 
         <!-- Mensaje de logout exitoso -->

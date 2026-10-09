@@ -99,6 +99,11 @@
                 <textarea id="biografia" name="biografia" rows="3" maxlength="500"></textarea>
             </div>
 
+            <label class="check-privacidad">
+                <input type="checkbox" name="aceptaPrivacidad" required/>
+                Acepto la <a th:href="@{/privacidad}" target="_blank" rel="noopener">política de privacidad</a> y el tratamiento de mis datos.
+            </label>
+
             <button type="submit">Continuar</button>
         </form>
     </div>

@@ -1,5 +1,6 @@
 package com.gestion.proyectos.oauth2;
 
+import com.gestion.proyectos.modelo.Doctor;
 import com.gestion.proyectos.repositorio.AdminRepositorio;
 import com.gestion.proyectos.repositorio.PersonaRepositorio;
 import com.gestion.proyectos.seguridad.JwtCookieService;
@@ -68,6 +69,15 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
 
         var persona = personaRepositorio.findByEmail(emailFinal).orElse(null);
         if (persona != null) {
+            if (persona instanceof Doctor doctor && !"ACTIVO".equals(doctor.getEstado())) {
+                HttpSession pendiente = request.getSession(false);
+                if (pendiente != null) {
+                    pendiente.removeAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY);
+                }
+                SecurityContextHolder.clearContext();
+                response.sendRedirect("/login?pendiente=true");
+                return;
+            }
             String role = "ROLE_" + persona.getRole();
             var ud = new User(emailFinal, "", List.of(new SimpleGrantedAuthority(role)));
             String token = jwtService.generateToken(ud);

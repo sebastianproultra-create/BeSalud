@@ -110,10 +110,15 @@ public class RolSelectionController {
         session.removeAttribute("oauth2Apellido");
         session.removeAttribute("oauth2Picture");
 
+        if ("DOCTOR".equals(role)) {
+            // El doctor nace INACTIVO: sin token hasta que un administrador lo active
+            return "redirect:/login?pendiente=true";
+        }
+
         var ud = new User(email, "", List.of(new SimpleGrantedAuthority("ROLE_" + role)));
         String token = jwtService.generateToken(ud);
         jwtCookieService.addJwtCookie(response, token);
 
-        return "DOCTOR".equals(role) ? "redirect:/doctores" : "redirect:/pacientes/landing";
+        return "redirect:/pacientes/landing";
     }
 }

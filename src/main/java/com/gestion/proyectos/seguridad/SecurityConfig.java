@@ -58,7 +58,7 @@ public class SecurityConfig {
                                                 .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
                                 .exceptionHandling(ex -> ex
                                                 .authenticationEntryPoint((request, response, authException) ->
-                                                                response.sendRedirect(LOGIN_URL + "?error=true")))
+                                                                response.sendRedirect(LOGIN_URL + "?sessionExpired=true")))
                                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
                 return http.build();
