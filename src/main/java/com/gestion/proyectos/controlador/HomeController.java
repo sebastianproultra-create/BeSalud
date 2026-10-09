@@ -10,4 +10,9 @@ public class HomeController {
     public String index() {
         return "index";
     }
+
+    @GetMapping("/privacidad")
+    public String privacidad() {
+        return "privacidad";
+    }
 }

@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Política de privacidad - BeSalud</title>
+    <link rel="stylesheet" th:href="@{/css/global.css}" />
+</head>
+<body>
+<header>
+    <div class="header-brand">
+        <h1>BeSalud</h1>
+        <p>Sistema de Gestión de Citas Médicas</p>
+    </div>
+</header>
+
+<div class="container">
+    <div class="card">
+        <h2>Política de privacidad</h2>
+        <p class="mb-20">Última actualización: 9 de octubre de 2026.</p>
+
+        <p class="mb-20">
+            BeSalud es un prototipo académico desarrollado como opción de grado del técnico en
+            desarrollo de software. Esta política explica qué datos recoge la aplicación y cómo se usan,
+            conforme a la Ley 1581 de 2012 de protección de datos personales de Colombia.
+        </p>
+
+        <h3>Datos que recogemos</h3>
+        <ul class="mb-20">
+            <li>Datos de registro: nombre, apellido, correo electrónico, teléfono, número de identificación y fecha de nacimiento.</li>
+            <li>Si inicias sesión con Google: únicamente tu nombre y correo electrónico. No accedemos a tus contactos, archivos ni a ningún otro dato de tu cuenta de Google.</li>
+            <li>Datos de uso del servicio: citas agendadas, horarios de atención y, para los médicos, la especialidad y la foto de perfil.</li>
+            <li>Información clínica que el médico registra en el dictamen de una cita (diagnóstico, tratamiento y observaciones).</li>
+        </ul>
+
+        <h3>Para qué los usamos</h3>
+        <p class="mb-20">
+            Solo para identificarte al iniciar sesión, gestionar tus citas médicas y mostrar la información
+            correspondiente a pacientes, médicos y administradores dentro de la aplicación.
+            No vendemos, compartimos ni cedemos tus datos a terceros, y no los usamos con fines publicitarios.
+        </p>
+
+        <h3>Dónde se guardan</h3>
+        <p class="mb-20">
+            Los datos se almacenan en una base de datos MongoDB alojada en MongoDB Atlas, con conexión cifrada.
+            Las contraseñas se guardan cifradas y nunca en texto plano.
+        </p>
+
+        <h3>Tus derechos</h3>
+        <p class="mb-20">
+            Puedes solicitar en cualquier momento conocer, actualizar, rectificar o eliminar tus datos
+            escribiendo a <a href="mailto:sebastianfontalvoayola27@gmail.com">sebastianfontalvoayola27@gmail.com</a>.
+        </p>
+
+        <p class="mb-20">
+            Al tratarse de un prototipo académico, te recomendamos no registrar información médica real.
+        </p>
+
+        <a th:href="@{/}" class="btn btn-primary">Volver al inicio</a>
+    </div>
+</div>
+
+</body>
+</html>
