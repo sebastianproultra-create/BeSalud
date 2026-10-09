@@ -45,6 +45,7 @@ public class RateLimitFilter extends OncePerRequestFilter {
         // Detrás del proxy de Railway, forward-headers-strategy=NATIVE deja aquí la IP real del cliente.
         String ip = request.getRemoteAddr();
         String ruta = request.getServletPath();
+        log.debug("POST {} remoteAddr={} xff={}", ruta, ip, request.getHeader("X-Forwarded-For"));
 
         boolean permitido = RUTAS_REGISTRO.contains(ruta)
                 ? rateLimiter.permitir("registro:" + ip, MAX_REGISTROS, VENTANA_REGISTRO)
