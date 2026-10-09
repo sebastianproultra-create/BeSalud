@@ -19,6 +19,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.mockito.ArgumentCaptor;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.data.domain.PageImpl;
@@ -34,6 +35,8 @@ import java.util.Optional;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.not;
 import static org.mockito.ArgumentMatchers.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
@@ -99,6 +102,22 @@ class VistasRenderTest {
                 .andExpect(status().isOk())
                 .andExpect(content().string(containsString("Ya existe un paciente registrado con ese correo")))
                 .andExpect(content().string(containsString("value=\"Luis\"")));
+    }
+
+    @Test
+    void pacientesAdmin_ignoraIdYRolEnviadosAMano() throws Exception {
+        when(pacienteService.validarYGuardar(any())).thenReturn(null);
+
+        mockMvc.perform(post("/pacientes/guardar").with(csrf()).with(user("a@test.com").roles("ADMIN"))
+                        .param("nombre", "Luis").param("apellido", "Gil").param("email", "luis@test.com")
+                        .param("id", "id-de-otro-usuario").param("role", "ADMIN"))
+                .andExpect(status().is3xxRedirection());
+
+        ArgumentCaptor<Paciente> guardado = ArgumentCaptor.forClass(Paciente.class);
+        verify(pacienteService).validarYGuardar(guardado.capture());
+        assertThat(guardado.getValue().getId()).isNull();
+        assertThat(guardado.getValue().getRole()).isEqualTo("PACIENTE");
+        assertThat(guardado.getValue().getNombre()).isEqualTo("Luis");
     }
 
     @Test

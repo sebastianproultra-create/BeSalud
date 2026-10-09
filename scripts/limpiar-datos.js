@@ -55,6 +55,21 @@ const nota = (tipo, texto) => informe.push({ tipo, texto });
   }
   for (const p of todas) {
     const cambios = {};
+    // 0: rol que no corresponde al tipo de documento (p. ej. un Doctor con role ADMIN creado a mano por el formulario).
+    //    Los admins viven en otra colección, así que en personas solo puede haber DOCTOR o PACIENTE.
+    if (p.role !== 'DOCTOR' && p.role !== 'PACIENTE') {
+      const tipo = String(p._class || '').split('.').pop();
+      if (tipo === 'Doctor') {
+        cambios.role = 'DOCTOR';
+        cambios.estado = 'INACTIVO';
+        nota('ARREGLO', `${etiqueta(p)}: rol "${p.role}" inválido -> DOCTOR (queda INACTIVO hasta que el admin lo apruebe)`);
+      } else if (tipo === 'Paciente') {
+        cambios.role = 'PACIENTE';
+        nota('ARREGLO', `${etiqueta(p)}: rol "${p.role}" inválido -> PACIENTE`);
+      } else {
+        nota('REVISAR', `${etiqueta(p)}: rol "${p.role}" inválido y tipo desconocido "${p._class}"`);
+      }
+    }
     if (p.role === 'DOCTOR') {
       const oficial = p.especialidad ? OFICIAL.get(normalizar(p.especialidad)) : null;
       if (oficial && oficial !== p.especialidad) {

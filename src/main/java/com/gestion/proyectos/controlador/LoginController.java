@@ -32,6 +32,7 @@ public class LoginController {
 
     private static final String VIEW_REGISTER = "register";
     private static final String ATTR_ERROR = "error";
+    static final String ERROR_PRIVACIDAD = "Debes aceptar la política de privacidad para registrarte";
 
     private final RegistroService registroService;
     private final AuthenticationManager authenticationManager;
@@ -110,11 +111,18 @@ public class LoginController {
     }
 
     @PostMapping("/register/save")
-    public String registerSave(@Valid UserRegistrationDTO user, BindingResult binding, Model model) {
+    public String registerSave(@Valid UserRegistrationDTO user, BindingResult binding,
+            @RequestParam(required = false) boolean aceptaPrivacidad, Model model) {
         if (binding.hasErrors()) {
             String msg = binding.getAllErrors().get(0).getDefaultMessage();
             model.addAttribute("user", user);
             model.addAttribute(ATTR_ERROR, msg);
+            return VIEW_REGISTER;
+        }
+        // El checkbox es "required" en el navegador, pero eso se salta enviando la petición a mano.
+        if (!aceptaPrivacidad) {
+            model.addAttribute("user", user);
+            model.addAttribute(ATTR_ERROR, ERROR_PRIVACIDAD);
             return VIEW_REGISTER;
         }
 

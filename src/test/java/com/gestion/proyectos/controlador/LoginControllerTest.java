@@ -127,6 +127,7 @@ class LoginControllerTest {
                         .param("identificacion", "123456")
                         .param("password", "pass123")
                         .param("role", "PACIENTE")
+                        .param("aceptaPrivacidad", "on")
                         .with(csrf()))
                 .andExpect(status().isOk())
                 .andExpect(view().name("register"))
@@ -147,6 +148,7 @@ class LoginControllerTest {
                         .param("nombre", "")
                         .param("email", "test@correo.com")
                         .param("role", "PACIENTE")
+                        .param("aceptaPrivacidad", "on")
                         .with(csrf()))
                 .andExpect(status().isOk())
                 .andExpect(view().name("register"))
@@ -163,6 +165,7 @@ class LoginControllerTest {
                         .param("email", "no-es-un-email")
                         .param("password", "password123")
                         .param("role", "PACIENTE")
+                        .param("aceptaPrivacidad", "on")
                         .with(csrf()))
                 .andExpect(status().isOk())
                 .andExpect(view().name("register"))
@@ -179,6 +182,7 @@ class LoginControllerTest {
                         .param("email", "juan@correo.com")
                         .param("password", "corta")
                         .param("role", "PACIENTE")
+                        .param("aceptaPrivacidad", "on")
                         .with(csrf()))
                 .andExpect(status().isOk())
                 .andExpect(view().name("register"))
@@ -246,6 +250,24 @@ class LoginControllerTest {
     }
 
     @Test
+    void registerSave_sinAceptarPrivacidad_noRegistra() throws Exception {
+        when(registroService.validar(any())).thenReturn(null);
+
+        mockMvc.perform(post("/register/save")
+                        .param("email", "nuevo@correo.com")
+                        .param("nombre", "Maria")
+                        .param("apellido", "Lopez")
+                        .param("telefono", "3009876543")
+                        .param("identificacion", "654321")
+                        .param("password", "password456")
+                        .param("role", "PACIENTE")
+                        .with(csrf()))
+                .andExpect(status().isOk())
+                .andExpect(model().attribute("error", LoginController.ERROR_PRIVACIDAD));
+        verify(registroService, never()).registrar(any());
+    }
+
+    @Test
     void registerSave_nuevoPaciente_redirigeTLogin() throws Exception {
         when(registroService.validar(any())).thenReturn(null);
         when(registroService.verificarDuplicado(any())).thenReturn(null);
@@ -259,6 +281,7 @@ class LoginControllerTest {
                         .param("identificacion", "654321")
                         .param("password", "password456")
                         .param("role", "PACIENTE")
+                        .param("aceptaPrivacidad", "on")
                         .with(csrf()))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/login?registerSuccess"));
@@ -280,6 +303,7 @@ class LoginControllerTest {
                         .param("role", "DOCTOR")
                         .param("especialidad", "Cardiologia")
                         .param("fechaNacimiento", "1980-05-15")
+                        .param("aceptaPrivacidad", "on")
                         .with(csrf()))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/login?registerSuccess"));

@@ -62,7 +62,7 @@ const ESPECIALIDADES = [
     ['Migraña frecuente', 'Mareos al levantarse', 'Hormigueo en las manos'],
     [['Migraña sin aura', 'Diario de crisis y analgésico al inicio del dolor', 'Evitar ayunos prolongados'],
      ['Vértigo posicional benigno', 'Maniobras de reposicionamiento en casa', '']]],
-  ['Ginecología', 4, 30, 'control prenatal, planificación y salud femenina',
+  ['Ginecología y Obstetricia', 4, 30, 'control prenatal, planificación y salud femenina',
     ['Control ginecológico anual', 'Dolor menstrual intenso', 'Control prenatal'],
     [['Control normal', 'Citología al día', 'Repetir en un año'],
      ['Dismenorrea primaria', 'Ibuprofeno los primeros días del ciclo', 'Ecografía si no mejora']]],
@@ -70,7 +70,7 @@ const ESPECIALIDADES = [
     ['Acidez y ardor de estómago', 'Dolor abdominal después de comer', 'Diarrea frecuente'],
     [['Gastritis leve', 'Dieta blanda y omeprazol por 4 semanas', 'Evitar café y comidas picantes'],
      ['Colon irritable', 'Más fibra y agua, menos ultraprocesados', 'Control en 2 meses']]],
-  ['Psicología', 4, 60, 'ansiedad, estrés, duelo y acompañamiento emocional',
+  ['Psicología Clínica', 4, 60, 'ansiedad, estrés, duelo y acompañamiento emocional',
     ['Ansiedad y problemas para dormir', 'Estrés laboral', 'Tristeza persistente'],
     [['Trastorno de ansiedad leve', 'Psicoterapia semanal y técnicas de respiración', 'Seguimiento en 1 semana'],
      ['Estrés laboral', 'Higiene del sueño y pausas activas', '']]],
@@ -92,7 +92,7 @@ const ESPECIALIDADES = [
   ['Neumología', 3, 30, 'asma, tos persistente y enfermedades respiratorias',
     ['Tos persistente hace un mes', 'Control de asma', 'Ahogo al subir escaleras'],
     [['Asma controlada', 'Continuar inhalador', 'Espirometría en 6 meses']]],
-  ['Endocrinología', 3, 30, 'diabetes, tiroides y control de peso',
+  ['Endocrinología y Metabolismo', 3, 30, 'diabetes, tiroides y control de peso',
     ['Control de diabetes', 'Cansancio y aumento de peso', 'Resultados de tiroides'],
     [['Diabetes tipo 2 en buen control', 'Continuar metformina y actividad física', 'Hemoglobina glicosilada en 3 meses'],
      ['Hipotiroidismo', 'Levotiroxina en ayunas', 'Control de TSH en 6 semanas']]],
@@ -166,7 +166,7 @@ const personaNueva = () => {
     }
   }
   // Doctores recién registrados, pendientes de aprobación (sin horario).
-  for (const esp of ['Dermatología', 'Cardiología', 'Pediatría', 'Nutrición']) {
+  for (const esp of ['Dermatología', 'Cardiología', 'Pediatría', 'Nutrición y Dietética']) {
     const { nombre, apellido } = personaNueva();
     docsInsert.push({
       especialidad: esp, fechaNacimiento: new Date(Date.UTC(1993, 2, 10, 5)),

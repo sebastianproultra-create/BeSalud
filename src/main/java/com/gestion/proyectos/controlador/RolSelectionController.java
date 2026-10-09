@@ -55,12 +55,20 @@ public class RolSelectionController {
                               @RequestParam(required = false) String especialidad,
                               @RequestParam(required = false) String fechaNacimiento,
                               @RequestParam(required = false) String biografia,
+                              @RequestParam(required = false) boolean aceptaPrivacidad,
                               HttpSession session,
                               HttpServletResponse response,
                               Model model) {
         String email = (String) session.getAttribute("oauth2Email");
         if (email == null) {
             return "redirect:/login";
+        }
+        if (!aceptaPrivacidad) {
+            model.addAttribute("error", LoginController.ERROR_PRIVACIDAD);
+            model.addAttribute("email", email);
+            model.addAttribute("nombre", nombre);
+            model.addAttribute("apellido", apellido);
+            return "elegir_rol";
         }
 
         String picture = (String) session.getAttribute("oauth2Picture");

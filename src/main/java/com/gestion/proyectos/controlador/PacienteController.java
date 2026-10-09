@@ -7,6 +7,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.*;
 
 @Controller
@@ -28,6 +29,12 @@ public class PacienteController {
         model.addAttribute("queryPacientes", "size=" + pagina.getSize());
         model.addAttribute("paciente", new Paciente());
         return "pacientes";
+    }
+
+    // Solo los campos del formulario: sin esto se podría enviar id (sobrescribir a otro usuario) o role.
+    @InitBinder("paciente")
+    void camposPermitidos(WebDataBinder binder) {
+        binder.setAllowedFields("nombre", "apellido", "telefono", "identificacion", "email", "password");
     }
 
     @PostMapping("/guardar")
