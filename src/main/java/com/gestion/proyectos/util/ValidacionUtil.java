@@ -92,10 +92,6 @@ public final class ValidacionUtil {
         if (local.chars().noneMatch(Character::isLetter))
             return "El correo no puede estar formado solo por números";
 
-        String[] etiquetas = dominio.split("\\.");
-        if (etiquetas[etiquetas.length - 2].chars().allMatch(Character::isDigit))
-            return "El dominio del correo no es válido";
-
         String sugerido = DOMINIOS_ERRADOS.get(dominio);
         if (sugerido != null)
             return "El dominio del correo parece mal escrito. ¿Quisiste decir " + sugerido + "?";

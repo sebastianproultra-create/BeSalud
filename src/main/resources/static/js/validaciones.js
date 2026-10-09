@@ -48,8 +48,6 @@
             var local = v.substring(0, arroba).toLowerCase();
             var dominio = v.substring(arroba + 1).toLowerCase();
             if (!/[a-z]/i.test(local)) return 'El correo no puede estar formado solo por números';
-            var etiquetas = dominio.split('.');
-            if (/^\d+$/.test(etiquetas[etiquetas.length - 2])) return 'El dominio del correo no es válido';
             if (DOMINIOS_ERRADOS[dominio])
                 return 'El dominio parece mal escrito. ¿Quisiste decir ' + DOMINIOS_ERRADOS[dominio] + '?';
             if (dominio === 'gmail.com' || dominio === 'googlemail.com') {

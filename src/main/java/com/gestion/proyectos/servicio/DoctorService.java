@@ -226,9 +226,9 @@ public class DoctorService {
         if (error == null && dto.getBiografia() != null && dto.getBiografia().length() > 500)
             error = "La biografía no puede superar los 500 caracteres";
         if (error == null)
-            error = registroService.verificarDuplicado(dto);
-        if (error == null)
             error = registroService.validarEmail(dto.getEmail());
+        if (error == null)
+            error = registroService.verificarDuplicado(dto);
         if (error == null)
             error = registroService.registrar(dto);
         if (error == null)
