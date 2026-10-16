@@ -2,6 +2,7 @@ package com.gestion.proyectos.controlador;
 
 import com.gestion.proyectos.seguridad.RateLimiter;
 import com.gestion.proyectos.modelo.Doctor;
+import com.gestion.proyectos.modelo.Veredicto;
 import com.gestion.proyectos.oauth2.OAuth2LoginSuccessHandler;
 import com.gestion.proyectos.repositorio.AdminRepositorio;
 import com.gestion.proyectos.repositorio.PersonaRepositorio;
@@ -171,7 +172,55 @@ class DoctorControllerTest {
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/doctores"));
 
-        verify(doctorService).guardarDictamen("c1", "d1", "Gripa común", "Reposo y líquidos", "Revisar en 5 días");
+        verify(doctorService).guardarDictamen(eq("c1"), eq(doctor), argThat(d ->
+                "Gripa común".equals(d.getDiagnostico())
+                        && "Reposo y líquidos".equals(d.getTratamiento())
+                        && "Revisar en 5 días".equals(d.getObservaciones())
+                        && d.getVeredicto() == null));
+    }
+
+    @Test
+    void guardarDictamen_estructuraCompleta_pasaTodasLasSecciones() throws Exception {
+        Doctor doctor = new Doctor();
+        doctor.setId("d1");
+        when(doctorService.buscarPorEmail("doc@test.com")).thenReturn(Optional.of(doctor));
+
+        mockMvc.perform(post("/doctores/citas/c1/dictamen")
+                        .param("objeto", "Control general")
+                        .param("alcance", "Examen físico y signos vitales")
+                        .param("hallazgos", "Fiebre leve")
+                        .param("diagnostico", "Gripa común")
+                        .param("veredicto", "FAVORABLE_CON_SALVEDADES")
+                        .param("tratamiento", "Reposo y líquidos")
+                        .param("recomendaciones", "Volver si persiste la fiebre")
+                        .with(csrf())
+                        .with(user("doc@test.com").roles("DOCTOR")))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/doctores"));
+
+        verify(doctorService).guardarDictamen(eq("c1"), eq(doctor), argThat(d ->
+                "Control general".equals(d.getObjeto())
+                        && "Examen físico y signos vitales".equals(d.getAlcance())
+                        && "Fiebre leve".equals(d.getHallazgos())
+                        && d.getVeredicto() == Veredicto.FAVORABLE_CON_SALVEDADES
+                        && "Volver si persiste la fiebre".equals(d.getRecomendaciones())));
+    }
+
+    @Test
+    void guardarDictamen_veredictoInvalido_400() throws Exception {
+        Doctor doctor = new Doctor();
+        doctor.setId("d1");
+        when(doctorService.buscarPorEmail("doc@test.com")).thenReturn(Optional.of(doctor));
+
+        mockMvc.perform(post("/doctores/citas/c1/dictamen")
+                        .param("diagnostico", "Gripa común")
+                        .param("tratamiento", "Reposo y líquidos")
+                        .param("veredicto", "APROBADISIMO")
+                        .with(csrf())
+                        .with(user("doc@test.com").roles("DOCTOR")))
+                .andExpect(status().isBadRequest());
+
+        verify(doctorService, never()).guardarDictamen(any(), any(), any());
     }
 
     @Test
@@ -188,7 +237,7 @@ class DoctorControllerTest {
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/doctores"));
 
-        verify(doctorService).guardarDictamen("c1", "d1", "Gripa común", "Reposo y líquidos", null);
+        verify(doctorService).guardarDictamen(eq("c1"), eq(doctor), argThat(d -> d.getObservaciones() == null));
     }
 
     // ── marcar asistencia ────────────────────────────────────────────────────

@@ -1,8 +1,10 @@
 package com.gestion.proyectos.controlador;
 
+import com.gestion.proyectos.modelo.Dictamen;
 import com.gestion.proyectos.modelo.Doctor;
 import com.gestion.proyectos.modelo.HorarioAtencion;
 import com.gestion.proyectos.modelo.UserRegistrationDTO;
+import com.gestion.proyectos.modelo.Veredicto;
 import com.gestion.proyectos.servicio.DoctorService;
 
 import org.springframework.stereotype.Controller;
@@ -198,10 +200,24 @@ public class DoctorController {
     public String guardarDictamen(@PathVariable String id,
             @RequestParam String diagnostico,
             @RequestParam String tratamiento,
-            @RequestParam(required = false) String observaciones) {
+            @RequestParam(required = false) String observaciones,
+            @RequestParam(required = false) String objeto,
+            @RequestParam(required = false) String alcance,
+            @RequestParam(required = false) String hallazgos,
+            @RequestParam(required = false) Veredicto veredicto,
+            @RequestParam(required = false) String recomendaciones) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         Doctor doctor = doctorService.buscarPorEmail(auth.getName()).orElseThrow();
-        doctorService.guardarDictamen(id, doctor.getId(), diagnostico, tratamiento, observaciones);
+        Dictamen datos = new Dictamen();
+        datos.setObjeto(objeto);
+        datos.setAlcance(alcance);
+        datos.setHallazgos(hallazgos);
+        datos.setDiagnostico(diagnostico);
+        datos.setVeredicto(veredicto);
+        datos.setTratamiento(tratamiento);
+        datos.setRecomendaciones(recomendaciones);
+        datos.setObservaciones(observaciones);
+        doctorService.guardarDictamen(id, doctor, datos);
         return REDIRECT_DOCTORES;
     }
 

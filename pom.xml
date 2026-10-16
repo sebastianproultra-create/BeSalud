@@ -19,7 +19,7 @@
 
     <properties>
         <java.version>17</java.version>
-        <lombok.version>1.18.36</lombok.version>
+        <lombok.version>1.18.42</lombok.version>
         <mockito.version>5.14.2</mockito.version>
         <bytebuddy.version>1.15.11</bytebuddy.version>
         <sonar.host.url>http://localhost:9000</sonar.host.url>
@@ -33,7 +33,8 @@
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
-            <optional>true</optional>
+            <version>${lombok.version}</version>
+            <scope>provided</scope>
         </dependency>
 
         <dependency>

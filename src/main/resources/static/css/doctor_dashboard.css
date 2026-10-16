@@ -1175,6 +1175,62 @@ table td form {
     margin-bottom: 4px;
 }
 
+/* Dictamen estructurado (secciones 1-6) */
+.dictamen-seccion {
+    border: none;
+    border-top: 1px solid var(--border-color);
+    margin: 0 0 6px 0;
+    padding: 14px 0 0 0;
+}
+.dictamen-seccion legend {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 17px;
+    color: var(--primary-color);
+    padding-right: 8px;
+}
+.modal-content select {
+    width: 100%;
+    border: 1px solid var(--border-color);
+    border-bottom: 2px solid var(--border-mid);
+    border-radius: 3px;
+    padding: 10px 12px;
+    font-size: 14px;
+    font-family: 'DM Sans', sans-serif;
+    color: var(--text-dark);
+    background: var(--white);
+}
+.modal-content select:focus {
+    border-bottom-color: var(--accent-color);
+    outline: none;
+}
+.dictamen-firma-nota,
+.dictamen-declaracion {
+    font-size: 12px;
+    font-style: italic;
+    color: var(--text-muted, #6b7c75);
+}
+.dictamen-detail section + section {
+    border-top: 1px solid var(--border-color);
+    margin-top: 8px;
+}
+.dictamen-detail h4 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 17px;
+    font-weight: 500;
+    color: var(--primary-color);
+    margin: 12px 0 4px 0;
+}
+.veredicto-badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 600;
+}
+.veredicto-favorable { background: #e3f4ea; color: #1e6b3f; }
+.veredicto-favorable_con_salvedades { background: #fdf3dc; color: #8a6312; }
+.veredicto-desfavorable { background: #fbe4e4; color: #9b2c2c; }
+
 /* ==============================================
    RESPONSIVE
    ============================================== */

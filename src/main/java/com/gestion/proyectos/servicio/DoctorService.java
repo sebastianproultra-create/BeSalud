@@ -25,7 +25,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.time.format.TextStyle;
 import java.util.ArrayList;
@@ -40,6 +42,7 @@ import java.util.Optional;
 public class DoctorService {
 
     private static final Logger log = LoggerFactory.getLogger(DoctorService.class);
+    private static final DateTimeFormatter FORMATO_EMISION = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
 
     private final PersonaRepositorio personaRepo;
     private final HorarioAtencionRepositorio horarioRepo;
@@ -113,16 +116,29 @@ public class DoctorService {
     public Map<String, Map<String, String>> dictamenDataMap(List<Cita> citas) {
         Map<String, Map<String, String>> result = new HashMap<>();
         for (Cita c : citas) {
-            if (c.getDictamen() != null) {
+            Dictamen dic = c.getDictamen();
+            if (dic != null) {
                 Map<String, String> d = new HashMap<>();
-                d.put("diagnostico", c.getDictamen().getDiagnostico() != null ? c.getDictamen().getDiagnostico() : "");
-                d.put("tratamiento", c.getDictamen().getTratamiento() != null ? c.getDictamen().getTratamiento() : "");
-                d.put("observaciones",
-                        c.getDictamen().getObservaciones() != null ? c.getDictamen().getObservaciones() : "");
+                d.put("objeto", texto(dic.getObjeto()));
+                d.put("alcance", texto(dic.getAlcance()));
+                d.put("hallazgos", texto(dic.getHallazgos()));
+                d.put("diagnostico", texto(dic.getDiagnostico()));
+                d.put("veredicto", dic.getVeredicto() != null ? dic.getVeredicto().getDescripcion() : "");
+                d.put("veredictoClave", dic.getVeredicto() != null ? dic.getVeredicto().name() : "");
+                d.put("tratamiento", texto(dic.getTratamiento()));
+                d.put("recomendaciones", texto(dic.getRecomendaciones()));
+                d.put("observaciones", texto(dic.getObservaciones()));
+                d.put("fechaEmision", dic.getFechaEmision() != null ? dic.getFechaEmision().format(FORMATO_EMISION) : "");
+                d.put("firmadoPor", texto(dic.getFirmadoPor()));
+                d.put("especialidadFirmante", texto(dic.getEspecialidadFirmante()));
                 result.put(c.getId(), d);
             }
         }
         return result;
+    }
+
+    private static String texto(String s) {
+        return s != null ? s : "";
     }
 
     public String actualizarFoto(Doctor doctor, org.springframework.web.multipart.MultipartFile foto) {
@@ -375,18 +391,32 @@ public class DoctorService {
         eventos.publishEvent(new CitaEvento(CitaEvento.Tipo.CANCELADA, citaId));
     }
 
-    public void guardarDictamen(String citaId, String doctorId,
-            String diagnostico, String tratamiento, String observaciones) {
+    public void guardarDictamen(String citaId, Doctor doctor, Dictamen datos) {
         Cita cita = citaRepo.findById(citaId).orElseThrow();
-        if (!cita.getDoctorId().equals(doctorId))
+        if (!cita.getDoctorId().equals(doctor.getId()))
             throw new AccessDeniedException("No autorizado");
         Dictamen dictamen = new Dictamen();
-        dictamen.setDiagnostico(diagnostico);
-        dictamen.setTratamiento(tratamiento);
-        dictamen.setObservaciones(observaciones);
+        // 1. Encabezado: si el médico no indica el objeto, se usa el motivo de la cita
+        dictamen.setObjeto(ValidacionUtil.esVacio(datos.getObjeto()) ? cita.getMotivo() : datos.getObjeto().trim());
+        dictamen.setFechaEmision(LocalDateTime.now());
+        // 2-5. Alcance, hallazgos, veredicto y recomendaciones
+        dictamen.setAlcance(limpiar(datos.getAlcance()));
+        dictamen.setHallazgos(limpiar(datos.getHallazgos()));
+        dictamen.setDiagnostico(datos.getDiagnostico());
+        dictamen.setVeredicto(datos.getVeredicto());
+        dictamen.setTratamiento(datos.getTratamiento());
+        dictamen.setRecomendaciones(limpiar(datos.getRecomendaciones()));
+        dictamen.setObservaciones(datos.getObservaciones());
+        // 6. Firma: la pone el sistema con el médico autenticado
+        dictamen.setFirmadoPor(doctor.getNombre() + " " + doctor.getApellido());
+        dictamen.setEspecialidadFirmante(doctor.getEspecialidad());
         cita.setDictamen(dictamen);
         cita.setEstado(EstadoCita.COMPLETADA);
         citaRepo.save(cita);
-        log.info("Dictamen guardado para cita {} por doctor {}", citaId, doctorId);
+        log.info("Dictamen guardado para cita {} por doctor {}", citaId, doctor.getId());
+    }
+
+    private static String limpiar(String s) {
+        return ValidacionUtil.esVacio(s) ? null : s.trim();
     }
 }

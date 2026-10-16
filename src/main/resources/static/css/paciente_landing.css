@@ -442,6 +442,25 @@
     font-weight: 700;
 }
 
+/* Dictamen estructurado */
+.dictamen-firma {
+    margin-top: 6px;
+    font-size: 11px;
+    font-style: italic;
+    color: var(--text-dark);
+    opacity: 0.8;
+}
+.veredicto-badge {
+    display: inline-block;
+    padding: 1px 8px;
+    border-radius: 10px;
+    font-size: 11px;
+    font-weight: 700;
+}
+.veredicto-favorable { background: #e3f4ea; color: #1e6b3f; }
+.veredicto-favorable_con_salvedades { background: #fdf3dc; color: #8a6312; }
+.veredicto-desfavorable { background: #fbe4e4; color: #9b2c2c; }
+
 /* Backdrop for mobile overlay */
 .sidebar-backdrop {
     display: none;

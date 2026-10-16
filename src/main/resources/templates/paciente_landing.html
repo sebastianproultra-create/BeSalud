@@ -134,6 +134,23 @@
                         <!-- Dictamen visible para citas completadas -->
                         <div th:if="${cita.estado.name() == 'COMPLETADA' and cita.dictamen != null}" class="cita-dictamen">
                             <div class="dictamen-header"><i class="fa-solid fa-file-medical"></i> Dictamen médico</div>
+                            <div th:if="${cita.dictamen.veredicto != null}" class="dictamen-field">
+                                <strong>Veredicto:</strong>
+                                <span class="veredicto-badge" th:classappend="'veredicto-' + ${#strings.toLowerCase(cita.dictamen.veredicto.name())}"
+                                      th:text="${cita.dictamen.veredicto.descripcion}"></span>
+                            </div>
+                            <div th:if="${!#strings.isEmpty(cita.dictamen.objeto)}" class="dictamen-field">
+                                <strong>Objeto:</strong>
+                                <span th:text="${cita.dictamen.objeto}"></span>
+                            </div>
+                            <div th:if="${!#strings.isEmpty(cita.dictamen.alcance)}" class="dictamen-field">
+                                <strong>Alcance:</strong>
+                                <span th:text="${cita.dictamen.alcance}"></span>
+                            </div>
+                            <div th:if="${!#strings.isEmpty(cita.dictamen.hallazgos)}" class="dictamen-field">
+                                <strong>Hallazgos:</strong>
+                                <span th:text="${cita.dictamen.hallazgos}"></span>
+                            </div>
                             <div class="dictamen-field">
                                 <strong>Diagnóstico:</strong>
                                 <span th:text="${cita.dictamen.diagnostico}"></span>
@@ -142,9 +159,16 @@
                                 <strong>Tratamiento:</strong>
                                 <span th:text="${cita.dictamen.tratamiento}"></span>
                             </div>
+                            <div th:if="${!#strings.isEmpty(cita.dictamen.recomendaciones)}" class="dictamen-field">
+                                <strong>Recomendaciones:</strong>
+                                <span th:text="${cita.dictamen.recomendaciones}"></span>
+                            </div>
                             <div th:if="${cita.dictamen.observaciones != null and !cita.dictamen.observaciones.isEmpty()}" class="dictamen-field">
                                 <strong>Observaciones:</strong>
                                 <span th:text="${cita.dictamen.observaciones}"></span>
+                            </div>
+                            <div th:if="${!#strings.isEmpty(cita.dictamen.firmadoPor)}" class="dictamen-firma">
+                                Firmado por Dr(a). <span th:text="${cita.dictamen.firmadoPor}"></span><span th:if="${!#strings.isEmpty(cita.dictamen.especialidadFirmante)}" th:text="' — ' + ${cita.dictamen.especialidadFirmante}"></span><span th:if="${cita.dictamen.fechaEmision != null}" th:text="' · ' + ${#temporals.format(cita.dictamen.fechaEmision, 'dd/MM/yyyy HH:mm')}"></span>
                             </div>
                         </div>
                     </div>
