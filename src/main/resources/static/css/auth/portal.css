@@ -2161,3 +2161,61 @@ html[data-auth-entry="from-left"] .auth-shell {
     border-color: rgba(0, 47, 36, 0.14);
     box-shadow: 0 0 0 2px rgba(0, 47, 36, 0.12);
 }
+/* ── Encabezado responsive: los enlaces nunca se parten en dos líneas ── */
+.auth-page .auth-nav-link {
+    white-space: nowrap;
+}
+
+/* El enlace es flex: sin "pre" se pierde el espacio que separa las palabras */
+.auth-page .auth-nav-extra {
+    white-space: pre;
+}
+
+@media (max-width: 1040px) {
+    .auth-page .secure-label {
+        display: none;
+    }
+}
+
+@media (max-width: 560px) {
+    .auth-page .auth-nav-extra {
+        display: none;
+    }
+
+    .auth-page .auth-nav-link {
+        font-size: 11px;
+    }
+}
+
+@media (max-width: 390px) {
+    .auth-page .auth-nav-link {
+        font-size: 10px;
+    }
+}
+
+/* Teléfonos estrechos: los pares de campos pasan a una sola columna */
+@media (max-width: 360px) {
+    .register-page .register-name-grid {
+        grid-template-columns: minmax(0, 1fr);
+        gap: 12px;
+    }
+}
+
+/* Franja de confianza y de ayuda alineadas con el formulario (antes 1024px centrados) */
+.register-page .register-trust-row,
+.register-page .register-help-strip {
+    width: 100%;
+    max-width: 1320px;
+}
+
+.register-page .register-trust-row {
+    font-size: 12px;
+}
+
+.register-page .help-copy small {
+    font-size: 12px;
+}
+
+.register-page .register-help-strip > a {
+    font-size: 12px;
+}

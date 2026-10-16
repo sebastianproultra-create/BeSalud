@@ -23,9 +23,9 @@
             <a th:href="@{/login}" class="auth-nav-link" th:classappend="${active == 'login'} ? ' is-active'"
                th:attr="aria-current=${active == 'login'} ? 'page'" data-auth-direction="backward">Iniciar Sesión</a>
             <a th:href="@{/register}" class="auth-nav-link" th:classappend="${active == 'register'} ? ' is-active'"
-               th:attr="aria-current=${active == 'register'} ? 'page'" data-auth-direction="forward">Registro Paciente</a>
+               th:attr="aria-current=${active == 'register'} ? 'page'" data-auth-direction="forward">Registro<span class="auth-nav-extra"> Paciente</span></a>
             <a th:href="@{/ayuda}" class="auth-nav-link" th:classappend="${active == 'ayuda'} ? ' is-active'"
-               th:attr="aria-current=${active == 'ayuda'} ? 'page'">Centro de Ayuda</a>
+               th:attr="aria-current=${active == 'ayuda'} ? 'page'"><span class="auth-nav-extra">Centro de </span>Ayuda</a>
         </nav>
         <div class="portal-header-meta">
             <span class="secure-label"><span class="material-symbols-outlined" aria-hidden="true">shield</span>Acceso Seguro</span>
