@@ -90,34 +90,46 @@ public class NotificacionService {
         String hora = cita.getHora() == null ? "" : cita.getHora().format(HORA).replace(' ', ' ').toLowerCase();
         String nombreDoctor = doctor == null ? "Por confirmar" : "Dr(a). " + doctor.getNombre() + " " + doctor.getApellido();
         String especialidad = doctor == null || doctor.getEspecialidad() == null ? "" : doctor.getEspecialidad();
-        String cancelada = cita.getEstado() == EstadoCita.CANCELADA ? "text-decoration:line-through;color:#6B6B65;" : "";
+        String tachado = cita.getEstado() == EstadoCita.CANCELADA ? "text-decoration:line-through;" : "";
 
+        // Mismo lenguaje visual que la portada: verde bosque, acento ámbar, Newsreader + Plus Jakarta Sans
+        // (con Georgia/Arial de respaldo porque Gmail ignora las fuentes web).
         return """
-                <!DOCTYPE html><html lang="es"><body style="margin:0;padding:0;background:#F5F2EC;font-family:Arial,Helvetica,sans-serif;color:#1C1C1A;">
-                <table role="presentation" width="100%%" cellpadding="0" cellspacing="0" style="background:#F5F2EC;padding:32px 16px;">
+                <!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+                <link href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,400;6..72,500&amp;family=Plus+Jakarta+Sans:wght@400;600&amp;display=swap" rel="stylesheet"></head>
+                <body style="margin:0;padding:0;background:#F4F7F4;font-family:'Plus Jakarta Sans',Arial,Helvetica,sans-serif;color:#525956;">
+                <div style="display:none;max-height:0;overflow:hidden;opacity:0;">%s</div>
+                <table role="presentation" width="100%%" cellpadding="0" cellspacing="0" bgcolor="#F4F7F4" style="background:#F4F7F4;padding:32px 12px;">
                 <tr><td align="center">
-                <table role="presentation" width="100%%" cellpadding="0" cellspacing="0" style="max-width:520px;background:#FDFCF9;border-radius:12px;overflow:hidden;border:1px solid #E5DFD3;">
-                  <tr><td style="background:#0D3B2E;padding:22px 28px;color:#FDFCF9;font-size:22px;font-family:Georgia,serif;">
-                    <span style="color:#C8A96E;">&#10022;</span> BeSalud</td></tr>
-                  <tr><td style="padding:28px;">
-                    <p style="margin:0 0 6px;font-size:13px;color:#6B6B65;">Hola, %s</p>
-                    <h1 style="margin:0 0 12px;font-size:24px;font-family:Georgia,serif;color:#0D3B2E;font-weight:normal;">%s</h1>
-                    <p style="margin:0 0 20px;font-size:15px;line-height:1.5;">%s</p>
-                    <table role="presentation" width="100%%" cellpadding="0" cellspacing="0" style="background:#F5F2EC;border-radius:8px;border-left:4px solid #C8A96E;">
-                      <tr><td style="padding:16px 18px;font-size:14px;line-height:1.7;%s">
-                        <strong style="font-size:16px;color:#0D3B2E;">%s · %s</strong><br>
-                        %s<br>
-                        <span style="color:#6B6B65;">%s</span><br>
-                        <span style="color:#6B6B65;">Motivo:</span> %s
+                <table role="presentation" width="100%%" cellpadding="0" cellspacing="0" style="max-width:560px;background:#FAFBF9;border:1px solid #EAEFEA;border-radius:4px;overflow:hidden;">
+                  <tr><td bgcolor="#082921" style="background:#082921;background-image:linear-gradient(160deg,#0D4738 0%%,#082921 100%%);padding:36px 36px 32px;">
+                    <div style="font-family:'Newsreader',Georgia,serif;font-size:24px;font-weight:500;color:#FFFFFF;">
+                      <span style="display:inline-block;width:26px;height:26px;line-height:26px;text-align:center;background:rgba(255,255,255,0.1);border-radius:2px;color:#A9D5C3;font-family:Arial,sans-serif;font-size:20px;">+</span>&nbsp;BeSalud</div>
+                    <div style="margin:28px 0 14px;"><span style="display:inline-block;padding:6px 14px;border:1px solid rgba(169,213,195,0.3);border-radius:3px;background:rgba(13,71,56,0.4);color:#C4E5D7;font-size:10px;font-weight:600;letter-spacing:0.25em;text-transform:uppercase;">Hola, %s</span></div>
+                    <h1 style="margin:0;font-family:'Newsreader',Georgia,serif;font-size:32px;line-height:1.15;font-weight:400;color:#FFFFFF;">%s</h1>
+                  </td></tr>
+                  <tr><td style="padding:32px 36px 8px;">
+                    <p style="margin:0 0 24px;font-size:15px;line-height:1.7;color:#525956;">%s</p>
+                    <table role="presentation" width="100%%" cellpadding="0" cellspacing="0" style="background:#F4F7F4;border:1px solid #EAEFEA;border-left:3px solid #D99B4B;border-radius:3px;">
+                      <tr><td style="padding:20px 22px;%s">
+                        <div style="font-size:10px;font-weight:600;letter-spacing:0.18em;text-transform:uppercase;color:#969D98;margin-bottom:6px;">Tu cita</div>
+                        <div style="font-family:'Newsreader',Georgia,serif;font-size:20px;color:#0D4738;margin-bottom:10px;">%s · %s</div>
+                        <div style="font-size:14px;line-height:1.7;color:#171B19;">%s</div>
+                        <div style="font-size:13px;line-height:1.7;color:#5F6662;">%s</div>
+                        <div style="font-size:13px;line-height:1.7;color:#5F6662;margin-top:6px;"><span style="color:#969D98;">Motivo:</span> %s</div>
                       </td></tr>
                     </table>
-                    <p style="margin:24px 0 0;"><a href="%s" style="display:inline-block;background:#1A5C45;color:#FDFCF9;text-decoration:none;padding:12px 22px;border-radius:6px;font-size:14px;">%s</a></p>
                   </td></tr>
-                  <tr><td style="padding:16px 28px;border-top:1px solid #E5DFD3;font-size:12px;color:#6B6B65;">
-                    Este es un correo automático de BeSalud. Si es una emergencia, llama al 123.</td></tr>
+                  <tr><td style="padding:24px 36px 36px;">
+                    <a href="%s" style="display:inline-block;background:#D99B4B;border:1px solid #D99B4B;color:#171B19;text-decoration:none;padding:14px 28px;border-radius:3px;font-size:11px;font-weight:600;letter-spacing:0.14em;text-transform:uppercase;">%s</a>
+                  </td></tr>
+                  <tr><td bgcolor="#0D4738" style="background:#0D4738;padding:22px 36px;">
+                    <div style="font-family:'Newsreader',Georgia,serif;font-size:18px;color:#FFFFFF;"><span style="color:#69B493;font-size:22px;">+</span> BeSalud</div>
+                    <div style="margin-top:6px;font-size:12px;line-height:1.6;color:rgba(196,229,215,0.7);">Correo automático, no lo respondas. Si es una emergencia, llama al 123.</div>
+                  </td></tr>
                 </table></td></tr></table></body></html>
                 """.formatted(
-                esc(paciente.getNombre()), esc(titulo), esc(mensaje), cancelada,
+                esc(mensaje), esc(paciente.getNombre()), esc(titulo), esc(mensaje), tachado,
                 esc(capitalizar(fecha)), esc(hora), esc(nombreDoctor), esc(especialidad),
                 esc(cita.getMotivo() == null ? "" : cita.getMotivo()),
                 urlApp + "/pacientes/landing", esc(textoBoton));
