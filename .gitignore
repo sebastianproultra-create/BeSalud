@@ -13,3 +13,7 @@ targetapp-run.log
 .env
 scripts/node_modules/
 scripts/package*.json
+
+# Modelo predictivo: salida pesada del generador (se regenera con generar_citas.py)
+modelo_predictivo/salida/
+__pycache__/

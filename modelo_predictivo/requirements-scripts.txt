@@ -1,0 +1,6 @@
+# Para generar el dataset y cargarlo en Atlas (no hacen falta en Railway).
+-r requirements.txt
+numpy==2.1.3
+holidays==0.106
+bcrypt==5.0.0
+pymongo>=4.8,<5
