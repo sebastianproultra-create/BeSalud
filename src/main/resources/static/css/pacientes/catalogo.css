@@ -268,7 +268,7 @@
     font-weight: 700;
     margin: 0;
     color: var(--white);
-    font-family: 'DM Sans', sans-serif;
+    font-family: 'Plus Jakarta Sans', sans-serif;
 }
 .sidebar-count {
     background: rgba(255, 255, 255, 0.25);
@@ -414,7 +414,7 @@
 .cita-dictamen {
     margin-top: 10px;
     padding: 10px 12px;
-    background: rgba(13, 59, 46, 0.04);
+    background: rgba(0, 47, 36, 0.04);
     border-left: 3px solid var(--accent-color);
     border-radius: 0 6px 6px 0;
     font-size: 12px;
@@ -499,7 +499,7 @@
     flex-direction: column;
     align-items: center;
     gap: 6px;
-    box-shadow: -3px 0 12px rgba(13, 59, 46, 0.3);
+    box-shadow: -3px 0 12px rgba(0, 47, 36, 0.3);
     opacity: 0;
     pointer-events: none;
     transition: opacity 0.25s ease, background 0.2s;

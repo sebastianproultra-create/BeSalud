@@ -19,7 +19,7 @@
 }
 
 .stat-card h2 {
-    font-family: 'DM Sans', sans-serif;
+    font-family: 'Plus Jakarta Sans', sans-serif;
     font-size: 11px;
     font-weight: 400;
     letter-spacing: 0.16em;
@@ -29,7 +29,7 @@
 }
 
 .stat-number {
-    font-family: 'Cormorant Garamond', serif;
+    font-family: 'Newsreader', Georgia, serif;
     font-size: 48px;
     line-height: 1;
     color: var(--primary-color);
@@ -47,9 +47,9 @@
 }
 
 .status-activo {
-    background-color: rgba(26, 92, 69, 0.1);
+    background-color: rgba(13, 71, 56, 0.1);
     color: var(--primary-color);
-    border-color: rgba(26, 92, 69, 0.3);
+    border-color: rgba(13, 71, 56, 0.3);
 }
 
 .status-inactivo {

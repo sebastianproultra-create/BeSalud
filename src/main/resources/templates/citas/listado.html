@@ -36,8 +36,8 @@
             </thead>
             <tbody>
                 <tr th:each="c : ${citas.content}">
-                    <td th:text="${c.fecha != null ? #temporals.format(c.fecha, 'dd/MM/yyyy') : '—'}"></td>
-                    <td th:text="${c.hora != null ? #temporals.format(c.hora, 'HH:mm') : '—'}"></td>
+                    <td class="td-nowrap" th:text="${c.fecha != null ? #temporals.format(c.fecha, 'dd/MM/yyyy') : '—'}"></td>
+                    <td class="td-nowrap" th:text="${c.hora != null ? #temporals.format(c.hora, 'HH:mm') : '—'}"></td>
                     <td th:text="${doctoresMap != null and doctoresMap[c.doctorId] != null ? doctoresMap[c.doctorId] : c.doctorId}"></td>
                     <td th:text="${pacientesMap != null and pacientesMap[c.pacienteId] != null ? pacientesMap[c.pacienteId] : c.pacienteId}"></td>
                     <td th:text="${c.motivo}"></td>
@@ -65,7 +65,7 @@
     </div>
 </main>
 
-<footer th:replace="~{fragments/layout :: footer}"></footer>
+<footer th:replace="~{fragments/layout :: app-footer}"></footer>
 <script th:src="@{/js/form-submit.js}"></script>
 </body>
 </html>

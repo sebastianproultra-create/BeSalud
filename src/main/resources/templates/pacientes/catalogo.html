@@ -219,7 +219,7 @@
 <!-- Backdrop for mobile sidebar overlay -->
 <div class="sidebar-backdrop" id="sidebarBackdrop" onclick="closeSidebar()"></div>
 
-<footer th:replace="~{fragments/layout :: footer}"></footer>
+<footer th:replace="~{fragments/layout :: app-footer}"></footer>
 
 <script>
 const sidebar  = document.getElementById('citasSidebar');
@@ -236,6 +236,8 @@ function openSidebar() {
     layout.classList.remove('sidebar-collapsed');
     if (backdrop && window.innerWidth <= 900) backdrop.style.display = 'block';
 }
+// En celular y tablet el panel es un cajón encima del catálogo: arranca cerrado
+if (window.innerWidth <= 900) closeSidebar();
 </script>
 <script th:src="@{/js/custom-select.js}"></script>
 </body>

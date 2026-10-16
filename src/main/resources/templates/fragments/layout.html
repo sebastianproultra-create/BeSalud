@@ -3,10 +3,10 @@
       xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 
 <!-- ── Header de marca ── -->
-<header th:fragment="header-brand">
-    <div class="header-brand">
-        <h1><a th:href="@{/}" class="header-brand-link">BeSalud</a></h1>
-        <p>Sistema de gestión de citas médicas</p>
+<header th:fragment="header-brand" class="app-header">
+    <div class="app-header-inner">
+        <a th:href="@{/}" class="app-brand" aria-label="BeSalud, inicio"><span class="material-symbols-outlined app-brand-icon" aria-hidden="true">local_hospital</span><span class="app-brand-text">BeSalud</span></a>
+        <p class="app-header-tagline">Sistema de gestión de citas médicas</p>
     </div>
 </header>
 
@@ -37,7 +37,7 @@
 <!-- ── Shell admin: marca + navegación + usuario + logout (active: doctores|pacientes|citas|panel) ── -->
 <header th:fragment="shell-admin(active)" class="app-header">
     <div class="app-header-inner">
-        <a th:href="@{/admin}" class="app-brand"><span aria-hidden="true">✦ </span>BeSalud</a>
+        <a th:href="@{/admin}" class="app-brand" aria-label="BeSalud, inicio"><span class="material-symbols-outlined app-brand-icon" aria-hidden="true">local_hospital</span><span class="app-brand-text">BeSalud</span></a>
         <nav class="app-nav" aria-label="Navegación principal">
             <a sec:authorize="hasRole('ADMIN')" th:href="@{/admin}" th:classappend="${active == 'panel'} ? 'is-active'">Panel</a>
             <a sec:authorize="hasRole('ADMIN')" th:href="@{/admin/estadisticas}" th:classappend="${active == 'estadisticas'} ? 'is-active'">Estadísticas</a>
@@ -45,6 +45,13 @@
             <a sec:authorize="hasRole('ADMIN')" th:href="@{/pacientes}" th:classappend="${active == 'pacientes'} ? 'is-active'">Pacientes</a>
             <a th:href="@{/citas}" th:classappend="${active == 'citas'} ? 'is-active'">Citas</a>
         </nav>
+        <script>
+            // En celular la navegación se desliza de lado: deja visible la sección actual
+            (function (nav) {
+                var activo = nav && nav.querySelector('.is-active');
+                if (activo) nav.scrollLeft = activo.offsetLeft - (nav.clientWidth - activo.offsetWidth) / 2;
+            })(document.currentScript.previousElementSibling);
+        </script>
         <div class="app-user">
             <span class="app-user-name" sec:authentication="name">Administrador</span>
             <form th:action="@{/logout}" method="post" class="form-inline">
@@ -57,7 +64,7 @@
 <!-- ── Shell paciente (active: catalogo|triage) ── -->
 <header th:fragment="shell-paciente(active)" class="app-header">
     <div class="app-header-inner">
-        <a th:href="@{/pacientes/landing}" class="app-brand"><span aria-hidden="true">✦ </span>BeSalud</a>
+        <a th:href="@{/pacientes/landing}" class="app-brand" aria-label="BeSalud, inicio"><span class="material-symbols-outlined app-brand-icon" aria-hidden="true">local_hospital</span><span class="app-brand-text">BeSalud</span></a>
         <nav class="app-nav" aria-label="Navegación principal">
             <a th:href="@{/pacientes/landing}" th:classappend="${active == 'catalogo'} ? 'is-active'">Doctores</a>
             <a th:href="@{/triage}" th:classappend="${active == 'triage'} ? 'is-active'">Asistente de síntomas</a>
@@ -74,7 +81,7 @@
 <!-- ── Shell doctor ── -->
 <header th:fragment="shell-doctor" class="app-header">
     <div class="app-header-inner">
-        <a th:href="@{/doctores}" class="app-brand"><span aria-hidden="true">✦ </span>BeSalud</a>
+        <a th:href="@{/doctores}" class="app-brand" aria-label="BeSalud, inicio"><span class="material-symbols-outlined app-brand-icon" aria-hidden="true">local_hospital</span><span class="app-brand-text">BeSalud</span></a>
         <nav class="app-nav" aria-label="Navegación principal">
             <a th:href="@{/doctores}" class="is-active">Mi panel médico</a>
         </nav>
@@ -123,8 +130,9 @@
     </optgroup>
 </th:block>
 
-<!-- ── Footer ── -->
-<footer th:fragment="footer">
+<!-- ── Footer de la app. Se llama app-footer y no footer: el selector ":: footer" también
+     toma cualquier <footer> del archivo y la página saldría con dos pies. ── -->
+<footer th:fragment="app-footer">
     <p>&copy; 2026 BeSalud - Sistema de citas médicas. Todos los derechos reservados. · <a th:href="@{/privacidad}">Política de privacidad</a></p>
 </footer>
 

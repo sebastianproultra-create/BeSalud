@@ -134,7 +134,7 @@
     </section>
 </main>
 
-<footer th:replace="~{fragments/layout :: footer}"></footer>
+<footer th:replace="~{fragments/layout :: app-footer}"></footer>
 
 <script th:src="@{/vendor/chart/chart.umd.js}"></script>
 <script th:inline="javascript">
@@ -142,14 +142,14 @@
 
     // Un solo tono de la marca: cada gráfica mide una magnitud, las etiquetas del eje dan la identidad.
     const css = getComputedStyle(document.documentElement);
-    const COLOR = css.getPropertyValue('--secondary-color').trim() || '#1A5C45';
+    const COLOR = css.getPropertyValue('--secondary-color').trim() || '#0D4738';
     const COLOR_SUAVE = 'rgba(26, 92, 69, 0.12)';
     const COLOR_FUTURO = 'rgba(26, 92, 69, 0.45)';
     const TINTA = css.getPropertyValue('--text-dark').trim() || '#1C1C1A';
     const TINTA_SUAVE = css.getPropertyValue('--text-light').trim() || '#6B6B65';
     const REJILLA = 'rgba(13, 59, 46, 0.08)';
 
-    Chart.defaults.font.family = "'DM Sans', 'Segoe UI', sans-serif";
+    Chart.defaults.font.family = "'Plus Jakarta Sans', 'Segoe UI', sans-serif";
     Chart.defaults.font.size = 12;
     Chart.defaults.color = TINTA_SUAVE;
     Chart.defaults.plugins.legend.display = false;
@@ -204,7 +204,7 @@
                 ctx.save();
                 ctx.strokeStyle = 'rgba(13, 59, 46, 0.35)'; ctx.lineWidth = 1; ctx.setLineDash([3, 3]);
                 ctx.beginPath(); ctx.moveTo(x, top); ctx.lineTo(x, bottom); ctx.stroke();
-                ctx.setLineDash([]); ctx.fillStyle = TINTA_SUAVE; ctx.font = "11px 'DM Sans', sans-serif"; ctx.textAlign = 'center';
+                ctx.setLineDash([]); ctx.fillStyle = TINTA_SUAVE; ctx.font = "11px 'Plus Jakarta Sans', sans-serif"; ctx.textAlign = 'center';
                 ctx.fillText('hoy', x, top - 4);
                 ctx.restore();
             },
@@ -214,7 +214,7 @@
     // Barras horizontales: especialidades y estados (ordenadas de mayor a menor).
     const barrasHorizontales = (id, lista) => new Chart(document.getElementById(id), {
         type: 'bar',
-        data: { labels: etiquetas(lista), datasets: [{ data: valores(lista), backgroundColor: COLOR, hoverBackgroundColor: '#0D3B2E', ...barras }] },
+        data: { labels: etiquetas(lista), datasets: [{ data: valores(lista), backgroundColor: COLOR, hoverBackgroundColor: '#002F24', ...barras }] },
         options: {
             indexAxis: 'y',
             scales: { x: ejeValor, y: { ...ejeCategoria, ticks: { color: TINTA, autoSkip: false,
@@ -228,7 +228,7 @@
 
     new Chart(document.getElementById('gHora'), {
         type: 'bar',
-        data: { labels: etiquetas(est.porHora), datasets: [{ data: valores(est.porHora), backgroundColor: COLOR, hoverBackgroundColor: '#0D3B2E', ...barras }] },
+        data: { labels: etiquetas(est.porHora), datasets: [{ data: valores(est.porHora), backgroundColor: COLOR, hoverBackgroundColor: '#002F24', ...barras }] },
         options: {
             scales: { y: ejeValor, x: { ...ejeCategoria, ticks: { maxRotation: 0 } } },
             plugins: { tooltip: { callbacks: { label: item => plural(item.parsed.y) } } },

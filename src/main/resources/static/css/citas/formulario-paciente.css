@@ -49,7 +49,7 @@
 }
 .specialty-tag {
     display: inline-block;
-    background: rgba(26, 92, 69, 0.08);
+    background: rgba(13, 71, 56, 0.08);
     color: var(--secondary-color);
     border-radius: 20px;
     padding: 3px 14px;
@@ -133,14 +133,14 @@
 }
 .date-card:hover {
     border-color: var(--secondary-color);
-    background: rgba(26, 92, 69, 0.08);
+    background: rgba(13, 71, 56, 0.08);
     transform: translateY(-2px);
 }
 .date-card.selected {
     border-color: var(--secondary-color);
     background: var(--secondary-color);
     color: var(--white);
-    box-shadow: 0 4px 12px rgba(13, 59, 46, 0.25);
+    box-shadow: 0 4px 12px rgba(0, 47, 36, 0.25);
     transform: translateY(-2px);
 }
 .date-dow {
@@ -167,7 +167,7 @@
     padding: 2px 8px;
 }
 .date-card:not(.selected) .date-slots {
-    background: rgba(26, 92, 69, 0.1);
+    background: rgba(13, 71, 56, 0.1);
     color: var(--secondary-color);
 }
 
@@ -191,14 +191,14 @@
 }
 .slot-btn:hover {
     border-color: var(--secondary-color);
-    background: rgba(26, 92, 69, 0.08);
+    background: rgba(13, 71, 56, 0.08);
     color: var(--primary-color);
 }
 .slot-btn.selected {
     border-color: var(--secondary-color);
     background: var(--secondary-color);
     color: var(--white);
-    box-shadow: 0 3px 10px rgba(13, 59, 46, 0.22);
+    box-shadow: 0 3px 10px rgba(0, 47, 36, 0.22);
 }
 
 /* Confirm card */
