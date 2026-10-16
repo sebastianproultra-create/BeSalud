@@ -34,6 +34,26 @@
         </div>
     </div>
 
+    <section id="ayuda" class="card" aria-labelledby="ayuda-title">
+        <h2 id="ayuda-title">Mensajes del Centro de ayuda
+            <span class="mensajes-contador" th:text="${#lists.size(mensajesAyuda)}">0</span></h2>
+        <p th:if="${#lists.isEmpty(mensajesAyuda)}" class="text-muted">No hay mensajes pendientes.</p>
+        <ul th:unless="${#lists.isEmpty(mensajesAyuda)}" class="mensajes-ayuda">
+            <li th:each="m : ${mensajesAyuda}" class="mensaje-ayuda">
+                <div class="mensaje-ayuda-cabecera">
+                    <strong th:text="${m.nombre}">Nombre</strong>
+                    <a th:href="'mailto:' + ${m.email}" th:text="${m.email}">correo</a>
+                    <span class="mensaje-ayuda-tema" th:text="${temasAyuda[m.tema] ?: m.tema}">Tema</span>
+                    <time th:datetime="${m.fecha}" th:text="${#temporals.format(m.fecha, 'dd/MM/yyyy HH:mm')}"></time>
+                </div>
+                <p class="mensaje-ayuda-texto" th:text="${m.mensaje}"></p>
+                <form th:action="@{/admin/ayuda/{id}/atendido(id=${m.id})}" method="post" class="form-inline">
+                    <button type="submit" class="btn btn-secondary btn-sm">Marcar como atendido</button>
+                </form>
+            </li>
+        </ul>
+    </section>
+
     <div class="card">
         <h2>Doctores registrados</h2>
         <form th:action="@{/admin}" method="get" class="toolbar" role="search">

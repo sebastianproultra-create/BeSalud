@@ -11,6 +11,7 @@ import com.gestion.proyectos.seguridad.JwtService;
 import com.gestion.proyectos.seguridad.RateLimiter;
 import com.gestion.proyectos.seguridad.SecurityConfig;
 import com.gestion.proyectos.servicio.AdminService;
+import com.gestion.proyectos.servicio.AyudaService;
 import com.gestion.proyectos.servicio.EstadisticasService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -29,7 +30,10 @@ import static org.hamcrest.Matchers.containsString;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -40,6 +44,7 @@ class AdminControllerTest {
     @Autowired private MockMvc mockMvc;
     @MockBean private AdminService adminService;
     @MockBean private EstadisticasService estadisticasService;
+    @MockBean private AyudaService ayudaService;
     @MockBean private RateLimiter rateLimiter;
     @MockBean private CustomUserDetailsService customUserDetailsService;
     @MockBean private PersonaRepositorio personaRepositorio;
@@ -85,5 +90,17 @@ class AdminControllerTest {
         d.setEstado("ACTIVO");
         d.setId("d1");
         return d;
+    }
+
+    @Test
+    void mensajeAyuda_soloElAdminLoMarcaComoAtendido() throws Exception {
+        mockMvc.perform(post("/admin/ayuda/m1/atendido").with(csrf()).with(user("a@test.com").roles("ADMIN")))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/admin#ayuda"));
+        org.mockito.Mockito.verify(ayudaService).marcarAtendido("m1");
+
+        mockMvc.perform(post("/admin/ayuda/m2/atendido").with(csrf()).with(user("p@test.com").roles("PACIENTE")))
+                .andExpect(status().isForbidden());
+        org.mockito.Mockito.verify(ayudaService, org.mockito.Mockito.never()).marcarAtendido("m2");
     }
 }

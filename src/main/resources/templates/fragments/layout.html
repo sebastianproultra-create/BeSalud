@@ -24,7 +24,8 @@
                th:attr="aria-current=${active == 'login'} ? 'page'" data-auth-direction="backward">Iniciar Sesión</a>
             <a th:href="@{/register}" class="auth-nav-link" th:classappend="${active == 'register'} ? ' is-active'"
                th:attr="aria-current=${active == 'register'} ? 'page'" data-auth-direction="forward">Registro Paciente</a>
-                <a th:href="@{/#contact}" class="auth-nav-link">Centro de Ayuda</a>
+            <a th:href="@{/ayuda}" class="auth-nav-link" th:classappend="${active == 'ayuda'} ? ' is-active'"
+               th:attr="aria-current=${active == 'ayuda'} ? 'page'">Centro de Ayuda</a>
         </nav>
         <div class="portal-header-meta">
             <span class="secure-label"><span class="material-symbols-outlined" aria-hidden="true">shield</span>Acceso Seguro</span>

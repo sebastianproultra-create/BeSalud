@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BeSalud · Centro de Ayuda</title>
+    <link rel="stylesheet" th:href="@{/css/base/global.css}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400&amp;family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@100..700&amp;display=swap" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/auth/portal.css}">
+    <link rel="stylesheet" th:href="@{/css/publico/ayuda.css}">
+</head>
+<body class="auth-page ayuda-page">
+<header th:replace="~{fragments/layout :: auth-header('ayuda')}"></header>
+
+<main class="auth-main ayuda-main">
+    <section class="ayuda-hero" aria-labelledby="ayuda-title">
+        <span class="ayuda-eyebrow"><span class="material-symbols-outlined" aria-hidden="true">support_agent</span>Centro de Ayuda</span>
+        <h1 id="ayuda-title">¿En qué podemos <em>ayudarte</em>?</h1>
+        <p>Respuestas rápidas sobre el registro, las citas y tu información. Si no encuentras lo que buscas, escríbenos y un administrador te responderá por correo.</p>
+        <nav class="ayuda-atajos" aria-label="Temas de ayuda">
+            <a href="#registro"><span class="material-symbols-outlined" aria-hidden="true">person_add</span>Registro y acceso</a>
+            <a href="#citas"><span class="material-symbols-outlined" aria-hidden="true">calendar_month</span>Citas</a>
+            <a href="#medicos"><span class="material-symbols-outlined" aria-hidden="true">stethoscope</span>Médicos</a>
+            <a href="#datos"><span class="material-symbols-outlined" aria-hidden="true">shield_person</span>Tus datos</a>
+            <a href="#contacto" class="is-destacado"><span class="material-symbols-outlined" aria-hidden="true">mail</span>Escríbenos</a>
+        </nav>
+    </section>
+
+    <div class="ayuda-layout">
+        <div class="ayuda-faq">
+            <section id="registro" class="ayuda-grupo" aria-labelledby="faq-registro">
+                <h2 id="faq-registro"><span class="material-symbols-outlined" aria-hidden="true">person_add</span>Registro y acceso</h2>
+                <details>
+                    <summary>¿Cómo creo mi cuenta?</summary>
+                    <p>Entra a <a th:href="@{/register}">Registro</a>, elige si eres paciente o médico y completa tus datos. También puedes usar <strong>Continuar con Google</strong> desde <a th:href="@{/login}">Iniciar sesión</a>; la primera vez te pediremos elegir tu rol.</p>
+                </details>
+                <details>
+                    <summary>Me registré como médico y no puedo entrar</summary>
+                    <p>Las cuentas de médico quedan <strong>pendientes de activación</strong> hasta que un administrador verifica los datos y la activa. Cuando esté activa podrás iniciar sesión normalmente. Si ya pasó tiempo, escríbenos con el tema “Cuentas de médicos”.</p>
+                </details>
+                <details>
+                    <summary>¿Por qué se cerró mi sesión?</summary>
+                    <p>Por seguridad, la sesión se cierra tras <strong>45 minutos sin actividad</strong>. Solo tienes que volver a iniciar sesión; tus citas y datos no se pierden.</p>
+                </details>
+                <details>
+                    <summary>Olvidé mi contraseña</summary>
+                    <p>Por ahora la recuperación de contraseña no es automática. Escríbenos desde el formulario con el correo de tu cuenta y te ayudaremos a recuperar el acceso. Si te registraste con Google, entra con <strong>Continuar con Google</strong>.</p>
+                </details>
+            </section>
+
+            <section id="citas" class="ayuda-grupo" aria-labelledby="faq-citas">
+                <h2 id="faq-citas"><span class="material-symbols-outlined" aria-hidden="true">calendar_month</span>Citas</h2>
+                <details>
+                    <summary>¿Cómo agendo una cita?</summary>
+                    <p>Desde tu panel de paciente busca un médico por nombre o especialidad y elige uno de sus horarios disponibles. Si no sabes qué especialista necesitas, el <strong>asistente de síntomas</strong> te orienta.</p>
+                </details>
+                <details>
+                    <summary>¿Puedo reprogramar o cancelar una cita?</summary>
+                    <p>Sí, mientras la cita esté <strong>pendiente</strong> puedes reprogramarla o cancelarla desde tu lista de citas. Las citas ya atendidas o canceladas no se pueden modificar.</p>
+                </details>
+                <details>
+                    <summary>¿Me recuerdan la cita?</summary>
+                    <p>Te enviamos un correo de recordatorio el <strong>día anterior</strong> a tu cita, a la dirección con la que te registraste.</p>
+                </details>
+                <details>
+                    <summary>¿Dónde veo lo que me indicó el médico?</summary>
+                    <p>Cuando el médico guarda el dictamen, la cita aparece como completada y en ella verás el diagnóstico, la fórmula médica, las recomendaciones y la incapacidad, si la hay.</p>
+                </details>
+            </section>
+
+            <section id="medicos" class="ayuda-grupo" aria-labelledby="faq-medicos">
+                <h2 id="faq-medicos"><span class="material-symbols-outlined" aria-hidden="true">stethoscope</span>Médicos</h2>
+                <details>
+                    <summary>¿Cómo publico mis horarios de atención?</summary>
+                    <p>En tu panel médico, en la sección <strong>Horarios</strong>, marca los días y las franjas en que atiendes y la duración de cada cita. Los pacientes solo verán los cupos libres.</p>
+                </details>
+                <details>
+                    <summary>¿Cómo registro el dictamen de una consulta?</summary>
+                    <p>El día de la cita marca al paciente como <strong>Asistió</strong> y pulsa <strong>Dar dictamen</strong>. El formulario sigue el formato SOAP y sugiere diagnósticos CIE-10 mientras escribes el código o el nombre de la enfermedad.</p>
+                </details>
+            </section>
+
+            <section id="datos" class="ayuda-grupo" aria-labelledby="faq-datos">
+                <h2 id="faq-datos"><span class="material-symbols-outlined" aria-hidden="true">shield_person</span>Tus datos</h2>
+                <details>
+                    <summary>¿Qué información guardan y quién la ve?</summary>
+                    <p>Guardamos tus datos de registro, tus citas y la información clínica que registra el médico. Tu historia solo la ven tú y los médicos que te atienden. Encuentra el detalle en la <a th:href="@{/privacidad}">Política de privacidad</a>.</p>
+                </details>
+                <details>
+                    <summary>Soy una institución o clínica, ¿cómo me vinculo?</summary>
+                    <p>Escríbenos con el tema “Instituciones y clínicas asociadas” contándonos tu institución y lo que necesitas, y te contactaremos.</p>
+                </details>
+            </section>
+        </div>
+
+        <section id="contacto" class="card auth-card ayuda-contacto" aria-labelledby="contacto-title">
+            <div class="auth-card-accent" aria-hidden="true"></div>
+            <h2 id="contacto-title">Escríbenos</h2>
+            <p class="ayuda-contacto-intro">Te responderemos al correo que indiques.</p>
+
+            <div th:if="${param.enviado}" class="alert alert-success" role="status">
+                <p>¡Gracias! Recibimos tu mensaje y te responderemos pronto.</p>
+            </div>
+            <div th:if="${errorContacto}" class="alert alert-error" role="alert"><p th:text="${errorContacto}"></p></div>
+
+            <form th:action="@{/ayuda/contacto}" method="post" class="auth-form ayuda-form">
+                <div class="auth-field">
+                    <label for="ayudaNombre">Nombre</label>
+                    <div class="auth-input-wrap"><span class="material-symbols-outlined" aria-hidden="true">person</span>
+                        <input type="text" id="ayudaNombre" name="nombre" th:value="${contacto?.nombre}" required minlength="2" maxlength="80" autocomplete="name" placeholder="Tu nombre"></div>
+                </div>
+                <div class="auth-field">
+                    <label for="ayudaEmail">Correo electrónico</label>
+                    <div class="auth-input-wrap"><span class="material-symbols-outlined" aria-hidden="true">mail</span>
+                        <input type="email" id="ayudaEmail" name="email" th:value="${contacto?.email}" required maxlength="100" autocomplete="email" placeholder="tucorreo@ejemplo.com"></div>
+                </div>
+                <div class="auth-field">
+                    <label for="ayudaTema">Tema</label>
+                    <div class="auth-input-wrap"><span class="material-symbols-outlined" aria-hidden="true">topic</span>
+                        <select id="ayudaTema" name="tema" required>
+                            <option value="">Selecciona un tema</option>
+                            <option th:each="t : ${temas}" th:value="${t.key}" th:text="${t.value}"
+                                    th:selected="${contacto != null ? contacto.tema == t.key : (param.tema != null and param.tema[0] == t.key)}"></option>
+                        </select></div>
+                </div>
+                <div class="auth-field">
+                    <label for="ayudaMensaje">Mensaje</label>
+                    <textarea id="ayudaMensaje" name="mensaje" rows="5" required minlength="10" maxlength="2000"
+                              placeholder="Cuéntanos qué necesitas" th:text="${contacto?.mensaje}"></textarea>
+                </div>
+                <!-- Campo trampa para bots: oculto para personas -->
+                <div class="ayuda-trampa" aria-hidden="true">
+                    <label for="sitioWeb">No llenar este campo</label>
+                    <input type="text" id="sitioWeb" name="sitioWeb" tabindex="-1" autocomplete="off">
+                </div>
+                <button type="submit" class="auth-submit">
+                    <span class="material-symbols-outlined" aria-hidden="true">send</span><span>Enviar mensaje</span>
+                </button>
+            </form>
+        </section>
+    </div>
+</main>
+
+<footer th:replace="~{fragments/layout :: auth-footer}"></footer>
+</body>
+</html>

@@ -153,15 +153,15 @@
     </div>
 
     <div class="register-trust-row" aria-label="Seguridad y soporte">
-        <span><span class="material-symbols-outlined" aria-hidden="true">lock</span>Cifrado TLS 1.3</span>
-        <span><span class="material-symbols-outlined" aria-hidden="true">verified_user</span>Verificación de Licencia Médica</span>
-        <a href="mailto:soporte@besalud.com"><span class="material-symbols-outlined" aria-hidden="true">help</span>¿Dudas con el registro?</a>
+        <span><span class="material-symbols-outlined" aria-hidden="true">lock</span>Contraseñas cifradas</span>
+        <span><span class="material-symbols-outlined" aria-hidden="true">verified_user</span>Médicos verificados por el administrador</span>
+        <a th:href="@{/ayuda#registro}"><span class="material-symbols-outlined" aria-hidden="true">help</span>¿Dudas con el registro?</a>
     </div>
 
     <aside class="register-help-strip">
         <span class="help-icon material-symbols-outlined" aria-hidden="true">support_agent</span>
         <span class="help-copy"><strong>Asistencia Hospitalaria y Administrativa</strong><small>Si perteneces a una institución prestadora de salud o clínica asociada, solicita integración API y gestión de sedes.</small></span>
-        <a href="mailto:soporte@besalud.com">Contactar Mesa de Ayuda</a>
+        <a th:href="@{/ayuda(tema='instituciones')} + '#contacto'">Contactar Mesa de Ayuda</a>
     </aside>
 </main>
 

@@ -1,6 +1,7 @@
 package com.gestion.proyectos.controlador;
 
 import com.gestion.proyectos.servicio.AdminService;
+import com.gestion.proyectos.servicio.AyudaService;
 import com.gestion.proyectos.servicio.EstadisticasService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -17,10 +18,13 @@ public class AdminController {
 
     private final AdminService adminService;
     private final EstadisticasService estadisticasService;
+    private final AyudaService ayudaService;
 
-    public AdminController(AdminService adminService, EstadisticasService estadisticasService) {
+    public AdminController(AdminService adminService, EstadisticasService estadisticasService,
+            AyudaService ayudaService) {
         this.adminService = adminService;
         this.estadisticasService = estadisticasService;
+        this.ayudaService = ayudaService;
     }
 
     @GetMapping
@@ -39,6 +43,8 @@ public class AdminController {
         model.addAttribute("totalDoctores", adminService.contarDoctores());
         model.addAttribute("totalPacientes", adminService.contarPacientes());
         model.addAttribute("admins", adminService.listarAdmins());
+        model.addAttribute("mensajesAyuda", ayudaService.pendientes());
+        model.addAttribute("temasAyuda", AyudaService.TEMAS);
         model.addAttribute("size", size);
         model.addAttribute("search", search == null ? "" : search);
         model.addAttribute("especialidad", especialidad == null ? "" : especialidad);
@@ -69,6 +75,12 @@ public class AdminController {
     public String activarDoctor(@PathVariable String id) {
         adminService.activarDoctor(id);
         return "redirect:/admin";
+    }
+
+    @PostMapping("/ayuda/{id}/atendido")
+    public String marcarMensajeAtendido(@PathVariable String id) {
+        ayudaService.marcarAtendido(id);
+        return "redirect:/admin#ayuda";
     }
 
     @PostMapping("/doctores/{id}/desactivar")
