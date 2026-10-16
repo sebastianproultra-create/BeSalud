@@ -1068,7 +1068,8 @@
 }
 .paciente-meta li { display: flex; justify-content: space-between; gap: 8px; min-width: 0; }
 .paciente-meta li span:last-child { color: var(--d-on); font-weight: 600; }
-.paciente-email { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.paciente-meta li:has(.paciente-email) { flex-direction: column; gap: 0; }
+.paciente-email { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 500 !important; }
 .doc-page .pagination { margin-top: 20px; }
 
 /* ==============================================

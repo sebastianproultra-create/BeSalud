@@ -792,7 +792,7 @@ document.addEventListener('DOMContentLoaded', function() {
     if (!grid) return;
     
     const cards = grid.querySelectorAll('.paciente-card');
-    const itemsPerPage = 6; // Ajusta este número para cambiar la cantidad por página
+    const itemsPerPage = 8; // Dos filas completas de la rejilla de 4 columnas
     const totalPages = Math.ceil(cards.length / itemsPerPage);
     
     if (totalPages > 1) {
