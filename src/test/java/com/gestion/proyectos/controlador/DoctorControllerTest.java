@@ -2,7 +2,8 @@ package com.gestion.proyectos.controlador;
 
 import com.gestion.proyectos.seguridad.RateLimiter;
 import com.gestion.proyectos.modelo.Doctor;
-import com.gestion.proyectos.modelo.Veredicto;
+import com.gestion.proyectos.modelo.TipoConsulta;
+import com.gestion.proyectos.modelo.ViaAdministracion;
 import com.gestion.proyectos.oauth2.OAuth2LoginSuccessHandler;
 import com.gestion.proyectos.repositorio.AdminRepositorio;
 import com.gestion.proyectos.repositorio.PersonaRepositorio;
@@ -10,6 +11,7 @@ import com.gestion.proyectos.seguridad.CustomUserDetailsService;
 import com.gestion.proyectos.seguridad.JwtCookieService;
 import com.gestion.proyectos.seguridad.JwtService;
 import com.gestion.proyectos.seguridad.SecurityConfig;
+import com.gestion.proyectos.servicio.DictamenValidador;
 import com.gestion.proyectos.servicio.DoctorService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -157,87 +159,103 @@ class DoctorControllerTest {
 
     // ── dictamen ─────────────────────────────────────────────────────────────
 
-    @Test
-    void guardarDictamen_exitoso_redirigeDoctores() throws Exception {
+    private Doctor doctorD1() {
         Doctor doctor = new Doctor();
         doctor.setId("d1");
         when(doctorService.buscarPorEmail("doc@test.com")).thenReturn(Optional.of(doctor));
-
-        mockMvc.perform(post("/doctores/citas/c1/dictamen")
-                        .param("diagnostico", "Gripa común")
-                        .param("tratamiento", "Reposo y líquidos")
-                        .param("observaciones", "Revisar en 5 días")
-                        .with(csrf())
-                        .with(user("doc@test.com").roles("DOCTOR")))
-                .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl("/doctores"));
-
-        verify(doctorService).guardarDictamen(eq("c1"), eq(doctor), argThat(d ->
-                "Gripa común".equals(d.getDiagnostico())
-                        && "Reposo y líquidos".equals(d.getTratamiento())
-                        && "Revisar en 5 días".equals(d.getObservaciones())
-                        && d.getVeredicto() == null));
+        return doctor;
     }
 
     @Test
-    void guardarDictamen_estructuraCompleta_pasaTodasLasSecciones() throws Exception {
-        Doctor doctor = new Doctor();
-        doctor.setId("d1");
-        when(doctorService.buscarPorEmail("doc@test.com")).thenReturn(Optional.of(doctor));
+    void guardarDictamen_soap_enlazaSeccionesYListas() throws Exception {
+        Doctor doctor = doctorD1();
+        when(doctorService.guardarDictamen(eq("c1"), eq(doctor), any())).thenReturn(null);
 
         mockMvc.perform(post("/doctores/citas/c1/dictamen")
-                        .param("objeto", "Control general")
-                        .param("alcance", "Examen físico y signos vitales")
-                        .param("hallazgos", "Fiebre leve")
-                        .param("diagnostico", "Gripa común")
-                        .param("veredicto", "FAVORABLE_CON_SALVEDADES")
-                        .param("tratamiento", "Reposo y líquidos")
-                        .param("recomendaciones", "Volver si persiste la fiebre")
+                        .param("tipoConsulta", "PRIMERA_VEZ")
+                        .param("causaExterna", "ENFERMEDAD_GENERAL")
+                        .param("motivoConsulta", "Me duele la garganta")
+                        .param("enfermedadActual", "Dolor desde hace 3 días")
+                        .param("antecedentes.alergicos", "Penicilina")
+                        .param("signosVitales.tensionSistolica", "120")
+                        .param("signosVitales.tensionDiastolica", "80")
+                        .param("signosVitales.temperatura", "38.2")
+                        .param("examenFisico", "Amígdalas hipertróficas")
+                        .param("diagnosticoPrincipal.codigo", "J039")
+                        .param("diagnosticoPrincipal.descripcion", "Amigdalitis aguda")
+                        .param("diagnosticoPrincipal.tipo", "CONFIRMADO_NUEVO")
+                        .param("diagnosticosRelacionados[0].codigo", "R509")
+                        .param("diagnosticosRelacionados[0].descripcion", "Fiebre")
+                        .param("diagnosticosRelacionados[0].tipo", "IMPRESION_DIAGNOSTICA")
+                        .param("medicamentos[0].nombre", "Acetaminofén 500 mg")
+                        .param("medicamentos[0].via", "ORAL")
+                        .param("medicamentos[0].dosisFrecuencia", "1 tableta cada 8 horas")
+                        .param("medicamentos[0].duracion", "Por 5 días")
+                        .param("medicamentos[0].cantidad", "15")
+                        .param("incapacidadDias", "")
                         .with(csrf())
                         .with(user("doc@test.com").roles("DOCTOR")))
                 .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl("/doctores"));
+                .andExpect(redirectedUrl("/doctores"))
+                .andExpect(flash().attributeExists("exitoDictamen"));
 
         verify(doctorService).guardarDictamen(eq("c1"), eq(doctor), argThat(d ->
-                "Control general".equals(d.getObjeto())
-                        && "Examen físico y signos vitales".equals(d.getAlcance())
-                        && "Fiebre leve".equals(d.getHallazgos())
-                        && d.getVeredicto() == Veredicto.FAVORABLE_CON_SALVEDADES
-                        && "Volver si persiste la fiebre".equals(d.getRecomendaciones())));
+                d.getTipoConsulta() == TipoConsulta.PRIMERA_VEZ
+                        && "Penicilina".equals(d.getAntecedentes().getAlergicos())
+                        && d.getSignosVitales().getTensionSistolica() == 120
+                        && d.getSignosVitales().getTemperatura() == 38.2
+                        && "J039".equals(d.getDiagnosticoPrincipal().getCodigo())
+                        && d.getDiagnosticosRelacionados().size() == 1
+                        && d.getMedicamentos().get(0).getVia() == ViaAdministracion.ORAL
+                        && d.getMedicamentos().get(0).getCantidad() == 15
+                        && d.getIncapacidadDias() == null));
     }
 
     @Test
-    void guardarDictamen_veredictoInvalido_400() throws Exception {
-        Doctor doctor = new Doctor();
-        doctor.setId("d1");
-        when(doctorService.buscarPorEmail("doc@test.com")).thenReturn(Optional.of(doctor));
+    void guardarDictamen_errorDeValidacion_devuelveDatosParaReabrirElFormulario() throws Exception {
+        Doctor doctor = doctorD1();
+        when(doctorService.guardarDictamen(eq("c1"), eq(doctor), any())).thenReturn("Falta el examen físico.");
 
         mockMvc.perform(post("/doctores/citas/c1/dictamen")
-                        .param("diagnostico", "Gripa común")
-                        .param("tratamiento", "Reposo y líquidos")
-                        .param("veredicto", "APROBADISIMO")
+                        .param("motivoConsulta", "Tos")
                         .with(csrf())
                         .with(user("doc@test.com").roles("DOCTOR")))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/doctores#citas"))
+                .andExpect(flash().attribute("errorDictamen", "Falta el examen físico."))
+                .andExpect(flash().attribute("dictamenCitaId", "c1"))
+                .andExpect(flash().attributeExists("dictamenPrevio"));
+    }
+
+    @Test
+    void guardarDictamen_numeroOEnumInvalido_noLlamaAlServicio() throws Exception {
+        doctorD1();
+
+        mockMvc.perform(post("/doctores/citas/c1/dictamen")
+                        .param("signosVitales.temperatura", "treinta")
+                        .param("tipoConsulta", "INVENTADA")
+                        .with(csrf())
+                        .with(user("doc@test.com").roles("DOCTOR")))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(flash().attributeExists("errorDictamen"));
 
         verify(doctorService, never()).guardarDictamen(any(), any(), any());
     }
 
     @Test
-    void guardarDictamen_sinObservaciones_redirigeDoctores() throws Exception {
-        Doctor doctor = new Doctor();
-        doctor.setId("d1");
-        when(doctorService.buscarPorEmail("doc@test.com")).thenReturn(Optional.of(doctor));
+    void guardarDictamen_firmaEnviadaAMano_seDescarta() throws Exception {
+        Doctor doctor = doctorD1();
+        when(doctorService.guardarDictamen(eq("c1"), eq(doctor), any())).thenReturn(null);
 
         mockMvc.perform(post("/doctores/citas/c1/dictamen")
-                        .param("diagnostico", "Gripa común")
-                        .param("tratamiento", "Reposo y líquidos")
+                        .param("firmadoPor", "Otro médico")
                         .with(csrf())
                         .with(user("doc@test.com").roles("DOCTOR")))
-                .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl("/doctores"));
+                .andExpect(status().is3xxRedirection());
 
-        verify(doctorService).guardarDictamen(eq("c1"), eq(doctor), argThat(d -> d.getObservaciones() == null));
+        // El controlador solo enlaza; DictamenValidador.normalizar copia únicamente campos clínicos
+        verify(doctorService).guardarDictamen(eq("c1"), eq(doctor),
+                argThat(d -> DictamenValidador.normalizar(d).getFirmadoPor() == null));
     }
 
     // ── marcar asistencia ────────────────────────────────────────────────────

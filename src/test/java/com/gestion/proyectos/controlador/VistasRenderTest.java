@@ -1,6 +1,15 @@
 package com.gestion.proyectos.controlador;
 
+import com.gestion.proyectos.modelo.Antecedentes;
+import com.gestion.proyectos.modelo.CausaExterna;
 import com.gestion.proyectos.modelo.Cita;
+import com.gestion.proyectos.modelo.Diagnostico;
+import com.gestion.proyectos.modelo.Dictamen;
+import com.gestion.proyectos.modelo.Medicamento;
+import com.gestion.proyectos.modelo.SignosVitales;
+import com.gestion.proyectos.modelo.TipoConsulta;
+import com.gestion.proyectos.modelo.TipoDiagnostico;
+import com.gestion.proyectos.modelo.ViaAdministracion;
 import com.gestion.proyectos.modelo.Doctor;
 import com.gestion.proyectos.modelo.EstadoCita;
 import com.gestion.proyectos.modelo.Paciente;
@@ -13,6 +22,7 @@ import com.gestion.proyectos.seguridad.JwtService;
 import com.gestion.proyectos.seguridad.RateLimiter;
 import com.gestion.proyectos.seguridad.SecurityConfig;
 import com.gestion.proyectos.servicio.CitaService;
+import com.gestion.proyectos.servicio.DictamenVista;
 import com.gestion.proyectos.servicio.DoctorService;
 import com.gestion.proyectos.servicio.PacienteService;
 import org.junit.jupiter.api.BeforeEach;
@@ -92,6 +102,114 @@ class VistasRenderTest {
                         .with(user("doc@test.com").roles("DOCTOR")))
                 .andExpect(status().isOk())
                 .andExpect(content().string(containsString("480 minutos")));
+    }
+
+    /** Dictamen SOAP completo, como lo deja guardado DoctorService. */
+    private static Dictamen dictamenSoap() {
+        Dictamen d = new Dictamen();
+        d.setTipoConsulta(TipoConsulta.CONTROL);
+        d.setCausaExterna(CausaExterna.ENFERMEDAD_GENERAL);
+        d.setFechaAtencion(java.time.LocalDateTime.of(2026, 10, 1, 9, 5));
+        d.setMotivoConsulta("Me duele la garganta");
+        d.setEnfermedadActual("Dolor desde hace 3 días");
+        Antecedentes a = new Antecedentes();
+        a.setAlergicos("Penicilina");
+        d.setAntecedentes(a);
+        SignosVitales sv = new SignosVitales();
+        sv.setTensionSistolica(120);
+        sv.setTensionDiastolica(80);
+        sv.setPeso(70.0);
+        sv.setTalla(175.0);
+        sv.setImc(22.9);
+        d.setSignosVitales(sv);
+        d.setExamenFisico("Amígdalas hipertróficas");
+        Diagnostico dx = new Diagnostico();
+        dx.setCodigo("J039");
+        dx.setDescripcion("Amigdalitis aguda");
+        dx.setTipo(TipoDiagnostico.CONFIRMADO_NUEVO);
+        d.setDiagnosticoPrincipal(dx);
+        Medicamento m = new Medicamento();
+        m.setNombre("Acetaminofén 500 mg");
+        m.setVia(ViaAdministracion.ORAL);
+        m.setDosisFrecuencia("1 tableta cada 8 horas");
+        m.setDuracion("Por 5 días");
+        m.setCantidad(15);
+        d.setMedicamentos(List.of(m));
+        d.setIncapacidadDias(2);
+        d.setIncapacidadJustificacion("Fiebre");
+        d.setFirmadoPor("Ana Ruiz");
+        return d;
+    }
+
+    private static Dictamen dictamenAntiguo() {
+        Dictamen d = new Dictamen();
+        d.setDiagnostico("Gripa común");
+        d.setTratamiento("Reposo y líquidos");
+        return d;
+    }
+
+    private static Cita cita(String id, EstadoCita estado, Dictamen dictamen) {
+        Cita c = new Cita();
+        c.setId(id);
+        c.setDoctorId("d1");
+        c.setPacienteId("p1");
+        c.setFecha(LocalDate.now());
+        c.setHora(LocalTime.of(9, 0));
+        c.setMotivo("Dolor de garganta");
+        c.setEstado(estado);
+        c.setDictamen(dictamen);
+        return c;
+    }
+
+    @Test
+    void dashboardDoctor_formularioSoapYDictamenesGuardados() throws Exception {
+        Doctor d = new Doctor();
+        d.setId("d1");
+        d.setNombre("Ana");
+        d.setApellido("Ruiz");
+        List<Cita> citas = List.of(cita("c1", EstadoCita.ASISTIO, null),
+                cita("c2", EstadoCita.COMPLETADA, dictamenSoap()),
+                cita("c3", EstadoCita.COMPLETADA, dictamenAntiguo()));
+        when(doctorService.buscarPorEmail("doc@test.com")).thenReturn(Optional.of(d));
+        when(doctorService.dailySlotCounts(any())).thenReturn(Map.of());
+        when(doctorService.citasDelDoctor(eq("d1"), any())).thenReturn(citas);
+        when(doctorService.dictamenDataMap(any())).thenReturn(Map.of(
+                "c2", DictamenVista.de(dictamenSoap()), "c3", DictamenVista.de(dictamenAntiguo())));
+
+        mockMvc.perform(get("/doctores").with(user("doc@test.com").roles("DOCTOR")))
+                .andExpect(status().isOk())
+                .andExpect(content().string(containsString("S — Subjetivo")))
+                .andExpect(content().string(containsString("value=\"LECTURA_EXAMENES\"")))
+                .andExpect(content().string(containsString("value=\"ACCIDENTE_TRANSITO\"")))
+                .andExpect(content().string(containsString("value=\"CONFIRMADO_REPETIDO\"")))
+                .andExpect(content().string(containsString("value=\"INTRAVENOSA\"")))
+                .andExpect(content().string(containsString("data-motivo=\"Dolor de garganta\"")))
+                .andExpect(content().string(containsString("J039 · Amigdalitis aguda")))
+                .andExpect(content().string(containsString("con-alergias")))
+                .andExpect(content().string(containsString("Gripa común")))
+                .andExpect(content().string(containsString("/js/dictamen.js")));
+    }
+
+    @Test
+    void landingPaciente_muestraDictamenSoapYAntiguo() throws Exception {
+        Paciente p = new Paciente();
+        p.setId("p1");
+        when(pacienteService.listarDoctoresPaginated(anyInt(), anyInt(), any(), any())).thenReturn(new PageImpl<>(List.of()));
+        when(pacienteService.especialidadesDisponibles()).thenReturn(List.of());
+        when(pacienteService.buscarPorEmail("pac@test.com")).thenReturn(Optional.of(p));
+        when(pacienteService.citasDelPaciente("p1")).thenReturn(List.of(
+                cita("c2", EstadoCita.COMPLETADA, dictamenSoap()),
+                cita("c3", EstadoCita.COMPLETADA, dictamenAntiguo())));
+        when(pacienteService.mapDoctores()).thenReturn(Map.of("d1", "Dr. X"));
+
+        mockMvc.perform(get("/pacientes/landing").with(user("pac@test.com").roles("PACIENTE")))
+                .andExpect(status().isOk())
+                .andExpect(content().string(containsString("Alergias:")))
+                .andExpect(content().string(containsString("J039 — Amigdalitis aguda")))
+                .andExpect(content().string(containsString("Acetaminofén 500 mg (Oral)")))
+                .andExpect(content().string(containsString("2 días — Fiebre")))
+                .andExpect(content().string(containsString("120/80 mmHg")))
+                .andExpect(content().string(containsString("Reposo y líquidos")));
     }
 
     @Test

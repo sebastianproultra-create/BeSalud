@@ -1,6 +1,7 @@
 package com.gestion.proyectos.modelo;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 
 import org.springframework.data.annotation.Id;
@@ -22,6 +23,8 @@ public class Cita {
 
     private EstadoCita estado = EstadoCita.PENDIENTE;
     private Dictamen dictamen;
+    /** Momento en que el médico marcó la asistencia (inicio real de la atención). */
+    private LocalDateTime inicioAtencion;
     private boolean recordatorioEnviado;
 
     public String getId() {
@@ -94,6 +97,14 @@ public class Cita {
 
     public void setRecordatorioEnviado(boolean recordatorioEnviado) {
         this.recordatorioEnviado = recordatorioEnviado;
+    }
+
+    public LocalDateTime getInicioAtencion() {
+        return inicioAtencion;
+    }
+
+    public void setInicioAtencion(LocalDateTime inicioAtencion) {
+        this.inicioAtencion = inicioAtencion;
     }
 
 }

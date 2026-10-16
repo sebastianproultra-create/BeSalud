@@ -1175,19 +1175,58 @@ table td form {
     margin-bottom: 4px;
 }
 
-/* Dictamen estructurado (secciones 1-6) */
+/* Dictamen SOAP */
+.modal-dictamen {
+    max-width: 880px;
+}
+.dictamen-ayuda {
+    font-size: 12px;
+    color: var(--text-light);
+    margin: -10px 0 14px 0;
+}
+.obligatorio {
+    color: var(--danger-color);
+}
 .dictamen-seccion {
     border: none;
     border-top: 1px solid var(--border-color);
     margin: 0 0 6px 0;
     padding: 14px 0 0 0;
+    min-width: 0;
 }
 .dictamen-seccion legend {
     font-family: 'Cormorant Garamond', serif;
-    font-size: 17px;
+    font-size: 18px;
     color: var(--primary-color);
     padding-right: 8px;
 }
+.dictamen-subtitulo {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--secondary-color);
+    margin: 4px 0 10px 0;
+}
+.dictamen-auto {
+    font-size: 13px;
+    margin: 0 0 12px 0;
+}
+.dictamen-espacio {
+    margin-top: 16px;
+}
+.dictamen-grid {
+    display: grid;
+    gap: 0 14px;
+}
+.dictamen-grid-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.dictamen-grid-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.dictamen-grid-dx { grid-template-columns: 130px minmax(0, 1fr) 220px; }
+.dictamen-grid-dx-fila { grid-template-columns: 130px minmax(0, 1fr) 220px 32px; }
+.dictamen-grid-med { grid-template-columns: minmax(0, 2fr) 130px minmax(0, 1.6fr) minmax(0, 1fr) 90px 32px; }
+.dictamen-grid-incap { grid-template-columns: 110px minmax(0, 1fr); }
+.modal-content input[type="text"],
+.modal-content input[type="number"],
 .modal-content select {
     width: 100%;
     border: 1px solid var(--border-color);
@@ -1198,16 +1237,77 @@ table td form {
     font-family: 'DM Sans', sans-serif;
     color: var(--text-dark);
     background: var(--white);
+    box-sizing: border-box;
 }
+.modal-content input:focus,
 .modal-content select:focus {
     border-bottom-color: var(--accent-color);
     outline: none;
+}
+.modal-content input:user-invalid,
+.modal-content select:user-invalid,
+.modal-content textarea:user-invalid {
+    border-bottom-color: var(--danger-color);
+}
+.campo-calculado {
+    display: block;
+    padding: 10px 12px;
+    background: var(--light-bg);
+    border-radius: 3px;
+    font-size: 14px;
+    min-height: 20px;
+}
+.fila-dinamica {
+    align-items: end;
+    padding: 10px 10px 0 10px;
+    margin-bottom: 10px;
+    background: var(--light-bg);
+    border-radius: 4px;
+}
+.btn-quitar-fila {
+    margin-bottom: 18px;
+    height: 38px;
+    border: none;
+    background: transparent;
+    color: var(--danger-color);
+    font-size: 16px;
+    cursor: pointer;
+}
+.campo-alerta textarea {
+    border-color: var(--danger-color);
+    background: #fdf1f1;
+    color: #8f1f1f;
+    font-weight: 500;
+}
+.alerta-alergia-texto {
+    display: block;
+    margin-top: 4px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--danger-color);
+}
+/* [hidden] debe ganar a los display de los estilos del modal */
+#dictamenModal [hidden] {
+    display: none;
+}
+.alerta-alergia {
+    margin: 0 0 12px 0;
+    padding: 10px 14px;
+    border-left: 4px solid var(--danger-color);
+    background: #fdf1f1;
+    color: #8f1f1f;
+    font-weight: 600;
+    font-size: 14px;
+}
+.dictamen-preview.con-alergias::before {
+    content: '⚠ ';
+    color: var(--danger-color);
 }
 .dictamen-firma-nota,
 .dictamen-declaracion {
     font-size: 12px;
     font-style: italic;
-    color: var(--text-muted, #6b7c75);
+    color: var(--text-light);
 }
 .dictamen-detail section + section {
     border-top: 1px solid var(--border-color);
@@ -1215,21 +1315,73 @@ table td form {
 }
 .dictamen-detail h4 {
     font-family: 'Cormorant Garamond', serif;
-    font-size: 17px;
+    font-size: 18px;
     font-weight: 500;
     color: var(--primary-color);
     margin: 12px 0 4px 0;
 }
-.veredicto-badge {
-    display: inline-block;
-    padding: 3px 10px;
-    border-radius: 12px;
-    font-size: 12px;
-    font-weight: 600;
+.dictamen-valor {
+    white-space: pre-line;
 }
-.veredicto-favorable { background: #e3f4ea; color: #1e6b3f; }
-.veredicto-favorable_con_salvedades { background: #fdf3dc; color: #8a6312; }
-.veredicto-desfavorable { background: #fbe4e4; color: #9b2c2c; }
+.dictamen-etiqueta-bloque {
+    display: block;
+    margin: 12px 0 6px 0;
+}
+.signos-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 8px;
+    margin: 10px 0;
+}
+.signo {
+    background: var(--light-bg);
+    border-radius: 4px;
+    padding: 8px 10px;
+}
+.signo-etiqueta {
+    display: block;
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-light);
+}
+.signo-valor {
+    font-size: 15px;
+    color: var(--text-dark);
+    font-variant-numeric: tabular-nums;
+}
+.dictamen-tabla-wrapper {
+    overflow-x: auto;
+}
+.dictamen-tabla {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+}
+.dictamen-tabla th,
+.dictamen-tabla td {
+    text-align: left;
+    padding: 6px 8px;
+    border-bottom: 1px solid var(--border-color);
+}
+.dictamen-tabla th {
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    font-weight: 500;
+    color: var(--primary-color);
+    background: var(--light-bg);
+}
+@media (max-width: 720px) {
+    .dictamen-grid-2,
+    .dictamen-grid-dx,
+    .dictamen-grid-dx-fila,
+    .dictamen-grid-med,
+    .dictamen-grid-incap { grid-template-columns: minmax(0, 1fr); }
+    .dictamen-grid-4,
+    .signos-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .btn-quitar-fila { justify-self: end; margin-bottom: 10px; }
+}
 
 /* ==============================================
    RESPONSIVE

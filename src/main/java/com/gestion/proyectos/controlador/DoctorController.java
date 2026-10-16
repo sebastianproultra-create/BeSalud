@@ -1,14 +1,21 @@
 package com.gestion.proyectos.controlador;
 
+import com.gestion.proyectos.modelo.CausaExterna;
 import com.gestion.proyectos.modelo.Dictamen;
 import com.gestion.proyectos.modelo.Doctor;
 import com.gestion.proyectos.modelo.HorarioAtencion;
+import com.gestion.proyectos.modelo.TipoConsulta;
+import com.gestion.proyectos.modelo.TipoDiagnostico;
 import com.gestion.proyectos.modelo.UserRegistrationDTO;
-import com.gestion.proyectos.modelo.Veredicto;
+import com.gestion.proyectos.modelo.ViaAdministracion;
+import com.gestion.proyectos.servicio.DictamenVista;
 import com.gestion.proyectos.servicio.DoctorService;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.WebDataBinder;
+import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -66,6 +73,10 @@ public class DoctorController {
             model.addAttribute("filtroEstado", filtroEstado);
             model.addAttribute("hoy", LocalDate.now());
             model.addAttribute("dictamenDataMap", doctorService.dictamenDataMap(citas));
+            model.addAttribute("tiposConsulta", TipoConsulta.values());
+            model.addAttribute("causasExternas", CausaExterna.values());
+            model.addAttribute("tiposDiagnostico", TipoDiagnostico.values());
+            model.addAttribute("viasAdministracion", ViaAdministracion.values());
             model.addAttribute("misPacientes", doctorService.pacientesDelDoctor(doctor.getId()));
             model.addAttribute("weeklyAvailability", weeklyAvailability);
             model.addAttribute("weeklySlotTotal", doctorService.weeklySlotTotal(weeklyAvailability));
@@ -198,27 +209,28 @@ public class DoctorController {
     @PreAuthorize("hasRole('DOCTOR')")
     @PostMapping("/citas/{id}/dictamen")
     public String guardarDictamen(@PathVariable String id,
-            @RequestParam String diagnostico,
-            @RequestParam String tratamiento,
-            @RequestParam(required = false) String observaciones,
-            @RequestParam(required = false) String objeto,
-            @RequestParam(required = false) String alcance,
-            @RequestParam(required = false) String hallazgos,
-            @RequestParam(required = false) Veredicto veredicto,
-            @RequestParam(required = false) String recomendaciones) {
+            @ModelAttribute("dictamen") Dictamen datos, BindingResult binding,
+            RedirectAttributes redirectAttributes) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         Doctor doctor = doctorService.buscarPorEmail(auth.getName()).orElseThrow();
-        Dictamen datos = new Dictamen();
-        datos.setObjeto(objeto);
-        datos.setAlcance(alcance);
-        datos.setHallazgos(hallazgos);
-        datos.setDiagnostico(diagnostico);
-        datos.setVeredicto(veredicto);
-        datos.setTratamiento(tratamiento);
-        datos.setRecomendaciones(recomendaciones);
-        datos.setObservaciones(observaciones);
-        doctorService.guardarDictamen(id, doctor, datos);
+        String error = binding.hasErrors()
+                ? "Hay valores con formato inválido (revise signos vitales, cantidades y listas desplegables)."
+                : doctorService.guardarDictamen(id, doctor, datos);
+        if (error != null) {
+            // Se devuelve lo escrito para reabrir el formulario sin perder el trabajo del médico
+            redirectAttributes.addFlashAttribute("errorDictamen", error);
+            redirectAttributes.addFlashAttribute("dictamenCitaId", id);
+            redirectAttributes.addFlashAttribute("dictamenPrevio", DictamenVista.de(datos));
+            return REDIRECT_DOCTORES + "#citas";
+        }
+        redirectAttributes.addFlashAttribute("exitoDictamen", "Dictamen guardado correctamente.");
         return REDIRECT_DOCTORES;
+    }
+
+    /** Limita cuántas filas de diagnósticos o medicamentos puede crear el binder. */
+    @InitBinder("dictamen")
+    void configurarDictamen(WebDataBinder binder) {
+        binder.setAutoGrowCollectionLimit(32);
     }
 
     @PreAuthorize("hasRole('DOCTOR')")

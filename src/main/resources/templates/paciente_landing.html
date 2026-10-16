@@ -134,42 +134,79 @@
                         <!-- Dictamen visible para citas completadas -->
                         <div th:if="${cita.estado.name() == 'COMPLETADA' and cita.dictamen != null}" class="cita-dictamen">
                             <div class="dictamen-header"><i class="fa-solid fa-file-medical"></i> Dictamen médico</div>
-                            <div th:if="${cita.dictamen.veredicto != null}" class="dictamen-field">
-                                <strong>Veredicto:</strong>
-                                <span class="veredicto-badge" th:classappend="'veredicto-' + ${#strings.toLowerCase(cita.dictamen.veredicto.name())}"
-                                      th:text="${cita.dictamen.veredicto.descripcion}"></span>
+                            <th:block th:with="dic=${cita.dictamen}">
+                            <!-- Formato anterior (texto libre) -->
+                            <th:block th:if="${dic.formatoAnterior}">
+                                <div class="dictamen-field"><strong>Diagnóstico:</strong> <span th:text="${dic.diagnostico}"></span></div>
+                                <div class="dictamen-field"><strong>Tratamiento:</strong> <span th:text="${dic.tratamiento}"></span></div>
+                                <div th:if="${!#strings.isEmpty(dic.observaciones)}" class="dictamen-field">
+                                    <strong>Observaciones:</strong> <span th:text="${dic.observaciones}"></span>
+                                </div>
+                            </th:block>
+                            <!-- Formato SOAP -->
+                            <th:block th:unless="${dic.formatoAnterior}">
+                                <div th:if="${dic.tieneAlergias}" class="dictamen-alergia">
+                                    ⚠ Alergias: <span th:text="${dic.antecedentes.alergicos}"></span>
+                                </div>
+                                <div th:if="${dic.tipoConsulta != null}" class="dictamen-field">
+                                    <strong>Consulta:</strong>
+                                    <span th:text="${dic.tipoConsulta.descripcion}"></span><span th:if="${dic.fechaAtencion != null}" th:text="' · ' + ${#temporals.format(dic.fechaAtencion, 'dd/MM/yyyy HH:mm')}"></span>
+                                </div>
+                                <div class="dictamen-field">
+                                    <strong>Diagnóstico:</strong>
+                                    <span th:text="${dic.diagnosticoPrincipal.codigo + ' — ' + dic.diagnosticoPrincipal.descripcion}"></span>
+                                </div>
+                                <div th:if="${!#lists.isEmpty(dic.diagnosticosRelacionados)}" class="dictamen-field">
+                                    <strong>Diagnósticos relacionados:</strong>
+                                    <ul class="dictamen-lista">
+                                        <li th:each="dx : ${dic.diagnosticosRelacionados}" th:text="${dx.codigo + ' — ' + dx.descripcion}"></li>
+                                    </ul>
+                                </div>
+                                <div th:if="${!#lists.isEmpty(dic.medicamentos)}" class="dictamen-field">
+                                    <strong>Fórmula médica:</strong>
+                                    <ul class="dictamen-lista">
+                                        <li th:each="m : ${dic.medicamentos}"
+                                            th:text="${m.nombre + ' (' + m.via.descripcion + ') — ' + m.dosisFrecuencia + ', ' + m.duracion + '. Cantidad: ' + m.cantidad}"></li>
+                                    </ul>
+                                </div>
+                                <div th:if="${!#strings.isEmpty(dic.ordenesMedicas)}" class="dictamen-field">
+                                    <strong>Órdenes médicas:</strong> <span th:text="${dic.ordenesMedicas}"></span>
+                                </div>
+                                <div th:if="${!#strings.isEmpty(dic.recomendaciones)}" class="dictamen-field">
+                                    <strong>Recomendaciones:</strong> <span th:text="${dic.recomendaciones}"></span>
+                                </div>
+                                <div th:if="${dic.incapacidadDias != null}" class="dictamen-field">
+                                    <strong>Incapacidad:</strong>
+                                    <span th:text="${dic.incapacidadDias + (dic.incapacidadDias == 1 ? ' día' : ' días') + ' — ' + dic.incapacidadJustificacion}"></span>
+                                </div>
+                                <details class="dictamen-completo">
+                                    <summary>Ver historia completa</summary>
+                                    <div class="dictamen-field"><strong>Motivo de consulta:</strong> <span th:text="${dic.motivoConsulta}"></span></div>
+                                    <div class="dictamen-field"><strong>Enfermedad actual:</strong> <span th:text="${dic.enfermedadActual}"></span></div>
+                                    <th:block th:if="${dic.antecedentes != null}" th:with="ant=${dic.antecedentes}">
+                                        <div th:if="${!#strings.isEmpty(ant.patologicos)}" class="dictamen-field"><strong>Antecedentes patológicos:</strong> <span th:text="${ant.patologicos}"></span></div>
+                                        <div th:if="${!#strings.isEmpty(ant.quirurgicos)}" class="dictamen-field"><strong>Antecedentes quirúrgicos:</strong> <span th:text="${ant.quirurgicos}"></span></div>
+                                        <div th:if="${!#strings.isEmpty(ant.farmacologicos)}" class="dictamen-field"><strong>Antecedentes farmacológicos:</strong> <span th:text="${ant.farmacologicos}"></span></div>
+                                        <div th:if="${!#strings.isEmpty(ant.alergicos)}" class="dictamen-field"><strong>Antecedentes alérgicos:</strong> <span th:text="${ant.alergicos}"></span></div>
+                                        <div th:if="${!#strings.isEmpty(ant.familiares)}" class="dictamen-field"><strong>Antecedentes familiares:</strong> <span th:text="${ant.familiares}"></span></div>
+                                    </th:block>
+                                    <th:block th:if="${dic.signosVitales != null}" th:with="sv=${dic.signosVitales}">
+                                        <div th:if="${sv.tensionSistolica != null}" class="dictamen-field"><strong>Tensión arterial:</strong> <span th:text="${sv.tensionSistolica + '/' + sv.tensionDiastolica + ' mmHg'}"></span></div>
+                                        <div th:if="${sv.frecuenciaCardiaca != null}" class="dictamen-field"><strong>Frecuencia cardíaca:</strong> <span th:text="${sv.frecuenciaCardiaca + ' lpm'}"></span></div>
+                                        <div th:if="${sv.frecuenciaRespiratoria != null}" class="dictamen-field"><strong>Frecuencia respiratoria:</strong> <span th:text="${sv.frecuenciaRespiratoria + ' rpm'}"></span></div>
+                                        <div th:if="${sv.temperatura != null}" class="dictamen-field"><strong>Temperatura:</strong> <span th:text="${sv.temperatura + ' °C'}"></span></div>
+                                        <div th:if="${sv.saturacionOxigeno != null}" class="dictamen-field"><strong>Saturación de oxígeno:</strong> <span th:text="${sv.saturacionOxigeno + ' %'}"></span></div>
+                                        <div th:if="${sv.peso != null}" class="dictamen-field"><strong>Peso:</strong> <span th:text="${sv.peso + ' kg'}"></span></div>
+                                        <div th:if="${sv.talla != null}" class="dictamen-field"><strong>Talla:</strong> <span th:text="${sv.talla + ' cm'}"></span></div>
+                                        <div th:if="${sv.imc != null}" class="dictamen-field"><strong>IMC:</strong> <span th:text="${sv.imc}"></span></div>
+                                    </th:block>
+                                    <div class="dictamen-field"><strong>Examen físico:</strong> <span th:text="${dic.examenFisico}"></span></div>
+                                </details>
+                            </th:block>
+                            <div th:if="${!#strings.isEmpty(dic.firmadoPor)}" class="dictamen-firma">
+                                Firmado por Dr(a). <span th:text="${dic.firmadoPor}"></span><span th:if="${!#strings.isEmpty(dic.especialidadFirmante)}" th:text="' — ' + ${dic.especialidadFirmante}"></span><span th:if="${dic.fechaEmision != null}" th:text="' · ' + ${#temporals.format(dic.fechaEmision, 'dd/MM/yyyy HH:mm')}"></span>
                             </div>
-                            <div th:if="${!#strings.isEmpty(cita.dictamen.objeto)}" class="dictamen-field">
-                                <strong>Objeto:</strong>
-                                <span th:text="${cita.dictamen.objeto}"></span>
-                            </div>
-                            <div th:if="${!#strings.isEmpty(cita.dictamen.alcance)}" class="dictamen-field">
-                                <strong>Alcance:</strong>
-                                <span th:text="${cita.dictamen.alcance}"></span>
-                            </div>
-                            <div th:if="${!#strings.isEmpty(cita.dictamen.hallazgos)}" class="dictamen-field">
-                                <strong>Hallazgos:</strong>
-                                <span th:text="${cita.dictamen.hallazgos}"></span>
-                            </div>
-                            <div class="dictamen-field">
-                                <strong>Diagnóstico:</strong>
-                                <span th:text="${cita.dictamen.diagnostico}"></span>
-                            </div>
-                            <div class="dictamen-field">
-                                <strong>Tratamiento:</strong>
-                                <span th:text="${cita.dictamen.tratamiento}"></span>
-                            </div>
-                            <div th:if="${!#strings.isEmpty(cita.dictamen.recomendaciones)}" class="dictamen-field">
-                                <strong>Recomendaciones:</strong>
-                                <span th:text="${cita.dictamen.recomendaciones}"></span>
-                            </div>
-                            <div th:if="${cita.dictamen.observaciones != null and !cita.dictamen.observaciones.isEmpty()}" class="dictamen-field">
-                                <strong>Observaciones:</strong>
-                                <span th:text="${cita.dictamen.observaciones}"></span>
-                            </div>
-                            <div th:if="${!#strings.isEmpty(cita.dictamen.firmadoPor)}" class="dictamen-firma">
-                                Firmado por Dr(a). <span th:text="${cita.dictamen.firmadoPor}"></span><span th:if="${!#strings.isEmpty(cita.dictamen.especialidadFirmante)}" th:text="' — ' + ${cita.dictamen.especialidadFirmante}"></span><span th:if="${cita.dictamen.fechaEmision != null}" th:text="' · ' + ${#temporals.format(cita.dictamen.fechaEmision, 'dd/MM/yyyy HH:mm')}"></span>
-                            </div>
+                            </th:block>
                         </div>
                     </div>
                 </div>

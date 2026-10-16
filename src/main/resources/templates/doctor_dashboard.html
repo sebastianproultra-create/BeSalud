@@ -130,6 +130,10 @@
         </span>
     </div>
 
+    <div th:if="${exitoDictamen}" class="alert alert-success" role="status" th:text="${exitoDictamen}"></div>
+    <div th:if="${errorDictamen}" id="alertaDictamen" class="alert alert-danger" role="alert"
+         th:text="'No se guardó el dictamen: ' + ${errorDictamen}"></div>
+
     <!-- ═══════════════ MI PERFIL ═══════════════ -->
     <section id="perfil" class="card" aria-labelledby="perfil-title">
         <h2 id="perfil-title">Mi perfil</h2>
@@ -359,8 +363,9 @@
                         </td>
                         <td>
                             <span th:if="${cita.dictamen != null}" class="dictamen-preview"
-                                  th:title="${cita.dictamen.diagnostico}"
-                                  th:text="${cita.dictamen.diagnostico}"></span>
+                                  th:classappend="${cita.dictamen.tieneAlergias} ? 'con-alergias'"
+                                  th:title="${cita.dictamen.resumenDiagnostico}"
+                                  th:text="${cita.dictamen.resumenDiagnostico}"></span>
                             <span th:if="${cita.dictamen == null}" class="text-muted">—</span>
                         </td>
                         <td class="actions-cell">
@@ -383,7 +388,9 @@
                                 </th:block>
                                 <th:block th:if="${cita.estado.name() == 'ASISTIO'}">
                                     <button type="button" class="btn btn-primary btn-sm"
-                                            th:data-cita-id="${cita.id}" onclick="abrirDictamen(this.dataset.citaId)">Dar dictamen</button>
+                                            th:data-cita-id="${cita.id}" data-accion="dictamen" th:data-motivo="${cita.motivo}"
+                                            th:data-inicio="${cita.inicioAtencion != null ? #temporals.format(cita.inicioAtencion, 'dd/MM/yyyy HH:mm') : ''}"
+                                            onclick="abrirDictamen(this)">Dar dictamen</button>
                                 </th:block>
                                 <th:block th:if="${cita.estado.name() == 'COMPLETADA' and cita.dictamen != null}">
                                     <button type="button" class="btn btn-primary btn-sm"
@@ -440,109 +447,242 @@
     </section>
 </main>
 
-<!-- ═══════════════ MODAL DICTAMEN ═══════════════ -->
+<!-- ═══════════════ MODAL DICTAMEN (SOAP) ═══════════════ -->
 <div id="dictamenModal" class="modal-overlay" style="display:none" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
-    <div class="modal-content">
+    <div class="modal-content modal-dictamen">
         <h3 id="modalTitle">Registrar dictamen</h3>
+        <p class="dictamen-ayuda">Los campos con <span class="obligatorio">*</span> son obligatorios. El resto se llena solo si aplica.</p>
+        <div id="dictamenError" class="alert alert-danger" role="alert" hidden></div>
         <form id="dictamenForm" method="post">
             <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
 
             <fieldset class="dictamen-seccion">
-                <legend>1. Identificación</legend>
-                <div class="form-group">
-                    <label for="objeto">Objeto de la evaluación</label>
-                    <textarea id="objeto" name="objeto" rows="2" maxlength="300" placeholder="Si se deja vacío, se usa el motivo de la cita"></textarea>
+                <legend>1. Datos generales de la consulta</legend>
+                <p class="dictamen-auto">Fecha y hora de atención: <strong id="dxFechaAtencion"></strong> <span class="text-muted">(automática)</span></p>
+                <div class="dictamen-grid dictamen-grid-2">
+                    <div class="form-group">
+                        <label for="tipoConsulta">Tipo de consulta <span class="obligatorio">*</span></label>
+                        <select id="tipoConsulta" name="tipoConsulta" required>
+                            <option value="">Seleccione…</option>
+                            <option th:each="t : ${tiposConsulta}" th:value="${t.name()}" th:text="${t.descripcion}"></option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="causaExterna">Causa externa <span class="obligatorio">*</span></label>
+                        <select id="causaExterna" name="causaExterna" required>
+                            <option value="">Seleccione…</option>
+                            <option th:each="c : ${causasExternas}" th:value="${c.name()}" th:text="${c.descripcion}"></option>
+                        </select>
+                    </div>
                 </div>
             </fieldset>
+
             <fieldset class="dictamen-seccion">
-                <legend>2. Alcance y criterios</legend>
+                <legend>2. S — Subjetivo (lo que dice el paciente)</legend>
                 <div class="form-group">
-                    <label for="alcance">Qué se evaluó y con qué criterios</label>
-                    <textarea id="alcance" name="alcance" rows="2" maxlength="1000" placeholder="Ej.: examen físico, signos vitales, resultados de laboratorio"></textarea>
+                    <label for="motivoConsulta">Motivo de consulta <span class="obligatorio">*</span></label>
+                    <input type="text" id="motivoConsulta" name="motivoConsulta" maxlength="500" required
+                           placeholder="En palabras del paciente: “Me duele mucho la cabeza desde ayer”"/>
+                </div>
+                <div class="form-group">
+                    <label for="enfermedadActual">Enfermedad actual <span class="obligatorio">*</span></label>
+                    <textarea id="enfermedadActual" name="enfermedadActual" rows="4" maxlength="4000" required
+                              placeholder="Descripción cronológica del problema"></textarea>
+                </div>
+                <div class="dictamen-subtitulo">Antecedentes</div>
+                <div class="dictamen-grid dictamen-grid-2">
+                    <div class="form-group">
+                        <label for="antPatologicos">Patológicos</label>
+                        <textarea id="antPatologicos" name="antecedentes.patologicos" rows="2" maxlength="1000" placeholder="Enfermedades previas"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="antQuirurgicos">Quirúrgicos</label>
+                        <textarea id="antQuirurgicos" name="antecedentes.quirurgicos" rows="2" maxlength="1000" placeholder="Operaciones"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="antFarmacologicos">Farmacológicos</label>
+                        <textarea id="antFarmacologicos" name="antecedentes.farmacologicos" rows="2" maxlength="1000" placeholder="Medicamentos que toma actualmente"></textarea>
+                    </div>
+                    <div class="form-group" id="grupoAlergicos">
+                        <label for="antAlergicos">Alérgicos</label>
+                        <textarea id="antAlergicos" name="antecedentes.alergicos" rows="2" maxlength="1000" placeholder="Escriba “Niega” si no tiene alergias"></textarea>
+                        <span class="alerta-alergia-texto" hidden>⚠ El paciente tiene alergias registradas</span>
+                    </div>
+                    <div class="form-group">
+                        <label for="antFamiliares">Familiares</label>
+                        <textarea id="antFamiliares" name="antecedentes.familiares" rows="2" maxlength="1000" placeholder="Enfermedades hereditarias"></textarea>
+                    </div>
                 </div>
             </fieldset>
+
             <fieldset class="dictamen-seccion">
-                <legend>3. Hallazgos</legend>
-                <div class="form-group">
-                    <label for="hallazgos">Hallazgos principales</label>
-                    <textarea id="hallazgos" name="hallazgos" rows="2" maxlength="2000"></textarea>
+                <legend>3. O — Objetivo (lo que mide y observa el médico)</legend>
+                <div class="dictamen-subtitulo">Signos vitales</div>
+                <div class="dictamen-grid dictamen-grid-4">
+                    <div class="form-group">
+                        <label for="svSistolica">T.A. sistólica (mmHg)</label>
+                        <input type="number" id="svSistolica" name="signosVitales.tensionSistolica" min="50" max="260" step="1" placeholder="120"/>
+                    </div>
+                    <div class="form-group">
+                        <label for="svDiastolica">T.A. diastólica (mmHg)</label>
+                        <input type="number" id="svDiastolica" name="signosVitales.tensionDiastolica" min="30" max="160" step="1" placeholder="80"/>
+                    </div>
+                    <div class="form-group">
+                        <label for="svFc">F.C. (lpm)</label>
+                        <input type="number" id="svFc" name="signosVitales.frecuenciaCardiaca" min="20" max="250" step="1" placeholder="72"/>
+                    </div>
+                    <div class="form-group">
+                        <label for="svFr">F.R. (rpm)</label>
+                        <input type="number" id="svFr" name="signosVitales.frecuenciaRespiratoria" min="5" max="60" step="1" placeholder="16"/>
+                    </div>
+                    <div class="form-group">
+                        <label for="svTemp">Temperatura (°C)</label>
+                        <input type="number" id="svTemp" name="signosVitales.temperatura" min="30" max="45" step="0.1" placeholder="36.5"/>
+                    </div>
+                    <div class="form-group">
+                        <label for="svSpo2">SpO₂ (%)</label>
+                        <input type="number" id="svSpo2" name="signosVitales.saturacionOxigeno" min="50" max="100" step="1" placeholder="98"/>
+                    </div>
+                </div>
+                <div class="dictamen-subtitulo">Antropometría</div>
+                <div class="dictamen-grid dictamen-grid-4">
+                    <div class="form-group">
+                        <label for="svPeso">Peso (kg)</label>
+                        <input type="number" id="svPeso" name="signosVitales.peso" min="0.5" max="400" step="0.1" placeholder="70"/>
+                    </div>
+                    <div class="form-group">
+                        <label for="svTalla">Talla (cm)</label>
+                        <input type="number" id="svTalla" name="signosVitales.talla" min="30" max="250" step="0.1" placeholder="170"/>
+                    </div>
+                    <div class="form-group">
+                        <label for="svImc">IMC (kg/m²)</label>
+                        <output id="svImc" class="campo-calculado">—</output>
+                    </div>
                 </div>
                 <div class="form-group">
-                    <label for="diagnostico">Diagnóstico *</label>
-                    <textarea id="diagnostico" name="diagnostico" rows="3" required></textarea>
+                    <label for="examenFisico">Examen físico <span class="obligatorio">*</span></label>
+                    <textarea id="examenFisico" name="examenFisico" rows="4" maxlength="4000" required
+                              placeholder="Hallazgos en cabeza, cuello, tórax, abdomen, extremidades…"></textarea>
                 </div>
             </fieldset>
+
             <fieldset class="dictamen-seccion">
-                <legend>4. Veredicto</legend>
-                <div class="form-group">
-                    <label for="veredicto">Dictamen *</label>
-                    <select id="veredicto" name="veredicto" required>
-                        <option value="">Seleccione…</option>
-                        <option value="FAVORABLE">Favorable</option>
-                        <option value="FAVORABLE_CON_SALVEDADES">Favorable con salvedades</option>
-                        <option value="DESFAVORABLE">Desfavorable</option>
-                    </select>
+                <legend>4. A — Análisis (diagnóstico CIE-10)</legend>
+                <div class="dictamen-subtitulo">Diagnóstico principal <span class="obligatorio">*</span></div>
+                <div class="dictamen-grid dictamen-grid-dx">
+                    <div class="form-group">
+                        <label for="dxCodigo">Código CIE-10 <span class="obligatorio">*</span></label>
+                        <input type="text" id="dxCodigo" name="diagnosticoPrincipal.codigo" class="cie10" required maxlength="6"
+                               pattern="[A-Za-z][0-9]{2}\.?[0-9A-Za-z]?" title="Letra y 2 dígitos, más un carácter opcional (ej. J039)" placeholder="J039"/>
+                    </div>
+                    <div class="form-group">
+                        <label for="dxDescripcion">Descripción <span class="obligatorio">*</span></label>
+                        <input type="text" id="dxDescripcion" name="diagnosticoPrincipal.descripcion" required maxlength="250" placeholder="Amigdalitis aguda"/>
+                    </div>
+                    <div class="form-group">
+                        <label for="dxTipo">Tipo de diagnóstico <span class="obligatorio">*</span></label>
+                        <select id="dxTipo" name="diagnosticoPrincipal.tipo" required>
+                            <option value="">Seleccione…</option>
+                            <option th:each="t : ${tiposDiagnostico}" th:value="${t.name()}" th:text="${t.descripcion}"></option>
+                        </select>
+                    </div>
                 </div>
+                <div class="dictamen-subtitulo">Diagnósticos relacionados</div>
+                <div id="filasRelacionados" data-prefijo="diagnosticosRelacionados" data-max="5"></div>
+                <button type="button" class="btn btn-secondary btn-sm" id="btnAgregarRelacionado">+ Agregar diagnóstico relacionado</button>
             </fieldset>
+
             <fieldset class="dictamen-seccion">
-                <legend>5. Recomendaciones y plan</legend>
-                <div class="form-group">
-                    <label for="tratamiento">Tratamiento *</label>
-                    <textarea id="tratamiento" name="tratamiento" rows="3" required></textarea>
+                <legend>5. P — Plan (tratamiento y conducta)</legend>
+                <div class="dictamen-subtitulo">Fórmula médica</div>
+                <div id="filasMedicamentos" data-prefijo="medicamentos" data-max="20"></div>
+                <button type="button" class="btn btn-secondary btn-sm" id="btnAgregarMedicamento">+ Agregar medicamento</button>
+                <div class="form-group dictamen-espacio">
+                    <label for="ordenesMedicas">Órdenes médicas</label>
+                    <textarea id="ordenesMedicas" name="ordenesMedicas" rows="2" maxlength="2000" placeholder="Exámenes de laboratorio, imágenes diagnósticas…"></textarea>
                 </div>
                 <div class="form-group">
-                    <label for="recomendaciones">Recomendaciones</label>
-                    <textarea id="recomendaciones" name="recomendaciones" rows="2" maxlength="2000"></textarea>
+                    <label for="recomendaciones">Recomendaciones generales / dieta</label>
+                    <textarea id="recomendaciones" name="recomendaciones" rows="2" maxlength="2000" placeholder="Reposo, abundante agua, dieta blanda…"></textarea>
                 </div>
-                <div class="form-group">
-                    <label for="observaciones">Observaciones</label>
-                    <textarea id="observaciones" name="observaciones" rows="2"></textarea>
+                <div class="dictamen-subtitulo">Incapacidad médica (opcional)</div>
+                <div class="dictamen-grid dictamen-grid-incap">
+                    <div class="form-group">
+                        <label for="incapacidadDias">Días</label>
+                        <input type="number" id="incapacidadDias" name="incapacidadDias" min="1" max="30" step="1"/>
+                    </div>
+                    <div class="form-group">
+                        <label for="incapacidadJustificacion">Justificación</label>
+                        <textarea id="incapacidadJustificacion" name="incapacidadJustificacion" rows="2" maxlength="1000"></textarea>
+                    </div>
                 </div>
             </fieldset>
-            <p class="dictamen-firma-nota">6. Firma: el dictamen queda firmado con su nombre, especialidad y la fecha de emisión.</p>
+
+            <p class="dictamen-firma-nota">El dictamen queda firmado con su nombre, especialidad y la fecha de emisión.</p>
             <div class="modal-actions">
                 <button type="button" class="btn btn-secondary" onclick="cerrarModal()">Cancelar</button>
-                <button type="submit" class="btn btn-primary">Guardar dictamen</button>
+                <button type="submit" class="btn btn-primary" id="btnGuardarDictamen">Guardar dictamen</button>
             </div>
         </form>
     </div>
 </div>
 
+<template id="tplRelacionado">
+    <div class="fila-dinamica dictamen-grid dictamen-grid-dx-fila">
+        <div class="form-group">
+            <label>Código CIE-10 <span class="obligatorio">*</span></label>
+            <input type="text" data-campo="codigo" class="cie10" required maxlength="6"
+                   pattern="[A-Za-z][0-9]{2}\.?[0-9A-Za-z]?" title="Letra y 2 dígitos, más un carácter opcional (ej. J039)"/>
+        </div>
+        <div class="form-group">
+            <label>Descripción <span class="obligatorio">*</span></label>
+            <input type="text" data-campo="descripcion" required maxlength="250"/>
+        </div>
+        <div class="form-group">
+            <label>Tipo <span class="obligatorio">*</span></label>
+            <select data-campo="tipo" required>
+                <option value="">Seleccione…</option>
+                <option th:each="t : ${tiposDiagnostico}" th:value="${t.name()}" th:text="${t.descripcion}"></option>
+            </select>
+        </div>
+        <button type="button" class="btn-quitar-fila" aria-label="Quitar diagnóstico">✕</button>
+    </div>
+</template>
+
+<template id="tplMedicamento">
+    <div class="fila-dinamica dictamen-grid dictamen-grid-med">
+        <div class="form-group">
+            <label>Medicamento <span class="obligatorio">*</span></label>
+            <input type="text" data-campo="nombre" required maxlength="150" placeholder="Acetaminofén 500 mg"/>
+        </div>
+        <div class="form-group">
+            <label>Vía <span class="obligatorio">*</span></label>
+            <select data-campo="via" required>
+                <option value="">Seleccione…</option>
+                <option th:each="v : ${viasAdministracion}" th:value="${v.name()}" th:text="${v.descripcion}"></option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label>Dosis y frecuencia <span class="obligatorio">*</span></label>
+            <input type="text" data-campo="dosisFrecuencia" required maxlength="150" placeholder="1 tableta cada 8 horas"/>
+        </div>
+        <div class="form-group">
+            <label>Duración <span class="obligatorio">*</span></label>
+            <input type="text" data-campo="duracion" required maxlength="100" placeholder="Por 5 días"/>
+        </div>
+        <div class="form-group">
+            <label>Cantidad <span class="obligatorio">*</span></label>
+            <input type="number" data-campo="cantidad" required min="1" max="9999" step="1" placeholder="15"/>
+        </div>
+        <button type="button" class="btn-quitar-fila" aria-label="Quitar medicamento">✕</button>
+    </div>
+</template>
+
 <!-- ═══════════════ MODAL VER DICTAMEN ═══════════════ -->
 <div id="verDictamenModal" class="modal-overlay" style="display:none" role="dialog" aria-modal="true" aria-labelledby="verDictamenTitle">
-    <div class="modal-content">
-        <h3 id="verDictamenTitle">Dictamen de la Cita</h3>
-        <div class="dictamen-detail">
-            <section id="verSecIdentificacion">
-                <h4>1. Identificación</h4>
-                <p><strong>Objeto de la evaluación:</strong> <span id="verObjeto"></span></p>
-                <p><strong>Fecha de emisión:</strong> <span id="verFechaEmision"></span></p>
-            </section>
-            <section id="verSecAlcance">
-                <h4>2. Alcance y criterios</h4>
-                <p><span id="verAlcance"></span></p>
-            </section>
-            <section>
-                <h4>3. Hallazgos</h4>
-                <p id="verHallazgosP"><strong>Hallazgos principales:</strong> <span id="verHallazgos"></span></p>
-                <p><strong>Diagnóstico:</strong> <span id="verDiagnostico"></span></p>
-            </section>
-            <section id="verSecVeredicto">
-                <h4>4. Veredicto</h4>
-                <p><span id="verVeredicto" class="veredicto-badge"></span></p>
-            </section>
-            <section>
-                <h4>5. Recomendaciones y plan</h4>
-                <p><strong>Tratamiento:</strong> <span id="verTratamiento"></span></p>
-                <p id="verRecomendacionesP"><strong>Recomendaciones:</strong> <span id="verRecomendaciones"></span></p>
-                <p><strong>Observaciones:</strong> <span id="verObservaciones"></span></p>
-            </section>
-            <section id="verSecFirma">
-                <h4>6. Firma y responsabilidad</h4>
-                <p><span id="verFirma"></span></p>
-                <p class="dictamen-declaracion">El médico firmante declara que este dictamen refleja su evaluación profesional de la consulta.</p>
-            </section>
-        </div>
+    <div class="modal-content modal-dictamen">
+        <h3 id="verDictamenTitle">Dictamen de la cita</h3>
+        <div id="verDictamenCuerpo" class="dictamen-detail"></div>
         <div class="modal-actions">
             <button type="button" class="btn btn-secondary" onclick="cerrarVerModal()">Cerrar</button>
         </div>
@@ -596,20 +736,6 @@ function toggleSecond(day) {
         btn.textContent = '+ 2° intervalo';
     }
 }
-
-/* ── Dictamen Modal ── */
-function abrirDictamen(citaId) {
-    document.getElementById('dictamenForm').action = '/doctores/citas/' + citaId + '/dictamen';
-    document.getElementById('modalTitle').textContent = 'Registrar dictamen';
-    document.getElementById('dictamenForm').reset();
-    document.getElementById('dictamenModal').style.display = 'flex';
-}
-
-function cerrarModal() {
-    document.getElementById('dictamenModal').style.display = 'none';
-}
-
-var dictamenData = {};
 
 /* Cerrar modales con Escape */
 document.addEventListener('keydown', function(e) {
@@ -699,50 +825,14 @@ document.addEventListener('DOMContentLoaded', function() {
 </script>
 
 <script th:inline="javascript">
-var dictamenDataMap = /*[[${dictamenDataMap}]]*/ {};
-Object.keys(dictamenDataMap).forEach(function(id) {
-    var d = dictamenDataMap[id];
-    dictamenData[id] = d;
-});
-
-function verDictamen(citaId) {
-    var d = dictamenData[citaId];
-    if (!d) return;
-    function txt(id, valor) { document.getElementById(id).textContent = valor; }
-    function mostrar(id, visible) { document.getElementById(id).style.display = visible ? '' : 'none'; }
-    // Los dictámenes antiguos no tienen las secciones nuevas: se ocultan si están vacías
-    txt('verObjeto', d.objeto || '—');
-    txt('verFechaEmision', d.fechaEmision || '—');
-    mostrar('verSecIdentificacion', d.objeto || d.fechaEmision);
-    txt('verAlcance', d.alcance);
-    mostrar('verSecAlcance', d.alcance);
-    txt('verHallazgos', d.hallazgos);
-    mostrar('verHallazgosP', d.hallazgos);
-    txt('verDiagnostico', d.diagnostico);
-    var ver = document.getElementById('verVeredicto');
-    ver.textContent = d.veredicto;
-    ver.className = 'veredicto-badge veredicto-' + (d.veredictoClave || '').toLowerCase();
-    mostrar('verSecVeredicto', d.veredicto);
-    txt('verTratamiento', d.tratamiento);
-    txt('verRecomendaciones', d.recomendaciones);
-    mostrar('verRecomendacionesP', d.recomendaciones);
-    txt('verObservaciones', d.observaciones || 'Ninguna');
-    txt('verFirma', d.firmadoPor ? 'Dr(a). ' + d.firmadoPor + (d.especialidadFirmante ? ' — ' + d.especialidadFirmante : '') : '');
-    mostrar('verSecFirma', d.firmadoPor);
-    document.getElementById('verDictamenModal').style.display = 'flex';
-}
-
-function cerrarVerModal() {
-    document.getElementById('verDictamenModal').style.display = 'none';
-}
-
-document.getElementById('dictamenModal').addEventListener('click', function(e) {
-    if (e.target === this) cerrarModal();
-});
-document.getElementById('verDictamenModal').addEventListener('click', function(e) {
-    if (e.target === this) cerrarVerModal();
-});
+window.BESALUD_DICTAMEN = {
+    datos: /*[[${dictamenDataMap}]]*/ {},
+    previo: /*[[${dictamenPrevio}]]*/ null,
+    citaId: /*[[${dictamenCitaId}]]*/ null,
+    error: /*[[${errorDictamen}]]*/ null
+};
 </script>
+<script th:src="@{/js/dictamen.js}"></script>
 <script th:src="@{/js/custom-select.js}"></script>
 <script th:src="@{/js/form-submit.js}"></script>
 <script>

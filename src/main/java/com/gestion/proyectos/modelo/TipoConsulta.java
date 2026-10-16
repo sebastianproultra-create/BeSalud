@@ -1,13 +1,14 @@
 package com.gestion.proyectos.modelo;
 
-public enum Veredicto {
-    FAVORABLE("Favorable"),
-    FAVORABLE_CON_SALVEDADES("Favorable con salvedades"),
-    DESFAVORABLE("Desfavorable");
+public enum TipoConsulta {
+    PRIMERA_VEZ("Primera vez"),
+    CONTROL("Control"),
+    URGENCIA("Urgencia"),
+    LECTURA_EXAMENES("Lectura de exámenes");
 
     private final String descripcion;
 
-    Veredicto(String descripcion) {
+    TipoConsulta(String descripcion) {
         this.descripcion = descripcion;
     }
 
