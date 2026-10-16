@@ -1307,8 +1307,8 @@ table td form {
     box-sizing: border-box;
     resize: none;
     overflow-y: hidden;
-    min-height: 46px;
-    line-height: 1.5;
+    padding: 10px 12px; /* mismo alto que los inputs del formulario */
+    line-height: 1.35;
     margin-bottom: 0;
 }
 .campo-calculado {
