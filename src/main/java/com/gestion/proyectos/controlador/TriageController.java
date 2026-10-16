@@ -26,7 +26,7 @@ public class TriageController {
 
     @GetMapping
     public String formulario() {
-        return "triage";
+        return "triage/triage";
     }
 
     /** Lleva al agendamiento sin poner el resumen de síntomas en la URL (dato de salud). */
@@ -48,16 +48,16 @@ public class TriageController {
 
         if (texto.length() < MIN_CARACTERES) {
             model.addAttribute("error", "Cuéntanos un poco más sobre lo que sientes (mínimo " + MIN_CARACTERES + " caracteres).");
-            return "triage";
+            return "triage/triage";
         }
         if (texto.length() > MAX_CARACTERES) {
             model.addAttribute("error", "El texto es muy largo (máximo " + MAX_CARACTERES + " caracteres).");
-            return "triage";
+            return "triage/triage";
         }
 
         ResultadoTriage resultado = triageService.evaluar(texto);
         model.addAttribute("resultado", resultado);
         model.addAttribute("doctores", triageService.doctoresSugeridos(resultado.especialidad()));
-        return "triage";
+        return "triage/triage";
     }
 }

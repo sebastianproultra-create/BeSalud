@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org"
+    xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BeSalud · Portal Clínico</title>
+    <link rel="stylesheet" th:href="@{/css/base/global.css}">
+    <link rel="stylesheet" th:href="@{/css/auth/login.css(v=2)}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400&amp;family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@100..700&amp;display=swap" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/auth/portal.css}">
+    <script th:src="@{/js/auth-transition.js}"></script>
+</head>
+<body class="auth-page login-page">
+<header th:replace="~{fragments/layout :: auth-header('login')}"></header>
+
+<main class="auth-main auth-shell">
+    <div class="auth-layout">
+        <aside class="auth-intro">
+            <div class="auth-intro-copy">
+                <span class="auth-eyebrow"><span class="status-dot" aria-hidden="true"></span>Acceso Clínico Autorizado</span>
+                <h1>Cuidado médico en armonía y precisión.</h1>
+                <p>Acceda a su historial clínico digitalizado, agendamiento prioritario de consultas y prescripciones médicas con el más alto rigor de confidencialidad médica.</p>
+            </div>
+            <div class="auth-reference">
+                <div class="reference-image">
+                    <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuCBQU3pNW9Lrs0ZXOvRuMuzH3YXYlGM4lJDGZJrtj69CAim0meh0TqRElW9edTF3hpIV5PqxBlTz5tknJ_F1_LaMsVPjbxRGR6sguMkj_cgkX1qs7rTSErobWCltMKIIxQYsO0hUwNOf2wpuChsd6e9LVcqiMxlc_C7UiUgQz8Lze8ywOH1ba3TRw9Q1MIrn94bgquACPDOH8WyUCFMefiQ1Z0ZA882AjYiL9_3k-RV1k0Fa7i5L0sTACwo_7KHGoJBNw" alt="Vista de referencia del portal BeSalud" loading="lazy">
+                </div>
+                <div class="reference-copy">
+                    <span>Sistema Unificado</span>
+                    <p>Diseñado con calma y seguridad clínica para pacientes y especialistas.</p>
+                </div>
+            </div>
+        </aside>
+
+        <section class="auth-card-wrap" aria-labelledby="login-title">
+            <div class="card auth-card login-card-main">
+                <div class="auth-card-accent" aria-hidden="true"></div>
+                <div class="auth-card-heading">
+                    <span class="auth-key-icon"><span class="material-symbols-outlined" aria-hidden="true">key</span></span>
+                    <h2 id="login-title">Iniciar Sesión</h2>
+                    <span class="heading-rule" aria-hidden="true"></span>
+                    <p>Bienvenido de nuevo a tu portal de salud</p>
+                </div>
+
+                <div th:if="${param.pendiente}" class="alert alert-info">
+                    Tu cuenta de doctor está pendiente de activación. Un administrador debe aprobarla antes de que puedas entrar.
+                </div>
+                <div th:if="${param.registerSuccess}" class="alert alert-success">
+                    Registro exitoso. Si te registraste como doctor, un administrador debe activar tu cuenta antes de que puedas entrar.
+                </div>
+                <div th:if="${param.error}" class="alert alert-error">Correo o contraseña incorrectos.</div>
+                <div th:if="${param.bloqueado}" class="alert alert-error">Demasiados intentos fallidos. Espera 15 minutos e intenta de nuevo.</div>
+                <div th:if="${param.sessionExpired}" class="alert alert-error">Tu sesión ha expirado o necesitas iniciar sesión para ver esa página.</div>
+                <div th:if="${param.logout}" class="alert alert-success">Sesión cerrada correctamente.</div>
+
+                <form th:action="@{/login}" method="post" class="auth-form">
+                    <div class="auth-field">
+                        <label for="email">Email / Correo electrónico</label>
+                        <div class="auth-input-wrap">
+                            <span class="material-symbols-outlined" aria-hidden="true">mail</span>
+                            <input type="email" id="email" name="email" placeholder="ejemplo@correo.com" autocomplete="username" required>
+                        </div>
+                    </div>
+                    <div class="auth-field">
+                        <label for="password">Contraseña</label>
+                        <div class="auth-input-wrap">
+                            <span class="material-symbols-outlined" aria-hidden="true">lock</span>
+                            <input type="password" id="password" name="password" placeholder="••••••••••••" autocomplete="current-password" required>
+                            <button class="password-toggle" id="togglePassword" type="button" aria-label="Mostrar contraseña" aria-pressed="false">
+                                <span class="material-symbols-outlined" id="passwordIcon" aria-hidden="true">visibility</span>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="auth-submit-wrap">
+                        <button type="submit" class="login-submit auth-submit">
+                            <span>Ingresar</span><span class="material-symbols-outlined" aria-hidden="true">arrow_forward</span>
+                        </button>
+                    </div>
+                </form>
+
+                <div class="oauth-divider"><span>o</span></div>
+                <a th:href="@{/oauth2/authorization/google}" class="btn-google-login">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 48 48" aria-hidden="true">
+                        <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
+                        <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>
+                        <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/>
+                        <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.31-8.16 2.31-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
+                    </svg>
+                    Continuar con Google
+                </a>
+
+                <div class="auth-card-footer">
+                    <p>¿No tienes cuenta? <a th:href="@{/register}" data-auth-direction="forward">Regístrate aquí</a></p>
+                </div>
+            </div>
+        </section>
+    </div>
+</main>
+
+<footer th:replace="~{fragments/layout :: auth-footer}"></footer>
+<script th:src="@{/js/form-submit.js}"></script>
+</body>
+</html>

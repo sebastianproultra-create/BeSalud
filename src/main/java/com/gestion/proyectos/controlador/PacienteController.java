@@ -28,7 +28,7 @@ public class PacienteController {
         model.addAttribute("pacientes", pagina);
         model.addAttribute("queryPacientes", "size=" + pagina.getSize());
         model.addAttribute("paciente", new Paciente());
-        return "pacientes";
+        return "admin/pacientes";
     }
 
     // Solo los campos del formulario: sin esto se podría enviar id (sobrescribir a otro usuario) o role.
@@ -46,7 +46,7 @@ public class PacienteController {
             model.addAttribute("pacientes", pagina);
             model.addAttribute("queryPacientes", "size=" + pagina.getSize());
             model.addAttribute("paciente", paciente);
-            return "pacientes";
+            return "admin/pacientes";
         }
         return "redirect:/pacientes";
     }
@@ -73,6 +73,6 @@ public class PacienteController {
             });
         }
 
-        return "paciente_landing";
+        return "pacientes/catalogo";
     }
 }

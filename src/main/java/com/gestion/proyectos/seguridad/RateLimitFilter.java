@@ -68,7 +68,7 @@ public class RateLimitFilter extends OncePerRequestFilter {
                     <!DOCTYPE html><html lang="es"><head><meta charset="UTF-8">
                     <meta name="viewport" content="width=device-width, initial-scale=1.0">
                     <title>Demasiadas peticiones - BeSalud</title>
-                    <link rel="stylesheet" href="/css/global.css"></head>
+                    <link rel="stylesheet" href="/css/base/global.css"></head>
                     <body><div class="container"><div class="card text-center">
                     <h2>Demasiadas peticiones</h2>
                     <p class="mb-20">Hiciste demasiadas solicitudes en poco tiempo. Espera unos minutos e intenta de nuevo.</p>

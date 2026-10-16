@@ -8,11 +8,11 @@ public class HomeController {
 
     @GetMapping("/")
     public String index() {
-        return "index";
+        return "publico/index";
     }
 
     @GetMapping("/privacidad")
     public String privacidad() {
-        return "privacidad";
+        return "publico/privacidad";
     }
 }

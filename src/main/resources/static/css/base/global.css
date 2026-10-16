@@ -4,7 +4,7 @@
    Tipografía: Cormorant Garamond + DM Sans
    ============================================== */
 
-@import url('../vendor/fonts/fonts.css');
+@import url('/vendor/fonts/fonts.css');
 
 :root {
     /* ── Paleta principal ── */

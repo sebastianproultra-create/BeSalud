@@ -30,7 +30,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 @RequestMapping
 public class LoginController {
 
-    private static final String VIEW_REGISTER = "register";
+    private static final String VIEW_REGISTER = "auth/register";
     private static final String ATTR_ERROR = "error";
     static final String ERROR_PRIVACIDAD = "Debes aceptar la política de privacidad para registrarte";
 
@@ -60,7 +60,7 @@ public class LoginController {
 
     @GetMapping("/login")
     public String login() {
-        return "login";
+        return "auth/login";
     }
 
     @PostMapping("/login")
@@ -81,7 +81,7 @@ public class LoginController {
             if (isDoctor) {
                 Doctor doctor = doctorService.buscarPorEmail(email).orElseThrow();
                 if ("INACTIVO".equals(doctor.getEstado())) {
-                    return "cuenta_pendiente_activacion";
+                    return "auth/cuenta-pendiente-activacion";
                 }
             }
 

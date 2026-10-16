@@ -24,7 +24,7 @@ public class GlobalExceptionHandler {
     public String handleNotFound(Model model) {
         model.addAttribute("status", 404);
         model.addAttribute("mensaje", "El recurso solicitado no existe.");
-        return "error";
+        return "error/error";
     }
 
     @ExceptionHandler(MaxUploadSizeExceededException.class)
@@ -34,7 +34,7 @@ public class GlobalExceptionHandler {
         response.setStatus(HttpStatus.PAYLOAD_TOO_LARGE.value());
         model.addAttribute("status", 413);
         model.addAttribute("mensaje", "La imagen supera el máximo permitido de 2 MB.");
-        return "error";
+        return "error/error";
     }
 
     @ExceptionHandler(AccessDeniedException.class)
@@ -42,7 +42,7 @@ public class GlobalExceptionHandler {
     public String handleAccessDenied(Model model) {
         model.addAttribute("status", 403);
         model.addAttribute("mensaje", "No tienes permisos para realizar esta acción.");
-        return "error";
+        return "error/error";
     }
 
     @ExceptionHandler(Exception.class)
@@ -68,6 +68,6 @@ public class GlobalExceptionHandler {
             case 405 -> "Esta acción no está permitida desde aquí.";
             default -> status < 500 ? "La solicitud no es válida." : "Ha ocurrido un error inesperado.";
         });
-        return "error";
+        return "error/error";
     }
 }

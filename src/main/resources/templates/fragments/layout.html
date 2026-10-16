@@ -10,6 +10,29 @@
     </div>
 </header>
 
+<header th:fragment="auth-header(active)" class="portal-header">
+    <div class="portal-header-inner">
+        <a th:href="@{/}" class="portal-brand" aria-label="BeSalud, inicio">
+            <span class="material-symbols-outlined portal-brand-icon" aria-hidden="true">local_hospital</span>
+            <span class="portal-brand-copy">
+                <span class="portal-brand-name">BeSalud</span>
+                <span class="portal-brand-subtitle">Gestión Médica</span>
+            </span>
+        </a>
+        <nav class="auth-nav" aria-label="Acceso a la cuenta">
+            <a th:href="@{/login}" class="auth-nav-link" th:classappend="${active == 'login'} ? ' is-active'"
+               th:attr="aria-current=${active == 'login'} ? 'page'" data-auth-direction="backward">Iniciar Sesión</a>
+            <a th:href="@{/register}" class="auth-nav-link" th:classappend="${active == 'register'} ? ' is-active'"
+               th:attr="aria-current=${active == 'register'} ? 'page'" data-auth-direction="forward">Registro Paciente</a>
+                <a th:href="@{/#contact}" class="auth-nav-link">Centro de Ayuda</a>
+        </nav>
+        <div class="portal-header-meta">
+            <span class="secure-label"><span class="material-symbols-outlined" aria-hidden="true">shield</span>Acceso Seguro</span>
+            <span class="portal-avatar" aria-hidden="true"><span class="material-symbols-outlined">person</span></span>
+        </div>
+    </div>
+</header>
+
 <!-- ── Shell admin: marca + navegación + usuario + logout (active: doctores|pacientes|citas|panel) ── -->
 <header th:fragment="shell-admin(active)" class="app-header">
     <div class="app-header-inner">
@@ -102,6 +125,10 @@
 <!-- ── Footer ── -->
 <footer th:fragment="footer">
     <p>&copy; 2026 BeSalud - Sistema de citas médicas. Todos los derechos reservados. · <a th:href="@{/privacidad}">Política de privacidad</a></p>
+</footer>
+
+<footer th:fragment="auth-footer" class="auth-footer">
+    <p>&copy; 2026 BeSalud · Sistema de Gestión de Citas Médicas · Privacidad y Seguridad · <a th:href="@{/privacidad}">Política de privacidad</a></p>
 </footer>
 
 </html>

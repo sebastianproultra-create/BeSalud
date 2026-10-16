@@ -92,7 +92,7 @@ public class DoctorController {
                     new String[] { "FRIDAY", "Vi", "Viernes" },
                     new String[] { "SATURDAY", "Sá", "Sábado" },
                     new String[] { "SUNDAY", "Do", "Domingo" }));
-            return "doctor_dashboard";
+            return "doctores/dashboard";
         }
 
         var doctoresPage = doctorService.listarDoctoresPaginated(page, size, especialidad, search);
@@ -102,7 +102,7 @@ public class DoctorController {
         model.addAttribute("page", page);
         model.addAttribute("size", size);
         model.addAttribute("doctor", new Doctor());
-        return "doctores";
+        return "admin/doctores";
     }
 
     @PostMapping("/guardar")
@@ -159,7 +159,7 @@ public class DoctorController {
         model.addAttribute("doctor", doctor);
         model.addAttribute("horarios", doctorService.horariosDelDoctor(id));
         model.addAttribute("horario", new HorarioAtencion());
-        return "horarios";
+        return "doctores/horarios";
     }
 
     @PreAuthorize("hasRole('DOCTOR')")

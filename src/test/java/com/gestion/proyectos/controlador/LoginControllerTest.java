@@ -103,14 +103,14 @@ class LoginControllerTest {
     void loginPage_retornaVistaLogin() throws Exception {
         mockMvc.perform(get("/login"))
                 .andExpect(status().isOk())
-                .andExpect(view().name("login"));
+            .andExpect(view().name("auth/login"));
     }
 
     @Test
     void registerPage_retornaVistaRegister() throws Exception {
         mockMvc.perform(get("/register"))
                 .andExpect(status().isOk())
-                .andExpect(view().name("register"))
+            .andExpect(view().name("auth/register"))
                 .andExpect(model().attributeExists("user"));
     }
 
@@ -130,7 +130,7 @@ class LoginControllerTest {
                         .param("aceptaPrivacidad", "on")
                         .with(csrf()))
                 .andExpect(status().isOk())
-                .andExpect(view().name("register"))
+                .andExpect(view().name("auth/register"))
                 .andExpect(model().attributeExists("error"));
     }
 
@@ -151,7 +151,7 @@ class LoginControllerTest {
                         .param("aceptaPrivacidad", "on")
                         .with(csrf()))
                 .andExpect(status().isOk())
-                .andExpect(view().name("register"))
+                .andExpect(view().name("auth/register"))
                 .andExpect(model().attributeExists("error"));
     }
 
@@ -168,7 +168,7 @@ class LoginControllerTest {
                         .param("aceptaPrivacidad", "on")
                         .with(csrf()))
                 .andExpect(status().isOk())
-                .andExpect(view().name("register"))
+                .andExpect(view().name("auth/register"))
                 .andExpect(model().attributeExists("error"));
     }
 
@@ -185,7 +185,7 @@ class LoginControllerTest {
                         .param("aceptaPrivacidad", "on")
                         .with(csrf()))
                 .andExpect(status().isOk())
-                .andExpect(view().name("register"))
+                .andExpect(view().name("auth/register"))
                 .andExpect(model().attributeExists("error"));
     }
 
@@ -203,7 +203,7 @@ class LoginControllerTest {
                         .param("role", "ADMIN")
                         .with(csrf()))
                 .andExpect(status().isOk())
-                .andExpect(view().name("register"))
+                .andExpect(view().name("auth/register"))
                 .andExpect(model().attributeExists("error"));
     }
 
@@ -223,7 +223,7 @@ class LoginControllerTest {
                         .param("fechaNacimiento", "1980-01-01")
                         .with(csrf()))
                 .andExpect(status().isOk())
-                .andExpect(view().name("register"))
+                .andExpect(view().name("auth/register"))
                 .andExpect(model().attributeExists("error"));
     }
 
@@ -245,7 +245,7 @@ class LoginControllerTest {
                         .param("fechaNacimiento", "no-es-fecha")
                         .with(csrf()))
                 .andExpect(status().isOk())
-                .andExpect(view().name("register"))
+                .andExpect(view().name("auth/register"))
                 .andExpect(model().attributeExists("error"));
     }
 

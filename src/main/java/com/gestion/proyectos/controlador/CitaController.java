@@ -63,7 +63,7 @@ public class CitaController {
         model.addAttribute("queryCitas", query.build().encode().getQuery());
         model.addAttribute("doctoresMap", nombres);
         model.addAttribute("pacientesMap", nombres);
-        return "citas";
+        return "citas/listado";
     }
 
     @GetMapping("/crear")
@@ -71,7 +71,7 @@ public class CitaController {
         model.addAttribute("cita", new Cita());
         model.addAttribute("doctores", citaService.listarDoctoresActivos());
         model.addAttribute("pacientes", citaService.listarPacientes());
-        return "cita_form";
+        return "citas/formulario";
     }
 
     @GetMapping("/nueva")
@@ -86,7 +86,7 @@ public class CitaController {
         model.addAttribute("submitLabel", "Confirmar cita");
         model.addAttribute("backLink", "/pacientes/landing");
         model.addAttribute("slotsDisponibles", citaService.slotsDisponibles(doctorId, null, null, null));
-        return "cita_form_paciente";
+        return "citas/formulario-paciente";
     }
 
     @GetMapping("/{id}/reprogramar")
@@ -111,7 +111,7 @@ public class CitaController {
         model.addAttribute("backLink", "/pacientes/landing");
         model.addAttribute("slotsDisponibles",
                 citaService.slotsDisponibles(doctor.getId(), cita.getId(), cita.getFecha(), cita.getHora()));
-        return "cita_form_paciente";
+        return "citas/formulario-paciente";
     }
 
     @PostMapping("/{id}/reprogramar")

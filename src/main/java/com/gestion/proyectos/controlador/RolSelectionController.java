@@ -43,7 +43,7 @@ public class RolSelectionController {
         model.addAttribute("email", email);
         model.addAttribute("nombre", session.getAttribute("oauth2Nombre"));
         model.addAttribute("apellido", session.getAttribute("oauth2Apellido"));
-        return "elegir_rol";
+        return "auth/elegir-rol";
     }
 
     @PostMapping
@@ -68,7 +68,7 @@ public class RolSelectionController {
             model.addAttribute("email", email);
             model.addAttribute("nombre", nombre);
             model.addAttribute("apellido", apellido);
-            return "elegir_rol";
+            return "auth/elegir-rol";
         }
 
         String picture = (String) session.getAttribute("oauth2Picture");
@@ -92,7 +92,7 @@ public class RolSelectionController {
             model.addAttribute("email", email);
             model.addAttribute("nombre", nombre);
             model.addAttribute("apellido", apellido);
-            return "elegir_rol";
+            return "auth/elegir-rol";
         }
 
         String duplicado = registroService.verificarDuplicado(dto);
@@ -101,7 +101,7 @@ public class RolSelectionController {
             model.addAttribute("email", email);
             model.addAttribute("nombre", nombre);
             model.addAttribute("apellido", apellido);
-            return "elegir_rol";
+            return "auth/elegir-rol";
         }
 
         String resultado = registroService.registrar(dto);
@@ -110,7 +110,7 @@ public class RolSelectionController {
             model.addAttribute("email", email);
             model.addAttribute("nombre", nombre);
             model.addAttribute("apellido", apellido);
-            return "elegir_rol";
+            return "auth/elegir-rol";
         }
 
         session.removeAttribute("oauth2Email");

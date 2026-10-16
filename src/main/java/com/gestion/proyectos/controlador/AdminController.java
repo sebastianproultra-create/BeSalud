@@ -45,7 +45,7 @@ public class AdminController {
         // Cada tabla pagina por su cuenta: el enlace de una conserva la página de la otra y los filtros
         model.addAttribute("queryDoctores", query(size, search, especialidad, "pagePacientes", pagePacientes));
         model.addAttribute("queryPacientes", query(size, search, especialidad, "pageDoctores", pageDoctores));
-        return "admin_dashboard";
+        return "admin/dashboard";
     }
 
     private static String query(int size, String search, String especialidad, String otraPagina, int valorOtra) {
@@ -62,7 +62,7 @@ public class AdminController {
     @GetMapping("/estadisticas")
     public String estadisticas(Model model) {
         model.addAttribute("est", estadisticasService.calcular());
-        return "estadisticas";
+        return "admin/estadisticas";
     }
 
     @PostMapping("/doctores/{id}/activar")
