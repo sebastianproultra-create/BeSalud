@@ -1187,18 +1187,61 @@ table td form {
 .obligatorio {
     color: var(--danger-color);
 }
+/* El formulario va dentro del modal: sin la caja que global.css da a todo <form> */
+#dictamenForm {
+    background: none;
+    border: none;
+    box-shadow: none;
+    padding: 0;
+    margin: 0;
+}
+#dictamenForm label {
+    margin-top: 0;
+}
 .dictamen-seccion {
     border: none;
     border-top: 1px solid var(--border-color);
-    margin: 0 0 6px 0;
-    padding: 14px 0 0 0;
+    margin: 0 0 10px 0;
+    padding: 18px 0 4px 0;
     min-width: 0;
 }
 .dictamen-seccion legend {
+    display: flex;
+    align-items: center;
+    gap: 10px;
     font-family: 'Cormorant Garamond', serif;
-    font-size: 18px;
+    font-size: 22px;
+    font-weight: 500;
     color: var(--primary-color);
-    padding-right: 8px;
+    padding-right: 10px;
+}
+.dictamen-seccion legend small {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 12px;
+    font-weight: 400;
+    color: var(--text-light);
+    letter-spacing: 0.02em;
+}
+.soap-letra {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: var(--primary-color);
+    color: var(--accent-light);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+}
+.dictamen-ayuda-campo {
+    font-size: 12px;
+    color: var(--text-light);
+    margin: -4px 0 12px 0;
+}
+.btn-agregar-fila {
+    margin-bottom: 8px;
 }
 .dictamen-subtitulo {
     font-size: 11px;
@@ -1223,7 +1266,18 @@ table td form {
 .dictamen-grid-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
 .dictamen-grid-dx { grid-template-columns: 130px minmax(0, 1fr) 220px; }
 .dictamen-grid-dx-fila { grid-template-columns: 130px minmax(0, 1fr) 220px 32px; }
-.dictamen-grid-med { grid-template-columns: minmax(0, 2fr) 130px minmax(0, 1.6fr) minmax(0, 1fr) 90px 32px; }
+.dictamen-grid-med {
+    grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr) 120px 32px;
+    grid-template-areas:
+        "nombre nombre via quitar"
+        "dosis duracion cantidad .";
+}
+.med-nombre { grid-area: nombre; }
+.med-via { grid-area: via; }
+.med-quitar { grid-area: quitar; }
+.med-dosis { grid-area: dosis; }
+.med-duracion { grid-area: duracion; }
+.med-cantidad { grid-area: cantidad; }
 .dictamen-grid-incap { grid-template-columns: 110px minmax(0, 1fr); }
 .modal-content input[type="text"],
 .modal-content input[type="number"],
@@ -1248,6 +1302,14 @@ table td form {
 .modal-content select:user-invalid,
 .modal-content textarea:user-invalid {
     border-bottom-color: var(--danger-color);
+}
+.modal-dictamen textarea {
+    box-sizing: border-box;
+    resize: none;
+    overflow-y: hidden;
+    min-height: 46px;
+    line-height: 1.5;
+    margin-bottom: 0;
 }
 .campo-calculado {
     display: block;
@@ -1290,6 +1352,54 @@ table td form {
 #dictamenModal [hidden] {
     display: none;
 }
+/* Sugerencias CIE-10 */
+.cie10-campo {
+    position: relative;
+}
+.cie10-sugerencias {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    z-index: 20;
+    width: max(100%, 420px);
+    max-width: min(560px, 80vw);
+    max-height: 260px;
+    overflow-y: auto;
+    margin: 2px 0 0 0;
+    padding: 4px 0;
+    list-style: none;
+    background: var(--white);
+    border: 1px solid var(--border-mid);
+    border-radius: 4px;
+    box-shadow: var(--shadow-md);
+}
+.cie10-sugerencias li {
+    display: flex;
+    gap: 10px;
+    padding: 8px 12px;
+    font-size: 13px;
+    line-height: 1.35;
+    cursor: pointer;
+}
+.cie10-sugerencias li[aria-selected="true"],
+.cie10-sugerencias li:hover {
+    background: var(--light-bg);
+}
+.cie10-sugerencias .cie10-codigo {
+    flex: 0 0 44px;
+    font-weight: 600;
+    color: var(--primary-color);
+    font-variant-numeric: tabular-nums;
+}
+.cie10-sugerencias .cie10-vacio {
+    color: var(--text-light);
+    cursor: default;
+}
+.cie10-sugerencias mark {
+    background: var(--accent-light);
+    color: inherit;
+    padding: 0;
+}
 .alerta-alergia {
     margin: 0 0 12px 0;
     padding: 10px 14px;
@@ -1319,6 +1429,22 @@ table td form {
     font-weight: 500;
     color: var(--primary-color);
     margin: 12px 0 4px 0;
+}
+.dictamen-detail h4 {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+.dictamen-detail h4 small {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 12px;
+    color: var(--text-light);
+}
+.dictamen-detail .soap-letra {
+    width: 24px;
+    height: 24px;
+    font-size: 12px;
 }
 .dictamen-valor {
     white-space: pre-line;
@@ -1376,8 +1502,15 @@ table td form {
     .dictamen-grid-2,
     .dictamen-grid-dx,
     .dictamen-grid-dx-fila,
-    .dictamen-grid-med,
     .dictamen-grid-incap { grid-template-columns: minmax(0, 1fr); }
+    .dictamen-grid-med {
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) 32px;
+        grid-template-areas:
+            "nombre nombre quitar"
+            "via cantidad ."
+            "dosis dosis ."
+            "duracion duracion .";
+    }
     .dictamen-grid-4,
     .signos-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     .btn-quitar-fila { justify-self: end; margin-bottom: 10px; }

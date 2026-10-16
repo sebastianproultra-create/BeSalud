@@ -196,4 +196,20 @@ class DictamenValidadorTest {
         assertThat(n.getFechaEmision()).isNull();
         assertThat(n.getDiagnostico()).isNull();
     }
+
+    @Test
+    void catalogoCie10_codigosValidosYSinRepetir() throws Exception {
+        try (var in = getClass().getResourceAsStream("/static/data/cie10.json")) {
+            String[][] filas = new com.fasterxml.jackson.databind.ObjectMapper().readValue(in, String[][].class);
+            assertThat(filas.length).isGreaterThan(300);
+            java.util.Set<String> codigos = new java.util.HashSet<>();
+            for (String[] f : filas) {
+                Dictamen d = minimo();
+                d.getDiagnosticoPrincipal().setCodigo(f[0]);
+                d.getDiagnosticoPrincipal().setDescripcion(f[1]);
+                assertThat(validar(d)).as(f[0]).isNull();
+                assertThat(codigos.add(f[0])).as("repetido " + f[0]).isTrue();
+            }
+        }
+    }
 }

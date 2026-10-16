@@ -178,7 +178,7 @@ class VistasRenderTest {
 
         mockMvc.perform(get("/doctores").with(user("doc@test.com").roles("DOCTOR")))
                 .andExpect(status().isOk())
-                .andExpect(content().string(containsString("S — Subjetivo")))
+                .andExpect(content().string(containsString("Anamnesis")))
                 .andExpect(content().string(containsString("value=\"LECTURA_EXAMENES\"")))
                 .andExpect(content().string(containsString("value=\"ACCIDENTE_TRANSITO\"")))
                 .andExpect(content().string(containsString("value=\"CONFIRMADO_REPETIDO\"")))
