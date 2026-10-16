@@ -52,6 +52,9 @@ public class NotificacionService {
                         "Estos son los nuevos datos de tu cita.", "Ver mis citas");
                 case CANCELADA -> enviar(cita, "Tu cita fue cancelada", "Tu cita fue cancelada",
                         "Si todavía necesitas la consulta, puedes agendar un nuevo turno cuando quieras.", "Agendar otra cita");
+                // Sin datos clínicos en el correo: la historia clínica es reservada y solo se consulta dentro de la app.
+                case DICTAMEN -> enviar(cita, "Tu dictamen médico está disponible", "Tu dictamen médico está disponible",
+                        "Tu médico registró el resultado de la consulta. Ingresa a BeSalud para verlo.", "Ver mi dictamen");
             }
         });
     }

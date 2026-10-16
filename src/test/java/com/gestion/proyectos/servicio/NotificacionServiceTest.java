@@ -1,6 +1,7 @@
 package com.gestion.proyectos.servicio;
 
 import com.gestion.proyectos.modelo.Cita;
+import com.gestion.proyectos.modelo.Dictamen;
 import com.gestion.proyectos.modelo.CitaEvento;
 import com.gestion.proyectos.modelo.Doctor;
 import com.gestion.proyectos.modelo.EstadoCita;
@@ -81,6 +82,22 @@ class NotificacionServiceTest {
                 .contains("Dr(a). Laura Gómez")
                 .contains("Cardiología")
                 .contains("https://besalud.test/pacientes/landing");
+    }
+
+    @Test
+    void dictamen_avisaSinIncluirDatosClinicos() {
+        Cita c = cita(LocalDate.of(2026, 10, 13));
+        Dictamen d = new Dictamen();
+        d.setMotivoConsulta("Dolor torácico");
+        c.setDictamen(d);
+        when(citaRepo.findById("c1")).thenReturn(Optional.of(c));
+        conPersonas();
+
+        service.alCambiarCita(new CitaEvento(CitaEvento.Tipo.DICTAMEN, "c1"));
+
+        ArgumentCaptor<String> html = ArgumentCaptor.forClass(String.class);
+        verify(correo).enviar(eq("ana@gmail.com"), anyString(), eq("Tu dictamen médico está disponible · BeSalud"), html.capture());
+        assertThat(html.getValue()).doesNotContain("Dolor torácico");
     }
 
     @Test

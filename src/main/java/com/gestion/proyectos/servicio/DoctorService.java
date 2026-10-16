@@ -394,6 +394,7 @@ public class DoctorService {
         cita.setEstado(EstadoCita.COMPLETADA);
         citaRepo.save(cita);
         log.info("Dictamen guardado para cita {} por doctor {}", citaId, doctor.getId());
+        eventos.publishEvent(new CitaEvento(CitaEvento.Tipo.DICTAMEN, citaId));
         return null;
     }
 }
