@@ -3,45 +3,68 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Asistente de síntomas - BeSalud</title>
+    <title>BeSalud · Asistente de Síntomas</title>
     <link rel="stylesheet" th:href="@{/css/base/global.css}">
     <link rel="stylesheet" th:href="@{/css/triage/triage.css}">
     <link rel="stylesheet" th:href="@{/vendor/fontawesome/css/all.min.css}"/>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400&amp;family=Plus+Jakarta+Sans:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet">
 </head>
-<body>
+<body class="triage-page">
 <header th:replace="~{fragments/layout :: shell-paciente('triage')}"></header>
 
-<main class="container container-narrow">
-    <section class="page-header">
+<main class="triage-main">
+    <section class="page-header triage-hero">
         <div>
-            <p class="page-eyebrow">Orientación</p>
+            <p class="page-eyebrow"><span aria-hidden="true">✦</span> Orientación médica inteligente</p>
             <h1 class="page-title">¿Qué estás sintiendo?</h1>
-            <p class="page-subtitle">Cuéntalo con tus palabras y te sugerimos qué especialista consultar y cuándo hay turno.</p>
+            <p class="page-subtitle">Cuéntalo con tus palabras y te sugeriremos qué especialista consultar y cuándo hay turno.</p>
         </div>
     </section>
 
-    <div class="card">
+    <section class="card triage-analysis-card" aria-label="Análisis de síntomas">
         <form th:action="@{/triage}" method="post" class="triage-form" id="triageForm">
-            <label for="sintomas">Describe tus síntomas</label>
-            <textarea id="sintomas" name="sintomas" rows="4" maxlength="1000" required
+            <div class="triage-field-heading">
+                <label for="sintomas">Describe tus síntomas</label>
+                <button class="triage-clear" id="limpiarSintomas" type="button" hidden>Limpiar texto</button>
+            </div>
+            <textarea id="sintomas" name="sintomas" rows="6" maxlength="1000" required
+                      aria-describedby="contador textoAyuda"
                       placeholder="Ej: desde hace tres días me duele la garganta, tengo fiebre y me cuesta tragar"
                       th:text="${sintomas}"></textarea>
+            <div class="triage-examples">
+                <p>Ejemplos frecuentes</p>
+                <div class="triage-chips">
+                    <button type="button" class="triage-chip" onclick="setSintomas('Desde hace tres días me duele la garganta, tengo fiebre y me cuesta tragar')">Garganta y fiebre</button>
+                    <button type="button" class="triage-chip" onclick="setSintomas('Tengo dolor lumbar que baja hacia la pierna derecha al estar sentado')">Dolor lumbar</button>
+                    <button type="button" class="triage-chip" onclick="setSintomas('Tengo dolor de cabeza pulsátil y sensibilidad a la luz')">Dolor de cabeza</button>
+                    <button type="button" class="triage-chip" onclick="setSintomas('Me salieron manchas con picazón en los brazos y el cuello')">Irritación en la piel</button>
+                </div>
+            </div>
             <div class="triage-actions">
-                <span class="triage-contador"><span id="contador">0</span>/1000</span>
-                <button type="submit" class="btn btn-primary" id="btnEvaluar">
-                    <i class="fa-solid fa-wand-magic-sparkles"></i> Orientarme
+                <div class="triage-counter-group">
+                    <span class="triage-contador"><span id="contador">0</span>/1000 caracteres</span>
+                    <span class="triage-progress" aria-hidden="true"><span id="progresoSintomas"></span></span>
+                </div>
+                <button type="submit" class="btn btn-primary triage-submit" id="btnEvaluar">
+                    <i class="fa-solid fa-wand-magic-sparkles" aria-hidden="true"></i> <span id="textoBoton">Orientarme</span>
                 </button>
             </div>
         </form>
         <div th:if="${error}" class="alert alert-error" th:text="${error}"></div>
-        <p class="triage-aviso">
-            <i class="fa-solid fa-circle-info"></i>
+        <div class="triage-loading" id="triageLoading" role="status" aria-live="polite" hidden>
+            <span class="triage-spinner"><i class="fa-solid fa-spinner fa-spin" aria-hidden="true"></i></span>
+            <div><strong>Analizando tus síntomas</strong><p>Estamos preparando una orientación y revisando especialistas disponibles.</p></div>
+        </div>
+        <p class="triage-aviso" id="textoAyuda">
+            <i class="fa-solid fa-circle-info" aria-hidden="true"></i>
             Esta orientación es automática y <strong>no reemplaza una consulta médica</strong>.
             Si es una emergencia, llama al <strong>123</strong> o acude a urgencias.
             Al pulsar Orientarme, el texto se envía a Google Gemini para analizarlo
             (<a th:href="@{/privacidad}">más información</a>); no incluyas nombres ni datos de identificación.
         </p>
-    </div>
+    </section>
 
     <th:block th:if="${resultado}">
         <div th:if="${resultado.emergencia}" class="triage-emergencia">
@@ -75,7 +98,10 @@
             </p>
         </div>
 
-        <h2 class="triage-subtitulo">Especialistas disponibles</h2>
+        <div class="triage-doctores-heading">
+            <div><p class="page-eyebrow">Siguientes pasos</p><h2 class="triage-subtitulo">Especialistas disponibles</h2></div>
+            <span>En la red BeSalud</span>
+        </div>
         <p th:if="${#lists.isEmpty(doctores)}" class="empty-note">
             Por ahora no hay especialistas activos en <span th:text="${resultado.especialidad}"></span>.
             Puedes buscar otro médico en el <a th:href="@{/pacientes/landing}">catálogo</a>.
@@ -97,7 +123,7 @@
                     </p>
                     <p th:if="${s.fecha == null}" class="triage-turno">Sin turnos libres en los próximos 30 días.</p>
                 </div>
-                <form th:if="${s.fecha != null}" th:action="@{/triage/agendar}" method="post" class="form-inline">
+                <form th:if="${s.fecha != null}" th:action="@{/triage/agendar}" method="post" class="form-inline triage-book-form">
                     <input type="hidden" name="doctorId" th:value="${s.doctor.id}"/>
                     <input type="hidden" name="motivo" th:value="${resultado.resumen}"/>
                     <button type="submit" class="btn btn-primary">Agendar cita</button>
@@ -105,6 +131,18 @@
             </div>
         </div>
     </th:block>
+
+    <section class="triage-guidance" aria-label="Cómo funciona la orientación">
+        <article><span>01</span><div><h3>Lenguaje natural</h3><p>Describe lo que sientes sin necesitar términos médicos.</p></div></article>
+        <article><span>02</span><div><h3>Orientación inicial</h3><p>Recibe una sugerencia de especialidad y prioridad para continuar tu atención.</p></div></article>
+        <article><span>03</span><div><h3>Agenda en BeSalud</h3><p>Consulta turnos disponibles y continúa con el especialista sugerido.</p></div></article>
+    </section>
+
+    <aside class="triage-emergency-banner">
+        <span class="triage-emergency-icon"><i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i></span>
+        <p><strong>¿Dificultad severa para respirar, dolor en el pecho o pérdida del conocimiento?</strong> No esperes un turno digital; acude a urgencias.</p>
+        <a href="tel:123">Llamar al 123</a>
+    </aside>
 </main>
 
 <footer th:replace="~{fragments/layout :: app-footer}"></footer>
@@ -112,13 +150,33 @@
 <script>
     const area = document.getElementById('sintomas');
     const contador = document.getElementById('contador');
-    const actualizar = () => contador.textContent = area.value.length;
+    const progreso = document.getElementById('progresoSintomas');
+    const limpiar = document.getElementById('limpiarSintomas');
+    const actualizar = () => {
+        contador.textContent = area.value.length;
+        progreso.style.width = `${Math.min(area.value.length / 1000 * 100, 100)}%`;
+        limpiar.hidden = area.value.length === 0;
+    };
+
+    function setSintomas(texto) {
+        area.value = texto;
+        actualizar();
+        area.focus();
+    }
+
+    limpiar.addEventListener('click', () => {
+        area.value = '';
+        actualizar();
+        area.focus();
+    });
+
     area.addEventListener('input', actualizar);
     actualizar();
     document.getElementById('triageForm').addEventListener('submit', () => {
         const btn = document.getElementById('btnEvaluar');
         btn.disabled = true;
-        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Analizando…';
+        document.getElementById('textoBoton').textContent = 'Analizando…';
+        document.getElementById('triageLoading').hidden = false;
     });
 </script>
 </body>

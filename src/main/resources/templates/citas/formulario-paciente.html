@@ -8,12 +8,16 @@
     <link rel="stylesheet" th:href="@{/css/citas/formulario-paciente.css}">
     <link rel="stylesheet" th:href="@{/vendor/fontawesome/css/all.min.css}"/>
 </head>
-<body>
+<body class="patient-catalog-page patient-booking-page">
 <header th:replace="~{fragments/layout :: shell-paciente('catalogo')}"></header>
 
 <main class="booking-container">
-    <h1 class="page-title" th:text="${pageTitle != null ? pageTitle : 'Agendar cita'}">Agendar cita</h1>
-    <p><a th:href="@{${backLink != null ? backLink : '/pacientes/landing'}}">← Volver al catálogo</a></p>
+    <div class="booking-page-heading">
+        <a class="booking-back-link" th:href="@{${backLink != null ? backLink : '/pacientes/landing'}}"><i class="fa-solid fa-arrow-left" aria-hidden="true"></i>Volver a médicos</a>
+        <span class="booking-eyebrow">Portal de citas BeSalud</span>
+        <h1 class="page-title" th:text="${pageTitle != null ? pageTitle : 'Agendar cita'}">Agendar cita</h1>
+        <p>Elige una fecha y un horario disponible para tu consulta.</p>
+    </div>
 
 
     <!-- Doctor Card -->

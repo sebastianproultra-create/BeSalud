@@ -55,19 +55,23 @@ public class PacienteController {
     public String landing(@RequestParam(value = "especialidad", required = false) String especialidad,
                           @RequestParam(value = "search", required = false) String search,
                           @RequestParam(value = "page", defaultValue = "0") int page,
-                          @RequestParam(value = "size", defaultValue = "6") int size,
+                         @RequestParam(value = "size", defaultValue = "5") int size,
                           Model model) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         String currentEmail = auth != null ? auth.getName() : null;
+        int pageSize = Math.max(1, Math.min(size, 10));
 
-        model.addAttribute("doctores", pacienteService.listarDoctoresPaginated(page, size, especialidad, search));
+        model.addAttribute("doctores", pacienteService.listarDoctoresPaginated(page, pageSize, especialidad, search));
         model.addAttribute("especialidades", pacienteService.especialidadesDisponibles());
         model.addAttribute("especialidad", especialidad);
         model.addAttribute("search", search);
-        model.addAttribute("size", size);
+        model.addAttribute("size", pageSize);
 
         if (auth != null && auth.isAuthenticated()) {
             pacienteService.buscarPorEmail(currentEmail).ifPresent(paciente -> {
+                String nombre = (paciente.getNombre() == null ? "" : paciente.getNombre())
+                        + " " + (paciente.getApellido() == null ? "" : paciente.getApellido());
+                model.addAttribute("pacienteNombre", nombre.isBlank() ? "Paciente" : nombre.trim());
                 model.addAttribute("misCitas", pacienteService.citasDelPaciente(paciente.getId()));
                 model.addAttribute("doctoresMap", pacienteService.mapDoctores());
             });

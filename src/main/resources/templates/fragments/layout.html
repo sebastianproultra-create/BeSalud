@@ -66,13 +66,13 @@
     <div class="app-header-inner">
         <a th:href="@{/pacientes/landing}" class="app-brand" aria-label="BeSalud, inicio"><span class="material-symbols-outlined app-brand-icon" aria-hidden="true">local_hospital</span><span class="app-brand-text">BeSalud</span></a>
         <nav class="app-nav" aria-label="Navegación principal">
-            <a th:href="@{/pacientes/landing}" th:classappend="${active == 'catalogo'} ? 'is-active'">Doctores</a>
-            <a th:href="@{/triage}" th:classappend="${active == 'triage'} ? 'is-active'">Asistente de síntomas</a>
+            <a th:href="@{/pacientes/landing}" th:classappend="${active == 'catalogo'} ? 'is-active'" aria-label="Doctores" title="Doctores"><i class="fa-solid fa-user-doctor" aria-hidden="true"></i><span class="patient-nav-label">Doctores</span></a>
+            <a th:href="@{/triage}" th:classappend="${active == 'triage'} ? 'is-active'" aria-label="Asistente de síntomas" title="Asistente de síntomas"><i class="fa-solid fa-stethoscope" aria-hidden="true"></i><span class="patient-nav-label">Asistente de síntomas</span></a>
         </nav>
         <div class="app-user">
             <span class="app-user-name" sec:authentication="name">Paciente</span>
             <form th:action="@{/logout}" method="post" class="form-inline">
-                <button type="submit" class="app-logout">Cerrar sesión</button>
+                <button type="submit" class="app-logout"><span>Cerrar sesión</span><i class="fa-solid fa-arrow-right-from-bracket" aria-hidden="true"></i></button>
             </form>
         </div>
     </div>
@@ -136,8 +136,8 @@
     <p>&copy; 2026 BeSalud - Sistema de citas médicas. Todos los derechos reservados. · <a th:href="@{/privacidad}">Política de privacidad</a></p>
 </footer>
 
-<footer th:fragment="auth-footer" class="auth-footer">
+<div th:fragment="auth-footer" class="auth-footer" role="contentinfo">
     <p>&copy; 2026 BeSalud · Sistema de Gestión de Citas Médicas · Privacidad y Seguridad · <a th:href="@{/privacidad}">Política de privacidad</a></p>
-</footer>
+</div>
 
 </html>
