@@ -201,7 +201,7 @@ class DictamenValidadorTest {
     void catalogoCie10_codigosValidosYSinRepetir() throws Exception {
         try (var in = getClass().getResourceAsStream("/static/data/cie10.json")) {
             String[][] filas = new com.fasterxml.jackson.databind.ObjectMapper().readValue(in, String[][].class);
-            assertThat(filas.length).isGreaterThan(300);
+            assertThat(filas.length).isGreaterThan(12000);
             java.util.Set<String> codigos = new java.util.HashSet<>();
             for (String[] f : filas) {
                 Dictamen d = minimo();
