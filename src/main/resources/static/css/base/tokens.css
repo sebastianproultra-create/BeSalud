@@ -1,0 +1,56 @@
+/* ==============================================
+   TOKENS - BeSalud
+   Única fuente de colores, tipografía, sombras y radios.
+   Todas las hojas usan estas variables; no definir hex sueltos.
+   ============================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400;1,6..72,500&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@100..700&display=swap');
+
+:root {
+    /* ── Tipografía ── */
+    --font-display:     'Newsreader', Georgia, serif;
+    --font-body:        'Plus Jakarta Sans', 'Segoe UI', sans-serif;
+
+    /* ── Verdes ── */
+    --primary-color:    #002F24;   /* Verde bosque */
+    --primary-dark:     #002118;   /* Hover / pie */
+    --secondary-color:  #0D4738;   /* Verde contenedor */
+    --primary-mid:      #176044;   /* Éxito / enlaces */
+    --primary-soft:     #C6EFE0;   /* Insignias */
+    --success-bg:       #E6F3ED;
+
+    /* ── Ámbar ── */
+    --accent-color:     #C98A2E;
+    --accent-dark:      #855403;   /* Texto ámbar sobre claro */
+    --accent-light:     #FFBD6A;   /* Ámbar sobre fondos oscuros */
+    --accent-bg:        #FFF4DF;
+
+    /* ── Rojo ── */
+    --danger-color:     #B94040;
+    --danger-dark:      #7A2020;
+    --danger-bg:        #FDF1F1;
+
+    /* ── Fondos ── */
+    --light-bg:         #F0FCF5;   /* Menta */
+    --off-white:        #EAF7F0;
+    --surface-alt:      #F7FAF8;
+    --white:            #FFFFFF;
+
+    /* ── Texto ── */
+    --text-dark:        #131E1A;
+    --text-light:       #404945;
+    --text-muted:       #707975;
+
+    /* ── Bordes ── */
+    --border-color:     #D9E5DF;
+    --border-mid:       #BFCFC7;
+
+    /* ── Sombras ── */
+    --shadow-sm:        0 1px 8px rgba(0, 47, 36, 0.05);
+    --shadow-md:        0 8px 24px -12px rgba(0, 47, 36, 0.22);
+
+    /* ── Radios ── */
+    --radius:           12px;
+    --radius-sm:        8px;
+}

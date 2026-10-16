@@ -12,7 +12,7 @@
     padding: 18px 20px;
     background: var(--white);
     border: 1px solid var(--border-color);
-    border-radius: 10px;
+    border-radius: 12px;
     box-shadow: var(--shadow-sm);
 }
 
@@ -24,7 +24,7 @@
 }
 
 .kpi-valor {
-    font-family: 'Newsreader', Georgia, serif;
+    font-family: var(--font-display);
     font-size: 2.4rem;
     line-height: 1.1;
     color: var(--primary-color);
@@ -120,7 +120,7 @@
 
 .ocupacion th {
     font-size: 11px;
-    letter-spacing: 0.1em;
+    letter-spacing: 0.08em;
     text-transform: uppercase;
     color: var(--text-light);
     font-weight: 500;

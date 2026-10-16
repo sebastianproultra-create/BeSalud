@@ -16,9 +16,9 @@
     align-items: center;
     gap: 20px;
     background: var(--white);
-    border-radius: 14px;
+    border-radius: 12px;
     padding: 24px 28px;
-    box-shadow: 0 2px 16px rgba(0,0,0,0.08);
+    box-shadow: 0 2px 16px rgba(19, 30, 26, 0.08);
     margin-bottom: 32px;
 }
 .doc-avatar {
@@ -51,7 +51,7 @@
     display: inline-block;
     background: rgba(13, 71, 56, 0.08);
     color: var(--secondary-color);
-    border-radius: 20px;
+    border-radius: 16px;
     padding: 3px 14px;
     font-size: 13px;
     font-weight: 600;
@@ -68,9 +68,9 @@
 .no-availability {
     text-align: center;
     background: var(--white);
-    border-radius: 14px;
+    border-radius: 12px;
     padding: 50px 30px;
-    box-shadow: 0 2px 16px rgba(0,0,0,0.08);
+    box-shadow: 0 2px 16px rgba(19, 30, 26, 0.08);
 }
 .no-avail-icon { font-size: 48px; margin-bottom: 16px; }
 .no-availability h3 { color: var(--primary-color); font-size: 20px; margin-bottom: 8px; }
@@ -79,9 +79,9 @@
 /* Step sections */
 .step-section {
     background: var(--white);
-    border-radius: 14px;
+    border-radius: 12px;
     padding: 24px 28px;
-    box-shadow: 0 2px 16px rgba(0,0,0,0.08);
+    box-shadow: 0 2px 16px rgba(19, 30, 26, 0.08);
     margin-bottom: 20px;
     animation: fadeIn 0.3s ease;
 }
@@ -90,7 +90,7 @@
     to   { opacity: 1; transform: translateY(0); }
 }
 .step-label {
-    font-size: 17px;
+    font-size: 18px;
     font-weight: 700;
     color: var(--primary-color);
     margin-bottom: 16px;
@@ -113,8 +113,8 @@
     -webkit-overflow-scrolling: touch;
 }
 .date-strip::-webkit-scrollbar { height: 4px; }
-.date-strip::-webkit-scrollbar-track { background: var(--light-bg); border-radius: 2px; }
-.date-strip::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 2px; }
+.date-strip::-webkit-scrollbar-track { background: var(--light-bg); border-radius: 4px; }
+.date-strip::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 4px; }
 
 .date-card {
     flex-shrink: 0;
@@ -147,12 +147,12 @@
     font-size: 11px;
     font-weight: 600;
     text-transform: uppercase;
-    letter-spacing: 0.5px;
+    letter-spacing: 0.04em;
     opacity: 0.75;
 }
 .date-num {
     font-size: 24px;
-    font-weight: 800;
+    font-weight: 700;
     line-height: 1;
 }
 .date-month {
@@ -162,8 +162,8 @@
 .date-slots {
     font-size: 11px;
     margin-top: 4px;
-    background: rgba(255,255,255,0.25);
-    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.25);
+    border-radius: 12px;
     padding: 2px 8px;
 }
 .date-card:not(.selected) .date-slots {
@@ -203,7 +203,7 @@
 
 /* Confirm card */
 .confirm-card {
-    border-radius: 10px;
+    border-radius: 12px;
 }
 
 /* Neutraliza el form global dentro del confirm card */
@@ -222,7 +222,7 @@
     margin-bottom: 20px;
     padding: 16px 20px;
     background: var(--light-bg);
-    border-radius: 10px;
+    border-radius: 12px;
     border-left: 4px solid var(--secondary-color);
 }
 .summary-item {
@@ -266,7 +266,7 @@
 /* Error alerts */
 .alert-error {
     background: rgba(185, 64, 64, 0.08);
-    color: #7A2020;
+    color: var(--danger-dark);
     border-radius: 8px;
     padding: 14px 18px;
     margin: 10px 0;
@@ -283,9 +283,9 @@
 
 .patient-booking-page {
     min-height: 100vh;
-    color: #1E293B;
-    background: #F4FAF6;
-    font-family: 'Plus Jakarta Sans', sans-serif;
+    color: var(--text-dark);
+    background: var(--surface-alt);
+    font-family: var(--font-body);
     font-size: 14px;
 }
 
@@ -295,11 +295,11 @@
     top: 0;
     min-height: 72px;
     padding: 0 24px;
-    color: #fff;
-    background: #0D4738;
+    color: var(--white);
+    background: var(--secondary-color);
     border: 0;
-    border-bottom: 1px solid #06261D;
-    box-shadow: 0 3px 14px rgba(6, 38, 29, 0.14);
+    border-bottom: 1px solid var(--primary-dark);
+    box-shadow: 0 3px 14px rgba(0, 33, 24, 0.14);
 }
 
 .patient-booking-page .app-header-inner {
@@ -316,9 +316,9 @@
     display: inline-flex;
     align-items: center;
     gap: 10px;
-    color: #fff;
-    font-family: 'Newsreader', Georgia, serif;
-    font-size: 23px;
+    color: var(--white);
+    font-family: var(--font-display);
+    font-size: 24px;
     font-weight: 500;
     text-decoration: none;
 }
@@ -329,11 +329,11 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    color: #C6EFE0;
+    color: var(--primary-soft);
     background: rgba(255, 255, 255, 0.1);
     border: 1px solid rgba(255, 255, 255, 0.2);
-    border-radius: 10px;
-    font-family: 'Plus Jakarta Sans', sans-serif;
+    border-radius: 12px;
+    font-family: var(--font-body);
     font-size: 18px;
 }
 
@@ -354,7 +354,7 @@
     display: inline-flex;
     align-items: center;
     padding: 7px 13px;
-    color: rgba(226, 244, 236, 0.82);
+    color: rgba(230, 243, 237, 0.82);
     border: 1px solid transparent;
     border-radius: 999px;
     font-size: 10px;
@@ -365,12 +365,12 @@
 }
 
 .patient-booking-page .app-nav a:hover {
-    color: #fff;
+    color: var(--white);
     background: rgba(255, 255, 255, 0.1);
 }
 
 .patient-booking-page .app-nav a.is-active {
-    color: #fff;
+    color: var(--white);
     background: rgba(255, 255, 255, 0.14);
     border-color: rgba(255, 255, 255, 0.18);
 }
@@ -382,7 +382,7 @@
 }
 
 .patient-booking-page .app-user-name {
-    color: #fff;
+    color: var(--white);
     font-size: 10px;
     font-weight: 600;
 }
@@ -390,18 +390,18 @@
 .patient-booking-page .app-logout {
     min-height: 34px;
     padding: 7px 12px;
-    color: #fff;
+    color: var(--white);
     background: rgba(255, 255, 255, 0.1);
     border: 1px solid rgba(255, 255, 255, 0.17);
     border-radius: 8px;
-    font-family: 'Plus Jakarta Sans', sans-serif;
-    font-size: 9px;
+    font-family: var(--font-body);
+    font-size: 10px;
     font-weight: 700;
-    letter-spacing: 0.06em;
+    letter-spacing: 0.08em;
 }
 
 .patient-booking-page .app-logout:hover {
-    color: #fff;
+    color: var(--white);
     background: rgba(255, 255, 255, 0.18);
     transform: none;
 }
@@ -422,21 +422,21 @@
     align-items: center;
     gap: 8px;
     margin-bottom: 17px;
-    color: #557268;
+    color: var(--text-muted);
     font-size: 10px;
     font-weight: 700;
     text-decoration: none;
 }
 
 .booking-back-link:hover {
-    color: #0D4738;
+    color: var(--secondary-color);
 }
 
 .booking-eyebrow {
     display: block;
     margin-bottom: 5px;
-    color: #627D72;
-    font-size: 9px;
+    color: var(--text-muted);
+    font-size: 10px;
     font-weight: 700;
     letter-spacing: 0.12em;
     text-transform: uppercase;
@@ -445,9 +445,9 @@
 .patient-booking-page .page-title {
     margin: 0;
     padding: 0;
-    color: #0D4738;
+    color: var(--secondary-color);
     border: 0;
-    font-family: 'Newsreader', Georgia, serif;
+    font-family: var(--font-display);
     font-size: 40px;
     font-weight: 500;
     line-height: 1.15;
@@ -459,16 +459,16 @@
 
 .booking-page-heading > p {
     margin-top: 7px;
-    color: #627D72;
+    color: var(--text-muted);
     font-size: 11px;
 }
 
 .patient-booking-page .doctor-card-header,
 .patient-booking-page .step-section,
 .patient-booking-page .no-availability {
-    background: #fff;
-    border: 1px solid #E2EBE5;
-    border-radius: 14px;
+    background: var(--white);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
     box-shadow: 0 4px 24px -2px rgba(13, 71, 56, 0.06), 0 2px 8px -2px rgba(13, 71, 56, 0.04);
 }
 
@@ -482,41 +482,41 @@
 .patient-booking-page .doc-avatar-placeholder {
     width: 72px;
     height: 72px;
-    border: 2px solid #DDEFE5;
-    border-radius: 14px;
+    border: 2px solid var(--success-bg);
+    border-radius: 12px;
     box-shadow: none;
 }
 
 .patient-booking-page .doc-avatar-placeholder {
-    background: linear-gradient(140deg, #0D4738, #197052);
-    color: #fff;
-    font-family: 'Newsreader', Georgia, serif;
-    font-size: 30px;
+    background: linear-gradient(140deg, var(--secondary-color), var(--primary-mid));
+    color: var(--white);
+    font-family: var(--font-display);
+    font-size: 32px;
 }
 
 .patient-booking-page .doc-info h2 {
     margin: 0 0 5px;
-    color: #172C23;
-    font-family: 'Newsreader', Georgia, serif;
-    font-size: 21px;
+    color: var(--primary-dark);
+    font-family: var(--font-display);
+    font-size: 22px;
     font-weight: 500;
 }
 
 .patient-booking-page .specialty-tag {
     padding: 4px 10px;
     margin: 0;
-    color: #176044;
-    background: #EAF7F0;
-    border: 1px solid #D7EDE1;
+    color: var(--primary-mid);
+    background: var(--off-white);
+    border: 1px solid var(--border-color);
     border-radius: 999px;
-    font-size: 9px;
+    font-size: 10px;
     font-weight: 700;
 }
 
 .patient-booking-page .doc-bio {
     max-width: 760px;
     margin-top: 8px;
-    color: #627D72;
+    color: var(--text-muted);
     font-size: 10px;
     line-height: 1.6;
 }
@@ -530,9 +530,9 @@
 .patient-booking-page .step-label {
     padding-bottom: 11px;
     margin-bottom: 13px;
-    color: #263B32;
-    border-bottom: 1px solid #EDF2EF;
-    font-family: 'Newsreader', Georgia, serif;
+    color: var(--text-light);
+    border-bottom: 1px solid var(--surface-alt);
+    font-family: var(--font-display);
     font-size: 22px;
     font-weight: 500;
 }
@@ -546,35 +546,35 @@
     min-width: 88px;
     min-height: 108px;
     padding: 12px 14px;
-    color: #33443C;
-    background: #F7FAF8;
-    border: 1px solid #DCE7E0;
-    border-radius: 11px;
+    color: var(--text-light);
+    background: var(--surface-alt);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
 }
 
 .patient-booking-page .date-card:hover {
-    color: #0D4738;
-    background: #EBF6F1;
-    border-color: #AFCFBD;
+    color: var(--secondary-color);
+    background: var(--success-bg);
+    border-color: var(--border-mid);
     transform: translateY(-1px);
 }
 
 .patient-booking-page .date-card.selected {
-    color: #fff;
-    background: #0D4738;
-    border-color: #0D4738;
+    color: var(--white);
+    background: var(--secondary-color);
+    border-color: var(--secondary-color);
     box-shadow: 0 4px 12px rgba(13, 71, 56, 0.18);
     transform: translateY(-1px);
 }
 
 .patient-booking-page .date-dow {
     font-size: 11px;
-    letter-spacing: 0.07em;
+    letter-spacing: 0.08em;
 }
 
 .patient-booking-page .date-num {
-    font-family: 'Newsreader', Georgia, serif;
-    font-size: 30px;
+    font-family: var(--font-display);
+    font-size: 32px;
     font-weight: 500;
 }
 
@@ -584,15 +584,15 @@
 
 .patient-booking-page .date-slots {
     padding: 3px 7px;
-    color: #176044;
-    background: #EAF7F0;
+    color: var(--primary-mid);
+    background: var(--off-white);
     border-radius: 999px;
     font-size: 10px;
     font-weight: 600;
 }
 
 .patient-booking-page .date-card.selected .date-slots {
-    color: #fff;
+    color: var(--white);
     background: rgba(255, 255, 255, 0.18);
 }
 
@@ -604,54 +604,54 @@
 .patient-booking-page .slot-btn {
     min-height: 46px;
     padding: 10px 13px;
-    color: #33443C;
-    background: #F7FAF8;
-    border: 1px solid #DCE7E0;
+    color: var(--text-light);
+    background: var(--surface-alt);
+    border: 1px solid var(--border-color);
     border-radius: 8px;
-    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-family: var(--font-body);
     font-size: 14px;
     font-weight: 600;
 }
 
 .patient-booking-page .slot-btn:hover {
-    color: #0D4738;
-    background: #EBF6F1;
-    border-color: #AFCFBD;
+    color: var(--secondary-color);
+    background: var(--success-bg);
+    border-color: var(--border-mid);
 }
 
 .patient-booking-page .slot-btn.selected {
-    color: #fff;
-    background: #0D4738;
-    border-color: #0D4738;
+    color: var(--white);
+    background: var(--secondary-color);
+    border-color: var(--secondary-color);
     box-shadow: 0 3px 9px rgba(13, 71, 56, 0.15);
 }
 
 .patient-booking-page .confirm-card {
     padding: 0;
-    border-radius: 10px;
+    border-radius: 12px;
 }
 
 .patient-booking-page .confirm-summary {
     gap: 12px 20px;
     padding: 13px 15px;
     margin-bottom: 16px;
-    background: #F4FAF6;
-    border: 1px solid #E2EBE5;
-    border-left: 3px solid #0D4738;
-    border-radius: 9px;
+    background: var(--surface-alt);
+    border: 1px solid var(--border-color);
+    border-left: 3px solid var(--secondary-color);
+    border-radius: 8px;
 }
 
 .patient-booking-page .summary-item {
-    color: #263B32;
+    color: var(--text-light);
     font-size: 14px;
 }
 
 .patient-booking-page .summary-item > span {
-    color: #0D4738;
+    color: var(--secondary-color);
 }
 
 .patient-booking-page .confirm-card .form-group label {
-    color: #33443C;
+    color: var(--text-light);
     font-size: 12px;
     font-weight: 700;
 }
@@ -659,45 +659,45 @@
 .patient-booking-page .confirm-card .form-group textarea {
     min-height: 88px;
     padding: 11px 13px;
-    color: #263B32;
-    background: #F7FAF8;
-    border: 1px solid #DCE7E0;
-    border-radius: 9px;
-    font-family: 'Plus Jakarta Sans', sans-serif;
+    color: var(--text-light);
+    background: var(--surface-alt);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    font-family: var(--font-body);
     font-size: 14px;
 }
 
 .patient-booking-page .confirm-card .form-group textarea:focus {
-    border-color: #0D4738;
+    border-color: var(--secondary-color);
     box-shadow: 0 0 0 2px rgba(13, 71, 56, 0.1);
 }
 
 .patient-booking-page .btn-confirm {
     min-height: 50px;
     margin-top: 12px;
-    color: #fff;
-    background: #0D4738;
-    border: 1px solid #0D4738;
-    border-radius: 9px;
-    font-family: 'Plus Jakarta Sans', sans-serif;
+    color: var(--white);
+    background: var(--secondary-color);
+    border: 1px solid var(--secondary-color);
+    border-radius: 8px;
+    font-family: var(--font-body);
     font-size: 13px;
     font-weight: 700;
 }
 
 .patient-booking-page .btn-confirm:hover {
-    color: #fff;
-    background: #09362A;
-    border-color: #09362A;
+    color: var(--white);
+    background: var(--primary-color);
+    border-color: var(--primary-color);
 }
 
 .patient-booking-page .btn-change {
-    color: #627D72;
-    font-family: 'Plus Jakarta Sans', sans-serif;
+    color: var(--text-muted);
+    font-family: var(--font-body);
     font-size: 12px;
 }
 
 .patient-booking-page .btn-change:hover {
-    color: #0D4738;
+    color: var(--secondary-color);
 }
 
 .patient-booking-page .no-availability {
@@ -705,28 +705,28 @@
 }
 
 .patient-booking-page .no-availability h3 {
-    color: #0D4738;
-    font-family: 'Newsreader', Georgia, serif;
+    color: var(--secondary-color);
+    font-family: var(--font-display);
     font-size: 22px;
     font-weight: 500;
 }
 
 .patient-booking-page .no-availability p {
-    color: #627D72;
+    color: var(--text-muted);
     font-size: 11px;
 }
 
 .patient-booking-page .no-avail-icon {
-    color: #789488;
-    font-size: 35px;
+    color: var(--text-muted);
+    font-size: 36px;
 }
 
 .patient-booking-page .alert-error {
     padding: 12px 15px;
-    color: #7A2924;
-    background: #FFF1EF;
-    border: 1px solid #F3D8D4;
-    border-left: 3px solid #BA1A1A;
+    color: var(--danger-dark);
+    background: var(--danger-bg);
+    border: 1px solid var(--danger-bg);
+    border-left: 3px solid var(--danger-color);
     border-radius: 8px;
     font-size: 11px;
 }

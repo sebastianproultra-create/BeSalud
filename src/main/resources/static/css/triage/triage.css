@@ -37,7 +37,7 @@
     margin: 24px 0;
     padding: 20px;
     border-radius: 8px;
-    background: #FBEDED;
+    background: var(--danger-bg);
     border: 1px solid var(--danger-color);
     color: var(--danger-color);
 }
@@ -79,15 +79,15 @@
     white-space: nowrap;
 }
 
-.triage-prioridad-baja { background: #E4F1EA; color: var(--secondary-color); }
-.triage-prioridad-media { background: var(--accent-light); color: #6B5320; }
-.triage-prioridad-alta { background: #FBEDED; color: var(--danger-color); }
+.triage-prioridad-baja { background: var(--success-bg); color: var(--secondary-color); }
+.triage-prioridad-media { background: var(--accent-light); color: var(--accent-dark); }
+.triage-prioridad-alta { background: var(--danger-bg); color: var(--danger-color); }
 
 .triage-resumen {
     margin-top: 12px;
     padding: 12px;
     background: var(--light-bg);
-    border-radius: 6px;
+    border-radius: 8px;
 }
 
 .triage-resumen span {
@@ -176,11 +176,11 @@
 
 .triage-page {
     min-height: 100vh;
-    color: #1E293B;
-    background-color: #F7F9F6;
-    background-image: radial-gradient(rgba(10, 50, 39, 0.045) 1px, transparent 1px);
+    color: var(--text-dark);
+    background-color: var(--surface-alt);
+    background-image: radial-gradient(rgba(0, 47, 36, 0.045) 1px, transparent 1px);
     background-size: 24px 24px;
-    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-family: var(--font-body);
     font-size: 14px;
     letter-spacing: 0;
 }
@@ -191,11 +191,11 @@
     top: 0;
     min-height: 68px;
     padding: 0 24px;
-    color: #fff;
-    background: #092E23;
+    color: var(--white);
+    background: var(--primary-color);
     border: 0;
-    border-bottom: 1px solid #124234;
-    box-shadow: 0 3px 12px rgba(6, 35, 27, 0.15);
+    border-bottom: 1px solid var(--secondary-color);
+    box-shadow: 0 3px 12px rgba(0, 33, 24, 0.15);
 }
 
 .triage-page .app-header-inner {
@@ -212,16 +212,16 @@
     display: inline-flex;
     align-items: center;
     gap: 9px;
-    color: #fff;
-    font-family: 'Newsreader', Georgia, serif;
-    font-size: 23px;
+    color: var(--white);
+    font-family: var(--font-display);
+    font-size: 24px;
     font-weight: 500;
     text-decoration: none;
 }
 
 .triage-page .app-brand > span:first-child {
-    color: #D4AF37;
-    font-size: 19px;
+    color: var(--accent-color);
+    font-size: 20px;
 }
 
 .triage-page .app-nav {
@@ -243,13 +243,13 @@
     align-items: center;
     padding: 8px 12px;
     margin: 0;
-    color: #C7D5CE;
+    color: var(--off-white);
     background: transparent;
     border: 0;
-    border-radius: 7px;
-    font-size: 9px;
+    border-radius: 8px;
+    font-size: 10px;
     font-weight: 700;
-    letter-spacing: 0.07em;
+    letter-spacing: 0.08em;
     text-decoration: none;
     text-transform: uppercase;
 }
@@ -259,12 +259,12 @@
 }
 
 .triage-page .app-nav a:hover {
-    color: #fff;
+    color: var(--white);
     background: rgba(255, 255, 255, 0.08);
 }
 
 .triage-page .app-nav a.is-active {
-    color: #fff;
+    color: var(--white);
     background: transparent;
 }
 
@@ -274,8 +274,8 @@
     bottom: -16px;
     left: 12px;
     height: 3px;
-    background: #D4AF37;
-    border-radius: 3px 3px 0 0;
+    background: var(--accent-color);
+    border-radius: 4px 4px 0 0;
     content: '';
 }
 
@@ -286,8 +286,8 @@
 }
 
 .triage-page .app-user-name {
-    color: #E1EBE5;
-    font-family: 'Plus Jakarta Sans', sans-serif;
+    color: var(--off-white);
+    font-family: var(--font-body);
     font-size: 11px;
     font-weight: 500;
 }
@@ -295,14 +295,14 @@
 .triage-page .app-logout {
     min-height: 34px;
     padding: 7px 11px;
-    color: #D4DED9;
+    color: var(--off-white);
     background: transparent;
     border: 1px solid transparent;
-    border-radius: 7px;
-    font-family: 'Plus Jakarta Sans', sans-serif;
-    font-size: 9px;
+    border-radius: 8px;
+    font-family: var(--font-body);
+    font-size: 10px;
     font-weight: 700;
-    letter-spacing: 0.06em;
+    letter-spacing: 0.08em;
 }
 
 .triage-page .app-logout > i {
@@ -310,8 +310,8 @@
 }
 
 .triage-page .app-logout:hover {
-    color: #fff;
-    background: #134033;
+    color: var(--white);
+    background: var(--secondary-color);
     transform: none;
 }
 
@@ -331,8 +331,8 @@
 
 .triage-page .page-eyebrow {
     margin: 0 0 9px;
-    color: #176044;
-    font-size: 9px;
+    color: var(--primary-mid);
+    font-size: 10px;
     font-weight: 700;
     letter-spacing: 0.12em;
     line-height: 1.4;
@@ -345,22 +345,22 @@
     align-items: center;
     gap: 7px;
     padding: 6px 11px;
-    background: #E6F3ED;
-    border: 1px solid #CBE4D7;
+    background: var(--success-bg);
+    border: 1px solid var(--primary-soft);
     border-radius: 999px;
 }
 
 .triage-hero .page-eyebrow span {
-    color: #D4AF37;
+    color: var(--accent-color);
     font-size: 12px;
 }
 
 .triage-page .page-title {
     margin: 0;
     padding: 0;
-    color: #0A3227;
+    color: var(--primary-color);
     border: 0;
-    font-family: 'Newsreader', Georgia, serif;
+    font-family: var(--font-display);
     font-size: 48px;
     font-weight: 400;
     letter-spacing: 0;
@@ -374,7 +374,7 @@
 .triage-page .page-subtitle {
     max-width: 610px;
     margin: 10px auto 0;
-    color: #5E756C;
+    color: var(--text-muted);
     font-size: 14px;
     line-height: 1.65;
 }
@@ -382,10 +382,10 @@
 .triage-page .triage-analysis-card,
 .triage-page .triage-resultado,
 .triage-page .triage-doctor {
-    background: #fff;
-    border: 1px solid #E2ECE6;
-    border-radius: 15px;
-    box-shadow: 0 8px 30px -4px rgba(10, 50, 39, 0.06), 0 2px 10px -2px rgba(10, 50, 39, 0.04);
+    background: var(--white);
+    border: 1px solid var(--success-bg);
+    border-radius: 12px;
+    box-shadow: 0 8px 30px -4px rgba(0, 47, 36, 0.06), 0 2px 10px -2px rgba(0, 47, 36, 0.04);
 }
 
 .triage-page .triage-analysis-card {
@@ -413,7 +413,7 @@
 
 .triage-page .triage-form label {
     margin: 0;
-    color: #0A3227;
+    color: var(--primary-color);
     font-size: 11px;
     font-weight: 700;
     letter-spacing: 0.08em;
@@ -422,17 +422,17 @@
 
 .triage-clear {
     padding: 3px 0;
-    color: #71827B;
+    color: var(--text-muted);
     background: transparent;
     border: 0;
-    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-family: var(--font-body);
     font-size: 10px;
     font-weight: 600;
     cursor: pointer;
 }
 
 .triage-clear:hover {
-    color: #263B32;
+    color: var(--text-light);
     text-decoration: underline;
     transform: none;
 }
@@ -442,26 +442,26 @@
     min-height: 164px;
     padding: 15px 16px;
     margin: 0;
-    color: #253A31;
-    background: #fff;
-    border: 1px solid #D8E2DC;
-    border-radius: 11px;
-    font-family: 'Plus Jakarta Sans', sans-serif;
+    color: var(--text-light);
+    background: var(--white);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    font-family: var(--font-body);
     font-size: 14px;
     line-height: 1.7;
-    box-shadow: inset 0 1px 2px rgba(10, 50, 39, 0.025);
+    box-shadow: inset 0 1px 2px rgba(0, 47, 36, 0.025);
     transition: border-color 0.18s ease, box-shadow 0.18s ease;
 }
 
 .triage-page .triage-form textarea::placeholder {
-    color: #8A9992;
+    color: var(--text-muted);
     opacity: 1;
 }
 
 .triage-page .triage-form textarea:focus {
     outline: none;
-    border-color: #165E49;
-    box-shadow: 0 0 0 3px rgba(22, 94, 73, 0.15);
+    border-color: var(--primary-mid);
+    box-shadow: 0 0 0 3px rgba(23, 96, 68, 0.15);
 }
 
 .triage-examples {
@@ -470,10 +470,10 @@
 
 .triage-examples > p {
     margin-bottom: 8px;
-    color: #5E756C;
-    font-size: 9px;
+    color: var(--text-muted);
+    font-size: 10px;
     font-weight: 700;
-    letter-spacing: 0.09em;
+    letter-spacing: 0.08em;
     text-transform: uppercase;
 }
 
@@ -486,11 +486,11 @@
 .triage-page .triage-chip {
     min-height: 32px;
     padding: 7px 11px;
-    color: #52645C;
-    background: #F8FAF8;
-    border: 1px solid #E0E7E2;
+    color: var(--text-muted);
+    background: var(--surface-alt);
+    border: 1px solid var(--border-color);
     border-radius: 8px;
-    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-family: var(--font-body);
     font-size: 10px;
     font-weight: 500;
     letter-spacing: 0;
@@ -502,9 +502,9 @@
 
 .patient-catalog-page .triage-chip:hover,
 .triage-page .triage-chip:hover {
-    color: #0A3227;
-    background: #E6F3ED;
-    border-color: #CBE4D7;
+    color: var(--primary-color);
+    background: var(--success-bg);
+    border-color: var(--primary-soft);
     transform: none;
 }
 
@@ -516,7 +516,7 @@
     gap: 16px;
     padding-top: 15px;
     margin: 0;
-    border-top: 1px solid #EDF2EF;
+    border-top: 1px solid var(--surface-alt);
 }
 
 .triage-counter-group {
@@ -526,7 +526,7 @@
 }
 
 .triage-page .triage-contador {
-    color: #64756D;
+    color: var(--text-muted);
     font-size: 11px;
     font-variant-numeric: tabular-nums;
 }
@@ -535,7 +535,7 @@
     width: 78px;
     height: 5px;
     overflow: hidden;
-    background: #E9EFEB;
+    background: var(--success-bg);
     border-radius: 999px;
 }
 
@@ -543,7 +543,7 @@
     width: 0;
     height: 100%;
     display: block;
-    background: #165E49;
+    background: var(--primary-mid);
     border-radius: inherit;
     transition: width 0.18s ease;
 }
@@ -555,23 +555,23 @@
     justify-content: center;
     gap: 9px;
     padding: 10px 23px;
-    color: #fff;
-    background: #0D4738;
-    border: 1px solid #0D4738;
-    border-radius: 10px;
-    font-family: 'Plus Jakarta Sans', sans-serif;
+    color: var(--white);
+    background: var(--secondary-color);
+    border: 1px solid var(--secondary-color);
+    border-radius: 12px;
+    font-family: var(--font-body);
     font-size: 11px;
     font-weight: 700;
-    letter-spacing: 0.09em;
+    letter-spacing: 0.08em;
     text-transform: uppercase;
     transition: background-color 0.18s ease, box-shadow 0.18s ease;
 }
 
 .triage-page .triage-submit:hover {
-    color: #fff;
-    background: #072F25;
-    border-color: #072F25;
-    box-shadow: 0 4px 12px rgba(10, 50, 39, 0.16);
+    color: var(--white);
+    background: var(--primary-color);
+    border-color: var(--primary-color);
+    box-shadow: 0 4px 12px rgba(0, 47, 36, 0.16);
     transform: none;
 }
 
@@ -581,7 +581,7 @@
 }
 
 .triage-page .triage-submit i {
-    color: #A8E4CD;
+    color: var(--primary-soft);
 }
 
 .triage-page .triage-loading {
@@ -590,9 +590,9 @@
     gap: 13px;
     padding: 16px;
     margin-top: 16px;
-    background: #F7FAF8;
-    border: 1px solid #E2ECE6;
-    border-radius: 11px;
+    background: var(--surface-alt);
+    border: 1px solid var(--success-bg);
+    border-radius: 12px;
 }
 
 .triage-page .triage-loading[hidden] {
@@ -606,22 +606,22 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    color: #165E49;
-    background: #E6F3ED;
+    color: var(--primary-mid);
+    background: var(--success-bg);
     border-radius: 50%;
     font-size: 15px;
 }
 
 .triage-loading strong {
-    color: #0A3227;
-    font-family: 'Newsreader', Georgia, serif;
-    font-size: 17px;
+    color: var(--primary-color);
+    font-family: var(--font-display);
+    font-size: 18px;
     font-weight: 500;
 }
 
 .triage-loading p {
     margin-top: 3px;
-    color: #62756C;
+    color: var(--text-muted);
     font-size: 10px;
     line-height: 1.5;
 }
@@ -632,8 +632,8 @@
     gap: 9px;
     padding-top: 17px;
     margin-top: 17px;
-    color: #687A72;
-    border-top: 1px solid #EDF2EF;
+    color: var(--text-muted);
+    border-top: 1px solid var(--surface-alt);
     font-size: 10px;
     line-height: 1.65;
 }
@@ -641,15 +641,15 @@
 .triage-page .triage-aviso > i {
     flex: 0 0 auto;
     margin-top: 2px;
-    color: #82948C;
+    color: var(--text-muted);
 }
 
 .triage-page .triage-aviso strong {
-    color: #465A51;
+    color: var(--text-light);
 }
 
 .triage-page .triage-aviso a {
-    color: #176044;
+    color: var(--primary-mid);
     text-decoration: underline;
     text-underline-offset: 2px;
 }
@@ -657,10 +657,10 @@
 .triage-page .alert-error {
     padding: 11px 14px;
     margin: 14px 0 0;
-    color: #7A2924;
-    background: #FFF1EF;
-    border: 1px solid #F3D8D4;
-    border-left: 3px solid #BA1A1A;
+    color: var(--danger-dark);
+    background: var(--danger-bg);
+    border: 1px solid var(--danger-bg);
+    border-left: 3px solid var(--danger-color);
     border-radius: 8px;
     font-size: 11px;
 }
@@ -670,24 +670,24 @@
     align-items: flex-start;
     padding: 17px;
     margin: 18px 0;
-    color: #8F3029;
-    background: #FFF2F0;
-    border: 1px solid #F2D3CE;
+    color: var(--danger-dark);
+    background: var(--danger-bg);
+    border: 1px solid var(--danger-bg);
     border-radius: 12px;
 }
 
 .triage-page .triage-emergencia > i {
-    color: #BA4038;
+    color: var(--danger-color);
     font-size: 20px;
 }
 
 .triage-page .triage-emergencia strong {
-    font-family: 'Newsreader', Georgia, serif;
-    font-size: 19px;
+    font-family: var(--font-display);
+    font-size: 20px;
 }
 
 .triage-page .triage-emergencia p {
-    color: #6E403B;
+    color: var(--danger-dark);
     font-size: 11px;
     line-height: 1.6;
 }
@@ -695,57 +695,57 @@
 .triage-page .triage-resultado {
     padding: 22px 24px;
     margin-top: 21px;
-    background: #F2F8F5;
-    border: 1px solid #CBE4D7;
-    border-left: 4px solid #165E49;
-    border-radius: 13px;
-    box-shadow: 0 8px 30px -4px rgba(10, 50, 39, 0.06);
+    background: var(--surface-alt);
+    border: 1px solid var(--primary-soft);
+    border-left: 4px solid var(--primary-mid);
+    border-radius: 12px;
+    box-shadow: 0 8px 30px -4px rgba(0, 47, 36, 0.06);
 }
 
 .triage-page .triage-resultado-cabecera h2 {
-    color: #0A3227;
-    font-family: 'Newsreader', Georgia, serif;
-    font-size: 26px;
+    color: var(--primary-color);
+    font-family: var(--font-display);
+    font-size: 28px;
     font-weight: 500;
     line-height: 1.2;
 }
 
 .triage-page .triage-resultado > p:not(.triage-resumen):not(.triage-fuente) {
-    color: #52645C;
+    color: var(--text-muted);
     font-size: 12px;
     line-height: 1.7;
 }
 
 .triage-page .triage-prioridad {
     padding: 6px 10px;
-    font-size: 9px;
+    font-size: 10px;
     font-weight: 700;
 }
 
-.triage-page .triage-prioridad-baja { background: #E6F3ED; color: #176044; }
-.triage-page .triage-prioridad-media { background: #F8EFD8; color: #76591D; }
-.triage-page .triage-prioridad-alta { background: #FFF0EE; color: #A43D35; }
+.triage-page .triage-prioridad-baja { background: var(--success-bg); color: var(--primary-mid); }
+.triage-page .triage-prioridad-media { background: var(--accent-bg); color: var(--accent-dark); }
+.triage-page .triage-prioridad-alta { background: var(--danger-bg); color: var(--danger-color); }
 
 .triage-page .triage-resumen {
     padding: 13px 15px;
-    color: #34483E;
-    background: #fff;
-    border: 1px solid #E2ECE6;
-    border-radius: 9px;
+    color: var(--text-light);
+    background: var(--white);
+    border: 1px solid var(--success-bg);
+    border-radius: 8px;
     font-size: 11px;
     line-height: 1.65;
 }
 
 .triage-page .triage-resumen span {
-    color: #62756C;
-    font-size: 9px;
+    color: var(--text-muted);
+    font-size: 10px;
     font-weight: 700;
     text-transform: uppercase;
 }
 
 .triage-page .triage-fuente {
-    color: #71827A;
-    font-size: 9px;
+    color: var(--text-muted);
+    font-size: 10px;
 }
 
 .triage-doctores-heading {
@@ -758,15 +758,15 @@
 
 .triage-page .triage-subtitulo {
     margin: 0;
-    color: #0A3227;
-    font-family: 'Newsreader', Georgia, serif;
-    font-size: 25px;
+    color: var(--primary-color);
+    font-family: var(--font-display);
+    font-size: 24px;
     font-weight: 500;
 }
 
 .triage-doctores-heading > span {
-    color: #71827A;
-    font-size: 9px;
+    color: var(--text-muted);
+    font-size: 10px;
 }
 
 .triage-page .triage-doctores {
@@ -783,36 +783,36 @@
     padding: 16px;
     margin: 0;
     border-radius: 12px;
-    box-shadow: 0 4px 24px -2px rgba(10, 50, 39, 0.06);
+    box-shadow: 0 4px 24px -2px rgba(0, 47, 36, 0.06);
 }
 
 .triage-page .triage-avatar {
     width: 54px;
     height: 54px;
-    border: 2px solid #DDEFE5;
+    border: 2px solid var(--success-bg);
     border-radius: 12px;
 }
 
 .triage-page .triage-doctor-info h3 {
-    color: #172C23;
-    font-family: 'Newsreader', Georgia, serif;
-    font-size: 17px;
+    color: var(--primary-dark);
+    font-family: var(--font-display);
+    font-size: 18px;
     font-weight: 500;
     line-height: 1.25;
 }
 
 .triage-page .triage-doctor-esp {
     margin: 3px 0 7px;
-    color: #A88335;
-    font-size: 9px;
+    color: var(--accent-color);
+    font-size: 10px;
     font-weight: 700;
-    letter-spacing: 0.07em;
+    letter-spacing: 0.08em;
     text-transform: uppercase;
 }
 
 .triage-page .triage-turno {
-    color: #596C63;
-    font-size: 9px;
+    color: var(--text-muted);
+    font-size: 10px;
     line-height: 1.6;
 }
 
@@ -824,11 +824,11 @@
 
 .triage-page .triage-hora {
     padding: 4px 7px;
-    color: #176044;
-    background: #EAF7F0;
-    border: 1px solid #D7EDE1;
-    border-radius: 6px;
-    font-size: 9px;
+    color: var(--primary-mid);
+    background: var(--off-white);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    font-size: 10px;
     font-weight: 600;
 }
 
@@ -838,7 +838,7 @@
     margin: 0;
     background: transparent;
     border: 0;
-    border-top: 1px solid #EDF2EF;
+    border-top: 1px solid var(--surface-alt);
     border-radius: 0;
     box-shadow: none;
 }
@@ -849,27 +849,27 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    color: #fff;
-    background: #0D4738;
-    border: 1px solid #0D4738;
+    color: var(--white);
+    background: var(--secondary-color);
+    border: 1px solid var(--secondary-color);
     border-radius: 8px;
-    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-family: var(--font-body);
     font-size: 11px;
     font-weight: 700;
 }
 
 .triage-page .triage-book-form .btn:hover {
-    color: #fff;
-    background: #072F25;
-    border-color: #072F25;
+    color: var(--white);
+    background: var(--primary-color);
+    border-color: var(--primary-color);
 }
 
 .triage-page .empty-note {
     padding: 18px;
-    color: #586D63;
-    background: #fff;
-    border: 1px dashed #CBE0D3;
-    border-radius: 10px;
+    color: var(--text-muted);
+    background: var(--white);
+    border: 1px dashed var(--border-mid);
+    border-radius: 12px;
     font-size: 11px;
 }
 
@@ -886,8 +886,8 @@
     gap: 11px;
     padding: 15px;
     background: rgba(255, 255, 255, 0.88);
-    border: 1px solid #E2ECE6;
-    border-radius: 11px;
+    border: 1px solid var(--success-bg);
+    border-radius: 12px;
 }
 
 .triage-guidance article > span {
@@ -897,24 +897,24 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    color: #0D4738;
-    background: #E6F3ED;
+    color: var(--secondary-color);
+    background: var(--success-bg);
     border-radius: 8px;
-    font-size: 9px;
+    font-size: 10px;
     font-weight: 700;
 }
 
 .triage-guidance h3 {
-    color: #0A3227;
-    font-family: 'Newsreader', Georgia, serif;
+    color: var(--primary-color);
+    font-family: var(--font-display);
     font-size: 15px;
     font-weight: 500;
 }
 
 .triage-guidance p {
     margin-top: 4px;
-    color: #667970;
-    font-size: 9px;
+    color: var(--text-muted);
+    font-size: 10px;
     line-height: 1.6;
 }
 
@@ -924,10 +924,10 @@
     gap: 12px;
     padding: 14px 16px;
     margin-top: 14px;
-    color: #762B26;
-    background: #FFF5F3;
-    border: 1px solid #F1D9D5;
-    border-radius: 11px;
+    color: var(--danger-dark);
+    background: var(--danger-bg);
+    border: 1px solid var(--danger-bg);
+    border-radius: 12px;
 }
 
 .triage-emergency-icon {
@@ -937,29 +937,29 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    color: #AC4036;
-    background: #FCE7E3;
-    border-radius: 9px;
+    color: var(--danger-color);
+    background: var(--danger-bg);
+    border-radius: 8px;
 }
 
 .triage-emergency-banner p {
     flex: 1;
-    color: #75443E;
-    font-size: 9px;
+    color: var(--danger-dark);
+    font-size: 10px;
     line-height: 1.55;
 }
 
 .triage-emergency-banner strong {
-    color: #612A25;
+    color: var(--danger-dark);
 }
 
 .triage-emergency-banner > a {
     flex: 0 0 auto;
     padding: 8px 11px;
-    color: #fff;
-    background: #B83D35;
-    border-radius: 7px;
-    font-size: 9px;
+    color: var(--white);
+    background: var(--danger-color);
+    border-radius: 8px;
+    font-size: 10px;
     font-weight: 700;
     text-decoration: none;
 }
@@ -968,10 +968,10 @@
     width: 100%;
     padding: 20px 16px;
     margin-top: auto;
-    color: #B9D3C7;
-    background: #092E23;
+    color: var(--primary-soft);
+    background: var(--primary-color);
     border: 0;
-    border-top: 1px solid #124234;
+    border-top: 1px solid var(--secondary-color);
     box-shadow: none;
     text-align: center;
 }
@@ -983,7 +983,7 @@
 }
 
 .triage-page > footer a {
-    color: #D4AF37;
+    color: var(--accent-color);
 }
 
 @media (max-width: 760px) {
@@ -1020,7 +1020,7 @@
 
     .triage-page .app-nav a > i {
         display: inline-block;
-        color: #D4AF37;
+        color: var(--accent-color);
         font-size: 13px;
     }
 
@@ -1045,7 +1045,7 @@
 
     .triage-page .app-logout > i {
         display: inline-block;
-        color: #D4AF37;
+        color: var(--accent-color);
         font-size: 12px;
     }
 
@@ -1055,7 +1055,7 @@
     }
 
     .triage-page .page-title {
-        font-size: 38px;
+        font-size: 40px;
     }
 
     .triage-page .page-subtitle {

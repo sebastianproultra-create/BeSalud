@@ -25,7 +25,7 @@
     background-color: var(--white);
     padding: 25px;
     border-radius: 8px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    box-shadow: 0 2px 10px rgba(19, 30, 26, 0.05);
     margin-bottom: 30px;
     text-align: center;
 }
@@ -84,8 +84,8 @@
 
 .doctor-card {
     background: white;
-    border-radius: 10px;
-    box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
+    border-radius: 12px;
+    box-shadow: 0 2px 15px rgba(19, 30, 26, 0.1);
     overflow: hidden;
     transition: transform 0.3s ease, box-shadow 0.3s ease;
     display: flex;
@@ -94,7 +94,7 @@
 
 .doctor-card:hover {
     transform: translateY(-10px);
-    box-shadow: 0 5px 25px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 5px 25px rgba(19, 30, 26, 0.15);
 }
 
 .doctor-photo-section {
@@ -115,7 +115,7 @@
     border-radius: 50%;
     object-fit: cover;
     border: 3px solid var(--accent-color);
-    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 3px 10px rgba(19, 30, 26, 0.15);
     margin: 0 auto;
     display: block;
 }
@@ -135,7 +135,7 @@
 
 .doctor-info .specialty {
     color: var(--accent-color);
-    font-weight: bold;
+    font-weight: 700;
     font-size: 14px;
     margin-bottom: 10px;
 }
@@ -161,7 +161,7 @@
     padding: 60px 20px;
     background-color: var(--white);
     border-radius: 8px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    box-shadow: 0 2px 10px rgba(19, 30, 26, 0.05);
 }
 
 .no-doctors p {
@@ -235,7 +235,7 @@
     height: 100vh;
     background: var(--white);
     border-left: 1px solid var(--border-color);
-    box-shadow: -3px 0 20px rgba(0, 0, 0, 0.07);
+    box-shadow: -3px 0 20px rgba(19, 30, 26, 0.07);
     display: flex;
     flex-direction: column;
     transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
@@ -268,14 +268,14 @@
     font-weight: 700;
     margin: 0;
     color: var(--white);
-    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-family: var(--font-body);
 }
 .sidebar-count {
     background: rgba(255, 255, 255, 0.25);
     color: var(--white);
     font-size: 12px;
     font-weight: 700;
-    border-radius: 10px;
+    border-radius: 12px;
     padding: 1px 8px;
 }
 
@@ -308,7 +308,7 @@
 }
 .sidebar-body::-webkit-scrollbar { width: 4px; }
 .sidebar-body::-webkit-scrollbar-track { background: var(--light-bg); }
-.sidebar-body::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 2px; }
+.sidebar-body::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 4px; }
 
 /* Empty state */
 .sidebar-empty {
@@ -328,13 +328,13 @@
 
 .cita-item {
     background: var(--light-bg);
-    border-radius: 10px;
+    border-radius: 12px;
     padding: 12px 14px;
     border-left: 4px solid var(--secondary-color);
     transition: box-shadow 0.2s;
 }
 .cita-item:hover {
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 2px 10px rgba(19, 30, 26, 0.1);
 }
 
 .cita-item-top {
@@ -392,7 +392,7 @@
     padding: 4px 12px;
     font-size: 11px;
     font-weight: 600;
-    border-radius: 6px;
+    border-radius: 8px;
     border: none;
     cursor: pointer;
     text-decoration: none;
@@ -416,7 +416,7 @@
     padding: 10px 12px;
     background: rgba(0, 47, 36, 0.04);
     border-left: 3px solid var(--accent-color);
-    border-radius: 0 6px 6px 0;
+    border-radius: 0 8px 8px 0;
     font-size: 12px;
 }
 .dictamen-header {
@@ -425,7 +425,7 @@
     font-size: 12px;
     margin-bottom: 6px;
     text-transform: uppercase;
-    letter-spacing: 0.5px;
+    letter-spacing: 0.04em;
 }
 .dictamen-header i {
     margin-right: 4px;
@@ -454,8 +454,8 @@
     margin: 4px 0 6px 0;
     padding: 4px 8px;
     border-left: 3px solid var(--danger-color);
-    background: #fdf1f1;
-    color: #8f1f1f;
+    background: var(--danger-bg);
+    color: var(--danger-color);
     font-weight: 700;
 }
 .dictamen-lista {
@@ -478,7 +478,7 @@
     display: none;
     position: fixed;
     inset: 0;
-    background: rgba(0, 0, 0, 0.35);
+    background: rgba(19, 30, 26, 0.35);
     z-index: 199;
     transition: opacity 0.3s ease;
 }
@@ -519,14 +519,14 @@
     font-weight: 700;
     writing-mode: vertical-rl;
     text-orientation: mixed;
-    letter-spacing: 0.5px;
+    letter-spacing: 0.04em;
 }
 .tab-badge {
     background: var(--danger-color);
     color: var(--white);
-    border-radius: 10px;
+    border-radius: 12px;
     font-size: 11px;
-    font-weight: 800;
+    font-weight: 700;
     min-width: 18px;
     height: 18px;
     display: flex;
@@ -570,7 +570,7 @@
         width: 300px;
         height: 100vh;
         border-left: 1px solid var(--border-color);
-        box-shadow: -4px 0 24px rgba(0, 0, 0, 0.15);
+        box-shadow: -4px 0 24px rgba(19, 30, 26, 0.15);
         transform: none !important;
     }
 
@@ -626,7 +626,7 @@
     gap: 16px;
     margin-bottom: 24px;
     padding: 18px 22px;
-    border-radius: 10px;
+    border-radius: 12px;
     background: linear-gradient(120deg, var(--primary-color), var(--secondary-color));
     color: var(--white);
     text-decoration: none;
@@ -653,22 +653,22 @@
 }
 
 :root {
-    --patient-emerald: #0D4738;
-    --patient-emerald-hover: #09362A;
-    --patient-emerald-dark: #06261D;
-    --patient-gold: #C59A4D;
-    --patient-sage: #F4FAF6;
-    --patient-mint: #EBF6F1;
-    --patient-border: #E2EBE5;
-    --patient-subtle: #627D72;
+    --patient-emerald: var(--secondary-color);
+    --patient-emerald-hover: var(--primary-color);
+    --patient-emerald-dark: var(--primary-dark);
+    --patient-gold: var(--accent-color);
+    --patient-sage: var(--light-bg);
+    --patient-mint: var(--off-white);
+    --patient-border: var(--border-color);
+    --patient-subtle: var(--text-muted);
     --patient-shadow: 0 4px 24px -2px rgba(13, 71, 56, 0.06), 0 2px 8px -2px rgba(13, 71, 56, 0.04);
 }
 
 body.patient-catalog-page {
     min-height: 100vh;
-    color: #1E293B;
+    color: var(--text-dark);
     background: var(--patient-sage);
-    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-family: var(--font-body);
     font-size: 14px;
     font-weight: 400;
     line-height: 1.55;
@@ -682,11 +682,11 @@ body.patient-catalog-page {
     width: 100%;
     min-height: 80px;
     padding: 0;
-    color: #fff;
+    color: var(--white);
     background: var(--patient-emerald);
     border: 0;
     border-bottom: 1px solid var(--patient-emerald-dark);
-    box-shadow: 0 3px 14px rgba(6, 38, 29, 0.14);
+    box-shadow: 0 3px 14px rgba(0, 33, 24, 0.14);
 }
 
 .patient-header-inner {
@@ -705,12 +705,12 @@ body.patient-catalog-page {
     display: inline-flex;
     align-items: center;
     gap: 11px;
-    color: #fff;
+    color: var(--white);
     text-decoration: none;
 }
 
 .patient-brand:hover {
-    color: #fff;
+    color: var(--white);
 }
 
 .patient-brand-mark {
@@ -720,10 +720,10 @@ body.patient-catalog-page {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    color: #C6EFE0;
+    color: var(--primary-soft);
     background: rgba(255, 255, 255, 0.1);
     border: 1px solid rgba(255, 255, 255, 0.2);
-    border-radius: 11px;
+    border-radius: 12px;
     font-size: 18px;
 }
 
@@ -735,16 +735,16 @@ body.patient-catalog-page {
 }
 
 .patient-brand-copy strong {
-    color: #fff;
-    font-family: 'Newsreader', Georgia, serif;
+    color: var(--white);
+    font-family: var(--font-display);
     font-size: 24px;
     font-weight: 500;
     line-height: 1;
 }
 
 .patient-brand-copy small {
-    color: rgba(167, 226, 204, 0.85);
-    font-size: 9px;
+    color: rgba(198, 239, 224, 0.85);
+    font-size: 10px;
     font-weight: 700;
     letter-spacing: 0.12em;
     text-transform: uppercase;
@@ -769,7 +769,7 @@ body.patient-catalog-page {
     gap: 8px;
     padding: 8px 14px;
     margin: 0;
-    color: rgba(226, 244, 236, 0.82);
+    color: rgba(230, 243, 237, 0.82);
     border: 1px solid transparent;
     border-radius: 999px;
     font-size: 11px;
@@ -782,18 +782,18 @@ body.patient-catalog-page {
 }
 
 .patient-catalog-page .patient-nav a:hover {
-    color: #fff;
+    color: var(--white);
     background: rgba(255, 255, 255, 0.1);
 }
 
 .patient-catalog-page .patient-nav a.is-active {
-    color: #fff;
+    color: var(--white);
     background: rgba(255, 255, 255, 0.14);
     border-color: rgba(255, 255, 255, 0.18);
 }
 
 .patient-nav i {
-    color: #C6EFE0;
+    color: var(--primary-soft);
     font-size: 12px;
 }
 
@@ -809,7 +809,7 @@ body.patient-catalog-page {
     height: 34px;
     flex: 0 0 34px;
     object-fit: cover;
-    border: 1px solid rgba(167, 226, 204, 0.5);
+    border: 1px solid rgba(198, 239, 224, 0.5);
     border-radius: 50%;
 }
 
@@ -823,7 +823,7 @@ body.patient-catalog-page {
 .patient-account-copy strong {
     max-width: 150px;
     overflow: hidden;
-    color: #fff;
+    color: var(--white);
     font-size: 11px;
     font-weight: 700;
     line-height: 1.2;
@@ -832,8 +832,8 @@ body.patient-catalog-page {
 }
 
 .patient-account-copy small {
-    color: rgba(167, 226, 204, 0.84);
-    font-size: 9px;
+    color: rgba(198, 239, 224, 0.84);
+    font-size: 10px;
     line-height: 1.2;
 }
 
@@ -856,8 +856,8 @@ body.patient-catalog-page {
     background: rgba(255, 255, 255, 0.1);
     border: 1px solid rgba(255, 255, 255, 0.16);
     border-radius: 8px;
-    font-family: 'Plus Jakarta Sans', sans-serif;
-    font-size: 9px;
+    font-family: var(--font-body);
+    font-size: 10px;
     font-weight: 700;
     letter-spacing: 0.08em;
     line-height: 1.2;
@@ -865,13 +865,13 @@ body.patient-catalog-page {
 }
 
 .patient-catalog-page .patient-logout:hover {
-    color: #fff;
+    color: var(--white);
     background: rgba(255, 255, 255, 0.18);
     transform: none;
 }
 
 .patient-logout i {
-    color: #C6EFE0;
+    color: var(--primary-soft);
     font-size: 12px;
 }
 
@@ -918,9 +918,9 @@ body.patient-catalog-page {
     justify-content: space-between;
     gap: 24px;
     padding: 25px 28px;
-    color: #fff;
-    background: linear-gradient(112deg, #06261D 0%, #0D4738 58%, #125946 100%);
-    border: 1px solid rgba(6, 38, 29, 0.2);
+    color: var(--white);
+    background: linear-gradient(112deg, var(--primary-dark) 0%, var(--secondary-color) 58%, var(--primary-mid) 100%);
+    border: 1px solid rgba(0, 33, 24, 0.2);
     border-radius: 16px;
     box-shadow: var(--patient-shadow);
 }
@@ -935,11 +935,11 @@ body.patient-catalog-page {
     gap: 7px;
     padding: 5px 9px;
     margin-bottom: 9px;
-    color: #D7F4E8;
-    background: rgba(120, 214, 174, 0.14);
-    border: 1px solid rgba(120, 214, 174, 0.25);
+    color: var(--primary-soft);
+    background: rgba(198, 239, 224, 0.14);
+    border: 1px solid rgba(198, 239, 224, 0.25);
     border-radius: 999px;
-    font-size: 9px;
+    font-size: 10px;
     font-weight: 700;
     letter-spacing: 0.08em;
     line-height: 1.2;
@@ -949,15 +949,15 @@ body.patient-catalog-page {
 .patient-eyebrow > span {
     width: 6px;
     height: 6px;
-    background: #67D69D;
+    background: var(--primary-soft);
     border-radius: 50%;
-    box-shadow: 0 0 0 3px rgba(103, 214, 157, 0.14);
+    box-shadow: 0 0 0 3px rgba(198, 239, 224, 0.14);
 }
 
 .patient-welcome h1 {
     max-width: 680px;
-    color: #fff;
-    font-family: 'Newsreader', Georgia, serif;
+    color: var(--white);
+    font-family: var(--font-display);
     font-size: 32px;
     font-weight: 400;
     letter-spacing: 0;
@@ -965,15 +965,15 @@ body.patient-catalog-page {
 }
 
 .patient-welcome h1 em {
-    color: #B7EED9;
-    font-family: 'Newsreader', Georgia, serif;
+    color: var(--primary-soft);
+    font-family: var(--font-display);
     font-weight: 400;
 }
 
 .patient-welcome-copy > p {
     max-width: 620px;
     margin-top: 8px;
-    color: rgba(235, 246, 241, 0.82);
+    color: rgba(230, 243, 237, 0.82);
     font-size: 11px;
     line-height: 1.65;
 }
@@ -986,10 +986,10 @@ body.patient-catalog-page {
     justify-content: center;
     gap: 9px;
     padding: 10px 13px;
-    color: #fff;
+    color: var(--white);
     background: rgba(255, 255, 255, 0.1);
     border: 1px solid rgba(255, 255, 255, 0.2);
-    border-radius: 9px;
+    border-radius: 8px;
     font-size: 10px;
     font-weight: 700;
     line-height: 1.25;
@@ -998,22 +998,22 @@ body.patient-catalog-page {
 }
 
 .patient-welcome-action:hover {
-    color: #fff;
+    color: var(--white);
     background: rgba(255, 255, 255, 0.18);
     border-color: rgba(255, 255, 255, 0.32);
 }
 
 .patient-welcome-action i:first-child {
-    color: #B7EED9;
+    color: var(--primary-soft);
 }
 
 .doctor-filter-panel,
 .patient-sidebar .sidebar-inner,
 .doctor-card,
 .patient-trust-card {
-    background: #fff;
+    background: var(--white);
     border: 1px solid var(--patient-border);
-    border-radius: 14px;
+    border-radius: 12px;
     box-shadow: var(--patient-shadow);
 }
 
@@ -1032,14 +1032,14 @@ body.patient-catalog-page {
 .doctor-filter-heading {
     padding-bottom: 14px;
     margin-bottom: 16px;
-    border-bottom: 1px solid #EDF2EF;
+    border-bottom: 1px solid var(--surface-alt);
 }
 
 .doctor-filter-heading h2,
 .doctor-directory-heading h2 {
-    color: #1E293B;
-    font-family: 'Newsreader', Georgia, serif;
-    font-size: 21px;
+    color: var(--text-dark);
+    font-family: var(--font-display);
+    font-size: 22px;
     font-weight: 500;
     line-height: 1.25;
 }
@@ -1047,7 +1047,7 @@ body.patient-catalog-page {
 .doctor-filter-heading p,
 .doctor-directory-heading p {
     margin-top: 3px;
-    color: #64748B;
+    color: var(--text-muted);
     font-size: 10px;
     line-height: 1.5;
 }
@@ -1057,9 +1057,9 @@ body.patient-catalog-page {
     padding: 5px 9px;
     color: var(--patient-emerald);
     background: var(--patient-mint);
-    border: 1px solid #D8ECE1;
+    border: 1px solid var(--border-color);
     border-radius: 999px;
-    font-size: 9px;
+    font-size: 10px;
     font-weight: 700;
 }
 
@@ -1083,8 +1083,8 @@ body.patient-catalog-page {
 .patient-catalog-page .doctor-filter-field > label {
     display: block;
     margin: 0 0 6px;
-    color: #64748B;
-    font-size: 9px;
+    color: var(--text-muted);
+    font-size: 10px;
     font-weight: 700;
     letter-spacing: 0.08em;
     line-height: 1.35;
@@ -1101,7 +1101,7 @@ body.patient-catalog-page {
     z-index: 1;
     top: 50%;
     left: 12px;
-    color: #82958C;
+    color: var(--text-muted);
     font-size: 12px;
     transform: translateY(-50%);
     pointer-events: none;
@@ -1114,11 +1114,11 @@ body.patient-catalog-page {
     height: 40px;
     padding: 8px 12px 8px 34px;
     margin: 0;
-    color: #263B32;
-    background: #F7FAF8;
-    border: 1px solid #DCE7E0;
-    border-radius: 9px;
-    font-family: 'Plus Jakarta Sans', sans-serif;
+    color: var(--text-light);
+    background: var(--surface-alt);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    font-family: var(--font-body);
     font-size: 10px;
     font-weight: 500;
     line-height: 1.35;
@@ -1127,7 +1127,7 @@ body.patient-catalog-page {
 }
 
 .patient-catalog-page .patient-control input::placeholder {
-    color: #97A59F;
+    color: var(--text-muted);
     opacity: 1;
 }
 
@@ -1139,7 +1139,7 @@ body.patient-catalog-page {
 .patient-catalog-page .patient-control input:focus,
 .patient-catalog-page .patient-control select:focus {
     outline: none;
-    background: #fff;
+    background: var(--white);
     border-color: var(--patient-emerald);
     box-shadow: 0 0 0 2px rgba(13, 71, 56, 0.12);
 }
@@ -1158,11 +1158,11 @@ body.patient-catalog-page {
     justify-content: center;
     gap: 7px;
     padding: 8px 12px;
-    color: #fff;
+    color: var(--white);
     background: var(--patient-emerald);
     border: 1px solid var(--patient-emerald);
-    border-radius: 9px;
-    font-family: 'Plus Jakarta Sans', sans-serif;
+    border-radius: 8px;
+    font-family: var(--font-body);
     font-size: 10px;
     font-weight: 700;
     letter-spacing: 0;
@@ -1171,7 +1171,7 @@ body.patient-catalog-page {
 }
 
 .patient-catalog-page .patient-filter-submit:hover {
-    color: #fff;
+    color: var(--white);
     background: var(--patient-emerald-hover);
     border-color: var(--patient-emerald-hover);
     transform: none;
@@ -1179,7 +1179,7 @@ body.patient-catalog-page {
 
 .patient-filter-clear {
     color: var(--patient-subtle);
-    font-size: 9px;
+    font-size: 10px;
     font-weight: 600;
     text-decoration: none;
 }
@@ -1198,8 +1198,8 @@ body.patient-catalog-page {
 }
 
 .doctor-directory-heading > span {
-    color: #64748B;
-    font-size: 9px;
+    color: var(--text-muted);
+    font-size: 10px;
 }
 
 .patient-catalog-page .doctors-grid {
@@ -1220,7 +1220,7 @@ body.patient-catalog-page {
 }
 
 .patient-catalog-page .doctor-card:hover {
-    border-color: #C9E5D5;
+    border-color: var(--primary-soft);
     box-shadow: 0 7px 26px rgba(13, 71, 56, 0.1);
     transform: translateY(-2px);
 }
@@ -1238,8 +1238,8 @@ body.patient-catalog-page {
     flex: 0 0 64px;
     overflow: hidden;
     background: var(--patient-mint);
-    border: 2px solid #DDEFE5;
-    border-radius: 14px;
+    border: 2px solid var(--success-bg);
+    border-radius: 12px;
 }
 
 .patient-catalog-page .doctor-photo img {
@@ -1249,7 +1249,7 @@ body.patient-catalog-page {
     margin: 0;
     object-fit: cover;
     border: 0;
-    border-radius: 11px;
+    border-radius: 12px;
     box-shadow: none;
 }
 
@@ -1263,10 +1263,10 @@ body.patient-catalog-page {
     align-items: center;
     gap: 5px;
     padding: 3px 7px;
-    color: #176044;
-    background: #EAF7F0;
-    border: 1px solid #D7EDE1;
-    border-radius: 5px;
+    color: var(--primary-mid);
+    background: var(--off-white);
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
     font-size: 8px;
     font-weight: 700;
     line-height: 1.25;
@@ -1275,15 +1275,15 @@ body.patient-catalog-page {
 .doctor-active-badge > span {
     width: 5px;
     height: 5px;
-    background: #23A26D;
+    background: var(--primary-mid);
     border-radius: 50%;
 }
 
 .patient-catalog-page .doctor-info h3,
 .doctor-card-identity h3 {
     margin: 5px 0 1px;
-    color: #172C23;
-    font-family: 'Newsreader', Georgia, serif;
+    color: var(--primary-dark);
+    font-family: var(--font-display);
     font-size: 18px;
     font-weight: 500;
     line-height: 1.2;
@@ -1293,9 +1293,9 @@ body.patient-catalog-page {
 .patient-catalog-page .doctor-card .specialty {
     margin: 0;
     color: var(--patient-gold);
-    font-size: 9px;
+    font-size: 10px;
     font-weight: 700;
-    letter-spacing: 0.09em;
+    letter-spacing: 0.08em;
     line-height: 1.45;
     text-transform: uppercase;
 }
@@ -1304,10 +1304,10 @@ body.patient-catalog-page {
     min-height: 52px;
     padding: 10px 11px;
     margin: 0;
-    color: #52645C;
+    color: var(--text-muted);
     background: var(--patient-sage);
-    border: 1px solid #E8F2EC;
-    border-radius: 9px;
+    border: 1px solid var(--success-bg);
+    border-radius: 8px;
     font-size: 10px;
     line-height: 1.55;
     display: -webkit-box;
@@ -1323,7 +1323,7 @@ body.patient-catalog-page {
     gap: 9px;
     padding-top: 10px;
     margin-top: auto;
-    border-top: 1px solid #EDF2EF;
+    border-top: 1px solid var(--surface-alt);
 }
 
 .doctor-card-footer > span {
@@ -1331,13 +1331,12 @@ body.patient-catalog-page {
     display: inline-flex;
     align-items: center;
     gap: 6px;
-    color: #75867E;
-    font-size: 8px;
+    color: var(--text-muted);
     font-weight: 600;
 }
 
 .doctor-card-footer > span i {
-    color: #23805A;
+    color: var(--primary-mid);
     font-size: 11px;
 }
 
@@ -1349,7 +1348,7 @@ body.patient-catalog-page {
     justify-content: center;
     gap: 8px;
     padding: 10px 14px;
-    color: #fff;
+    color: var(--white);
     background: var(--patient-emerald);
     border-radius: 8px;
     font-size: 12px;
@@ -1359,7 +1358,7 @@ body.patient-catalog-page {
 }
 
 .doctor-book-link:hover {
-    color: #fff;
+    color: var(--white);
     background: var(--patient-emerald-hover);
 }
 
@@ -1373,9 +1372,9 @@ body.patient-catalog-page {
 
 .patient-catalog-page .no-doctors {
     padding: 40px 18px;
-    background: #fff;
-    border: 1px dashed #CDDED3;
-    border-radius: 14px;
+    background: var(--white);
+    border: 1px dashed var(--border-color);
+    border-radius: 12px;
     box-shadow: none;
     text-align: center;
 }
@@ -1389,13 +1388,13 @@ body.patient-catalog-page {
     margin-bottom: 10px;
     color: var(--patient-emerald);
     background: var(--patient-mint);
-    border-radius: 13px;
+    border-radius: 12px;
     font-size: 18px;
 }
 
 .patient-catalog-page .no-doctors p {
     margin: 0 0 8px;
-    color: #52645C;
+    color: var(--text-muted);
     font-size: 12px;
 }
 
@@ -1425,7 +1424,7 @@ body.patient-catalog-page {
     padding: 6px 10px;
     margin: 0;
     color: var(--patient-emerald);
-    background: #fff;
+    background: var(--white);
     border: 1px solid var(--patient-border);
     border-radius: 8px;
     font-size: 10px;
@@ -1436,7 +1435,7 @@ body.patient-catalog-page {
 }
 
 .patient-catalog-page .pagination a.is-current {
-    color: #fff;
+    color: var(--white);
     background: var(--patient-emerald);
     border-color: var(--patient-emerald);
 }
@@ -1461,9 +1460,9 @@ body.patient-catalog-page {
     height: auto;
     max-height: calc(100vh - 112px);
     overflow: hidden;
-    background: #fff;
+    background: var(--white);
     border: 1px solid var(--patient-border);
-    border-radius: 14px;
+    border-radius: 12px;
     box-shadow: var(--patient-shadow);
 }
 
@@ -1473,7 +1472,7 @@ body.patient-catalog-page {
 }
 
 .patient-catalog-page .patient-sidebar .sidebar-title h3 {
-    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-family: var(--font-body);
     font-size: 13px;
     letter-spacing: 0.02em;
 }
@@ -1484,7 +1483,7 @@ body.patient-catalog-page {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    color: #B7EED9;
+    color: var(--primary-soft);
     background: rgba(255, 255, 255, 0.1);
     border-radius: 8px;
 }
@@ -1496,7 +1495,7 @@ body.patient-catalog-page {
 .patient-catalog-page .patient-sidebar .sidebar-close {
     width: 28px;
     height: 28px;
-    color: #fff;
+    color: var(--white);
     background: rgba(255, 255, 255, 0.12);
     font-size: 20px;
 }
@@ -1509,27 +1508,27 @@ body.patient-catalog-page {
 
 .patient-catalog-page .patient-sidebar .sidebar-empty {
     padding: 25px 12px;
-    color: #7B8A83;
+    color: var(--text-muted);
 }
 
 .patient-catalog-page .patient-sidebar .cita-item {
     background: var(--patient-sage);
-    border: 1px solid #E1EEE6;
-    border-left: 3px solid #19845B;
-    border-radius: 10px;
+    border: 1px solid var(--success-bg);
+    border-left: 3px solid var(--primary-mid);
+    border-radius: 12px;
 }
 
 .patient-catalog-page .patient-sidebar .cita-doctor {
-    color: #263B32;
+    color: var(--text-light);
 }
 
 .patient-catalog-page .patient-sidebar .cita-meta {
-    color: #52645C;
+    color: var(--text-muted);
     font-size: 10px;
 }
 
 .patient-catalog-page .patient-sidebar .cita-motivo {
-    color: #52645C;
+    color: var(--text-muted);
     font-size: 10px;
 }
 
@@ -1540,7 +1539,7 @@ body.patient-catalog-page {
 .patient-catalog-page footer {
     padding: 20px 24px;
     margin-top: 0;
-    color: #D4EBDF;
+    color: var(--off-white);
     background: var(--patient-emerald);
     border: 0;
     border-top: 1px solid var(--patient-emerald-dark);
@@ -1601,7 +1600,7 @@ body.patient-catalog-page {
     }
 
     .patient-brand-copy strong {
-        font-size: 21px;
+        font-size: 22px;
     }
 
     .patient-brand-copy small {
@@ -1659,9 +1658,6 @@ body.patient-catalog-page {
         gap: 20px;
     }
 
-    .patient-catalog-page .page-layout.sidebar-collapsed {
-        grid-template-columns: minmax(0, 1fr);
-    }
 
     .patient-primary {
         gap: 18px;
@@ -1670,7 +1666,7 @@ body.patient-catalog-page {
     .patient-welcome {
         min-height: 0;
         padding: 21px;
-        border-radius: 13px;
+        border-radius: 12px;
     }
 
     .patient-welcome h1 {
@@ -1721,10 +1717,6 @@ body.patient-catalog-page {
         transform: none;
     }
 
-    .patient-catalog-page .patient-sidebar.collapsed {
-        width: 100%;
-        transform: none;
-    }
 
     .patient-catalog-page .patient-sidebar .sidebar-inner,
     .patient-catalog-page .patient-sidebar.collapsed .sidebar-inner {
@@ -1773,14 +1765,14 @@ body.patient-catalog-page {
     .patient-catalog-page .patient-nav a {
         width: auto;
         padding: 7px;
-        font-size: 9px;
+        font-size: 10px;
     }
 
     .patient-nav a.is-active::before {
         content: '';
         width: 5px;
         height: 5px;
-        background: #A7E2CC;
+        background: var(--primary-soft);
         border-radius: 50%;
     }
 
@@ -1790,7 +1782,7 @@ body.patient-catalog-page {
     }
 
     .patient-welcome h1 {
-        font-size: 25px;
+        font-size: 24px;
     }
 
     .doctor-filter-heading {
@@ -1821,8 +1813,6 @@ body.patient-catalog-page {
 
 .patient-catalog-page .patient-sidebar.collapsed .sidebar-inner {
     width: 100%;
-    visibility: hidden;
-    opacity: 0;
     pointer-events: none;
     transform: translateX(100%);
 }
@@ -1842,9 +1832,6 @@ body.patient-catalog-page {
         transform: none;
     }
 
-    .patient-catalog-page .patient-sidebar.collapsed .sidebar-inner {
-        display: none;
-    }
 
     .patient-catalog-page .patient-sidebar.collapsed .sidebar-tab {
         position: static;
@@ -1855,10 +1842,10 @@ body.patient-catalog-page {
         justify-content: center;
         gap: 9px;
         padding: 10px 14px;
-        color: #fff;
+        color: var(--white);
         background: var(--patient-emerald);
         border: 0;
-        border-radius: 10px;
+        border-radius: 12px;
         box-shadow: var(--patient-shadow);
         opacity: 1;
         pointer-events: auto;

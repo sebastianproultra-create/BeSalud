@@ -1,41 +1,11 @@
 /* ==============================================
    ESTILOS GLOBALES - BeSalud
    Estética: la misma del portal (auth/portal.css)
-   Tipografía: Newsreader (títulos) + Plus Jakarta Sans (texto)
+   Colores y tipografía: base/tokens.css
    ============================================== */
 
-@import url('https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@100..700&display=swap');
+@import url('tokens.css');
 
-:root {
-    /* ── Paleta principal (tokens --portal-* de auth/portal.css) ── */
-    --primary-color:    #002F24;   /* Verde bosque */
-    --secondary-color:  #0D4738;   /* Verde contenedor */
-    --accent-color:     #C98A2E;   /* Ámbar */
-    --accent-light:     #FFBD6A;   /* Ámbar claro (sobre fondos oscuros) */
-    --danger-color:     #B94040;   /* Rojo apagado, no agresivo */
-
-    /* ── Fondos ── */
-    --light-bg:         #F0FCF5;   /* Menta */
-    --white:            #FFFFFF;
-    --off-white:        #EAF7F0;
-
-    /* ── Texto ── */
-    --text-dark:        #131E1A;
-    --text-light:       #404945;
-
-    /* ── Bordes ── */
-    --border-color:     #D9E5DF;
-    --border-mid:       #BFCFC7;
-
-    /* ── Sombras ── */
-    --shadow-sm:        0 1px 8px rgba(0, 47, 36, 0.05);
-    --shadow-md:        0 8px 24px -12px rgba(0, 47, 36, 0.22);
-
-    /* ── Radios ── */
-    --radius:           12px;
-    --radius-sm:        8px;
-}
 
 /* ==============================================
    RESET
@@ -52,8 +22,7 @@ html {
 }
 
 body {
-    font-family: 'Plus Jakarta Sans', 'Segoe UI', Tahoma, sans-serif;
-    font-weight: 300;
+    font-family: var(--font-body);
     background-color: var(--light-bg);
     color: var(--text-dark);
     line-height: 1.65;
@@ -68,14 +37,14 @@ body {
    ============================================== */
 
 header {
-    background: linear-gradient(110deg, #07211A 0%, #0D3B2E 50%, #143D2D 100%);
+    background: linear-gradient(110deg, var(--primary-dark) 0%, var(--primary-color) 50%, var(--secondary-color) 100%);
     color: var(--white);
     padding: 0 40px;
     min-height: 68px;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    box-shadow: 0 4px 24px rgba(7, 33, 26, 0.28);
+    box-shadow: 0 4px 24px rgba(0, 33, 24, 0.28);
     border-bottom: 1px solid rgba(201, 138, 46, 0.2);
 }
 
@@ -89,8 +58,8 @@ header {
 header h1,
 .header-brand h1 {
     margin: 0;
-    font-family: 'Newsreader', Georgia, serif;
-    font-size: 26px;
+    font-family: var(--font-display);
+    font-size: 28px;
     font-weight: 400;
     line-height: 1.1;
     letter-spacing: 0.01em;
@@ -130,12 +99,12 @@ header > nav button {
     color: var(--accent-light);
     border: 1px solid rgba(201, 138, 46, 0.35);
     padding: 9px 22px;
-    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-family: var(--font-body);
     font-size: 11px;
     font-weight: 400;
-    letter-spacing: 0.14em;
+    letter-spacing: 0.12em;
     text-transform: uppercase;
-    border-radius: 2px;
+    border-radius: 4px;
     cursor: pointer;
     transition: background 0.2s, border-color 0.2s;
 }
@@ -167,7 +136,7 @@ nav a {
     margin-right: 28px;
     font-size: 11px;
     font-weight: 400;
-    letter-spacing: 0.14em;
+    letter-spacing: 0.12em;
     text-transform: uppercase;
     transition: color 0.2s;
 }
@@ -182,7 +151,6 @@ nav a:hover {
    ============================================== */
 
 .container {
-    max-width: 1000px;
     margin: 36px auto;
     padding: 0 28px;
     flex: 1;
@@ -202,14 +170,10 @@ nav a:hover {
     transition: box-shadow 0.2s;
 }
 
-.card:hover {
-    box-shadow: var(--shadow-md);
-}
 
 .card h2 {
-    font-family: 'Newsreader', Georgia, serif;
+    font-family: var(--font-display);
     font-size: 28px;
-    font-weight: 400;
     color: var(--primary-color);
     margin-bottom: 22px;
     padding-bottom: 14px;
@@ -248,10 +212,7 @@ form label {
     margin-top: 18px;
     margin-bottom: 6px;
     font-size: 10px;
-    font-weight: 400;
-    letter-spacing: 0.18em;
     text-transform: uppercase;
-    color: var(--primary-color);
 }
 
 input[type="text"],
@@ -271,9 +232,9 @@ textarea {
     margin-bottom: 6px;
     border: 1px solid var(--border-color);
     border-bottom: 2px solid var(--border-mid);
-    border-radius: 3px;
+    border-radius: 4px;
     font-size: 14px;
-    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-family: var(--font-body);
     font-weight: 300;
     color: var(--text-dark);
     background-color: var(--white);
@@ -318,11 +279,8 @@ button,
 .btn {
     padding: 12px 28px;
     border: none;
-    border-radius: 2px;
-    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-family: var(--font-body);
     font-size: 11px;
-    font-weight: 400;
-    letter-spacing: 0.14em;
     text-transform: uppercase;
     cursor: pointer;
     transition: background-color 0.2s, color 0.2s, border-color 0.2s, transform 0.15s;
@@ -339,9 +297,6 @@ button[type="submit"],
 
 button[type="submit"]:hover,
 .btn-primary:hover {
-    background-color: transparent;
-    color: var(--primary-color);
-    border-color: var(--primary-color);
     transform: translateY(-1px);
 }
 
@@ -382,7 +337,7 @@ button[type="submit"]:hover,
 
 .btn-warning {
     background-color: transparent;
-    color: #855403;
+    color: var(--accent-dark);
     border: 1px solid var(--accent-color);
 }
 
@@ -392,8 +347,6 @@ button[type="submit"]:hover,
 }
 
 .btn-secondary {
-    background-color: transparent;
-    color: var(--text-dark);
     border: 1px solid var(--border-mid);
     font-weight: 600;
 }
@@ -410,7 +363,6 @@ button[type="submit"]:hover,
     padding: 0;
     text-decoration: none;
     font-size: 13px;
-    letter-spacing: 0;
     text-transform: none;
     border-bottom: 1px solid transparent;
     transition: border-color 0.2s, color 0.2s;
@@ -441,20 +393,13 @@ table {
 }
 
 table th {
-    background-color: var(--primary-color);
-    color: var(--white);
     padding: 14px 18px;
     text-align: left;
     font-size: 10px;
-    font-weight: 400;
-    letter-spacing: 0.16em;
     text-transform: uppercase;
 }
 
 /* Línea dorada debajo del encabezado */
-table thead {
-    border-bottom: 2px solid var(--accent-color);
-}
 
 table td {
     padding: 14px 18px;
@@ -478,7 +423,6 @@ table tr:last-child td {
 .alert {
     padding: 14px 20px;
     margin-bottom: 20px;
-    border-radius: 3px;
     border-left: 3px solid transparent;
     font-size: 14px;
 }
@@ -492,13 +436,13 @@ table tr:last-child td {
 .alert-error,
 .alert-danger {
     background-color: rgba(185, 64, 64, 0.08);
-    color: #7A2020;
+    color: var(--danger-dark);
     border-left-color: var(--danger-color);
 }
 
 .alert-info {
     background-color: rgba(201, 138, 46, 0.12);
-    color: #6B4E1A;
+    color: var(--accent-dark);
     border-left-color: var(--accent-color);
 }
 
@@ -522,27 +466,16 @@ a:hover {
 
 footer {
     background-color: var(--primary-color);
-    color: var(--white);
     text-align: center;
     padding: 28px 40px;
     margin-top: 60px;
-    border-top: 2px solid rgba(201, 138, 46, 0.25);
 }
 
-footer p {
-    font-size: 12px;
-    letter-spacing: 0.1em;
-    opacity: 0.6;
-}
 
 footer a {
-    color: var(--accent-light);
     text-decoration: underline;
 }
 
-footer a:hover {
-    color: var(--white);
-}
 
 /* ==============================================
    CUSTOM SELECT DROPDOWN
@@ -563,9 +496,9 @@ footer a:hover {
     padding-right: 38px;
     border: 1px solid var(--border-color);
     border-bottom: 2px solid var(--border-mid);
-    border-radius: 3px;
+    border-radius: 4px;
     font-size: 14px;
-    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-family: var(--font-body);
     font-weight: 300;
     color: var(--text-dark);
     background-color: var(--white);
@@ -596,7 +529,6 @@ footer a:hover {
     right: 0;
     background: var(--white);
     border: 1px solid var(--border-mid);
-    border-radius: 3px;
     box-shadow: 0 8px 24px rgba(0, 47, 36, 0.12);
     max-height: 260px;
     overflow-y: scroll;
@@ -618,7 +550,7 @@ footer a:hover {
 .custom-select-option {
     padding: 10px 14px;
     font-size: 14px;
-    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-family: var(--font-body);
     font-weight: 300;
     color: var(--text-dark);
     cursor: pointer;
@@ -656,7 +588,7 @@ footer a:hover {
 }
 .custom-select-options::-webkit-scrollbar-thumb {
     background: var(--primary-color);
-    border-radius: 6px;
+    border-radius: 8px;
     border: 2px solid var(--light-bg);
 }
 .custom-select-options::-webkit-scrollbar-thumb:hover {
@@ -679,7 +611,7 @@ footer a:hover {
     padding: 7px 14px;
     font-size: 10px;
     font-weight: 500;
-    letter-spacing: 0.14em;
+    letter-spacing: 0.12em;
     text-transform: uppercase;
     color: var(--primary-color);
     background: var(--light-bg);
@@ -698,8 +630,8 @@ footer a:hover {
 
 /* Campo obligatorio sin elegir */
 .custom-select-wrapper.is-invalid .custom-select-trigger {
-    border-color: #e53e3e;
-    border-bottom-color: #e53e3e;
+    border-color: var(--danger-color);
+    border-bottom-color: var(--danger-color);
 }
 
 /* Hide original select when wrapped */
@@ -740,10 +672,10 @@ footer a:hover {
     display: inline-block;
     padding: 4px 12px;
     margin-right: 6px;
-    border-radius: 2px;
+    border-radius: 4px;
     font-size: 10px;
     font-weight: 400;
-    letter-spacing: 0.14em;
+    letter-spacing: 0.12em;
     text-transform: uppercase;
     background-color: var(--off-white);
     color: var(--primary-color);
@@ -752,7 +684,7 @@ footer a:hover {
 
 .badge-pending {
     background-color: rgba(201, 138, 46, 0.15);
-    color: #855403;
+    color: var(--accent-dark);
     border-color: rgba(201, 138, 46, 0.4);
 }
 
@@ -763,14 +695,14 @@ footer a:hover {
 }
 
 .badge-warning {
-    background-color: rgba(200, 120, 20, 0.12);
-    color: #6B3F00;
-    border-color: rgba(200, 120, 20, 0.4);
+    background-color: rgba(201, 138, 46, 0.12);
+    color: var(--accent-dark);
+    border-color: rgba(201, 138, 46, 0.4);
 }
 
 .badge-cancelled {
     background-color: rgba(185, 64, 64, 0.08);
-    color: #7A2020;
+    color: var(--danger-dark);
     border-color: rgba(185, 64, 64, 0.3);
 }
 
@@ -781,9 +713,8 @@ footer a:hover {
     display: inline-block;
     min-width: 100px;
     padding: 3px 11px;
-    border-radius: 20px;
+    border-radius: 16px;
     font-size: 10px;
-    font-weight: 400;
     letter-spacing: 0.12em;
     text-transform: uppercase;
     text-align: center;
@@ -792,7 +723,7 @@ footer a:hover {
 }
 .estado-pendiente {
     background: rgba(201, 138, 46, 0.15);
-    color: #855403;
+    color: var(--accent-dark);
     border-color: rgba(201, 138, 46, 0.4);
 }
 .estado-asistio {
@@ -807,7 +738,7 @@ footer a:hover {
 }
 .estado-no-asistio {
     background: rgba(185, 64, 64, 0.08);
-    color: #7A2020;
+    color: var(--danger-dark);
     border-color: rgba(185, 64, 64, 0.3);
 }
 .estado-cancelada {
@@ -821,13 +752,13 @@ footer a:hover {
    ============================================== */
 
 h1, h2, h3 {
-    font-family: 'Newsreader', Georgia, serif;
+    font-family: var(--font-display);
     font-weight: 400;
     color: var(--primary-color);
     line-height: 1.2;
 }
 
-h1 { font-size: 38px; }
+h1 { font-size: 40px; }
 h2 { font-size: 28px; }
 h3 { font-size: 22px; }
 
@@ -869,30 +800,20 @@ nav form,
 }
 
 .app-header-inner {
-    max-width: 1120px;
     margin: 0 auto;
-    padding: 0 32px;
-    min-height: 68px;
     display: flex;
-    flex-wrap: wrap;
     align-items: center;
-    gap: 4px 40px;
 }
 
 .app-brand {
-    font-family: 'Newsreader', Georgia, serif;
-    font-size: 26px;
+    font-family: var(--font-display);
     line-height: 1.1;
-    color: var(--white);
 }
 
 .app-brand span { color: var(--accent-color); font-size: 14px; }
-.app-brand:hover { color: var(--white); }
 
 .app-header .app-nav {
     display: flex;
-    flex-wrap: wrap;
-    gap: 4px;
     flex: 1 1 auto;
     padding: 0;
     background: transparent;
@@ -901,12 +822,9 @@ nav form,
 
 .app-nav a {
     margin: 0;
-    padding: 24px 14px 21px;
-    color: rgba(253, 252, 249, 0.78);
     border-bottom: 3px solid transparent;
 }
 
-.app-nav a:hover { color: var(--accent-light); }
 
 .app-nav a.is-active {
     color: var(--accent-light);
@@ -916,11 +834,8 @@ nav form,
 .app-user {
     display: flex;
     align-items: center;
-    gap: 16px;
-    margin-left: auto;
 }
 
-.app-user-name { font-size: 13px; color: var(--accent-light); }
 
 .app-logout {
     min-height: 44px;
@@ -947,13 +862,11 @@ nav form,
 
 .page-eyebrow {
     font-size: 11px;
-    letter-spacing: 0.18em;
     text-transform: uppercase;
-    color: #855403;
     margin-bottom: 6px;
 }
 
-.page-title { font-size: 44px; line-height: 1.1; }
+.page-title { font-size: 48px; line-height: 1.1; }
 .page-subtitle { margin-top: 6px; color: var(--text-light); font-size: 15px; }
 .page-actions { display: flex; align-items: center; gap: 20px; flex-wrap: wrap; }
 
@@ -1009,12 +922,12 @@ form.toolbar { margin-bottom: 28px; }
     display: flex;
     align-items: center;
     justify-content: center;
-    font-family: 'Newsreader', Georgia, serif;
+    font-family: var(--font-display);
     font-size: 22px;
 }
 
-.person-card-name { font-size: 21px; font-weight: 600; margin: 0; }
-.person-card-meta { font-size: 13px; color: #855403; }
+.person-card-name { font-size: 22px; font-weight: 600; margin: 0; }
+.person-card-meta { font-size: 13px; color: var(--accent-dark); }
 .person-card-email { font-size: 13px; color: var(--text-light); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
 .person-card-foot {
@@ -1070,7 +983,7 @@ form.toolbar { margin-bottom: 28px; }
     align-items: center;
     justify-content: center;
     font-size: 13px;
-    border-radius: 2px;
+    border-radius: 4px;
     border: 1px solid var(--border-color);
     color: var(--primary-color);
 }
@@ -1078,7 +991,7 @@ form.toolbar { margin-bottom: 28px; }
 .pagination .pagination-step {
     border-color: transparent;
     font-size: 11px;
-    letter-spacing: 0.14em;
+    letter-spacing: 0.12em;
     text-transform: uppercase;
 }
 
@@ -1105,7 +1018,7 @@ form.card-form { padding: 0; border: none; box-shadow: none; margin: 0; backgrou
     .app-header-inner { padding: 8px 16px; }
     .app-nav a { padding: 12px 10px; }
     .app-user { margin-left: 0; width: 100%; justify-content: space-between; }
-    .page-title { font-size: 34px; }
+    .page-title { font-size: 32px; }
     .card { padding: 22px 18px; }
 }
 
@@ -1146,7 +1059,7 @@ form.card-form { padding: 0; border: none; box-shadow: none; margin: 0; backgrou
 
 .card-counter {
     font-size: 11px;
-    letter-spacing: 0.14em;
+    letter-spacing: 0.12em;
     text-transform: uppercase;
     color: var(--text-light);
 }
@@ -1167,23 +1080,22 @@ form.card-form { padding: 0; border: none; box-shadow: none; margin: 0; backgrou
 .field-hint {
     display: block;
     margin: -2px 0 10px;
-    font-size: 12.5px;
+    font-size: 13px;
     line-height: 1.35;
     color: var(--text-light);
 }
 .field-hint:empty { display: none; }
-.field-hint.error { color: #c53030; }
+.field-hint.error { color: var(--danger-color); }
 
 input.input-error,
 input.input-error:focus,
 select.input-error {
-    border-color: #e53e3e;
-    border-bottom-color: #e53e3e;
+    border-color: var(--danger-color);
+    border-bottom-color: var(--danger-color);
 }
 input.input-success,
 input.input-success:focus {
-    border-color: #38a169;
-    border-bottom-color: #38a169;
+    border-bottom-color: var(--primary-mid);
 }
 
 /* ==============================================
@@ -1237,13 +1149,13 @@ table {
 .page-eyebrow {
     font-weight: 700;
     letter-spacing: 0.12em;
-    color: #855403;
+    color: var(--accent-dark);
 }
 
 /* ── Formularios ── */
 form label {
     font-weight: 700;
-    letter-spacing: 0.1em;
+    letter-spacing: 0.08em;
     color: var(--text-dark);
 }
 
@@ -1321,12 +1233,12 @@ input.input-error,
 input.input-error:focus,
 select.input-error,
 .custom-select-wrapper.is-invalid .custom-select-trigger {
-    border-color: #e53e3e;
+    border-color: var(--danger-color);
 }
 
 input.input-success,
 input.input-success:focus {
-    border-color: #38a169;
+    border-color: var(--primary-mid);
 }
 
 /* ── Botones ── */
@@ -1334,7 +1246,7 @@ button,
 .btn {
     border-radius: var(--radius-sm);
     font-weight: 700;
-    letter-spacing: 0.1em;
+    letter-spacing: 0.08em;
 }
 
 button[type="submit"],
@@ -1389,7 +1301,7 @@ table th {
     color: var(--text-light);
     background-color: var(--off-white);
     font-weight: 700;
-    letter-spacing: 0.1em;
+    letter-spacing: 0.08em;
 }
 
 table thead {
@@ -1418,7 +1330,7 @@ table thead {
     color: var(--text-dark);
     background: rgba(240, 252, 245, 0.86);
     border: 0;
-    box-shadow: 0 1px 8px rgba(0, 0, 0, 0.04);
+    box-shadow: 0 1px 8px rgba(19, 30, 26, 0.04);
     backdrop-filter: blur(20px);
 }
 
@@ -1436,7 +1348,7 @@ table thead {
     align-items: center;
     gap: 12px;
     color: var(--primary-color);
-    font-size: 23px;
+    font-size: 24px;
     font-weight: 500;
 }
 
