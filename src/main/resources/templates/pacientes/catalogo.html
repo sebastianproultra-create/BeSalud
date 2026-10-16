@@ -24,6 +24,10 @@
         <nav class="patient-nav" aria-label="Navegación del paciente">
             <a class="is-active" th:href="@{/pacientes/landing}" aria-current="page"><i class="fa-solid fa-user-doctor" aria-hidden="true"></i>Doctores</a>
             <a th:href="@{/triage}"><i class="fa-solid fa-stethoscope" aria-hidden="true"></i>Asistente</a>
+            <button type="button" class="patient-nav-citas" onclick="openSidebar()" aria-controls="citasSidebar">
+                <i class="fa-solid fa-clipboard-list" aria-hidden="true"></i><span class="patient-nav-citas-label">Mis citas</span>
+                <span class="patient-nav-badge" th:if="${misCitas != null and not #lists.isEmpty(misCitas)}" th:text="${#lists.size(misCitas)}"></span>
+            </button>
         </nav>
         <div class="patient-account">
             <img th:src="@{/images/default-avatar.jpg}" alt="" class="patient-avatar">
@@ -145,7 +149,7 @@
         </div>
 
     <!-- Mis Citas Sidebar -->
-    <aside class="citas-sidebar patient-sidebar" id="citasSidebar">
+    <aside class="citas-sidebar patient-sidebar collapsed" id="citasSidebar" aria-label="Mis citas">
 
         <!-- Tab to reopen sidebar (visible when closed) -->
         <button class="sidebar-tab" id="sidebarTab" onclick="openSidebar()" aria-label="Abrir Mis Citas">
@@ -165,7 +169,7 @@
                           th:if="${misCitas != null and not #lists.isEmpty(misCitas)}"
                           th:text="${#lists.size(misCitas)}"></span>
                 </div>
-                <button class="sidebar-close" onclick="closeSidebar()" aria-label="Cerrar">&#8250;</button>
+                <button type="button" class="sidebar-close" onclick="closeSidebar()" aria-label="Cerrar Mis citas">&times;</button>
             </div>
 
             <div class="sidebar-body">
@@ -306,21 +310,19 @@
 })();
 
 const sidebar  = document.getElementById('citasSidebar');
-const layout   = document.getElementById('pageLayout');
-const backdrop = document.getElementById('sidebarBackdrop');
 
 function closeSidebar() {
     sidebar.classList.add('collapsed');
-    layout.classList.add('sidebar-collapsed');
-    if (backdrop) backdrop.style.display = 'none';
+    document.body.classList.remove('citas-abiertas');
 }
 function openSidebar() {
     sidebar.classList.remove('collapsed');
-    layout.classList.remove('sidebar-collapsed');
-    if (backdrop && window.innerWidth <= 900) backdrop.style.display = 'block';
+    document.body.classList.add('citas-abiertas');
 }
-// En celular y tablet el panel es un cajón encima del catálogo: arranca cerrado
-if (window.innerWidth <= 900) closeSidebar();
+document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') closeSidebar();
+});
+closeSidebar();
 </script>
 <script th:src="@{/js/custom-select.js}"></script>
 </body>
