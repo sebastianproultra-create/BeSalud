@@ -779,6 +779,22 @@
     font-weight: 700;
 }
 .doc-horario-actual { display: flex; flex-direction: column; }
+.doc-horario-actual .schedule-list {
+    flex: 1 1 auto;
+    min-height: 0;
+    max-height: 420px;
+    overflow-y: auto;
+    padding-right: 4px;
+    scrollbar-width: thin;
+    scrollbar-color: #B9D3C6 transparent;
+}
+/* En dos columnas la tarjeta derecha toma la altura del formulario y no al revés:
+   height 0 + min-height 100% hace que no estire la fila y la lista se desplace por dentro. */
+@media (min-width: 1101px) {
+    .doc-grid-horarios { align-items: stretch; }
+    .doc-horario-actual { height: 0; min-height: 100%; box-sizing: border-box; }
+    .doc-horario-actual .schedule-list { max-height: none; }
+}
 .doc-horario-actual .empty-state { margin-bottom: 20px; }
 .doc-ocupacion {
     padding: 14px 16px;
