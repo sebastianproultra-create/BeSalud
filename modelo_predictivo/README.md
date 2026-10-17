@@ -57,7 +57,26 @@ El script se valida a sí mismo al terminar: si encuentra un choque de horario, 
 
 ---
 
-## 2. El modelo (Prophet)
+## 2. Cómo funciona el modelo
+
+### La idea en una frase
+
+El modelo mira **cómo se comportaron las citas en el pasado** (qué días se llenan, en qué meses sube la demanda,
+qué pasa los festivos) y **repite ese comportamiento hacia el futuro**, con un margen de error.
+
+### Paso a paso
+
+1. **Se toma la historia.** Para una especialidad es la columna `volumen_citas_total` del CSV; para un médico, sus
+   citas diarias en `citas_por_medico.csv`. Son unos 1.000 días, desde enero de 2024.
+2. **Se le agregan dos datos que se conocen de antemano:** si cada día es hábil (no es fin de semana ni festivo
+   colombiano) y el factor de lluvia de ese mes en Cartagena.
+3. **Prophet aprende.** Busca la combinación de "piezas" (ver la tabla de abajo) que mejor reproduce la historia.
+   Por ejemplo, descubre solo que en octubre Neumología recibe muchas más citas que en febrero, sin que nadie se lo diga.
+4. **Se proyecta.** Con lo aprendido calcula los próximos días (hasta 180), sumando las piezas para cada fecha futura.
+5. **Se calcula el margen.** Prophet simula muchos futuros posibles y se queda con el rango donde cae el 80 % de ellos.
+6. **Se entrega.** La API devuelve, por cada día, el valor proyectado y el margen, y el panel del médico lo dibuja.
+
+### Las piezas que suma el modelo
 
 Prophet descompone la serie de citas en partes que se suman:
 
@@ -74,6 +93,30 @@ citas(día) = tendencia + patrón semanal + patrón anual + efecto de días háb
 | Regresor `lluvias_laborable` | El factor de lluvia del mes, solo en días hábiles (en fines de semana casi no hay citas, llueva o no) |
 
 Los dos regresores se conocen de antemano para cualquier fecha futura, porque el calendario y la temporada de lluvias son fijos. Por eso Prophet puede usarlos para proyectar.
+
+### Ejemplo con números reales (Neumología)
+
+Valores que sacó el modelo entrenado. Cada pieza se mide **respecto a un día promedio**, por eso algunas son
+negativas: "−1,2" significa "1,2 citas menos que un día cualquiera".
+
+| Pieza | Miércoles 21 oct 2026 (hábil, lluvia fuerte) | Sábado 24 oct 2026 | Miércoles 17 feb 2027 (hábil, seco) |
+|---|---|---|---|
+| Tendencia (nivel base) | 5,5 | 5,5 | 5,6 |
+| Patrón semanal | 0,0 | +0,1 | 0,0 |
+| Patrón anual | +0,8 | +0,9 | −0,1 |
+| Día hábil + lluvia | **+7,7** | **−4,3** | −1,1 |
+| **Proyección** | **≈ 14 citas** (margen 11–17) | **≈ 2 citas** (margen 0–5) | **≈ 4 citas** (margen 2–7) |
+| Lo que pasó el año anterior, mismo mes | miércoles de oct 2025: 9 a 15 | sábados: 0 a 2 | miércoles de feb 2026: 1 a 7 |
+
+Así se ve el efecto de las reglas de Cartagena: el mismo día de la semana pasa de unas 4 citas en temporada seca a
+unas 14 en el pico de lluvias, y el sábado cae casi a cero llueva o no.
+
+### ¿Por qué Prophet?
+
+- Está hecho para datos **diarios con patrones semanales y anuales**, que es justo el caso de las citas.
+- Trae los **festivos de Colombia** incorporados y acepta variables extra como la lluvia.
+- Da el **margen de error** sin trabajo adicional.
+- Entrena en segundos con unos pocos años de datos, así que se puede entrenar un modelo **por médico** cuando se pide.
 
 ### Qué tan bien predice
 
@@ -149,7 +192,7 @@ En el panel del médico hay una sección **"Demanda proyectada"**, entre "Dispon
 | **Próximos N días** | El total del periodo y el promedio por día de consulta |
 | **Días sin cupo suficiente** | Los días en que la demanda proyectada supera los cupos de su horario. Si hay alguno, la tarjeta se pone **ámbar** y le sugiere abrir más franjas |
 | **Gráfica** | Barras verdes con las citas proyectadas por día (**ámbar** si superan los cupos), franja menta con el margen probable y línea punteada con los cupos de su horario |
-| Resumen | Una frase con el total, el día pico y qué significa el margen |
+| Resumen | Una frase con el total, el día más cargado y qué significa el margen |
 
 Los **cupos** se calculan en el navegador con el horario que el médico tiene configurado (franja ÷ duración de la cita), igual que los cupos de la agenda. Si cambia su horario, la comparación cambia sola.
 

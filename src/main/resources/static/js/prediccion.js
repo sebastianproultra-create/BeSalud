@@ -87,7 +87,7 @@
         $('demandaResumen').textContent =
             `Se esperan unas ${total} ${citas(total)} en los próximos ${tramo.length} días; el día más cargado sería el ` +
             `${fmtLargo.format(pico.fecha)} con cerca de ${pico.valor}. El margen muestra el rango en el que caería ` +
-            'la demanda 8 de cada 10 veces. Pronóstico calculado con Prophet a partir de tu historial de citas.';
+            'la demanda 8 de cada 10 veces.';
         $('demandaChart').setAttribute('aria-label',
             `Citas proyectadas por día durante los próximos ${tramo.length} días. Total ${total}, máximo ${pico.valor}.`);
 

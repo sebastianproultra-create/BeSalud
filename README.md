@@ -23,6 +23,7 @@ El proyecto está pensado como una solución de aula para demostrar el uso de au
 - Validación de citas futuras y sin superposición de horarios.
 - Gestión de historial y dictámenes médicos.
 - Sesiones con duración de 45 minutos y máximo una sesión por usuario.
+- Pronóstico de la demanda de citas por especialidad y por médico (modelo predictivo con Prophet).
 
 ## Arquitectura
 
@@ -43,6 +44,7 @@ El proyecto está basado en Spring Boot y sigue una estructura organizada por ca
 - Thymeleaf
 - Spring Security
 - Maven
+- Python, FastAPI y Prophet (modelo predictivo, en `modelo_predictivo/`)
 
 ## Roles del sistema
 
@@ -54,7 +56,8 @@ Puede:
 - ver su agenda,
 - atender citas,
 - definir o consultar horarios,
-- registrar dictámenes.
+- registrar dictámenes,
+- ver la demanda proyectada de su consulta para los próximos 7, 14 o 30 días.
 
 ### Paciente
 Puede:
@@ -71,6 +74,31 @@ Puede:
 4. El paciente agenda una cita con un doctor disponible.
 5. Se validan reglas como fecha futura, horario dentro de atención y ausencia de solapamiento.
 6. El doctor revisa la cita y puede generar un dictamen.
+
+## Modelo predictivo (Minería de Datos)
+
+BeSalud pronostica **cuántas citas va a recibir cada especialidad y cada médico** en los próximos días, para que el
+médico ajuste su agenda antes de que se llene.
+
+**Cómo funciona, en corto:**
+
+1. **Historial:** citas diarias desde enero de 2024 en cinco especialidades (Medicina General, Pediatría, Neumología,
+   Cardiología y Dermatología), simuladas con reglas de Cartagena: en temporada de lluvias Pediatría y Neumología se
+   duplican o triplican, y los fines de semana y festivos colombianos casi no tienen citas. Las citas están repartidas
+   entre 14 médicos con horarios reales y cada una trae su dictamen SOAP.
+2. **Modelo:** [Prophet](https://facebook.github.io/prophet/) aprende de ese historial la tendencia, el patrón de la
+   semana, el patrón del año, el efecto de los días hábiles y el de la lluvia, y con eso proyecta los días que vienen
+   junto con un margen de error (el rango donde cae la demanda 8 de cada 10 veces).
+3. **API:** un servicio en Python (FastAPI) en Railway entrena el modelo de la especialidad o del médico que se pida y
+   devuelve el pronóstico en JSON.
+4. **Spring Boot:** `PrediccionService` consulta esa API (variable `API_PYTHON_URL`) y `/api/predicciones/mia`
+   entrega el pronóstico del médico que tiene la sesión abierta.
+5. **Panel del médico:** la sección **"Demanda proyectada"** muestra las citas esperadas para mañana, el día más
+   cargado, el total del periodo y los días en que la demanda supera sus cupos, con una gráfica que compara la demanda
+   proyectada con el horario del médico.
+
+La explicación completa (reglas de los datos, ejemplo con números, precisión del modelo, rutas de la API, parte visual
+y cuentas de prueba) está en [`modelo_predictivo/README.md`](modelo_predictivo/README.md).
 
 ## Objetivo pedagógico
 
