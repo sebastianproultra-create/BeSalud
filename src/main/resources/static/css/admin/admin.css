@@ -1,0 +1,161 @@
+/* ==============================================
+   ADMINISTRACIÓN — BeSalud
+   Banner, KPIs, tarjetas y botones vienen de base/panel.css (mismo look del panel médico).
+   Aquí solo lo propio de las vistas de admin: tablas, buscador, fichas y mensajes.
+   ============================================== */
+
+.admin-page .doc-main--narrow { max-width: 880px; }
+
+/* El banner sin KPIs no necesita el espacio inferior */
+.doc-hero-top:last-child { padding-bottom: 0; }
+.doc-hero-sub .doc-kpi-chip { margin-left: 8px; }
+
+.doc-kpis--4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.doc-kpis--6 { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+
+/* Insignia "N en total" del banner */
+.doc-hero .card-counter {
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--primary-soft);
+    letter-spacing: 0.04em;
+}
+
+/* ==============================================
+   BUSCADOR
+   ============================================== */
+.admin-page form.toolbar {
+    margin: 0;
+    padding: 16px;
+    border: 0;
+    border-radius: 12px;
+    background: var(--white);
+    box-shadow: 0 1px 3px rgba(0, 47, 36, 0.06);
+}
+.admin-page .doc-card form.toolbar {
+    margin-bottom: 24px;
+    background: var(--off-white);
+    box-shadow: none;
+}
+
+/* ==============================================
+   TABLAS
+   ============================================== */
+.admin-page .table-scroll {
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+}
+.admin-page .doc-card.table-card { padding: 0; overflow: hidden; }
+.admin-page .doc-card.table-card .table-scroll { border: 0; border-radius: 0; }
+.admin-page table {
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+}
+.admin-page table th {
+    padding: 12px 20px;
+    font-size: 11px;
+    color: var(--text-light);
+    background: var(--off-white);
+}
+.admin-page table td { padding: 14px 20px; }
+.admin-page table tr:hover td { background: var(--success-bg); }
+
+/* Estado del doctor: misma píldora que .doc-tag */
+.status-badge {
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+.status-activo { background: rgba(198, 239, 224, 0.45); color: var(--secondary-color); }
+.status-inactivo { background: var(--danger-bg); color: var(--danger-dark); }
+
+/* ==============================================
+   FICHAS DE DOCTOR
+   ============================================== */
+.admin-page .card-grid { margin: 0; }
+.admin-page .person-card {
+    border: 0;
+    border-radius: 12px;
+    box-shadow: 0 1px 3px rgba(0, 47, 36, 0.06);
+}
+.admin-page .person-card:hover { box-shadow: 0 6px 16px -8px rgba(0, 47, 36, 0.3); }
+.admin-page .avatar {
+    background: var(--primary-color);
+    color: var(--primary-soft);
+    border: 0;
+}
+.admin-page .person-card-name {
+    font-family: var(--font-display);
+    font-weight: 500;
+    color: var(--text-dark);
+}
+.admin-page .person-card-meta {
+    font-weight: 700;
+    color: var(--accent-dark);
+}
+.admin-page .empty-note { margin: 0; }
+.admin-page .pagination { margin-top: 20px; }
+
+/* Formularios dentro de una tarjeta: sin la caja que global.css pone a todo <form> */
+.admin-page .doc-card form.card-form { margin: 0; }
+
+/* ==============================================
+   MENSAJES DEL CENTRO DE AYUDA
+   ============================================== */
+.mensajes-ayuda {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+.mensaje-ayuda {
+    padding: 16px 0;
+    border-top: 1px solid var(--border-color);
+}
+.mensaje-ayuda:first-child {
+    border-top: none;
+    padding-top: 4px;
+}
+.mensaje-ayuda-cabecera {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 6px 14px;
+    font-size: 14px;
+}
+.mensaje-ayuda-cabecera a {
+    color: var(--primary-mid);
+    overflow-wrap: anywhere;
+}
+.mensaje-ayuda-tema {
+    padding: 2px 10px;
+    border-radius: 999px;
+    background: var(--accent-bg);
+    color: var(--accent-dark);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+}
+.mensaje-ayuda-cabecera time {
+    color: var(--text-light);
+    font-size: 12px;
+}
+.mensaje-ayuda-texto {
+    margin: 8px 0 10px;
+    white-space: pre-line;
+    line-height: 1.6;
+}
+
+/* ==============================================
+   RESPONSIVE
+   ============================================== */
+@media (max-width: 1100px) {
+    .doc-kpis--6 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+@media (max-width: 640px) {
+    .doc-kpis--4,
+    .doc-kpis--6 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}

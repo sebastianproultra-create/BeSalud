@@ -5,21 +5,26 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Doctores — BeSalud</title>
     <link rel="stylesheet" th:href="@{/css/base/global.css}">
+    <link rel="stylesheet" th:href="@{/css/base/panel.css}">
+    <link rel="stylesheet" th:href="@{/css/admin/admin.css}">
 </head>
-<body>
+<body class="doc-page admin-page">
 <header th:replace="~{fragments/layout :: shell-admin('doctores')}"></header>
 
-<main class="container">
+<main class="doc-main">
 
-    <section class="page-header" aria-labelledby="page-title">
-        <div>
-            <p class="page-eyebrow">Cuerpo médico</p>
-            <h1 id="page-title" class="page-title">Doctores registrados</h1>
-            <p class="page-subtitle">Administra el equipo médico y consulta sus horarios.</p>
-        </div>
-        <div class="page-actions">
-            <span class="card-counter" th:text="${doctores.totalElements} + ' en total'">0 en total</span>
-            <a href="#registrar" class="btn btn-primary">+ Registrar doctor</a>
+    <section class="doc-hero" aria-labelledby="page-title">
+        <div class="doc-hero-glow doc-hero-glow--a" aria-hidden="true"></div>
+        <div class="doc-hero-glow doc-hero-glow--b" aria-hidden="true"></div>
+        <div class="doc-hero-top">
+            <div class="doc-hero-text">
+                <p class="doc-eyebrow"><span class="doc-pulse" aria-hidden="true"></span>Cuerpo médico</p>
+                <h1 id="page-title" class="doc-hero-title">Doctores <em>registrados</em></h1>
+                <p class="doc-hero-sub">Administra el equipo médico y consulta sus horarios.<span class="card-counter" th:text="${doctores.totalElements} + ' en total'">0 en total</span></p>
+            </div>
+            <div class="doc-hero-actions">
+                <a href="#registrar" class="doc-btn doc-btn--amber"><span class="material-symbols-outlined" aria-hidden="true">person_add</span>Registrar doctor</a>
+            </div>
         </div>
     </section>
 
@@ -39,7 +44,7 @@
     </form>
 
     <section aria-label="Equipo médico">
-        <div th:if="${doctores.isEmpty()}" class="card empty-note">No hay doctores que coincidan con tu búsqueda.</div>
+        <div th:if="${doctores.isEmpty()}" class="empty-state">No hay doctores que coincidan con tu búsqueda.</div>
 
         <div th:if="${!doctores.isEmpty()}" class="card-grid">
             <article th:each="doctor : ${doctores.content}" class="person-card">
@@ -69,9 +74,16 @@
     </section>
 
     <!-- ═══════════════ REGISTRAR DOCTOR ═══════════════ -->
-    <section id="registrar" class="card" aria-labelledby="register-title">
-        <h2 id="register-title">Registrar doctor</h2>
-        <p class="form-subtitle">Crea una nueva cuenta médica con acceso al panel de control.</p>
+    <section id="registrar" class="doc-card" aria-labelledby="register-title">
+        <div class="doc-card-head">
+            <div class="doc-card-title">
+                <span class="material-symbols-outlined doc-card-ico doc-card-ico--amber" aria-hidden="true">person_add</span>
+                <div>
+                    <h2 id="register-title">Registrar doctor</h2>
+                    <p>Crea una nueva cuenta médica con acceso al panel de control.</p>
+                </div>
+            </div>
+        </div>
 
         <div th:if="${errorRegistro}" class="alert alert-error" role="alert" data-scroll-error="true" th:text="${errorRegistro}"></div>
 

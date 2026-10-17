@@ -1119,14 +1119,12 @@ body {
 form,
 .toolbar,
 .person-card,
-.stat-card,
 table {
     border-radius: var(--radius);
 }
 
 .card,
-.person-card,
-.stat-card {
+.person-card {
     border-color: rgba(19, 30, 26, 0.06);
     box-shadow: var(--shadow-sm);
 }

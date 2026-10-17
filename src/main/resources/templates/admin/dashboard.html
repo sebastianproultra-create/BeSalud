@@ -6,37 +6,72 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Panel de administración - BeSalud</title>
     <link rel="stylesheet" th:href="@{/css/base/global.css}">
-    <link rel="stylesheet" th:href="@{/css/admin/dashboard.css}">
+    <link rel="stylesheet" th:href="@{/css/base/panel.css}">
+    <link rel="stylesheet" th:href="@{/css/admin/admin.css}">
 </head>
-<body>
+<body class="doc-page admin-page">
 <header th:replace="~{fragments/layout :: shell-admin('panel')}"></header>
 
-<main class="container">
-    <section class="page-header" aria-labelledby="page-title">
-        <div>
-            <p class="page-eyebrow">Panel de administración</p>
-            <h1 id="page-title" class="page-title">Resumen general</h1>
+<main class="doc-main">
+    <section class="doc-hero" aria-labelledby="page-title">
+        <div class="doc-hero-glow doc-hero-glow--a" aria-hidden="true"></div>
+        <div class="doc-hero-glow doc-hero-glow--b" aria-hidden="true"></div>
+        <div class="doc-hero-top">
+            <div class="doc-hero-text">
+                <p class="doc-eyebrow"><span class="doc-pulse" aria-hidden="true"></span>Panel de administración</p>
+                <h1 id="page-title" class="doc-hero-title">Resumen <em>general</em></h1>
+                <p class="doc-hero-sub">Gestión de doctores, pacientes y solicitudes del Centro de ayuda.</p>
+            </div>
+            <div class="doc-hero-actions">
+                <a th:href="@{/admin/estadisticas}" class="doc-btn doc-btn--glass"><span class="material-symbols-outlined" aria-hidden="true">monitoring</span>Ver estadísticas</a>
+                <a th:href="@{/doctores#registrar}" class="doc-btn doc-btn--amber"><span class="material-symbols-outlined" aria-hidden="true">person_add</span>Registrar doctor</a>
+            </div>
+        </div>
+        <div class="doc-kpis doc-kpis--4">
+            <article class="doc-kpi" aria-label="Doctores">
+                <div class="doc-kpi-head"><span>Doctores</span><span class="material-symbols-outlined doc-kpi-ico" aria-hidden="true">stethoscope</span></div>
+                <p class="doc-kpi-value"><strong th:text="${totalDoctores}">0</strong> <span>registrados</span></p>
+                <span class="doc-kpi-foot">Cuerpo médico</span>
+            </article>
+            <article class="doc-kpi" aria-label="Pacientes">
+                <div class="doc-kpi-head"><span>Pacientes</span><span class="material-symbols-outlined doc-kpi-ico" aria-hidden="true">groups</span></div>
+                <p class="doc-kpi-value"><strong th:text="${totalPacientes}">0</strong> <span>registrados</span></p>
+                <span class="doc-kpi-foot">Directorio</span>
+            </article>
+            <article class="doc-kpi" aria-label="Administradores">
+                <div class="doc-kpi-head"><span>Administradores</span><span class="material-symbols-outlined doc-kpi-ico" aria-hidden="true">admin_panel_settings</span></div>
+                <p class="doc-kpi-value"><strong th:text="${#lists.size(admins)}">0</strong> <span>con acceso</span></p>
+                <span class="doc-kpi-foot">Equipo interno</span>
+            </article>
+            <article class="doc-kpi" aria-label="Mensajes">
+                <div class="doc-kpi-head"><span>Mensajes</span><span class="material-symbols-outlined doc-kpi-ico doc-kpi-ico--amber" aria-hidden="true">support_agent</span></div>
+                <p class="doc-kpi-value"><strong th:text="${#lists.size(mensajesAyuda)}">0</strong> <span>pendientes</span></p>
+                <span class="doc-kpi-chip doc-kpi-chip--amber" th:if="${!#lists.isEmpty(mensajesAyuda)}">Acción requerida</span>
+                <span class="doc-kpi-foot" th:if="${#lists.isEmpty(mensajesAyuda)}">Todo al día</span>
+            </article>
         </div>
     </section>
 
-    <div class="stats-grid">
-        <div class="stat-card">
-            <h2>Total doctores</h2>
-            <div class="stat-number" th:text="${totalDoctores}"></div>
+    <nav class="section-nav" aria-label="Secciones del panel">
+        <div class="section-nav-links">
+            <a href="#ayuda" class="section-nav-link">Centro de ayuda</a>
+            <a href="#doctores" class="section-nav-link">Doctores</a>
+            <a href="#pacientes" class="section-nav-link">Pacientes</a>
         </div>
-        <div class="stat-card">
-            <h2>Total pacientes</h2>
-            <div class="stat-number" th:text="${totalPacientes}"></div>
-        </div>
-        <div class="stat-card">
-            <h2>Total administradores</h2>
-            <div class="stat-number" th:text="${#lists.size(admins)}"></div>
-        </div>
-    </div>
+    </nav>
 
-    <section id="ayuda" class="card" aria-labelledby="ayuda-title">
-        <h2 id="ayuda-title">Mensajes del Centro de ayuda
-            <span class="mensajes-contador" th:text="${#lists.size(mensajesAyuda)}">0</span></h2>
+
+    <section id="ayuda" class="doc-card" aria-labelledby="ayuda-title">
+        <div class="doc-card-head">
+            <div class="doc-card-title">
+                <span class="material-symbols-outlined doc-card-ico doc-card-ico--amber" aria-hidden="true">support_agent</span>
+                <div>
+                    <h2 id="ayuda-title">Centro de ayuda</h2>
+                    <p>Mensajes enviados desde el formulario público</p>
+                </div>
+            </div>
+            <span class="card-counter" th:text="${#lists.size(mensajesAyuda)}">0</span>
+        </div>
         <p th:if="${#lists.isEmpty(mensajesAyuda)}" class="text-muted">No hay mensajes pendientes.</p>
         <ul th:unless="${#lists.isEmpty(mensajesAyuda)}" class="mensajes-ayuda">
             <li th:each="m : ${mensajesAyuda}" class="mensaje-ayuda">
@@ -54,8 +89,17 @@
         </ul>
     </section>
 
-    <div class="card">
-        <h2>Doctores registrados</h2>
+    <section id="doctores" class="doc-card" aria-labelledby="doctores-title">
+        <div class="doc-card-head">
+            <div class="doc-card-title">
+                <span class="material-symbols-outlined doc-card-ico" aria-hidden="true">stethoscope</span>
+                <div>
+                    <h2 id="doctores-title">Doctores registrados</h2>
+                    <p>Activa o desactiva cuentas médicas</p>
+                </div>
+            </div>
+            <a th:href="@{/doctores}" class="btn btn-secondary btn-sm">Ver todos</a>
+        </div>
         <form th:action="@{/admin}" method="get" class="toolbar" role="search">
             <label for="search" class="visually-hidden">Buscar por nombre o email</label>
             <input id="search" type="text" name="search" th:value="${search}" placeholder="Buscar nombre o email"/>
@@ -102,10 +146,19 @@
         </table>
         </div>
         <nav th:replace="~{fragments/layout :: paginationQ(${doctores}, '/admin', ${queryDoctores}, 'pageDoctores')}"></nav>
-    </div>
+    </section>
 
-    <div class="card">
-        <h2>Pacientes registrados</h2>
+    <section id="pacientes" class="doc-card" aria-labelledby="pacientes-title">
+        <div class="doc-card-head">
+            <div class="doc-card-title">
+                <span class="material-symbols-outlined doc-card-ico" aria-hidden="true">groups</span>
+                <div>
+                    <h2 id="pacientes-title">Pacientes registrados</h2>
+                    <p>Consulta las citas de cada paciente</p>
+                </div>
+            </div>
+            <a th:href="@{/pacientes}" class="btn btn-secondary btn-sm">Ver todos</a>
+        </div>
         <div class="table-scroll">
         <table>
             <thead>
@@ -129,7 +182,7 @@
         </table>
         </div>
         <nav th:replace="~{fragments/layout :: paginationQ(${pacientes}, '/admin', ${queryPacientes}, 'pagePacientes')}"></nav>
-    </div>
+    </section>
 </main>
 
 <footer th:replace="~{fragments/layout :: app-footer}"></footer>

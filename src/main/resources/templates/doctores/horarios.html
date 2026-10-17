@@ -6,21 +6,29 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Horarios de atención - BeSalud</title>
     <link rel="stylesheet" th:href="@{/css/base/global.css}">
+    <link rel="stylesheet" th:href="@{/css/base/panel.css}">
+    <link rel="stylesheet" th:href="@{/css/admin/admin.css}">
 </head>
-<body>
+<body class="doc-page admin-page">
 <header th:replace="~{fragments/layout :: shell-admin('doctores')}"></header>
 
-<main class="container">
-    <section class="page-header" aria-labelledby="page-title">
-        <div>
-            <p class="page-eyebrow">Horarios de atención</p>
-            <h1 id="page-title" class="page-title" th:text="'Dr. ' + ${doctor.nombre} + ' ' + ${doctor.apellido}">Doctor</h1>
-            <p class="page-subtitle" th:text="${doctor.especialidad}">Especialidad</p>
+<main class="doc-main">
+    <section class="doc-hero" aria-labelledby="page-title">
+        <div class="doc-hero-glow doc-hero-glow--a" aria-hidden="true"></div>
+        <div class="doc-hero-glow doc-hero-glow--b" aria-hidden="true"></div>
+        <div class="doc-hero-top">
+            <div class="doc-hero-text">
+                <p class="doc-eyebrow"><span class="doc-pulse" aria-hidden="true"></span>Horarios de atención</p>
+                <h1 id="page-title" class="doc-hero-title" th:text="'Dr. ' + ${doctor.nombre} + ' ' + ${doctor.apellido}">Doctor</h1>
+                <p class="doc-hero-sub"><span th:text="${doctor.especialidad}">Especialidad</span></p>
+            </div>
+            <div class="doc-hero-actions">
+                <a th:href="@{/doctores}" class="doc-btn doc-btn--glass"><span class="material-symbols-outlined" aria-hidden="true">arrow_back</span>Volver a doctores</a>
+            </div>
         </div>
-        <a th:href="@{/doctores}" class="btn btn-secondary">← Volver a doctores</a>
     </section>
 
-    <div class="card table-card">
+    <div class="doc-card table-card">
         <div class="table-scroll" th:if="${!horarios.isEmpty()}">
         <table>
             <thead>
