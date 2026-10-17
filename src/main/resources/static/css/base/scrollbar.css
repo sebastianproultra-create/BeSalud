@@ -1,0 +1,30 @@
+/* Barra de desplazamiento única para toda la app (admin, médico, paciente y portada).
+   Cualquier zona con scroll —la página, paneles laterales, listas y desplegables— usa esta misma barra. */
+::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+}
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+::-webkit-scrollbar-thumb {
+    background: #B9D3C6;
+    border-radius: 999px;
+    border: 2px solid transparent;
+    background-clip: padding-box;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: #8DB5A3;
+    background-clip: padding-box;
+}
+::-webkit-scrollbar-corner {
+    background: transparent;
+}
+
+/* Firefox (Zen) no tiene ::-webkit-scrollbar; en Chrome estas propiedades anularían lo de arriba */
+@supports not selector(::-webkit-scrollbar) {
+    * {
+        scrollbar-width: thin;
+        scrollbar-color: #B9D3C6 transparent;
+    }
+}

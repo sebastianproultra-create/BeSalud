@@ -4,6 +4,7 @@
    Tipografía: Newsreader (títulos) + Plus Jakarta Sans (texto)
    ============================================== */
 
+@import url('scrollbar.css');
 @import url('https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@100..700&display=swap');
 
@@ -644,31 +645,6 @@ footer a:hover {
 .custom-select-option.selected:hover {
     background: var(--secondary-color);
     color: var(--white);
-}
-
-/* Scrollbar styling for dropdown */
-.custom-select-options::-webkit-scrollbar {
-    width: 10px;
-}
-.custom-select-options::-webkit-scrollbar-track {
-    background: var(--light-bg);
-    border-left: 1px solid var(--border-color);
-}
-.custom-select-options::-webkit-scrollbar-thumb {
-    background: var(--primary-color);
-    border-radius: 6px;
-    border: 2px solid var(--light-bg);
-}
-.custom-select-options::-webkit-scrollbar-thumb:hover {
-    background: var(--secondary-color);
-}
-
-/* Firefox (en Chrome estas propiedades anularían los estilos webkit de arriba) */
-@supports not selector(::-webkit-scrollbar) {
-    .custom-select-options {
-        scrollbar-width: auto;
-        scrollbar-color: var(--primary-color) var(--light-bg);
-    }
 }
 
 /* Encabezado de grupo (optgroup) dentro del desplegable */

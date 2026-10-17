@@ -785,8 +785,6 @@
     max-height: 420px;
     overflow-y: auto;
     padding-right: 4px;
-    scrollbar-width: thin;
-    scrollbar-color: #B9D3C6 transparent;
 }
 /* En dos columnas la tarjeta derecha toma la altura del formulario y no al revés:
    height 0 + min-height 100% hace que no estire la fila y la lista se desplace por dentro. */

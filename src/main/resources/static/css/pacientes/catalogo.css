@@ -306,9 +306,6 @@
     overflow-y: auto;
     padding: 14px 12px;
 }
-.sidebar-body::-webkit-scrollbar { width: 4px; }
-.sidebar-body::-webkit-scrollbar-track { background: var(--light-bg); }
-.sidebar-body::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 2px; }
 
 /* Empty state */
 .sidebar-empty {
@@ -1916,12 +1913,8 @@ body.patient-catalog-page {
     max-height: none;
     overflow-y: auto;
     overscroll-behavior: contain;
-    scrollbar-width: thin;
-    scrollbar-color: #B9D3C6 transparent;
 }
 
-.patient-catalog-page .patient-sidebar .sidebar-body::-webkit-scrollbar { width: 6px; }
-.patient-catalog-page .patient-sidebar .sidebar-body::-webkit-scrollbar-thumb { background: #B9D3C6; border-radius: 3px; }
 
 .patient-catalog-page .patient-sidebar .sidebar-close {
     display: none !important;

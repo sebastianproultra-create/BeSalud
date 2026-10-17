@@ -112,9 +112,6 @@
     scroll-snap-type: x mandatory;
     -webkit-overflow-scrolling: touch;
 }
-.date-strip::-webkit-scrollbar { height: 4px; }
-.date-strip::-webkit-scrollbar-track { background: var(--light-bg); border-radius: 2px; }
-.date-strip::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 2px; }
 
 .date-card {
     flex-shrink: 0;
