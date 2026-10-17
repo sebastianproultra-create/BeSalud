@@ -86,6 +86,7 @@
             <a href="#perfil" class="section-nav-link">Mi perfil</a>
             <a href="#horarios" class="section-nav-link">Horarios de atención</a>
             <a href="#disponibilidad" class="section-nav-link">Disponibilidad semanal</a>
+            <a href="#demanda" class="section-nav-link">Demanda proyectada</a>
             <a href="#citas" class="section-nav-link">Mis citas</a>
             <a href="#pacientes" class="section-nav-link">Pacientes</a>
         </div>
@@ -338,6 +339,76 @@
             </article>
         </div>
         <p th:if="${weeklySlotTotal == 0}" class="text-muted doc-nota">No hay horarios definidos. Agrega tus horarios para mostrar disponibilidad.</p>
+    </section>
+
+    <!-- ═══════════════ DEMANDA PROYECTADA (modelo predictivo) ═══════════════ -->
+    <section id="demanda" class="doc-card" aria-labelledby="demanda-title"
+             th:attr="data-url=@{/api/predicciones/mia(dias=30)}">
+        <div class="doc-card-head">
+            <div class="doc-card-title">
+                <span class="doc-card-ico doc-card-ico--amber material-symbols-outlined" aria-hidden="true">insights</span>
+                <div>
+                    <h2 id="demanda-title">Demanda proyectada</h2>
+                    <p>Citas que se esperan según el historial de tu consulta, la temporada de lluvias y los festivos</p>
+                </div>
+            </div>
+            <div class="doc-segmentos" role="group" aria-label="Días a proyectar">
+                <button type="button" class="doc-segmento demanda-rango" data-dias="7">7 días</button>
+                <button type="button" class="doc-segmento demanda-rango" data-dias="14">14 días</button>
+                <button type="button" class="doc-segmento demanda-rango is-active" data-dias="30">30 días</button>
+            </div>
+        </div>
+
+        <!-- Franjas del horario: con ellas se calculan los cupos de cada día para compararlos con la demanda -->
+        <div hidden id="demandaHorarios">
+            <span th:each="h : ${horarios}" th:if="${h.diaSemana != null and h.horaInicio != null and h.horaFin != null}"
+                  th:attr="data-dia=${h.diaSemana.name()},data-inicio=${#temporals.format(h.horaInicio, 'HH:mm')},data-fin=${#temporals.format(h.horaFin, 'HH:mm')},data-duracion=${h.duracionCitaMinutos}"></span>
+        </div>
+
+        <div id="demandaCargando" class="demanda-cargando" role="status">
+            <span class="demanda-spinner" aria-hidden="true"></span>
+            Calculando el pronóstico… la primera vez puede tardar unos segundos.
+        </div>
+
+        <div id="demandaVacio" class="empty-state" hidden>
+            <span class="material-symbols-outlined empty-state-icon" aria-hidden="true">query_stats</span>
+            <p id="demandaVacioTexto">Aún no hay suficiente historial de citas para proyectar tu demanda.</p>
+        </div>
+
+        <div id="demandaContenido" hidden>
+            <div class="demanda-kpis">
+                <article class="demanda-kpi">
+                    <span class="doc-label">Mañana</span>
+                    <p class="demanda-kpi-valor"><strong id="dkManana">0</strong> <span>citas</span></p>
+                    <span class="demanda-kpi-foot" id="dkMananaRango">entre 0 y 0</span>
+                </article>
+                <article class="demanda-kpi">
+                    <span class="doc-label">Día más cargado</span>
+                    <p class="demanda-kpi-valor"><strong id="dkPico">0</strong> <span>citas</span></p>
+                    <span class="demanda-kpi-foot" id="dkPicoFecha">—</span>
+                </article>
+                <article class="demanda-kpi">
+                    <span class="doc-label" id="dkTotalTitulo">Próximos 30 días</span>
+                    <p class="demanda-kpi-valor"><strong id="dkTotal">0</strong> <span>citas</span></p>
+                    <span class="demanda-kpi-foot" id="dkTotalPromedio">0 por día hábil</span>
+                </article>
+                <article class="demanda-kpi" id="dkAlertaCaja">
+                    <span class="doc-label">Días sin cupo suficiente</span>
+                    <p class="demanda-kpi-valor"><strong id="dkAlerta">0</strong> <span id="dkAlertaUnidad">días</span></p>
+                    <span class="demanda-kpi-foot" id="dkAlertaFoot">Tus cupos cubren la demanda</span>
+                </article>
+            </div>
+
+            <div class="demanda-grafica">
+                <canvas id="demandaChart" role="img" aria-label="Gráfica de citas proyectadas por día"></canvas>
+            </div>
+            <ul class="demanda-leyenda" aria-hidden="true">
+                <li><span class="demanda-muestra demanda-muestra--valor"></span>Citas proyectadas</li>
+                <li><span class="demanda-muestra demanda-muestra--rango"></span>Margen probable</li>
+                <li><span class="demanda-muestra demanda-muestra--cupos"></span>Cupos de tu horario</li>
+            </ul>
+            <p class="text-muted doc-nota" id="demandaResumen"></p>
+        </div>
     </section>
 
     <!-- ═══════════════ MIS CITAS ═══════════════ -->
@@ -860,12 +931,14 @@ window.BESALUD_DICTAMEN = {
 <script th:src="@{/js/dictamen.js}"></script>
 <script th:src="@{/js/custom-select.js}"></script>
 <script th:src="@{/js/form-submit.js}"></script>
+<script th:src="@{/vendor/chart/chart.umd.js}"></script>
+<script th:src="@{/js/prediccion.js}"></script>
 <script>
 var filtroCitas = 'TODAS';
-document.querySelectorAll('.doc-segmento').forEach(function(b) {
+document.querySelectorAll('#citas .doc-segmento').forEach(function(b) {
     b.addEventListener('click', function() {
         filtroCitas = b.dataset.filtro;
-        document.querySelectorAll('.doc-segmento').forEach(function(x) { x.classList.toggle('is-active', x === b); });
+        document.querySelectorAll('#citas .doc-segmento').forEach(function(x) { x.classList.toggle('is-active', x === b); });
         filtrarCitas();
     });
 });

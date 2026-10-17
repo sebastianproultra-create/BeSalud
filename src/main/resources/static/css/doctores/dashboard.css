@@ -864,6 +864,103 @@
 .availability-empty { background: var(--d-highest); color: var(--d-on-var); }
 
 /* ==============================================
+   DEMANDA PROYECTADA (modelo predictivo)
+   ============================================== */
+.demanda-cargando {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 32px 16px;
+    border-radius: 12px;
+    background: var(--d-low);
+    color: var(--d-on-var);
+    font-size: 14px;
+}
+/* .empty-state y .demanda-cargando son flex: sin esto el atributo hidden no los oculta */
+#demanda [hidden] { display: none; }
+.demanda-spinner {
+    flex-shrink: 0;
+    width: 18px;
+    height: 18px;
+    border: 2px solid var(--d-highest);
+    border-top-color: var(--d-primary);
+    border-radius: 50%;
+    animation: demanda-giro 0.8s linear infinite;
+}
+@keyframes demanda-giro { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .demanda-spinner { animation: none; } }
+
+.demanda-kpis {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 12px;
+    margin-bottom: 24px;
+}
+.demanda-kpi {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: 14px 16px;
+    border-radius: 12px;
+    border-top: 2px solid var(--d-primary);
+    background: var(--d-low);
+    min-width: 0;
+}
+.demanda-kpi .doc-label { margin-bottom: 2px; }
+.demanda-kpi-valor {
+    margin: 0;
+    font-size: 13px;
+    color: var(--d-on-var);
+}
+.demanda-kpi-valor strong {
+    font-family: 'Newsreader', Georgia, serif;
+    font-size: 30px;
+    line-height: 38px;
+    font-weight: 600;
+    color: var(--d-on);
+}
+.demanda-kpi-foot {
+    font-size: 12px;
+    line-height: 18px;
+    color: var(--d-on-var);
+}
+.demanda-kpi--alerta {
+    border-top-color: var(--d-amber-c);
+    background: rgba(255, 221, 184, 0.45);
+}
+.demanda-kpi--alerta .demanda-kpi-foot { color: var(--d-amber); font-weight: 600; }
+
+.demanda-grafica {
+    position: relative;
+    height: 300px;
+}
+.demanda-leyenda {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 20px;
+    margin: 12px 0 0;
+    padding: 0;
+    list-style: none;
+    font-size: 12px;
+    color: var(--d-on-var);
+}
+.demanda-leyenda li { display: inline-flex; align-items: center; gap: 6px; }
+.demanda-muestra { display: inline-block; width: 12px; height: 12px; border-radius: 3px; }
+.demanda-muestra--valor { background: var(--d-primary-c); }
+.demanda-muestra--rango { background: var(--d-pf); }
+.demanda-muestra--cupos { height: 0; border-top: 2px dashed var(--d-amber); border-radius: 0; width: 16px; }
+
+@media (max-width: 1100px) {
+    .demanda-kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 640px) {
+    .demanda-kpis { gap: 8px; }
+    .demanda-kpi { padding: 12px; }
+    .demanda-kpi-valor strong { font-size: 24px; line-height: 30px; }
+    .demanda-grafica { height: 240px; }
+}
+
+/* ==============================================
    CITAS
    ============================================== */
 .doc-segmentos {

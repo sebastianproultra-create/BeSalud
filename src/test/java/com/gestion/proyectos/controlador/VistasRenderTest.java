@@ -12,6 +12,7 @@ import com.gestion.proyectos.modelo.TipoDiagnostico;
 import com.gestion.proyectos.modelo.ViaAdministracion;
 import com.gestion.proyectos.modelo.Doctor;
 import com.gestion.proyectos.modelo.EstadoCita;
+import com.gestion.proyectos.modelo.HorarioAtencion;
 import com.gestion.proyectos.modelo.Paciente;
 import com.gestion.proyectos.oauth2.OAuth2LoginSuccessHandler;
 import com.gestion.proyectos.repositorio.AdminRepositorio;
@@ -102,6 +103,27 @@ class VistasRenderTest {
                         .with(user("doc@test.com").roles("DOCTOR")))
                 .andExpect(status().isOk())
                 .andExpect(content().string(containsString("480 minutos")));
+    }
+
+    @Test
+    void dashboardDoctor_muestraDemandaProyectadaConFranjasDelHorario() throws Exception {
+        Doctor d = new Doctor();
+        d.setId("d1");
+        d.setNombre("Ana");
+        d.setApellido("Ruiz");
+        when(doctorService.buscarPorEmail("doc@test.com")).thenReturn(Optional.of(d));
+        when(doctorService.dailySlotCounts(any())).thenReturn(Map.of());
+        when(doctorService.horariosDelDoctor("d1")).thenReturn(List.of(
+                new HorarioAtencion("d1", java.time.DayOfWeek.MONDAY, LocalTime.of(8, 0), LocalTime.of(12, 0))));
+
+        mockMvc.perform(get("/doctores").with(user("doc@test.com").roles("DOCTOR")))
+                .andExpect(status().isOk())
+                .andExpect(content().string(containsString("id=\"demanda\"")))
+                .andExpect(content().string(containsString("/api/predicciones/mia?dias=30")))
+                .andExpect(content().string(containsString("data-dia=\"MONDAY\"")))
+                .andExpect(content().string(containsString("data-inicio=\"08:00\"")))
+                .andExpect(content().string(containsString("data-duracion=\"30\"")))
+                .andExpect(content().string(containsString("/js/prediccion.js")));
     }
 
     /** Dictamen SOAP completo, como lo deja guardado DoctorService. */
