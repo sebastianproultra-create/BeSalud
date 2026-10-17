@@ -92,32 +92,8 @@ public class DoctorService {
 
     // ── Dashboard data ───────────────────────────────────────────────────────
 
-    public List<Cita> citasDelDoctor(String doctorId, String filtroEstado) {
-        if (filtroEstado == null || filtroEstado.isEmpty() || "TODAS".equals(filtroEstado)) {
-            return citaRepo.findByDoctorId(doctorId);
-        }
-        return citaRepo.findByDoctorIdAndEstado(doctorId, EstadoCita.valueOf(filtroEstado));
-    }
 
-    public Map<String, String> mapPacienteNombres(List<Cita> citas) {
-        List<String> ids = citas.stream()
-                .map(Cita::getPacienteId)
-                .filter(id -> id != null)
-                .distinct()
-                .toList();
-        Map<String, String> nombres = new HashMap<>();
-        personaRepo.findAllById(ids)
-                .forEach(p -> nombres.put(p.getId(), p.getNombre() + " " + p.getApellido()));
-        return nombres;
-    }
 
-    public Map<String, Map<String, Object>> dictamenDataMap(List<Cita> citas) {
-        Map<String, Map<String, Object>> result = new HashMap<>();
-        for (Cita c : citas)
-            if (c.getDictamen() != null)
-                result.put(c.getId(), DictamenVista.de(c.getDictamen()));
-        return result;
-    }
 
     public String actualizarFoto(Doctor doctor, org.springframework.web.multipart.MultipartFile foto) {
         if (foto == null || foto.isEmpty())
@@ -141,19 +117,6 @@ public class DoctorService {
         }
     }
 
-    public List<Paciente> pacientesDelDoctor(String doctorId) {
-        List<String> ids = citaRepo.findByDoctorId(doctorId).stream()
-                .map(Cita::getPacienteId)
-                .filter(id -> id != null)
-                .distinct()
-                .toList();
-        List<Paciente> pacientes = new ArrayList<>();
-        personaRepo.findAllById(ids).forEach(p -> {
-            if (p instanceof Paciente pac)
-                pacientes.add(pac);
-        });
-        return pacientes;
-    }
 
     public List<Map<String, Object>> weeklyAvailability(String doctorId) {
         List<HorarioAtencion> horarios = horarioRepo.findByDoctorId(doctorId);

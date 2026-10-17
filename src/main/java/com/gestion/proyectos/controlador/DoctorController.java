@@ -12,6 +12,8 @@ import com.gestion.proyectos.servicio.DictamenVista;
 import com.gestion.proyectos.servicio.DoctorService;
 import com.gestion.proyectos.servicio.PanelDoctorService;
 
+import static com.gestion.proyectos.util.ValidacionUtil.esVacio;
+
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -51,12 +53,11 @@ public class DoctorController {
         this.panelDoctorService = panelDoctorService;
     }
 
-    // "a=1&b=x&" con los parámetros no vacíos, listo para concatenar el de la página
     private static String parametros(String... claveValor) {
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < claveValor.length; i += 2) {
             String v = claveValor[i + 1];
-            if (v != null && !v.isBlank())
+            if (!esVacio(v))
                 sb.append(claveValor[i]).append('=').append(java.net.URLEncoder.encode(v.trim(), java.nio.charset.StandardCharsets.UTF_8)).append('&');
         }
         return sb.toString();
@@ -101,6 +102,8 @@ public class DoctorController {
                     "q", q, "qp", qp, "pp", pp > 0 ? String.valueOf(pp) : ""));
             model.addAttribute("paramsFiltro", parametros("q", q, "qp", qp, "pp", pp > 0 ? String.valueOf(pp) : ""));
             model.addAttribute("paginaPacientes", pp);
+            model.addAttribute("paramsLimpiarCitas", parametros("estado", "TODAS".equals(filtroEstado) ? "" : filtroEstado,
+                    "qp", qp, "pp", pp > 0 ? String.valueOf(pp) : ""));
             model.addAttribute("paginaCitas", pc);
             model.addAttribute("paramsPacientes", parametros("estado", "TODAS".equals(filtroEstado) ? "" : filtroEstado,
                     "q", q, "pc", pc > 0 ? String.valueOf(pc) : "", "qp", qp));

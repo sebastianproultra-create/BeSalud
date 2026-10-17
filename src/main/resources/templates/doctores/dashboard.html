@@ -436,7 +436,8 @@
             <input type="search" id="busquedaPaciente" name="q" th:value="${busquedaCitas}" placeholder="Buscar paciente por nombre y presiona Enter…" />
             <input type="hidden" name="estado" th:value="${filtroEstado}" th:unless="${filtroEstado == 'TODAS'}" />
             <input type="hidden" name="qp" th:value="${busquedaPacientes}" th:unless="${busquedaPacientes == ''}" />
-            <a th:if="${busquedaCitas != ''}" class="doc-buscador-limpiar" th:href="@{${'/doctores?' + (filtroEstado == 'TODAS' ? '' : 'estado=' + filtroEstado) + '#citas'}}" aria-label="Quitar búsqueda">
+            <input type="hidden" name="pp" th:value="${paginaPacientes}" th:if="${paginaPacientes > 0}" />
+            <a th:if="${busquedaCitas != ''}" class="doc-buscador-limpiar" th:href="@{${'/doctores?' + paramsLimpiarCitas + '#citas'}}" aria-label="Quitar búsqueda">
                 <span class="material-symbols-outlined" aria-hidden="true">close</span>
             </a>
         </form>

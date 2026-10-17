@@ -4,12 +4,14 @@ import com.gestion.proyectos.modelo.Cita;
 import com.gestion.proyectos.modelo.EstadoCita;
 import com.gestion.proyectos.modelo.Paciente;
 
+import org.bson.Document;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.aggregation.Aggregation;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Service;
@@ -21,6 +23,8 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
+
+import static com.gestion.proyectos.util.ValidacionUtil.esVacio;
 
 // Citas y pacientes del panel médico paginados en la base: un médico con miles de citas
 // no debe mandar todas al navegador (la página llegaba a pesar 14 MB).
@@ -54,14 +58,14 @@ public class PanelDoctorService {
         } else if (!"TODAS".equals(filtro)) {
             criterio = criterio.and("estado").is(EstadoCita.valueOf(filtro));
         }
-        if (busqueda != null && !busqueda.isBlank()) {
-            criterio = criterio.and("pacienteId").in(idsDePacientesQueCoinciden(busqueda));
+        if (!esVacio(busqueda)) {
+            criterio = criterio.and("pacienteId").in(idsDePacientesQueCoinciden(pacientesIds(doctorId), busqueda));
         }
 
-        Pageable pageable = PageRequest.of(Math.max(0, pagina), tamano,
-                Sort.by(Sort.Direction.DESC, "fecha").and(Sort.by(Sort.Direction.ASC, "hora")));
         Query consulta = new Query(criterio);
         long total = mongo.count(consulta, Cita.class);
+        Pageable pageable = PageRequest.of(paginaValida(pagina, total, tamano), tamano,
+                Sort.by(Sort.Direction.DESC, "fecha").and(Sort.by(Sort.Direction.ASC, "hora")));
         List<Cita> contenido = new ArrayList<>(mongo.find(Query.of(consulta).with(pageable), Cita.class));
 
         // Tras un error al guardar el dictamen, la cita debe estar en la página para reabrir su formulario
@@ -75,30 +79,49 @@ public class PanelDoctorService {
     }
 
     public PanelPacientes pacientes(String doctorId, String busqueda, int pagina, int tamano) {
-        List<String> ids = mongo.findDistinct(new Query(Criteria.where("doctorId").is(doctorId)), "pacienteId", Cita.class, String.class);
-        Criteria criterio = Criteria.where("id").in(ids).and("role").is("PACIENTE");
-        if (busqueda != null && !busqueda.isBlank()) criterio = criterio.andOperator(nombreCoincide(busqueda));
+        Criteria base = Criteria.where("id").in(pacientesIds(doctorId)).and("role").is("PACIENTE");
+        long registrados = mongo.count(new Query(base), Paciente.class);
+        Query consulta = esVacio(busqueda) ? new Query(base)
+                : new Query(new Criteria().andOperator(base, nombreCoincide(busqueda)));
+        long total = esVacio(busqueda) ? registrados : mongo.count(consulta, Paciente.class);
 
-        Pageable pageable = PageRequest.of(Math.max(0, pagina), tamano,
+        Pageable pageable = PageRequest.of(paginaValida(pagina, total, tamano), tamano,
                 Sort.by("nombre").and(Sort.by("apellido")));
-        Query consulta = new Query(criterio);
-        long total = mongo.count(consulta, Paciente.class);
         List<Paciente> contenido = mongo.find(Query.of(consulta).with(pageable), Paciente.class);
-        return new PanelPacientes(new PageImpl<>(contenido, pageable, total), ids.size());
+        return new PanelPacientes(new PageImpl<>(contenido, pageable, total), registrados);
+    }
+
+    private List<String> pacientesIds(String doctorId) {
+        return mongo.findDistinct(new Query(Criteria.where("doctorId").is(doctorId)), "pacienteId", Cita.class, String.class);
+    }
+
+    // Un enlace viejo con ?pc=10 cuando solo quedan 3 páginas cae en la última en vez de en una vacía
+    private static int paginaValida(int pagina, long total, int tamano) {
+        int ultima = (int) Math.max(0, (total - 1) / tamano);
+        return Math.min(Math.max(0, pagina), ultima);
     }
 
     private Map<String, Long> conteos(String doctorId, LocalDate hoy) {
         Map<String, Long> conteos = new LinkedHashMap<>();
-        conteos.put("TODAS", mongo.count(new Query(Criteria.where("doctorId").is(doctorId)), Cita.class));
+        conteos.put("TODAS", 0L);
         conteos.put("HOY", mongo.count(new Query(Criteria.where("doctorId").is(doctorId).and("fecha").is(hoy)), Cita.class));
-        for (EstadoCita e : EstadoCita.values()) {
-            conteos.put(e.name(), mongo.count(new Query(Criteria.where("doctorId").is(doctorId).and("estado").is(e)), Cita.class));
+        for (EstadoCita e : EstadoCita.values()) conteos.put(e.name(), 0L);
+
+        Aggregation porEstado = Aggregation.newAggregation(
+                Aggregation.match(Criteria.where("doctorId").is(doctorId)),
+                Aggregation.group("estado").count().as("n"));
+        for (Document d : mongo.aggregate(porEstado, Cita.class, Document.class)) {
+            long n = ((Number) d.get("n")).longValue();
+            conteos.merge("TODAS", n, Long::sum);
+            Object estado = d.get("_id");
+            if (estado != null) conteos.computeIfPresent(estado.toString(), (k, v) -> v + n);
         }
         return conteos;
     }
 
-    private List<String> idsDePacientesQueCoinciden(String busqueda) {
-        Query q = new Query(new Criteria().andOperator(Criteria.where("role").is("PACIENTE"), nombreCoincide(busqueda)));
+    private List<String> idsDePacientesQueCoinciden(List<String> pacientesDelDoctor, String busqueda) {
+        Query q = new Query(new Criteria().andOperator(
+                Criteria.where("id").in(pacientesDelDoctor).and("role").is("PACIENTE"), nombreCoincide(busqueda)));
         q.fields().include("id");
         return mongo.find(q, Paciente.class).stream().map(Paciente::getId).toList();
     }
