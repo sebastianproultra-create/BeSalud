@@ -64,6 +64,17 @@ El script se valida a sí mismo al terminar: si encuentra un choque de horario, 
 El modelo mira **cómo se comportaron las citas en el pasado** (qué días se llenan, en qué meses sube la demanda,
 qué pasa los festivos) y **repite ese comportamiento hacia el futuro**, con un margen de error.
 
+### Qué tipo de técnica de minería de datos es
+
+| Pregunta | Respuesta |
+|---|---|
+| ¿Tarea predictiva o descriptiva? | **Predictiva**: estima un valor futuro. Las descriptivas, como el clustering o las reglas de asociación, agrupan o encuentran patrones sin predecir. |
+| ¿Aprendizaje supervisado o no supervisado? | **Supervisado**: aprende de ejemplos donde la respuesta es conocida (cuántas citas hubo cada día). |
+| ¿Clasificación o regresión? | **Regresión**: la salida es un número (cantidad de citas), no una categoría. |
+| ¿Qué tipo de regresión? | **Regresión sobre series de tiempo** con un **modelo aditivo generalizado (GAM)**: Prophet, de Meta. |
+| ¿Variable objetivo? | `volumen_citas_total`: citas por día, de una especialidad o de un médico. |
+| ¿Variables explicativas? | La fecha (de ella salen la tendencia y los patrones semanal y anual), si el día es hábil y el factor de lluvias. |
+
 ### Paso a paso
 
 1. **Se toma la historia.** Para una especialidad es la columna `volumen_citas_total` del CSV; para un médico, sus
@@ -94,10 +105,49 @@ citas(día) = tendencia + patrón semanal + patrón anual + efecto de días háb
 
 Los dos regresores se conocen de antemano para cualquier fecha futura, porque el calendario y la temporada de lluvias son fijos. Por eso Prophet puede usarlos para proyectar.
 
+### Cómo funciona Prophet por dentro
+
+Prophet es una regresión en la que el tiempo se convierte en varias variables. La fórmula es:
+
+```
+y(t) = g(t) + s(t) + β · x(t) + ε(t)
+```
+
+| Término | Qué es | Cómo lo calcula |
+|---|---|---|
+| `y(t)` | Citas del día `t` | Es la variable objetivo |
+| `g(t)` | **Tendencia** | Una recta **por tramos**: Prophet coloca 25 posibles "puntos de cambio" en el primer 80 % del historial y en cada uno la pendiente puede cambiar. Una penalización (regularización) evita que cambie de más y se sobreajuste al ruido |
+| `s(t)` | **Estacionalidad** | Ondas de senos y cosenos (**series de Fourier**) que se repiten: 3 pares para la semana (periodo de 7 días) y 10 pares para el año (periodo de 365,25 días). Combinando ondas de distinta frecuencia arma la "forma" del patrón, por ejemplo el pico de octubre |
+| `β · x(t)` | **Regresores** | Igual que en una regresión lineal múltiple: un coeficiente `β` por cada variable extra. `laborable` vale 0 o 1; `lluvias_laborable` se estandariza (media 0, desviación 1) antes de ajustarla |
+| `ε(t)` | **Error** | Lo que el modelo no explica. Se supone ruido normal |
+
+**Entrenamiento.** Prophet usa estadística **bayesiana**: le pone a cada coeficiente una distribución "previa" que lo
+mantiene pequeño salvo que los datos digan lo contrario (esto también funciona como regularización). Luego busca los
+valores más probables dados los datos, lo que se llama **estimación MAP (máximo a posteriori)**. El cálculo lo hace
+**Stan**, una librería de estadística, con el optimizador L-BFGS. Con unos 1.000 días tarda uno o dos segundos.
+
+**Margen de error.** Para cada día futuro simula **1.000 escenarios** posibles: con cambios de tendencia aleatorios
+parecidos a los que vio en la historia, más el ruido. Se queda con el percentil 10 y el 90 de esos escenarios: ese
+es el intervalo del **80 %** que la API entrega como `margenMinimo` y `margenMaximo`.
+
+**Ajustes finales en la API.** Los valores se redondean a citas enteras y los negativos se llevan a 0 (no existen
+"−1 citas"). Se entrena **un modelo por serie** (uno por especialidad y uno por médico) y se guarda en memoria, así
+que solo la primera consulta de cada serie espera el entrenamiento.
+
+Configuración usada en `api_predictiva.py`:
+
+```python
+modelo = Prophet(yearly_seasonality=True, weekly_seasonality=True, daily_seasonality=False)
+modelo.add_regressor('laborable')
+modelo.add_regressor('lluvias_laborable')
+modelo.fit(historial)   # columnas: ds (fecha), y (citas), laborable, lluvias_laborable
+```
+
 ### Ejemplo con números reales (Neumología)
 
-Valores que sacó el modelo entrenado. Cada pieza se mide **respecto a un día promedio**, por eso algunas son
-negativas: "−1,2" significa "1,2 citas menos que un día cualquiera".
+Valores que sacó el modelo entrenado. Las piezas **se leen juntas**: el modelo ajusta todas a la vez, así que una
+puede salir negativa porque otra la compensa (por ejemplo, la de día hábil sale −1,2 y la de lluvia en día hábil
+sale muy positiva). Lo que importa es la suma, que es la proyección.
 
 | Pieza | Miércoles 21 oct 2026 (hábil, lluvia fuerte) | Sábado 24 oct 2026 | Miércoles 17 feb 2027 (hábil, seco) |
 |---|---|---|---|
@@ -111,24 +161,51 @@ negativas: "−1,2" significa "1,2 citas menos que un día cualquiera".
 Así se ve el efecto de las reglas de Cartagena: el mismo día de la semana pasa de unas 4 citas en temporada seca a
 unas 14 en el pico de lluvias, y el sábado cae casi a cero llueva o no.
 
-### ¿Por qué Prophet?
+### ¿Por qué Prophet y no otra técnica?
 
 - Está hecho para datos **diarios con patrones semanales y anuales**, que es justo el caso de las citas.
-- Trae los **festivos de Colombia** incorporados y acepta variables extra como la lluvia.
+- Acepta **variables extra** (día hábil con festivos colombianos y lluvia) como una regresión normal.
 - Da el **margen de error** sin trabajo adicional.
 - Entrena en segundos con unos pocos años de datos, así que se puede entrenar un modelo **por médico** cuando se pide.
+- Sus piezas se pueden **interpretar** (ver el ejemplo de arriba), cosa importante para explicarle a un médico por qué
+  se espera más demanda.
+
+| Alternativa | Por qué no se usó |
+|---|---|
+| Clustering (K-means, etc.) | Es descriptivo: agrupa elementos parecidos, pero no dice **cuántas** citas habrá. Serviría para otra pregunta, por ejemplo agrupar pacientes por diagnóstico |
+| Clasificación (árboles, etc.) | Predice categorías ("alta / baja demanda"), no la cantidad exacta que necesita el médico para su agenda |
+| Regresión lineal simple | No captura bien los patrones semanales y anuales ni da un margen de error por día |
+| ARIMA / SARIMA | También sirve para series de tiempo, pero maneja peor varias estacionalidades a la vez, los festivos y los días sin citas, y requiere más ajuste manual |
+| Redes neuronales (LSTM) | Necesitan muchos más datos y son difíciles de interpretar; para unos 1.000 días no compensan |
 
 ### Qué tan bien predice
 
-Se entrenó con todo el historial menos los últimos 60 días y luego se comparó con lo que realmente pasó en esos 60 días. El error es el promedio de citas de diferencia por día:
+**Método de evaluación (validación por retención, *holdout*):** se entrenó con todo el historial menos los últimos
+60 días; esos 60 días se escondieron y luego se compararon con lo que el modelo predijo. La métrica es el **MAE
+(error absoluto medio)**: en promedio, de cuántas citas fue la diferencia por día.
 
-| Serie | Sin regresores (versión original) | Con regresores (versión actual) |
+| Serie | Versión anterior (festivos + lluvia) | Versión actual (día hábil + lluvia en día hábil) |
 |---|---|---|
 | Medicina General | 5,52 citas/día | **4,20** (−24 %) |
 | Neumología | 2,53 | **1,85** (−27 %) |
 | Dra. Daniela Ramos (Pediatría) | 1,08 | **1,00** |
 
-En fines de semana el error bajó a ~0,6 citas.
+En fines de semana el error bajó a ~0,6 citas. También se probó el modo **multiplicativo** de Prophet (las piezas se
+multiplican en vez de sumarse) y no mejoró, así que se dejó el aditivo.
+
+Para ponerlo en contexto: en esos 60 días (temporada de lluvias) Medicina General recibió unas 28 citas por día hábil,
+así que equivocarse en ~4 citas es un error de alrededor del 15 %, suficiente para planear la agenda.
+
+### Metodología (fases de CRISP-DM)
+
+| Fase | Qué se hizo en BESalud |
+|---|---|
+| 1. Comprensión del negocio | Los médicos no saben con anticipación qué días se les va a llenar la agenda; se busca pronosticar la demanda por especialidad y por médico |
+| 2. Comprensión de los datos | Variables del dataset: fecha, día de la semana, especialidad, festivos, temporada de lluvias, alertas de salud pública y volumen de citas |
+| 3. Preparación de los datos | Agregación de las citas por día; creación de `laborable` y `lluvias_laborable`; serie por médico en `citas_por_medico.csv`; días sin citas completados con 0 |
+| 4. Modelado | Prophet con estacionalidad semanal y anual y dos regresores; un modelo por especialidad y por médico |
+| 5. Evaluación | Holdout de 60 días con MAE; comparación entre versiones (aditivo vs. multiplicativo, con y sin regresores de día hábil) |
+| 6. Despliegue | API en FastAPI publicada en Railway, consumida por Spring Boot y mostrada en el panel del médico |
 
 ### El margen
 
@@ -260,7 +337,53 @@ Los pacientes simulados también pueden entrar con la misma contraseña. Sus cor
 
 ---
 
-## 8. Limitaciones
+## 8. Guía para la presentación
+
+### Resumen en 30 segundos
+
+> "BESalud pronostica cuántas citas va a tener cada médico en los próximos días. Es una tarea **predictiva y
+> supervisada**: hacemos **regresión sobre series de tiempo** con **Prophet**, un modelo aditivo que descompone la
+> demanda en tendencia, patrón semanal, patrón anual, días hábiles con festivos colombianos y el efecto de la lluvia
+> en Cartagena. Lo evaluamos escondiendo los últimos 60 días y el error medio quedó en unas 4 citas por día en
+> Medicina General. El médico ve el pronóstico de 7, 14 o 30 días en su panel, comparado con los cupos de su
+> horario, para saber qué días abrir más franjas."
+
+### Orden sugerido para la demo
+
+1. Mostrar el CSV y explicar las reglas de la simulación (sección 1).
+2. Explicar el tipo de técnica y la fórmula de Prophet (sección 2).
+3. Mostrar el ejemplo con números (octubre vs. febrero vs. sábado).
+4. Mostrar la tabla de evaluación (MAE).
+5. Entrar como un médico de **Pediatría o Neumología** (el efecto de la lluvia se ve más) y recorrer "Demanda
+   proyectada": indicadores, gráfica y botones de 7, 14 y 30 días.
+6. Entrar como un médico de **Dermatología** para contrastar: la demanda casi no cambia con la lluvia.
+
+### Preguntas que puede hacer la profe
+
+**¿Es regresión o clustering?** Regresión. La salida es un número (cuántas citas habrá) y se aprende de datos
+históricos con la respuesta conocida; el clustering agrupa sin predecir.
+
+**¿Por qué los datos son simulados?** No se tiene acceso a datos reales de una clínica, por privacidad. Se simularon
+con reglas realistas de Cartagena (lluvias, festivos, fines de semana) para que el modelo tuviera patrones que aprender.
+
+**¿El modelo "hace trampa" porque las reglas las pusimos nosotros?** El modelo **no conoce** las reglas: solo ve fechas y
+cantidades de citas, y tiene que descubrir por su cuenta que octubre se llena y que el sábado no. Además, el ruido
+aleatorio (Poisson) hace que nunca acierte exacto, como se ve en el MAE.
+
+**¿Qué significa el margen?** Es el intervalo del 80 %: de cada 10 días, en unos 8 la demanda real debería quedar dentro
+de ese rango.
+
+**¿Cómo saben que funciona?** Por la validación *holdout*: se escondieron 60 días, se predijeron y se midió el error con MAE.
+
+**¿Qué pasa si un médico nuevo no tiene historial?** Ve el mensaje "Aún no hay suficiente historial". Se podría usar el
+pronóstico de su especialidad dividido entre los médicos mientras acumula citas.
+
+**¿Cómo se mejoraría?** Con datos reales; actualizando el historial automáticamente con las citas nuevas; agregando el
+día libre de cada médico como variable; y usando datos reales de lluvia del IDEAM en vez de un factor fijo por mes.
+
+---
+
+## 9. Limitaciones
 
 - Los datos son **simulados**: el modelo aprende las reglas con que se generaron, no el comportamiento real de una clínica.
 - El historial termina el 15 de octubre de 2026 y **no se actualiza solo** con las citas nuevas de la app. Para incorporarlas habría que exportar las citas de MongoDB al CSV y volver a desplegar.
