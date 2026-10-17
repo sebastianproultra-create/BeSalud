@@ -47,6 +47,7 @@ class DoctorControllerTest {
     }
 
     @MockBean private DoctorService doctorService;
+    @MockBean private com.gestion.proyectos.servicio.PanelDoctorService panelDoctorService;
     @MockBean private CustomUserDetailsService customUserDetailsService;
     @MockBean private PersonaRepositorio personaRepositorio;
     @MockBean private AdminRepositorio adminRepositorio;

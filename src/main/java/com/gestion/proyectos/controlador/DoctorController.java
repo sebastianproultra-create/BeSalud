@@ -10,6 +10,7 @@ import com.gestion.proyectos.modelo.UserRegistrationDTO;
 import com.gestion.proyectos.modelo.ViaAdministracion;
 import com.gestion.proyectos.servicio.DictamenVista;
 import com.gestion.proyectos.servicio.DoctorService;
+import com.gestion.proyectos.servicio.PanelDoctorService;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -40,10 +41,25 @@ public class DoctorController {
 
     private static final String REDIRECT_DOCTORES = "redirect:/doctores";
 
-    private final DoctorService doctorService;
+    private static final int POR_PAGINA = 8;
 
-    public DoctorController(DoctorService doctorService) {
+    private final DoctorService doctorService;
+    private final PanelDoctorService panelDoctorService;
+
+    public DoctorController(DoctorService doctorService, PanelDoctorService panelDoctorService) {
         this.doctorService = doctorService;
+        this.panelDoctorService = panelDoctorService;
+    }
+
+    // "a=1&b=x&" con los parámetros no vacíos, listo para concatenar el de la página
+    private static String parametros(String... claveValor) {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < claveValor.length; i += 2) {
+            String v = claveValor[i + 1];
+            if (v != null && !v.isBlank())
+                sb.append(claveValor[i]).append('=').append(java.net.URLEncoder.encode(v.trim(), java.nio.charset.StandardCharsets.UTF_8)).append('&');
+        }
+        return sb.toString();
     }
 
     @GetMapping
@@ -52,7 +68,11 @@ public class DoctorController {
             @RequestParam(required = false) String estado,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
-            @RequestParam(required = false) String search) {
+            @RequestParam(required = false) String search,
+            @RequestParam(required = false) String q,
+            @RequestParam(defaultValue = "0") int pc,
+            @RequestParam(required = false) String qp,
+            @RequestParam(defaultValue = "0") int pp) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         String role = auth.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
@@ -61,23 +81,38 @@ public class DoctorController {
 
         if ("ROLE_DOCTOR".equals(role)) {
             Doctor doctor = doctorService.buscarPorEmail(auth.getName()).orElseThrow();
-            String filtroEstado = estado != null ? estado : "";
-            var citas = doctorService.citasDelDoctor(doctor.getId(), filtroEstado);
+            String filtroEstado = PanelDoctorService.normalizarFiltro(estado);
+            String citaFija = (String) model.asMap().get("dictamenCitaId");
+            var panelCitas = panelDoctorService.citas(doctor.getId(), filtroEstado, q, pc, POR_PAGINA, citaFija);
+            var panelPacientes = panelDoctorService.pacientes(doctor.getId(), qp, pp, POR_PAGINA);
             var weeklyAvailability = doctorService.weeklyAvailability(doctor.getId());
 
             model.addAttribute("doctor", doctor);
             model.addAttribute("horarios", doctorService.horariosDelDoctor(doctor.getId()));
             model.addAttribute("horario", new HorarioAtencion());
-            model.addAttribute("citas", citas);
-            model.addAttribute("pacienteNombres", doctorService.mapPacienteNombres(citas));
+            model.addAttribute("citasPage", panelCitas.pagina());
+            model.addAttribute("citas", panelCitas.pagina().getContent());
+            model.addAttribute("conteos", panelCitas.conteos());
+            model.addAttribute("pacienteNombres", panelCitas.pacienteNombres());
             model.addAttribute("filtroEstado", filtroEstado);
+            model.addAttribute("busquedaCitas", q == null ? "" : q.trim());
+            model.addAttribute("busquedaPacientes", qp == null ? "" : qp.trim());
+            model.addAttribute("paramsCitas", parametros("estado", "TODAS".equals(filtroEstado) ? "" : filtroEstado,
+                    "q", q, "qp", qp, "pp", pp > 0 ? String.valueOf(pp) : ""));
+            model.addAttribute("paramsFiltro", parametros("q", q, "qp", qp, "pp", pp > 0 ? String.valueOf(pp) : ""));
+            model.addAttribute("paginaPacientes", pp);
+            model.addAttribute("paginaCitas", pc);
+            model.addAttribute("paramsPacientes", parametros("estado", "TODAS".equals(filtroEstado) ? "" : filtroEstado,
+                    "q", q, "pc", pc > 0 ? String.valueOf(pc) : "", "qp", qp));
             model.addAttribute("hoy", LocalDate.now());
-            model.addAttribute("dictamenDataMap", doctorService.dictamenDataMap(citas));
+            model.addAttribute("dictamenDataMap", panelCitas.dictamenes());
             model.addAttribute("tiposConsulta", TipoConsulta.values());
             model.addAttribute("causasExternas", CausaExterna.values());
             model.addAttribute("tiposDiagnostico", TipoDiagnostico.values());
             model.addAttribute("viasAdministracion", ViaAdministracion.values());
-            model.addAttribute("misPacientes", doctorService.pacientesDelDoctor(doctor.getId()));
+            model.addAttribute("pacientesPage", panelPacientes.pagina());
+            model.addAttribute("misPacientes", panelPacientes.pagina().getContent());
+            model.addAttribute("totalPacientes", panelPacientes.total());
             model.addAttribute("weeklyAvailability", weeklyAvailability);
             model.addAttribute("weeklySlotTotal", doctorService.weeklySlotTotal(weeklyAvailability));
             model.addAttribute("dailySlotCounts", doctorService.dailySlotCounts(weeklyAvailability));

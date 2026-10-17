@@ -13,11 +13,11 @@
 
 <main class="doc-main" th:with="
     loc=${T(java.util.Locale).forLanguageTag('es-CO')},
-    citasHoy=${citas != null ? #lists.size(citas.?[fecha != null and fecha.equals(T(java.time.LocalDate).now())]) : 0},
-    citasPendientes=${citas != null ? #lists.size(citas.?[estado != null and estado.name() == 'PENDIENTE']) : 0},
-    citasCompletadas=${citas != null ? #lists.size(citas.?[estado != null and estado.name() == 'COMPLETADA']) : 0},
-    citasEnAtencion=${citas != null ? #lists.size(citas.?[estado != null and estado.name() == 'ASISTIO']) : 0},
-    totalPacientes=${misPacientes != null ? #lists.size(misPacientes) : 0}">
+    citasHoy=${conteos != null ? conteos['HOY'] : 0},
+    citasPendientes=${conteos != null ? conteos['PENDIENTE'] : 0},
+    citasCompletadas=${conteos != null ? conteos['COMPLETADA'] : 0},
+    citasEnAtencion=${conteos != null ? conteos['ASISTIO'] : 0},
+    citasTotal=${conteos != null ? conteos['TODAS'] : 0}">
 
     <!-- ═══════════════ BANNER DE BIENVENIDA + MÉTRICAS ═══════════════ -->
     <section class="doc-hero" aria-labelledby="hero-title">
@@ -421,26 +421,29 @@
                     <p>Atiende, registra el dictamen o cancela desde cada cita</p>
                 </div>
             </div>
-            <div class="doc-segmentos" role="group" aria-label="Filtrar por estado">
-                <button type="button" class="doc-segmento is-active" data-filtro="TODAS" th:text="${'Todas (' + #lists.size(citas) + ')'}">Todas</button>
-                <button type="button" class="doc-segmento" data-filtro="HOY" th:text="${'Hoy (' + citasHoy + ')'}">Hoy</button>
-                <button type="button" class="doc-segmento" data-filtro="PENDIENTE" th:text="${'Pendientes (' + citasPendientes + ')'}">Pendientes</button>
-                <button type="button" class="doc-segmento" data-filtro="ASISTIO">En atención</button>
-                <button type="button" class="doc-segmento" data-filtro="COMPLETADA">Completadas</button>
-                <button type="button" class="doc-segmento" data-filtro="NO_ASISTIO">No asistió</button>
-                <button type="button" class="doc-segmento" data-filtro="CANCELADA">Canceladas</button>
-            </div>
+            <nav class="doc-segmentos" aria-label="Filtrar por estado">
+                <a th:each="f : ${ {'TODAS','HOY','PENDIENTE','ASISTIO','COMPLETADA','NO_ASISTIO','CANCELADA'} }"
+                   class="doc-segmento" th:classappend="${filtroEstado == f} ? ' is-active'"
+                   th:aria-current="${filtroEstado == f} ? 'true'"
+                   th:href="@{${'/doctores?' + paramsFiltro + (f == 'TODAS' ? '' : 'estado=' + f) + '#citas'}}"
+                   th:text="${(f == 'TODAS' ? 'Todas' : f == 'HOY' ? 'Hoy' : f == 'PENDIENTE' ? 'Pendientes' : f == 'ASISTIO' ? 'En atención' : f == 'COMPLETADA' ? 'Completadas' : f == 'NO_ASISTIO' ? 'No asistió' : 'Canceladas') + ' (' + (conteos != null ? conteos.get(f) : 0) + ')'}">Todas</a>
+            </nav>
         </div>
 
-        <div class="doc-buscador">
+        <form class="doc-buscador" method="get" th:action="|@{/doctores}#citas|" role="search">
             <span class="material-symbols-outlined" aria-hidden="true">search</span>
             <label for="busquedaPaciente" class="sr-only">Buscar paciente</label>
-            <input type="text" id="busquedaPaciente" placeholder="Buscar paciente por nombre…" oninput="filtrarCitas()" />
-        </div>
+            <input type="search" id="busquedaPaciente" name="q" th:value="${busquedaCitas}" placeholder="Buscar paciente por nombre y presiona Enter…" />
+            <input type="hidden" name="estado" th:value="${filtroEstado}" th:unless="${filtroEstado == 'TODAS'}" />
+            <input type="hidden" name="qp" th:value="${busquedaPacientes}" th:unless="${busquedaPacientes == ''}" />
+            <a th:if="${busquedaCitas != ''}" class="doc-buscador-limpiar" th:href="@{${'/doctores?' + (filtroEstado == 'TODAS' ? '' : 'estado=' + filtroEstado) + '#citas'}}" aria-label="Quitar búsqueda">
+                <span class="material-symbols-outlined" aria-hidden="true">close</span>
+            </a>
+        </form>
 
         <div th:if="${#lists.isEmpty(citas)}" class="empty-state">
             <span class="material-symbols-outlined empty-state-icon" aria-hidden="true">event_busy</span>
-            <p>No hay citas para mostrar.</p>
+            <p th:text="${citasTotal == 0 ? 'No hay citas para mostrar.' : 'No hay citas con ese filtro.'}">No hay citas para mostrar.</p>
         </div>
 
         <div th:if="${!#lists.isEmpty(citas)}" class="citas-lista">
@@ -493,10 +496,9 @@
                     </th:block>
                 </div>
             </article>
-            <div id="citas-empty-filter" class="empty-state" style="display:none;">
-                <p>No hay citas con ese filtro.</p>
-            </div>
+
         </div>
+        <nav th:replace="~{fragments/layout :: paginacionAncla(${citasPage}, ${'/doctores?' + paramsCitas}, 'pc', 'citas')}"></nav>
     </section>
 
     <!-- ═══════════════ MIS PACIENTES ═══════════════ -->
@@ -506,20 +508,26 @@
                 <span class="doc-card-ico material-symbols-outlined" aria-hidden="true">group</span>
                 <div>
                     <h2 id="pacientes-title">Directorio de pacientes
-                        <span class="card-counter" th:if="${!#lists.isEmpty(misPacientes)}" th:text="${#lists.size(misPacientes)}">0</span>
+                        <span class="card-counter" th:if="${totalPacientes > 0}" th:text="${totalPacientes}">0</span>
                     </h2>
                     <p>Pacientes que han agendado contigo</p>
                 </div>
             </div>
-            <div th:if="${!#lists.isEmpty(misPacientes)}" class="doc-buscador doc-buscador--compacto">
+            <form th:if="${totalPacientes > 0}" class="doc-buscador doc-buscador--compacto" method="get" th:action="|@{/doctores}#pacientes|" role="search">
                 <span class="material-symbols-outlined" aria-hidden="true">search</span>
                 <label for="busquedaMisPacientes" class="sr-only">Buscar paciente</label>
-                <input type="text" id="busquedaMisPacientes" placeholder="Buscar paciente…" oninput="filtrarPacientes()" />
-            </div>
+                <input type="search" id="busquedaMisPacientes" name="qp" th:value="${busquedaPacientes}" placeholder="Buscar paciente…" />
+                <input type="hidden" name="estado" th:value="${filtroEstado}" th:unless="${filtroEstado == 'TODAS'}" />
+                <input type="hidden" name="q" th:value="${busquedaCitas}" th:unless="${busquedaCitas == ''}" />
+                <input type="hidden" name="pc" th:value="${paginaCitas}" th:if="${paginaCitas > 0}" />
+                <a th:if="${busquedaPacientes != ''}" class="doc-buscador-limpiar" th:href="@{${'/doctores?' + (filtroEstado == 'TODAS' ? '' : 'estado=' + filtroEstado + '&') + (busquedaCitas == '' ? '' : 'q=' + #uris.escapeQueryParam(busquedaCitas) + '&') + (paginaCitas > 0 ? 'pc=' + paginaCitas : '') + '#pacientes'}}" aria-label="Quitar búsqueda">
+                    <span class="material-symbols-outlined" aria-hidden="true">close</span>
+                </a>
+            </form>
         </div>
         <div th:if="${#lists.isEmpty(misPacientes)}" class="empty-state">
             <span class="material-symbols-outlined empty-state-icon" aria-hidden="true">person_search</span>
-            <p>Aún no tiene pacientes con citas agendadas.</p>
+            <p th:text="${totalPacientes == 0 ? 'Aún no tiene pacientes con citas agendadas.' : 'Ningún paciente coincide con la búsqueda.'}">Aún no tiene pacientes con citas agendadas.</p>
         </div>
 
         <div th:if="${!#lists.isEmpty(misPacientes)}" class="pacientes-grid">
@@ -539,6 +547,7 @@
                 </ul>
             </article>
         </div>
+        <nav th:replace="~{fragments/layout :: paginacionAncla(${pacientesPage}, ${'/doctores?' + paramsPacientes}, 'pp', 'pacientes')}"></nav>
     </section>
 </main>
 
@@ -857,48 +866,6 @@ document.addEventListener('keydown', function(e) {
     sections.forEach(s => observer.observe(s));
 })();
 
-/* ── Paginación en el navegador: muestra solo una página de los elementos que pasan el filtro ── */
-function paginar(lista, porPagina, contenedorDespues, pagina) {
-    const total = Math.max(1, Math.ceil(lista.items.length / porPagina));
-    pagina = Math.min(Math.max(1, pagina || 1), total);
-    lista.todos.forEach(function(el) { el.style.display = 'none'; });
-    lista.items.forEach(function(el, i) {
-        if (i >= (pagina - 1) * porPagina && i < pagina * porPagina) el.style.display = '';
-    });
-
-    let nav = contenedorDespues.nextElementSibling;
-    if (!nav || !nav.classList.contains('pagination')) {
-        nav = document.createElement('div');
-        nav.className = 'pagination';
-        contenedorDespues.parentNode.insertBefore(nav, contenedorDespues.nextSibling);
-    }
-    nav.innerHTML = '';
-    nav.style.display = total > 1 ? '' : 'none';
-    if (total <= 1) return;
-
-    function boton(texto, clase, destino) {
-        const b = document.createElement('button');
-        b.type = 'button';
-        b.className = clase;
-        b.textContent = texto;
-        b.onclick = function() {
-            paginar(lista, porPagina, contenedorDespues, destino);
-            contenedorDespues.closest('section').scrollIntoView({ behavior: 'smooth', block: 'start' });
-        };
-        nav.appendChild(b);
-    }
-    if (pagina > 1) boton('Anterior', 'pagination-step', pagina - 1);
-    for (let i = 1; i <= total; i++) {
-        if (i === 1 || i === total || (i >= pagina - 1 && i <= pagina + 1)) {
-            boton(String(i), 'pagination-page' + (i === pagina ? ' is-current' : ''), i);
-        } else if (i === pagina - 2 || i === pagina + 2) {
-            const dots = document.createElement('span');
-            dots.textContent = '…';
-            nav.appendChild(dots);
-        }
-    }
-    if (pagina < total) boton('Siguiente', 'pagination-step', pagina + 1);
-}
 </script>
 
 <script th:inline="javascript">
@@ -914,48 +881,5 @@ window.BESALUD_DICTAMEN = {
 <script th:src="@{/js/form-submit.js}"></script>
 <script th:src="@{/vendor/chart/chart.umd.js}"></script>
 <script th:src="@{/js/prediccion.js}"></script>
-<script>
-var filtroCitas = 'TODAS';
-document.querySelectorAll('#citas .doc-segmento').forEach(function(b) {
-    b.addEventListener('click', function() {
-        filtroCitas = b.dataset.filtro;
-        document.querySelectorAll('#citas .doc-segmento').forEach(function(x) { x.classList.toggle('is-active', x === b); });
-        filtrarCitas();
-    });
-});
-
-const CITAS_POR_PAGINA = 8;
-const PACIENTES_POR_PAGINA = 8; // Dos filas completas de la rejilla de 4 columnas
-
-function filtrarCitas() {
-    const q = ((document.getElementById('busquedaPaciente') || {}).value || '').trim().toLowerCase();
-    const todos = Array.from(document.querySelectorAll('#citas .cita-item'));
-    const items = todos.filter(function(item) {
-        const matchEstado = filtroCitas === 'TODAS'
-            || (filtroCitas === 'HOY' ? item.dataset.hoy === 'true' : item.dataset.estado === filtroCitas);
-        const nombre = (item.querySelector('.paciente-cell') || {}).textContent || '';
-        return matchEstado && (q === '' || nombre.toLowerCase().includes(q));
-    });
-    const emptyMsg = document.getElementById('citas-empty-filter');
-    if (emptyMsg) emptyMsg.style.display = items.length === 0 ? '' : 'none';
-    const lista = document.querySelector('#citas .citas-lista');
-    if (lista) paginar({ todos: todos, items: items }, CITAS_POR_PAGINA, lista, 1);
-}
-
-function filtrarPacientes() {
-    const input = document.getElementById('busquedaMisPacientes');
-    const q = ((input || {}).value || '').trim().toLowerCase();
-    const todos = Array.from(document.querySelectorAll('.pacientes-grid .paciente-card'));
-    const items = todos.filter(function(card) {
-        const name = (card.querySelector('.paciente-name') || {}).textContent || '';
-        return q === '' || name.toLowerCase().includes(q);
-    });
-    const grid = document.querySelector('.pacientes-grid');
-    if (grid) paginar({ todos: todos, items: items }, PACIENTES_POR_PAGINA, grid, 1);
-}
-
-filtrarCitas();
-filtrarPacientes();
-</script>
 </body>
 </html>

@@ -26,6 +26,7 @@ import com.gestion.proyectos.servicio.CitaService;
 import com.gestion.proyectos.servicio.DictamenVista;
 import com.gestion.proyectos.servicio.DoctorService;
 import com.gestion.proyectos.servicio.PacienteService;
+import com.gestion.proyectos.servicio.PanelDoctorService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -68,6 +69,7 @@ class VistasRenderTest {
 
     @Autowired private MockMvc mockMvc;
     @MockBean private DoctorService doctorService;
+    @MockBean private PanelDoctorService panelDoctorService;
     @MockBean private PacienteService pacienteService;
     @MockBean private CitaService citaService;
     @MockBean private RateLimiter rateLimiter;
@@ -84,6 +86,17 @@ class VistasRenderTest {
     @BeforeEach
     void preparar() {
         when(rateLimiter.permitir(anyString(), anyInt(), any())).thenReturn(true);
+        panelConCitas(List.of(), Map.of());
+        when(panelDoctorService.pacientes(any(), any(), anyInt(), anyInt()))
+                .thenReturn(new PanelDoctorService.PanelPacientes(new PageImpl<>(List.of()), 0));
+    }
+
+    private void panelConCitas(List<Cita> citas, Map<String, Map<String, Object>> dictamenes) {
+        Map<String, Long> conteos = new LinkedHashMap<>();
+        PanelDoctorService.FILTROS.forEach(f -> conteos.put(f, 0L));
+        conteos.put("TODAS", (long) citas.size());
+        when(panelDoctorService.citas(any(), any(), any(), anyInt(), anyInt(), any()))
+                .thenReturn(new PanelDoctorService.PanelCitas(new PageImpl<>(citas), conteos, Map.of(), dictamenes));
     }
 
     @Test
@@ -124,6 +137,32 @@ class VistasRenderTest {
                 .andExpect(content().string(containsString("data-inicio=\"08:00\"")))
                 .andExpect(content().string(containsString("data-duracion=\"30\"")))
                 .andExpect(content().string(containsString("/js/prediccion.js")));
+    }
+
+    @Test
+    void dashboardDoctor_citasPaginadasEnElServidorConservanFiltroYBusqueda() throws Exception {
+        Doctor d = new Doctor();
+        d.setId("d1");
+        d.setNombre("Ana");
+        d.setApellido("Ruiz");
+        when(doctorService.buscarPorEmail("doc@test.com")).thenReturn(Optional.of(d));
+        when(doctorService.dailySlotCounts(any())).thenReturn(Map.of());
+        Map<String, Long> conteos = new LinkedHashMap<>();
+        PanelDoctorService.FILTROS.forEach(f -> conteos.put(f, 3L));
+        conteos.put("TODAS", 40L);
+        when(panelDoctorService.citas(eq("d1"), eq("PENDIENTE"), eq("maria"), eq(1), eq(8), any()))
+                .thenReturn(new PanelDoctorService.PanelCitas(
+                        new PageImpl<>(List.of(cita("c1", EstadoCita.PENDIENTE, null)),
+                                org.springframework.data.domain.PageRequest.of(1, 8), 40),
+                        conteos, Map.of(), Map.of()));
+
+        mockMvc.perform(get("/doctores").param("estado", "PENDIENTE").param("q", "maria").param("pc", "1")
+                        .with(user("doc@test.com").roles("DOCTOR")))
+                .andExpect(status().isOk())
+                .andExpect(content().string(containsString("Todas (40)")))
+                .andExpect(content().string(containsString("href=\"/doctores?q=maria&amp;estado=PENDIENTE#citas\"")))
+                .andExpect(content().string(containsString("href=\"/doctores?estado=PENDIENTE&amp;q=maria&amp;pc=2#citas\"")))
+                .andExpect(content().string(containsString("value=\"maria\"")));
     }
 
     /** Dictamen SOAP completo, como lo deja guardado DoctorService. */
@@ -194,8 +233,7 @@ class VistasRenderTest {
                 cita("c3", EstadoCita.COMPLETADA, dictamenAntiguo()));
         when(doctorService.buscarPorEmail("doc@test.com")).thenReturn(Optional.of(d));
         when(doctorService.dailySlotCounts(any())).thenReturn(Map.of());
-        when(doctorService.citasDelDoctor(eq("d1"), any())).thenReturn(citas);
-        when(doctorService.dictamenDataMap(any())).thenReturn(Map.of(
+        panelConCitas(citas, Map.of(
                 "c2", DictamenVista.de(dictamenSoap()), "c3", DictamenVista.de(dictamenAntiguo())));
 
         mockMvc.perform(get("/doctores").with(user("doc@test.com").roles("DOCTOR")))

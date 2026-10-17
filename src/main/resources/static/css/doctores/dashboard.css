@@ -1032,6 +1032,33 @@
 .doc-buscador:focus-within { box-shadow: 0 0 0 2px var(--d-pfd); }
 .doc-buscador--compacto { margin: 0; width: 260px; }
 
+/* Los filtros son enlaces y el buscador un formulario GET: se paginan en el servidor */
+a.doc-segmento {
+    display: inline-flex;
+    align-items: center;
+    text-decoration: none;
+}
+.doc-page main form.doc-buscador {
+    padding: 0 12px;
+    margin: 0 0 16px;
+    background: var(--d-low);
+    border-radius: 8px;
+}
+.doc-page main form.doc-buscador--compacto { margin: 0; }
+.doc-buscador input[type="search"]::-webkit-search-cancel-button { display: none; }
+.doc-buscador-limpiar {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 6px;
+    color: var(--d-on-var);
+    text-decoration: none;
+}
+.doc-buscador-limpiar:hover { background: var(--d-high); color: var(--d-on); }
+.pagination-dots { padding: 0 4px; color: var(--d-on-var); }
+
 .citas-lista { display: flex; flex-direction: column; gap: 8px; }
 .cita-item {
     display: flex;

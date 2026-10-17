@@ -116,6 +116,21 @@
     <a th:if="${page.hasNext()}" th:href="@{${url + '?' + query + '&' + pageParam + '=' + (page.number + 1)}}" class="pagination-step">Siguiente</a>
 </nav>
 
+<!-- ── Paginación que vuelve a una sección de la página (base: ruta con "?" y parámetros terminados en "&", clave: nombre del parámetro de página, ancla: id de la sección) ── -->
+<nav th:fragment="paginacionAncla(page, base, clave, ancla)" th:if="${page != null and page.totalPages > 1}" class="pagination" aria-label="Paginación"
+     th:with="actual=${page.number}, ultima=${page.totalPages - 1}, start=${(page.number - 2 < 0) ? 0 : (page.number - 2)}, end=${(page.number + 2 > page.totalPages - 1) ? (page.totalPages - 1) : (page.number + 2)}">
+    <a th:if="${page.hasPrevious()}" th:href="@{${base + clave + '=' + (actual - 1) + '#' + ancla}}" class="pagination-step">Anterior</a>
+    <a th:if="${start > 0}" th:href="@{${base + clave + '=0#' + ancla}}" class="pagination-page">1</a>
+    <span th:if="${start > 1}" class="pagination-dots">…</span>
+    <a th:each="i : ${#numbers.sequence(start, end)}"
+       th:href="@{${base + clave + '=' + i + '#' + ancla}}"
+       th:text="${i + 1}" th:classappend="${i == actual} ? 'is-current'" class="pagination-page"
+       th:aria-current="${i == actual} ? 'page'"></a>
+    <span th:if="${end < ultima - 1}" class="pagination-dots">…</span>
+    <a th:if="${end < ultima}" th:href="@{${base + clave + '=' + ultima + '#' + ancla}}" class="pagination-page" th:text="${ultima + 1}"></a>
+    <a th:if="${page.hasNext()}" th:href="@{${base + clave + '=' + (actual + 1) + '#' + ancla}}" class="pagination-step">Siguiente</a>
+</nav>
+
 <!-- ── Opciones de especialidad (dentro de un select con th:field) ── -->
 <th:block th:fragment="especialidadOpciones">
     <optgroup th:each="g : ${gruposEspecialidad}" th:label="${g.key}">
