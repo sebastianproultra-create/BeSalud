@@ -1873,141 +1873,58 @@ body.patient-catalog-page {
 }
 
 /* ==============================================
-   MIS CITAS — panel lateral por encima de la página
-   El catálogo siempre ocupa todo el ancho: abrir o cerrar el panel no mueve nada.
+   MIS CITAS — columna fija a la derecha con scroll propio
+   Siempre visible en pantallas grandes: no se abre ni se cierra, así el catálogo nunca cambia de tamaño.
+   En celular va encima del catálogo como acordeón.
    ============================================== */
 .patient-catalog-page .page-layout,
 .patient-catalog-page .page-layout.sidebar-collapsed {
-    grid-template-columns: minmax(0, 1fr);
-}
-
-.patient-nav-citas {
-    min-height: 36px;
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    padding: 8px 14px;
-    margin: 0;
-    color: rgba(226, 244, 236, 0.82);
-    background: transparent;
-    border: 1px solid transparent;
-    border-radius: 999px;
-    box-shadow: none;
-    font-family: 'Plus Jakarta Sans', sans-serif;
-    font-size: 11px;
-    font-weight: 600;
-    letter-spacing: 0;
-    line-height: 1.2;
-    text-transform: none;
-    cursor: pointer;
-    transition: color 0.18s ease, background-color 0.18s ease;
-}
-
-.patient-nav-citas:hover,
-.citas-abiertas .patient-nav-citas {
-    color: #fff;
-    background: rgba(255, 255, 255, 0.1);
-}
-
-.patient-nav-badge {
-    min-width: 18px;
-    height: 18px;
-    padding: 0 5px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    color: #2A1700;
-    background: #FFBD6A;
-    border-radius: 999px;
-    font-size: 10px;
-    font-weight: 800;
+    grid-template-columns: minmax(0, 1fr) 340px;
+    transition: none;
 }
 
 .patient-catalog-page .patient-sidebar,
 .patient-catalog-page .patient-sidebar.collapsed {
-    position: fixed;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    left: auto;
-    z-index: 300;
-    width: min(420px, 100vw);
-    height: 100vh;
+    position: sticky;
+    top: 92px;
+    right: auto;
+    z-index: auto;
+    width: 100%;
+    height: auto;
     display: block;
-    padding: 12px;
-    box-sizing: border-box;
-    order: 0;
-    transform: translateX(0);
-    visibility: visible;
-    transition: transform 0.3s cubic-bezier(0.22, 0.61, 0.36, 1), visibility 0s linear 0s;
-}
-
-.patient-catalog-page .patient-sidebar.collapsed {
-    transform: translateX(100%);
-    visibility: hidden;
-    transition: transform 0.3s cubic-bezier(0.22, 0.61, 0.36, 1), visibility 0s linear 0.3s;
+    transform: none;
+    transition: none;
 }
 
 .patient-catalog-page .patient-sidebar .sidebar-inner,
 .patient-catalog-page .patient-sidebar.collapsed .sidebar-inner {
     width: 100%;
-    height: 100%;
-    max-height: none;
+    height: auto;
+    max-height: calc(100vh - 112px);
     display: flex;
     flex-direction: column;
     transform: none !important;
-    visibility: inherit;
+    visibility: visible;
     opacity: 1;
     overflow: hidden;
-    border-radius: 14px;
-    box-shadow: 0 24px 60px -20px rgba(0, 47, 36, 0.45);
     transition: none;
 }
 
 .patient-catalog-page .patient-sidebar .sidebar-body {
     flex: 1;
+    min-height: 0;
     max-height: none;
     overflow-y: auto;
     overscroll-behavior: contain;
+    scrollbar-width: thin;
+    scrollbar-color: #B9D3C6 transparent;
 }
 
-.patient-catalog-page .patient-sidebar .sidebar-tab,
-.patient-catalog-page .patient-sidebar.collapsed .sidebar-tab {
-    display: none !important;
-}
-
-.patient-catalog-page .sidebar-backdrop {
-    display: block !important;
-    position: fixed;
-    inset: 0;
-    z-index: 299;
-    background: rgba(8, 41, 33, 0.38);
-    opacity: 0;
-    visibility: hidden;
-    transition: opacity 0.3s ease, visibility 0s linear 0.3s;
-}
-
-.citas-abiertas .sidebar-backdrop {
-    opacity: 1;
-    visibility: visible;
-    transition: opacity 0.3s ease, visibility 0s linear 0s;
-}
-
-body.citas-abiertas {
-    overflow: hidden;
-}
+.patient-catalog-page .patient-sidebar .sidebar-body::-webkit-scrollbar { width: 6px; }
+.patient-catalog-page .patient-sidebar .sidebar-body::-webkit-scrollbar-thumb { background: #B9D3C6; border-radius: 3px; }
 
 .patient-catalog-page .patient-sidebar .sidebar-close {
-    width: 32px;
-    height: 32px;
-    padding: 0;
-    border-radius: 8px;
-    display: inline-flex !important;
-    align-items: center;
-    justify-content: center;
-    font-size: 22px;
-    line-height: 1;
-    transform: none;
+    display: none !important;
 }
 
 /* Citas más legibles */
@@ -2049,27 +1966,49 @@ body.citas-abiertas {
     font-size: 13px;
 }
 
+@media (max-width: 1000px) {
+    .patient-catalog-page .page-layout,
+    .patient-catalog-page .page-layout.sidebar-collapsed {
+        grid-template-columns: minmax(0, 1fr) 300px;
+    }
+}
+
 @media (max-width: 760px) {
+    .patient-catalog-page .page-layout,
+    .patient-catalog-page .page-layout.sidebar-collapsed {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
     .patient-catalog-page .patient-sidebar,
     .patient-catalog-page .patient-sidebar.collapsed {
-        padding: 8px;
+        position: static;
+        order: -1;
     }
 
-    .patient-nav-citas {
-        padding: 8px 10px;
+    .patient-catalog-page .patient-sidebar .sidebar-inner,
+    .patient-catalog-page .patient-sidebar.collapsed .sidebar-inner {
+        max-height: 420px;
     }
-}
 
-@media (max-width: 420px) {
-    .patient-nav-citas-label {
+    .patient-catalog-page .patient-sidebar.collapsed .sidebar-body {
         display: none;
     }
-}
 
-@media (prefers-reduced-motion: reduce) {
-    .patient-catalog-page .patient-sidebar,
-    .patient-catalog-page .patient-sidebar.collapsed,
-    .patient-catalog-page .sidebar-backdrop {
-        transition: none;
+    .patient-catalog-page .patient-sidebar .sidebar-close {
+        display: inline-flex !important;
+        width: 32px;
+        height: 32px;
+        padding: 0;
+        align-items: center;
+        justify-content: center;
+        border-radius: 8px;
+        font-size: 22px;
+        line-height: 1;
+        transform: rotate(-90deg);
+        transition: transform 0.2s ease;
+    }
+
+    .patient-catalog-page .patient-sidebar.collapsed .sidebar-close {
+        transform: rotate(90deg);
     }
 }

@@ -24,10 +24,6 @@
         <nav class="patient-nav" aria-label="Navegación del paciente">
             <a class="is-active" th:href="@{/pacientes/landing}" aria-current="page"><i class="fa-solid fa-user-doctor" aria-hidden="true"></i>Doctores</a>
             <a th:href="@{/triage}"><i class="fa-solid fa-stethoscope" aria-hidden="true"></i>Asistente</a>
-            <button type="button" class="patient-nav-citas" onclick="openSidebar()" aria-controls="citasSidebar">
-                <i class="fa-solid fa-clipboard-list" aria-hidden="true"></i><span class="patient-nav-citas-label">Mis citas</span>
-                <span class="patient-nav-badge" th:if="${misCitas != null and not #lists.isEmpty(misCitas)}" th:text="${#lists.size(misCitas)}"></span>
-            </button>
         </nav>
         <div class="patient-account">
             <img th:src="@{/images/default-avatar.jpg}" alt="" class="patient-avatar">
@@ -149,16 +145,7 @@
         </div>
 
     <!-- Mis Citas Sidebar -->
-    <aside class="citas-sidebar patient-sidebar collapsed" id="citasSidebar" aria-label="Mis citas">
-
-        <!-- Tab to reopen sidebar (visible when closed) -->
-        <button class="sidebar-tab" id="sidebarTab" onclick="openSidebar()" aria-label="Abrir Mis Citas">
-            <span class="tab-icon"><i class="fa-solid fa-clipboard-list"></i></span>
-            <span class="tab-text">Mis citas</span>
-            <span class="tab-badge"
-                  th:if="${misCitas != null and not #lists.isEmpty(misCitas)}"
-                  th:text="${#lists.size(misCitas)}"></span>
-        </button>
+    <aside class="citas-sidebar patient-sidebar" id="citasSidebar" aria-label="Mis citas">
 
         <div class="sidebar-inner">
             <div class="sidebar-header">
@@ -169,7 +156,7 @@
                           th:if="${misCitas != null and not #lists.isEmpty(misCitas)}"
                           th:text="${#lists.size(misCitas)}"></span>
                 </div>
-                <button type="button" class="sidebar-close" onclick="closeSidebar()" aria-label="Cerrar Mis citas">&times;</button>
+                <button type="button" class="sidebar-close" onclick="toggleSidebar()" aria-label="Mostrar u ocultar Mis citas" aria-controls="citasSidebar">&#8250;</button>
             </div>
 
             <div class="sidebar-body">
@@ -285,7 +272,6 @@
 </div><!-- end .page-layout -->
 
 <!-- Backdrop for mobile sidebar overlay -->
-<div class="sidebar-backdrop" id="sidebarBackdrop" onclick="closeSidebar()"></div>
 </main>
 
 <footer th:replace="~{fragments/layout :: app-footer}"></footer>
@@ -311,18 +297,12 @@
 
 const sidebar  = document.getElementById('citasSidebar');
 
-function closeSidebar() {
-    sidebar.classList.add('collapsed');
-    document.body.classList.remove('citas-abiertas');
+// Solo en celular el panel se pliega (acordeón); en pantallas grandes siempre está visible.
+const celular = window.matchMedia('(max-width: 760px)');
+function toggleSidebar() {
+    if (celular.matches) sidebar.classList.toggle('collapsed');
 }
-function openSidebar() {
-    sidebar.classList.remove('collapsed');
-    document.body.classList.add('citas-abiertas');
-}
-document.addEventListener('keydown', function (e) {
-    if (e.key === 'Escape') closeSidebar();
-});
-closeSidebar();
+if (celular.matches) sidebar.classList.add('collapsed');
 </script>
 <script th:src="@{/js/custom-select.js}"></script>
 </body>
