@@ -857,67 +857,48 @@ document.addEventListener('keydown', function(e) {
     sections.forEach(s => observer.observe(s));
 })();
 
-/* ── Paginación Frontend para Pacientes ── */
-document.addEventListener('DOMContentLoaded', function() {
-    const grid = document.querySelector('.pacientes-grid');
-    if (!grid) return;
-    
-    const cards = grid.querySelectorAll('.paciente-card');
-    const itemsPerPage = 8; // Dos filas completas de la rejilla de 4 columnas
-    const totalPages = Math.ceil(cards.length / itemsPerPage);
-    
-    if (totalPages > 1) {
-        const paginationContainer = document.createElement('div');
-        paginationContainer.className = 'pagination';
-        grid.parentNode.insertBefore(paginationContainer, grid.nextSibling);
+/* ── Paginación en el navegador: muestra solo una página de los elementos que pasan el filtro ── */
+function paginar(lista, porPagina, contenedorDespues, pagina) {
+    const total = Math.max(1, Math.ceil(lista.items.length / porPagina));
+    pagina = Math.min(Math.max(1, pagina || 1), total);
+    lista.todos.forEach(function(el) { el.style.display = 'none'; });
+    lista.items.forEach(function(el, i) {
+        if (i >= (pagina - 1) * porPagina && i < pagina * porPagina) el.style.display = '';
+    });
 
-        function showPage(page) {
-            cards.forEach((card, index) => {
-                card.style.display = (index >= (page - 1) * itemsPerPage && index < page * itemsPerPage) ? '' : 'none';
-            });
-            renderPagination(page);
-        }
-
-        function renderPagination(currentPage) {
-            paginationContainer.innerHTML = '';
-            
-            if (currentPage > 1) {
-                const prev = document.createElement('button');
-                prev.type = 'button';
-                prev.className = 'pagination-step';
-                prev.textContent = 'Anterior';
-                prev.onclick = () => showPage(currentPage - 1);
-                paginationContainer.appendChild(prev);
-            }
-
-            for (let i = 1; i <= totalPages; i++) {
-                if (i === 1 || i === totalPages || (i >= currentPage - 1 && i <= currentPage + 1)) {
-                    const btn = document.createElement('button');
-                    btn.type = 'button';
-                    btn.className = 'pagination-page' + (i === currentPage ? ' is-current' : '');
-                    btn.textContent = i;
-                    btn.onclick = () => showPage(i);
-                    paginationContainer.appendChild(btn);
-                } else if (i === currentPage - 2 || i === currentPage + 2) {
-                    const dots = document.createElement('span');
-                    dots.textContent = '...';
-                    paginationContainer.appendChild(dots);
-                }
-            }
-
-            if (currentPage < totalPages) {
-                const next = document.createElement('button');
-                next.type = 'button';
-                next.className = 'pagination-step';
-                next.textContent = 'Siguiente';
-                next.onclick = () => showPage(currentPage + 1);
-                paginationContainer.appendChild(next);
-            }
-        }
-
-        showPage(1);
+    let nav = contenedorDespues.nextElementSibling;
+    if (!nav || !nav.classList.contains('pagination')) {
+        nav = document.createElement('div');
+        nav.className = 'pagination';
+        contenedorDespues.parentNode.insertBefore(nav, contenedorDespues.nextSibling);
     }
-});
+    nav.innerHTML = '';
+    nav.style.display = total > 1 ? '' : 'none';
+    if (total <= 1) return;
+
+    function boton(texto, clase, destino) {
+        const b = document.createElement('button');
+        b.type = 'button';
+        b.className = clase;
+        b.textContent = texto;
+        b.onclick = function() {
+            paginar(lista, porPagina, contenedorDespues, destino);
+            contenedorDespues.closest('section').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        };
+        nav.appendChild(b);
+    }
+    if (pagina > 1) boton('Anterior', 'pagination-step', pagina - 1);
+    for (let i = 1; i <= total; i++) {
+        if (i === 1 || i === total || (i >= pagina - 1 && i <= pagina + 1)) {
+            boton(String(i), 'pagination-page' + (i === pagina ? ' is-current' : ''), i);
+        } else if (i === pagina - 2 || i === pagina + 2) {
+            const dots = document.createElement('span');
+            dots.textContent = '…';
+            nav.appendChild(dots);
+        }
+    }
+    if (pagina < total) boton('Siguiente', 'pagination-step', pagina + 1);
+}
 </script>
 
 <script th:inline="javascript">
@@ -943,28 +924,38 @@ document.querySelectorAll('#citas .doc-segmento').forEach(function(b) {
     });
 });
 
+const CITAS_POR_PAGINA = 8;
+const PACIENTES_POR_PAGINA = 8; // Dos filas completas de la rejilla de 4 columnas
+
 function filtrarCitas() {
     const q = ((document.getElementById('busquedaPaciente') || {}).value || '').trim().toLowerCase();
-    let visibles = 0;
-    document.querySelectorAll('#citas .cita-item').forEach(function(item) {
+    const todos = Array.from(document.querySelectorAll('#citas .cita-item'));
+    const items = todos.filter(function(item) {
         const matchEstado = filtroCitas === 'TODAS'
             || (filtroCitas === 'HOY' ? item.dataset.hoy === 'true' : item.dataset.estado === filtroCitas);
         const nombre = (item.querySelector('.paciente-cell') || {}).textContent || '';
-        const ver = matchEstado && (q === '' || nombre.toLowerCase().includes(q));
-        item.style.display = ver ? '' : 'none';
-        if (ver) visibles++;
+        return matchEstado && (q === '' || nombre.toLowerCase().includes(q));
     });
     const emptyMsg = document.getElementById('citas-empty-filter');
-    if (emptyMsg) emptyMsg.style.display = visibles === 0 ? '' : 'none';
+    if (emptyMsg) emptyMsg.style.display = items.length === 0 ? '' : 'none';
+    const lista = document.querySelector('#citas .citas-lista');
+    if (lista) paginar({ todos: todos, items: items }, CITAS_POR_PAGINA, lista, 1);
 }
 
 function filtrarPacientes() {
-    const q = (document.getElementById('busquedaMisPacientes').value || '').trim().toLowerCase();
-    document.querySelectorAll('.pacientes-grid .paciente-card').forEach(function(card) {
+    const input = document.getElementById('busquedaMisPacientes');
+    const q = ((input || {}).value || '').trim().toLowerCase();
+    const todos = Array.from(document.querySelectorAll('.pacientes-grid .paciente-card'));
+    const items = todos.filter(function(card) {
         const name = (card.querySelector('.paciente-name') || {}).textContent || '';
-        card.style.display = (q === '' || name.toLowerCase().includes(q)) ? '' : 'none';
+        return q === '' || name.toLowerCase().includes(q);
     });
+    const grid = document.querySelector('.pacientes-grid');
+    if (grid) paginar({ todos: todos, items: items }, PACIENTES_POR_PAGINA, grid, 1);
 }
+
+filtrarCitas();
+filtrarPacientes();
 </script>
 </body>
 </html>
