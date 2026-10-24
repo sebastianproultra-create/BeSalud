@@ -37,6 +37,9 @@
         </div>
     </div>
 
+    <div th:if="${param.info != null and param.info[0] == 'reserva_liberada'}" class="alert-info-reserva" role="status">
+        Listo, liberamos el horario anterior. Elige uno nuevo cuando quieras.
+    </div>
     <div th:if="${param.error != null}" class="alert-error" role="alert" th:switch="${param.error[0]}">
         <span th:case="'horario_invalido'">El horario seleccionado ya no está disponible. Por favor, elige otro.</span>
         <span th:case="'conflicto_cita'">Ese horario ya fue reservado por otro paciente. Por favor elige otro.</span>

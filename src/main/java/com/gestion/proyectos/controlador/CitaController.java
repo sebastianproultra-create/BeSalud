@@ -11,7 +11,6 @@ import com.gestion.proyectos.servicio.CitaService;
 import com.gestion.proyectos.servicio.PasarelaPagos;
 import com.gestion.proyectos.servicio.ReservaService;
 
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -42,14 +41,11 @@ public class CitaController {
     private final CitaService citaService;
     private final ReservaService reservaService;
     private final PasarelaPagos pasarela;
-    private final String urlApp;
 
-    public CitaController(CitaService citaService, ReservaService reservaService, PasarelaPagos pasarela,
-            @Value("${app.url:http://localhost:8080}") String urlApp) {
+    public CitaController(CitaService citaService, ReservaService reservaService, PasarelaPagos pasarela) {
         this.citaService = citaService;
         this.reservaService = reservaService;
         this.pasarela = pasarela;
-        this.urlApp = urlApp.replaceAll("/+$", "");
     }
 
     @GetMapping
@@ -260,16 +256,37 @@ public class CitaController {
 
         try {
             if (doctor.cobraAbono()) {
-                // Con abono la cita aún no existe: se aparta el turno y se envía al paciente a pagar
+                // Con abono la cita aún no existe: se aparta el turno y el paciente ve el resumen para pagar
                 Reserva reserva = reservaService.apartar(doctor, paciente.getId(), fechaCita, horaCita, motivo);
-                return "redirect:" + pasarela.urlPago(reserva, paciente.getEmail(),
-                        paciente.getNombre() + " " + paciente.getApellido(), urlApp + "/pagos/retorno");
+                return "redirect:/pagos/" + reserva.getReferencia();
             }
             citaService.crearCita(doctorId, paciente.getId(), fechaCita, horaCita, motivo);
         } catch (CitaService.TurnoOcupadoException e) {
             return "redirect:/citas/nueva?doctorId=" + doctorId + "&error=conflicto_cita";
         }
         return "redirect:/pacientes/landing?success=cita_agendada";
+    }
+
+    /** Archivo .ics para que el paciente guarde la cita en Google Calendar, Outlook o el calendario del celular. */
+    @GetMapping("/{id}/calendario.ics")
+    public org.springframework.http.ResponseEntity<byte[]> calendario(@PathVariable String id) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        Paciente paciente = citaService.buscarPacientePorEmail(auth.getName()).orElse(null);
+        Cita cita = citaService.buscarPorId(id).orElse(null);
+        if (paciente == null || cita == null || !paciente.getId().equals(cita.getPacienteId())
+                || cita.getEstado() != EstadoCita.PENDIENTE)
+            return org.springframework.http.ResponseEntity.notFound().build();
+        Doctor doctor = citaService.buscarDoctorPorId(cita.getDoctorId()).orElse(null);
+        String quien = doctor == null ? "tu profesional" : "Dr(a). " + doctor.getNombre() + " " + doctor.getApellido();
+        String ics = com.gestion.proyectos.util.Calendario.evento(cita.getId() + "@besalud",
+                cita.getFecha().atTime(cita.getHora()), 30, "Cita con " + quien,
+                doctor == null ? null : doctor.getDireccionConsultorio(),
+                "Cita agendada en BeSalud." + (cita.getReferenciaPago() != null
+                        ? " Referencia del abono: " + cita.getReferenciaPago() + "." : ""));
+        return org.springframework.http.ResponseEntity.ok()
+                .header("Content-Disposition", "attachment; filename=\"cita-besalud.ics\"")
+                .contentType(org.springframework.http.MediaType.parseMediaType("text/calendar; charset=UTF-8"))
+                .body(ics.getBytes(java.nio.charset.StandardCharsets.UTF_8));
     }
 
     @PostMapping("/{id}/cancelar")

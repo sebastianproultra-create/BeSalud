@@ -50,6 +50,16 @@
         <div th:if="${param.success != null and param.success[0] == 'cita_cancelada'}" class="alert alert-success" role="status">
             Tu cita fue cancelada.
         </div>
+        <div th:each="r : ${reservasPendientes}" class="reserva-pendiente" role="status">
+            <i class="fa-regular fa-clock" aria-hidden="true"></i>
+            <div>
+                <strong>Tienes un horario apartado sin pagar</strong>
+                <span th:text="${(doctoresMap != null and doctoresMap[r.doctorId] != null ? doctoresMap[r.doctorId] + ' · ' : '')
+                        + #temporals.format(r.fecha, 'dd/MM/yyyy') + ' ' + #temporals.format(r.hora, 'HH:mm')
+                        + ' · se libera a las ' + #temporals.format(r.expiraEn, 'h:mm a')}">Detalle</span>
+            </div>
+            <a th:href="@{/pagos/{ref}(ref=${r.referencia})}">Completar pago</a>
+        </div>
         <div th:if="${param.success != null and param.success[0] == 'pago_pendiente'}" class="alert alert-success" role="status">
             Tu pago está en proceso. Apenas la pasarela lo apruebe, la cita aparecerá en tu lista.
         </div>

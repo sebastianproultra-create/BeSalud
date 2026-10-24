@@ -869,3 +869,11 @@
 .abono-aviso .abono-demo {
     font-weight: 600;
 }
+
+.alert-info-reserva {
+    margin-bottom: 16px;
+    padding: 12px 16px;
+    color: #0D4738;
+    background: #EAF7F0;
+    border-radius: 10px;
+}

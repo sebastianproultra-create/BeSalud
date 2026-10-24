@@ -2025,3 +2025,43 @@ body.patient-catalog-page {
 .doctor-profile-link:hover {
     text-decoration: underline;
 }
+
+/* Horario apartado que aún espera el pago del abono */
+.reserva-pendiente {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+    padding: 14px 16px;
+    color: #5C3A02;
+    background: #FFF4E3;
+    border: 1px solid #FFDDB8;
+    border-radius: 12px;
+    font-size: 14px;
+}
+
+.reserva-pendiente > div {
+    flex: 1;
+    min-width: 0;
+}
+
+.reserva-pendiente strong,
+.reserva-pendiente span {
+    display: block;
+}
+
+.reserva-pendiente a {
+    flex: 0 0 auto;
+    padding: 8px 14px;
+    color: #fff;
+    background: #855403;
+    border-radius: 8px;
+    font-weight: 700;
+    text-decoration: none;
+}
+
+@media (max-width: 560px) {
+    .reserva-pendiente {
+        flex-wrap: wrap;
+    }
+}

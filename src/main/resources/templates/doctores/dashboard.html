@@ -184,8 +184,8 @@
         <!-- Enlace público de reservas y datos de la consulta -->
         <div class="doc-reservas">
             <div class="doc-enlace">
-                <span class="doc-label">Tu enlace de reservas</span>
-                <p class="doc-enlace-ayuda">Compártelo en WhatsApp, Instagram o Google: tus pacientes ven tus horarios y reservan desde ahí.</p>
+                <h3 class="doc-bloque-titulo">Tu página de citas</h3>
+                <p class="doc-enlace-ayuda">Comparte este enlace con tus pacientes para que reserven contigo.</p>
                 <div class="doc-enlace-fila">
                     <input type="text" id="enlacePublico" th:value="${enlacePublico}" readonly aria-label="Enlace de reservas">
                     <button type="button" class="doc-btn doc-btn--primary" id="copiarEnlace">
@@ -197,27 +197,53 @@
                 </div>
             </div>
 
-            <form th:action="@{/doctores/perfil/consulta}" method="post" class="doc-consulta-form">
-                <span class="doc-label">Consulta y abono</span>
+            <form th:action="@{/doctores/perfil/consulta}" method="post" class="doc-consulta-form"
+                  th:with="horas=${doctor.horasCancelacionEfectivas()}">
+                <h3 class="doc-bloque-titulo">Precio y pagos</h3>
                 <div th:if="${exitoConsulta}" class="alert alert-success" th:text="${exitoConsulta}"></div>
                 <div th:if="${errorConsulta}" class="alert alert-error" th:text="${errorConsulta}"></div>
+
                 <div class="doc-consulta-campos">
-                    <label>Valor de la consulta (COP)
-                        <input type="number" name="precioConsulta" min="0" max="5000000" step="1000" th:value="${doctor.precioConsulta}" placeholder="80000">
+                    <label class="doc-campo">Precio de la consulta
+                        <span class="doc-pesos"><span aria-hidden="true">$</span>
+                            <input type="number" name="precioConsulta" min="0" max="5000000" step="1000"
+                                   th:value="${doctor.precioConsulta}" placeholder="80000" inputmode="numeric">
+                        </span>
                     </label>
-                    <label>Abono para reservar (COP)
-                        <input type="number" name="abono" min="0" max="5000000" step="1000" th:value="${doctor.abono}" placeholder="0 = sin abono">
-                    </label>
-                    <label>Cancelación sin perder el abono (horas antes)
-                        <input type="number" name="horasCancelacion" min="0" max="168" th:value="${doctor.horasCancelacionEfectivas()}">
-                    </label>
-                    <label class="doc-consulta-direccion">Dirección del consultorio
-                        <input type="text" name="direccionConsultorio" maxlength="160" th:value="${doctor.direccionConsultorio}" placeholder="Calle 10 # 5-20, consultorio 302">
+                    <label class="doc-campo">Dirección del consultorio
+                        <input type="text" name="direccionConsultorio" maxlength="160"
+                               th:value="${doctor.direccionConsultorio}" placeholder="Ej. Cra 45 # 72-10, Barranquilla">
                     </label>
                 </div>
-                <p class="doc-enlace-ayuda">Con abono, la cita solo se confirma cuando el paciente paga. Si no asiste o cancela tarde, el abono es tuyo.</p>
+
+                <label class="doc-interruptor">
+                    <input type="checkbox" name="cobrarAbono" value="true" id="cobrarAbono" th:checked="${doctor.cobraAbono()}">
+                    <span class="doc-interruptor-pista" aria-hidden="true"></span>
+                    <span>Pedir un abono para reservar
+                        <small>Reduce las citas a las que nadie llega.</small></span>
+                </label>
+
+                <div class="doc-consulta-campos doc-abono-campos" id="camposAbono">
+                    <label class="doc-campo">Valor del abono
+                        <span class="doc-pesos"><span aria-hidden="true">$</span>
+                            <input type="number" name="abono" min="0" max="5000000" step="1000"
+                                   th:value="${doctor.cobraAbono() ? doctor.abono : null}" placeholder="20000" inputmode="numeric">
+                        </span>
+                    </label>
+                    <label class="doc-campo">Se devuelve si cancelan con
+                        <select name="horasCancelacion">
+                            <option value="12" th:selected="${horas == 12}">12 horas de anticipación</option>
+                            <option value="24" th:selected="${horas == 24}">24 horas de anticipación</option>
+                            <option value="48" th:selected="${horas == 48}">48 horas de anticipación</option>
+                            <option th:if="${horas != 12 and horas != 24 and horas != 48}" th:value="${horas}" selected
+                                    th:text="${horas + ' horas de anticipación'}">Otra</option>
+                        </select>
+                    </label>
+                    <p class="doc-enlace-ayuda doc-abono-nota">La cita queda confirmada cuando el paciente paga. El abono se descuenta del precio.</p>
+                </div>
+
                 <button type="submit" class="doc-btn doc-btn--amber">
-                    <span class="material-symbols-outlined" aria-hidden="true">save</span><span>Guardar</span>
+                    <span class="material-symbols-outlined" aria-hidden="true">save</span><span>Guardar cambios</span>
                 </button>
             </form>
         </div>
@@ -923,6 +949,14 @@ window.BESALUD_DICTAMEN = {
 };
 </script>
 <script>
+(function () {
+    const interruptor = document.getElementById('cobrarAbono');
+    const campos = document.getElementById('camposAbono');
+    if (!interruptor || !campos) return;
+    const mostrar = () => { campos.hidden = !interruptor.checked; };
+    interruptor.addEventListener('change', mostrar);
+    mostrar();
+})();
 document.getElementById('copiarEnlace')?.addEventListener('click', function () {
     const campo = document.getElementById('enlacePublico');
     const texto = this.querySelector('span:last-child');

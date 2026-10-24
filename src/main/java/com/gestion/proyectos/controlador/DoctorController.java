@@ -207,17 +207,20 @@ public class DoctorController {
             @RequestParam(required = false) Integer abono,
             @RequestParam(required = false) String direccionConsultorio,
             @RequestParam(required = false) Integer horasCancelacion,
+            @RequestParam(defaultValue = "false") boolean cobrarAbono,
             RedirectAttributes redirectAttributes) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         Doctor doctor = doctorService.buscarPorEmail(auth.getName()).orElse(null);
         if (doctor == null)
             return REDIRECT_DOCTORES;
-        String error = perfilPublicoService.guardarConsulta(doctor, precioConsulta, abono, direccionConsultorio,
-                horasCancelacion);
+        String error = cobrarAbono && (abono == null || abono <= 0)
+                ? "Escribe el valor del abono o desactiva la opción."
+                : perfilPublicoService.guardarConsulta(doctor, precioConsulta, cobrarAbono ? abono : 0,
+                        direccionConsultorio, horasCancelacion);
         if (error != null)
             redirectAttributes.addFlashAttribute("errorConsulta", error);
         else
-            redirectAttributes.addFlashAttribute("exitoConsulta", "Datos de la consulta guardados.");
+            redirectAttributes.addFlashAttribute("exitoConsulta", "Cambios guardados.");
         return "redirect:/doctores#perfil";
     }
 

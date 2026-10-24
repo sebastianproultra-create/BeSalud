@@ -151,6 +151,26 @@
     <p>&copy; 2026 BeSalud - Sistema de citas médicas. Todos los derechos reservados. · <a th:href="@{/privacidad}">Política de privacidad</a></p>
 </footer>
 
+<!-- ── Encabezado de las páginas de pago (paciente con sesión) ── -->
+<header th:fragment="pago-header" class="portal-header">
+    <div class="portal-header-inner">
+        <a th:href="@{/pacientes/landing}" class="portal-brand" aria-label="BeSalud, mis citas">
+            <span class="material-symbols-outlined portal-brand-icon" aria-hidden="true">local_hospital</span>
+            <span class="portal-brand-copy">
+                <span class="portal-brand-name">BeSalud</span>
+                <span class="portal-brand-subtitle">Pago seguro</span>
+            </span>
+        </a>
+        <nav class="auth-nav" aria-label="Navegación">
+            <a th:href="@{/pacientes/landing}" class="auth-nav-link">Mis citas</a>
+            <a th:href="@{/ayuda}" class="auth-nav-link">Ayuda</a>
+        </nav>
+        <div class="portal-header-meta">
+            <span class="secure-label"><span class="material-symbols-outlined" aria-hidden="true">lock</span>Conexión segura</span>
+        </div>
+    </div>
+</header>
+
 <div th:fragment="auth-footer" class="auth-footer" role="contentinfo">
     <p>&copy; 2026 BeSalud · Sistema de Gestión de Citas Médicas · Privacidad y Seguridad · <a th:href="@{/privacidad}">Política de privacidad</a></p>
 </div>

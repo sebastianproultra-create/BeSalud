@@ -1,52 +1,63 @@
 <!DOCTYPE html>
-<html lang="es" xmlns:th="http://www.thymeleaf.org"
-      th:with="loc=${T(java.util.Locale).forLanguageTag('es-CO')}">
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pago del abono (demostración) · BeSalud</title>
+    <title>Pasarela de demostración · BeSalud</title>
     <link rel="stylesheet" th:href="@{/css/base/global.css}">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400&amp;family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@100..700&amp;display=swap" rel="stylesheet">
     <link rel="stylesheet" th:href="@{/css/auth/portal.css}">
-    <link rel="stylesheet" th:href="@{/css/publico/profesional.css}">
+    <link rel="stylesheet" th:href="@{/css/publico/pagos.css}">
 </head>
-<body class="auth-page profesional-page">
-<header th:replace="~{fragments/layout :: auth-header('')}"></header>
+<body class="auth-page pago-page">
+<header th:replace="~{fragments/layout :: pago-header}"></header>
 
-<main class="auth-main profesional-main">
-    <section class="pro-card pago-card" aria-labelledby="pago-titulo">
-        <div class="pago-demo" role="note">
+<main class="auth-main pago-main">
+    <section class="pago-tarjeta pasarela" aria-labelledby="pasarela-titulo">
+        <div class="pasarela-aviso" role="note">
             <span class="material-symbols-outlined" aria-hidden="true">science</span>
-            <span>Pasarela de <strong>demostración</strong>: no se cobra dinero real. Con las llaves de Wompi configuradas,
-                aquí se abriría el checkout de Wompi.</span>
+            <span><strong>Pasarela de demostración.</strong> No se cobra dinero real. Con las llaves de Wompi
+                configuradas, aquí se abre el checkout de Wompi.</span>
         </div>
-        <h2 id="pago-titulo">Abono de tu cita</h2>
-        <p class="pro-politica">
-            <strong th:text="${doctor.nombre + ' ' + doctor.apellido}">Profesional</strong> ·
-            <span th:text="${#strings.capitalize(#temporals.format(reserva.fecha, 'EEEE d ''de'' MMMM', loc))}">Lunes 3 de noviembre</span>,
-            <span th:text="${#temporals.format(reserva.hora, 'HH:mm')}">09:00</span>
-        </p>
-        <p class="pago-total" th:text="${'$' + #numbers.formatInteger(reserva.montoPesos, 1, 'POINT')}">$20.000</p>
-        <p class="pro-politica">
-            Referencia <code th:text="${reserva.referencia}">BS-…</code>. El horario está apartado hasta las
-            <strong th:text="${#temporals.format(reserva.expiraEn, 'HH:mm')}">10:15</strong>.
-        </p>
-        <div class="pago-acciones">
+
+        <div class="pasarela-cabecera">
+            <div>
+                <span class="pasarela-comercio">BeSalud · Abono de cita</span>
+                <h1 id="pasarela-titulo" th:text="${'$' + #numbers.formatInteger(reserva.montoPesos, 1, 'POINT')}">$20.000</h1>
+                <span class="pasarela-ref" th:text="${'Ref. ' + reserva.referencia}">Ref. BS-…</span>
+            </div>
+            <div class="pago-reloj is-compacto" role="timer" th:attr="data-segundos=${segundosRestantes}">
+                <span class="material-symbols-outlined" aria-hidden="true">timer</span>
+                <strong class="pago-reloj-tiempo">15:00</strong>
+            </div>
+        </div>
+
+        <fieldset class="pasarela-medios">
+            <legend>Medio de pago (simulado)</legend>
+            <label><input type="radio" name="medio" value="tarjeta" checked><span class="material-symbols-outlined" aria-hidden="true">credit_card</span>Tarjeta</label>
+            <label><input type="radio" name="medio" value="pse"><span class="material-symbols-outlined" aria-hidden="true">account_balance</span>PSE</label>
+            <label><input type="radio" name="medio" value="nequi"><span class="material-symbols-outlined" aria-hidden="true">smartphone</span>Nequi</label>
+        </fieldset>
+
+        <p class="pasarela-explica">Elige qué respuesta quieres que dé el banco para probar cada caso:</p>
+        <div class="pasarela-acciones">
             <form th:action="@{/pagos/simulado/{ref}(ref=${reserva.referencia})}" method="post">
                 <input type="hidden" name="resultado" value="aprobar">
-                <button type="submit" class="btn btn-primary">Simular pago aprobado</button>
+                <button type="submit" class="pago-boton"><span class="material-symbols-outlined" aria-hidden="true">check_circle</span>Pago aprobado</button>
             </form>
             <form th:action="@{/pagos/simulado/{ref}(ref=${reserva.referencia})}" method="post">
                 <input type="hidden" name="resultado" value="rechazar">
-                <button type="submit" class="btn btn-secondary">Simular pago rechazado</button>
+                <button type="submit" class="pago-boton is-secundario"><span class="material-symbols-outlined" aria-hidden="true">cancel</span>Pago rechazado</button>
             </form>
         </div>
+        <a class="pasarela-volver" th:href="@{/pagos/{ref}(ref=${reserva.referencia})}">Volver al resumen</a>
     </section>
 </main>
 
 <div th:replace="~{fragments/layout :: auth-footer}"></div>
+<script th:src="@{/js/pagos.js}" defer></script>
 </body>
 </html>

@@ -1,4 +1,4 @@
-/* Página pública del profesional y pasarela simulada: usa los tokens de auth/portal.css */
+/* Página pública del profesional: usa los tokens de auth/portal.css */
 
 .profesional-page .profesional-main {
     display: block;
@@ -215,48 +215,6 @@ a.pro-slot:focus-visible {
 .pro-asistente {
     display: flex;
     flex-direction: column;
-}
-
-/* Pasarela simulada */
-.pago-card {
-    max-width: 520px;
-    margin: 0 auto;
-}
-
-.pago-demo {
-    display: flex;
-    gap: 10px;
-    margin-bottom: 20px;
-    padding: 12px 14px;
-    color: var(--portal-secondary);
-    background: #FFF4E3;
-    border: 1px dashed var(--portal-secondary-container);
-    border-radius: 12px;
-    font-size: 14px;
-    line-height: 1.55;
-}
-
-.pago-total {
-    margin: 4px 0 20px;
-    color: var(--portal-primary);
-    font-family: 'Newsreader', Georgia, serif;
-    font-size: 44px;
-}
-
-.pago-acciones {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 12px;
-    margin-top: 20px;
-}
-
-.pago-acciones form {
-    flex: 1 1 180px;
-    margin: 0;
-}
-
-.pago-acciones button {
-    width: 100%;
 }
 
 @media (max-width: 860px) {

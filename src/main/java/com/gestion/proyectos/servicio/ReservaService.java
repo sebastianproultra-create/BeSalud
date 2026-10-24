@@ -85,6 +85,25 @@ public class ReservaService {
         return referencia == null ? Optional.empty() : reservaRepo.findByReferencia(referencia);
     }
 
+    /** Reservas del paciente que aún esperan pago y no se han vencido (aviso en su portal). */
+    public java.util.List<Reserva> pendientesDe(String pacienteId) {
+        LocalDateTime ahora = Reloj.ahora();
+        return reservaRepo.findByPacienteIdAndEstado(pacienteId, Reserva.Estado.ESPERANDO_PAGO).stream()
+                .filter(r -> !r.vencida(ahora))
+                .toList();
+    }
+
+    /** El paciente desiste antes de pagar: el horario queda libre de inmediato. */
+    public boolean liberar(String referencia, String pacienteId) {
+        Reserva liberada = mongo.findAndModify(
+                Query.query(Criteria.where("referencia").is(referencia).and("pacienteId").is(pacienteId)
+                        .and("estado").is(Reserva.Estado.ESPERANDO_PAGO)),
+                new Update().set("estado", Reserva.Estado.EXPIRADA).unset("turno"), Reserva.class);
+        if (liberada != null)
+            log.info("Reserva liberada por el paciente: referencia={}", referencia);
+        return liberada != null;
+    }
+
     /**
      * Aplica el resultado del pago. Puede llegar dos veces (la redirección del paciente y el webhook),
      * así que solo una toma la reserva: la pasa a PROCESANDO de forma atómica antes de crear la cita.
@@ -99,8 +118,14 @@ public class ReservaService {
         if (actual.getEstado() == Reserva.Estado.CONFLICTO)
             return Resultado.CONFLICTO;
         if (!"APPROVED".equals(estado) && !"DECLINED".equals(estado) && !"VOIDED".equals(estado)
-                && !"ERROR".equals(estado))
+                && !"ERROR".equals(estado)) {
+            // PSE o Nequi pueden tardar: se guarda la transacción para volver a consultarla
+            if (transaccionId != null && actual.getTransaccionId() == null) {
+                actual.setTransaccionId(transaccionId);
+                reservaRepo.save(actual);
+            }
             return Resultado.PENDIENTE;
+        }
 
         Reserva tomada = mongo.findAndModify(
                 Query.query(Criteria.where("referencia").is(referencia)

@@ -351,8 +351,6 @@ class CitaControllerTest {
         com.gestion.proyectos.modelo.Reserva reserva = new com.gestion.proyectos.modelo.Reserva();
         reserva.setReferencia("BS-123");
         when(reservaService.apartar(eq(doctor), eq("p1"), any(), any(), eq("Control"))).thenReturn(reserva);
-        when(pasarelaPagos.urlPago(eq(reserva), eq("paciente@test.com"), eq("Ana Ruiz"), anyString()))
-                .thenReturn("/pagos/simulado/BS-123");
 
         mockMvc.perform(post("/citas/guardar-paciente")
                         .param("doctorId", "d1")
@@ -362,7 +360,7 @@ class CitaControllerTest {
                         .with(csrf())
                         .with(user("paciente@test.com").roles("PACIENTE")))
                 .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl("/pagos/simulado/BS-123"));
+                .andExpect(redirectedUrl("/pagos/BS-123"));
 
         // La cita no existe hasta que el pago se apruebe
         verify(citaService, never()).crearCita(any(), any(), any(), any(), any());

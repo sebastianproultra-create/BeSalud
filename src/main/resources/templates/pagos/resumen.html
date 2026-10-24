@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org"
+      th:with="loc=${T(java.util.Locale).forLanguageTag('es-CO')}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Confirma tu cita · BeSalud</title>
+    <link rel="stylesheet" th:href="@{/css/base/global.css}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400&amp;family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@100..700&amp;display=swap" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/auth/portal.css}">
+    <link rel="stylesheet" th:href="@{/css/publico/pagos.css}">
+</head>
+<body class="auth-page pago-page">
+<header th:replace="~{fragments/layout :: pago-header}"></header>
+
+<main class="auth-main pago-main">
+    <ol class="pago-pasos" aria-label="Pasos de la reserva">
+        <li class="is-hecho"><span>1</span>Horario</li>
+        <li class="is-actual" aria-current="step"><span>2</span>Pago del abono</li>
+        <li><span>3</span>Confirmación</li>
+    </ol>
+
+    <div class="pago-grid">
+        <section class="pago-tarjeta" aria-labelledby="resumen-titulo">
+            <h1 id="resumen-titulo">Confirma tu cita</h1>
+            <p class="pago-sub">Tu horario está apartado. Paga el abono para confirmarlo.</p>
+
+            <div class="pago-medico">
+                <img th:src="${doctor.foto != null ? doctor.foto : '/images/default-avatar.jpg'}" alt="" width="56" height="56">
+                <div>
+                    <strong th:text="${'Dr(a). ' + doctor.nombre + ' ' + doctor.apellido}">Profesional</strong>
+                    <span th:text="${doctor.especialidad}">Especialidad</span>
+                </div>
+            </div>
+
+            <dl class="pago-datos">
+                <div>
+                    <dt><span class="material-symbols-outlined" aria-hidden="true">calendar_month</span>Fecha</dt>
+                    <dd th:text="${#strings.capitalize(#temporals.format(reserva.fecha, 'EEEE d ''de'' MMMM', loc))}">Martes 27 de octubre</dd>
+                </div>
+                <div>
+                    <dt><span class="material-symbols-outlined" aria-hidden="true">schedule</span>Hora</dt>
+                    <dd th:text="${#temporals.format(reserva.hora, 'h:mm a', loc)}">9:35 a. m.</dd>
+                </div>
+                <div th:if="${doctor.direccionConsultorio != null}">
+                    <dt><span class="material-symbols-outlined" aria-hidden="true">location_on</span>Lugar</dt>
+                    <dd th:text="${doctor.direccionConsultorio}">Dirección</dd>
+                </div>
+                <div th:if="${reserva.motivo != null and !#strings.isEmpty(reserva.motivo)}">
+                    <dt><span class="material-symbols-outlined" aria-hidden="true">notes</span>Motivo</dt>
+                    <dd th:text="${reserva.motivo}">Motivo</dd>
+                </div>
+            </dl>
+        </section>
+
+        <aside class="pago-tarjeta pago-cobro" aria-labelledby="cobro-titulo">
+            <div class="pago-reloj" role="timer" th:attr="data-segundos=${segundosRestantes}">
+                <span class="material-symbols-outlined" aria-hidden="true">timer</span>
+                <span>Horario apartado por <strong class="pago-reloj-tiempo">15:00</strong></span>
+            </div>
+
+            <h2 id="cobro-titulo">Pago del abono</h2>
+            <dl class="pago-cuentas">
+                <div th:if="${doctor.precioConsulta != null}">
+                    <dt>Valor de la consulta</dt>
+                    <dd th:text="${'$' + #numbers.formatInteger(doctor.precioConsulta, 1, 'POINT')}">$80.000</dd>
+                </div>
+                <div class="is-total">
+                    <dt>Pagas ahora (abono)</dt>
+                    <dd th:text="${'$' + #numbers.formatInteger(reserva.montoPesos, 1, 'POINT')}">$20.000</dd>
+                </div>
+                <div th:if="${saldo != null}">
+                    <dt>Pagas en el consultorio</dt>
+                    <dd th:text="${'$' + #numbers.formatInteger(saldo, 1, 'POINT')}">$60.000</dd>
+                </div>
+            </dl>
+
+            <a class="pago-boton" th:href="${urlPago}">
+                <span class="material-symbols-outlined" aria-hidden="true">lock</span>
+                <span th:text="${'Pagar $' + #numbers.formatInteger(reserva.montoPesos, 1, 'POINT')}">Pagar $20.000</span>
+            </a>
+            <p class="pago-medios">Tarjeta, PSE, Nequi o Bancolombia<span th:if="${!pagoSimulado}"> · procesado por Wompi</span></p>
+            <p class="pago-demo-nota" th:if="${pagoSimulado}">
+                <span class="material-symbols-outlined" aria-hidden="true">science</span>
+                Modo demostración: no se cobra dinero real.
+            </p>
+
+            <p class="pago-politica">
+                Si cancelas con al menos <strong th:text="${doctor.horasCancelacionEfectivas() + ' horas'}">24 horas</strong>
+                de anticipación te devolvemos el abono. Si no asistes o cancelas más tarde, el profesional lo conserva.
+            </p>
+
+            <form th:action="@{/pagos/{ref}/liberar(ref=${reserva.referencia})}" method="post" class="pago-liberar">
+                <button type="submit">Cambiar horario y liberar este</button>
+            </form>
+        </aside>
+    </div>
+</main>
+
+<div th:replace="~{fragments/layout :: auth-footer}"></div>
+<script th:src="@{/js/pagos.js}" defer></script>
+</body>
+</html>

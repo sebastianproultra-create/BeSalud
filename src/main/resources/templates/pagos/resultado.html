@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org"
+      th:with="loc=${T(java.util.Locale).forLanguageTag('es-CO')},
+               fechaLarga=${#strings.capitalize(#temporals.format(reserva.fecha, 'EEEE d ''de'' MMMM', loc))},
+               fechaFrase=${#temporals.format(reserva.fecha, 'EEEE d ''de'' MMMM', loc)},
+               horaCorta=${#temporals.format(reserva.hora, 'h:mm a', loc)},
+               nombreMedico=${'Dr(a). ' + doctor.nombre + ' ' + doctor.apellido}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${vista == 'CONFIRMADA' ? '¡Cita confirmada! · BeSalud' : 'Estado de tu pago · BeSalud'}">Resultado · BeSalud</title>
+    <link rel="stylesheet" th:href="@{/css/base/global.css}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400&amp;family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@100..700&amp;display=swap" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/auth/portal.css}">
+    <link rel="stylesheet" th:href="@{/css/publico/pagos.css}">
+</head>
+<body class="auth-page pago-page">
+<header th:replace="~{fragments/layout :: pago-header}"></header>
+
+<main class="auth-main pago-main">
+    <ol class="pago-pasos" aria-label="Pasos de la reserva" th:if="${vista == 'CONFIRMADA'}">
+        <li class="is-hecho"><span>1</span>Horario</li>
+        <li class="is-hecho"><span>2</span>Pago del abono</li>
+        <li class="is-hecho is-actual" aria-current="step"><span>3</span>Confirmación</li>
+    </ol>
+
+    <!-- ✔ Confirmada -->
+    <section class="pago-tarjeta resultado is-exito" th:if="${vista == 'CONFIRMADA'}" aria-labelledby="res-titulo">
+        <div class="resultado-icono" aria-hidden="true"><span class="material-symbols-outlined">check</span></div>
+        <h1 id="res-titulo">¡Tu cita está confirmada!</h1>
+        <p class="resultado-texto">
+            Recibimos tu abono de <strong th:text="${'$' + #numbers.formatInteger(reserva.montoPesos, 1, 'POINT')}">$20.000</strong>.
+            Te esperamos el <strong th:text="${fechaFrase + ', ' + horaCorta}">martes</strong>
+        </p>
+
+        <div class="comprobante" aria-label="Comprobante">
+            <div class="comprobante-fila">
+                <span>Profesional</span>
+                <strong th:text="${nombreMedico + (doctor.especialidad != null ? ' · ' + doctor.especialidad : '')}">Profesional</strong>
+            </div>
+            <div class="comprobante-fila">
+                <span>Fecha y hora</span>
+                <strong th:text="${fechaLarga + ', ' + horaCorta}">Fecha</strong>
+            </div>
+            <div class="comprobante-fila" th:if="${doctor.direccionConsultorio != null}">
+                <span>Lugar</span>
+                <strong th:text="${doctor.direccionConsultorio}">Dirección</strong>
+            </div>
+            <div class="comprobante-fila">
+                <span>Abono pagado</span>
+                <strong th:text="${'$' + #numbers.formatInteger(reserva.montoPesos, 1, 'POINT')}">$20.000</strong>
+            </div>
+            <div class="comprobante-fila" th:if="${saldo != null}">
+                <span>Pagas en el consultorio</span>
+                <strong th:text="${'$' + #numbers.formatInteger(saldo, 1, 'POINT')}">$60.000</strong>
+            </div>
+            <div class="comprobante-fila is-tenue">
+                <span>Referencia</span>
+                <strong th:text="${reserva.referencia}">BS-…</strong>
+            </div>
+        </div>
+
+        <p class="resultado-politica">
+            <span class="material-symbols-outlined" aria-hidden="true">event_busy</span>
+            <span>Si no puedes ir, cancela antes del
+                <strong th:text="${#temporals.format(cancelarHasta, 'EEEE d ''de'' MMMM, h:mm a', loc)}">lunes</strong>
+                y te devolvemos el abono. Después de esa hora, el profesional lo conserva.</span>
+        </p>
+
+        <div class="resultado-acciones">
+            <a class="pago-boton" th:href="@{/pacientes/landing}">
+                <span class="material-symbols-outlined" aria-hidden="true">event_note</span>Ver mis citas
+            </a>
+            <a class="pago-boton is-secundario" th:if="${cita != null}" th:href="@{/citas/{id}/calendario.ics(id=${cita.id})}">
+                <span class="material-symbols-outlined" aria-hidden="true">calendar_add_on</span>Agregar a mi calendario
+            </a>
+        </div>
+    </section>
+
+    <!-- ✖ Rechazada -->
+    <section class="pago-tarjeta resultado is-error" th:if="${vista == 'RECHAZADA'}" aria-labelledby="res-titulo-r">
+        <div class="resultado-icono" aria-hidden="true"><span class="material-symbols-outlined">close</span></div>
+        <h1 id="res-titulo-r">El pago no fue aprobado</h1>
+        <p class="resultado-texto">
+            Tu banco o la pasarela rechazó el pago, así que <strong>no se hizo ningún cobro</strong> y el horario quedó libre.
+            Puedes intentarlo de nuevo con otro medio de pago.
+        </p>
+        <div class="resultado-acciones">
+            <a class="pago-boton" th:href="@{/citas/nueva(doctorId=${doctor.id}, fecha=${reserva.fecha.toString()}, hora=${#temporals.format(reserva.hora, 'HH:mm')})}">
+                <span class="material-symbols-outlined" aria-hidden="true">refresh</span>Intentar de nuevo
+            </a>
+            <a class="pago-boton is-secundario" th:href="@{/pacientes/landing}">Volver a mis citas</a>
+        </div>
+    </section>
+
+    <!-- … En proceso -->
+    <section class="pago-tarjeta resultado is-espera" th:if="${vista == 'PROCESANDO'}" aria-labelledby="res-titulo-p"
+             th:attr="data-estado-url=@{/pagos/{ref}/estado(ref=${reserva.referencia})}">
+        <div class="resultado-icono" aria-hidden="true"><span class="material-symbols-outlined resultado-girando">progress_activity</span></div>
+        <h1 id="res-titulo-p">Estamos confirmando tu pago</h1>
+        <p class="resultado-texto">
+            Algunos medios como PSE o Nequi tardan unos minutos. Esta página se actualiza sola;
+            también puedes cerrarla: la cita aparecerá en tus citas apenas el pago se apruebe.
+        </p>
+        <p class="resultado-ref" th:text="${'Referencia ' + reserva.referencia}">Referencia</p>
+        <div class="resultado-acciones">
+            <a class="pago-boton is-secundario" th:href="@{/pacientes/landing}">Ir a mis citas</a>
+        </div>
+    </section>
+
+    <!-- ! Pagado sin cupo -->
+    <section class="pago-tarjeta resultado is-alerta" th:if="${vista == 'CONFLICTO'}" aria-labelledby="res-titulo-c">
+        <div class="resultado-icono" aria-hidden="true"><span class="material-symbols-outlined">priority_high</span></div>
+        <h1 id="res-titulo-c">Recibimos tu pago, pero no pudimos confirmar la cita</h1>
+        <p class="resultado-texto">
+            El horario ya no estaba disponible o el monto no coincidía. Tu abono de
+            <strong th:text="${'$' + #numbers.formatInteger(reserva.montoPesos, 1, 'POINT')}">$20.000</strong>
+            queda marcado para <strong>devolución</strong>. Escríbenos con la referencia y te ayudamos a reagendar.
+        </p>
+        <p class="resultado-ref" th:text="${'Referencia ' + reserva.referencia}">Referencia</p>
+        <div class="resultado-acciones">
+            <a class="pago-boton" th:href="@{/ayuda(tema='citas')} + '#contacto'">Escribir a soporte</a>
+            <a class="pago-boton is-secundario" th:href="@{/citas/nueva(doctorId=${doctor.id})}">Elegir otro horario</a>
+        </div>
+    </section>
+
+    <!-- ⏱ Vencida -->
+    <section class="pago-tarjeta resultado is-alerta" th:if="${vista == 'EXPIRADA'}" aria-labelledby="res-titulo-e">
+        <div class="resultado-icono" aria-hidden="true"><span class="material-symbols-outlined">timer_off</span></div>
+        <h1 id="res-titulo-e">Se acabó el tiempo para pagar</h1>
+        <p class="resultado-texto">
+            No recibimos el pago a tiempo, así que el horario se liberó y <strong>no se hizo ningún cobro</strong>.
+            Si aún está libre, puedes volver a apartarlo.
+        </p>
+        <div class="resultado-acciones">
+            <a class="pago-boton" th:href="@{/citas/nueva(doctorId=${doctor.id}, fecha=${reserva.fecha.toString()}, hora=${#temporals.format(reserva.hora, 'HH:mm')})}">Volver a elegir horario</a>
+            <a class="pago-boton is-secundario" th:href="@{/pacientes/landing}">Mis citas</a>
+        </div>
+    </section>
+</main>
+
+<div th:replace="~{fragments/layout :: auth-footer}"></div>
+<script th:src="@{/js/pagos.js}" defer></script>
+</body>
+</html>

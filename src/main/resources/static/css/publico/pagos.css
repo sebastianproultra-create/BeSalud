@@ -1,0 +1,581 @@
+/* Resumen, pasarela simulada y resultado del pago: usa los tokens de auth/portal.css */
+
+.pago-page .pago-main {
+    display: block;
+    max-width: 1040px;
+    padding-top: 116px;
+    padding-bottom: 56px;
+}
+
+/* Pasos */
+.pago-page .pago-pasos {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin: 0 0 28px;
+    padding: 0;
+    list-style: none;
+}
+
+.pago-pasos li {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--portal-outline);
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.pago-pasos li + li::before {
+    content: "";
+    width: 32px;
+    height: 2px;
+    margin-right: 4px;
+    background: var(--portal-border);
+}
+
+.pago-pasos li > span {
+    display: inline-grid;
+    place-items: center;
+    width: 26px;
+    height: 26px;
+    color: var(--portal-outline);
+    background: var(--portal-surface);
+    border: 2px solid var(--portal-border);
+    border-radius: 50%;
+    font-size: 12px;
+}
+
+.pago-pasos li.is-hecho,
+.pago-pasos li.is-actual {
+    color: var(--portal-primary);
+}
+
+.pago-pasos li.is-hecho > span {
+    color: #fff;
+    background: var(--portal-primary-container);
+    border-color: var(--portal-primary-container);
+}
+
+.pago-pasos li.is-actual > span {
+    color: var(--portal-primary);
+    border-color: var(--portal-primary-container);
+}
+
+.pago-pasos li.is-hecho.is-actual > span {
+    color: #fff;
+}
+
+/* Tarjetas */
+.pago-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
+    gap: 24px;
+    align-items: start;
+}
+
+.pago-tarjeta {
+    min-width: 0;
+    padding: 28px;
+    background: var(--portal-surface);
+    border: 1px solid var(--portal-border);
+    border-radius: 20px;
+    box-shadow: 0 12px 32px rgba(0, 47, 36, 0.06);
+}
+
+.pago-tarjeta h1,
+.pago-tarjeta h2 {
+    margin: 0 0 6px;
+    color: var(--portal-primary);
+    font-family: 'Newsreader', Georgia, serif;
+    font-weight: 500;
+    line-height: 1.15;
+}
+
+.pago-tarjeta h1 {
+    font-size: clamp(28px, 4vw, 36px);
+}
+
+.pago-tarjeta h2 {
+    font-size: 24px;
+}
+
+.pago-sub {
+    margin: 0 0 22px;
+    color: var(--portal-muted);
+}
+
+.pago-medico {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 18px;
+    padding: 14px;
+    background: var(--portal-container);
+    border-radius: 14px;
+}
+
+.pago-medico img {
+    width: 56px;
+    height: 56px;
+    object-fit: cover;
+    border-radius: 14px;
+}
+
+.pago-medico strong {
+    display: block;
+    color: var(--portal-on-surface);
+}
+
+.pago-medico span {
+    color: var(--portal-muted);
+    font-size: 14px;
+}
+
+.pago-datos,
+.pago-cuentas {
+    display: grid;
+    gap: 0;
+    margin: 0;
+}
+
+.pago-datos > div,
+.pago-cuentas > div {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--portal-border);
+}
+
+.pago-datos > div:last-child,
+.pago-cuentas > div:last-child {
+    border-bottom: 0;
+}
+
+.pago-datos dt {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--portal-muted);
+}
+
+.pago-datos dt .material-symbols-outlined {
+    color: var(--portal-primary-container);
+    font-size: 20px;
+}
+
+.pago-datos dd,
+.pago-cuentas dd {
+    margin: 0;
+    color: var(--portal-on-surface);
+    font-weight: 600;
+    text-align: right;
+    overflow-wrap: anywhere;
+}
+
+.pago-cuentas dt {
+    color: var(--portal-muted);
+}
+
+.pago-cuentas .is-total dt,
+.pago-cuentas .is-total dd {
+    color: var(--portal-primary);
+    font-size: 18px;
+    font-weight: 700;
+}
+
+/* Reloj del apartado */
+.pago-reloj {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 18px;
+    padding: 10px 14px;
+    color: #5C3A02;
+    background: #FFF4E3;
+    border-radius: 12px;
+    font-size: 14px;
+}
+
+.pago-reloj.is-compacto {
+    margin: 0;
+    padding: 8px 12px;
+}
+
+.pago-reloj.is-urgente {
+    color: #7A1C12;
+    background: #FDECEA;
+}
+
+.pago-reloj-tiempo {
+    font-variant-numeric: tabular-nums;
+}
+
+/* Botones */
+.pago-boton {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    margin: 20px 0 0;
+    padding: 15px 20px;
+    color: #fff;
+    background: var(--portal-primary);
+    border: 0;
+    border-radius: 12px;
+    box-shadow: 0 8px 20px rgba(0, 47, 36, 0.18);
+    font: inherit;
+    font-size: 16px;
+    font-weight: 700;
+    letter-spacing: normal;
+    text-decoration: none;
+    text-transform: none;
+    cursor: pointer;
+    transition: background-color 0.15s;
+}
+
+.pago-boton:hover,
+.pago-boton:focus-visible {
+    color: #fff;
+    background: var(--portal-primary-container);
+}
+
+.pago-boton.is-secundario {
+    color: var(--portal-primary);
+    background: var(--portal-surface);
+    border: 1px solid var(--portal-border);
+    box-shadow: none;
+}
+
+.pago-boton.is-secundario:hover {
+    color: var(--portal-primary);
+    background: var(--portal-container);
+}
+
+.pago-medios {
+    margin: 10px 0 0;
+    color: var(--portal-outline);
+    font-size: 13px;
+    text-align: center;
+}
+
+.pago-demo-nota {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    margin: 8px 0 0;
+    color: var(--portal-secondary);
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.pago-demo-nota .material-symbols-outlined {
+    font-size: 18px;
+}
+
+.pago-politica {
+    margin: 18px 0 0;
+    padding-top: 16px;
+    color: var(--portal-muted);
+    border-top: 1px solid var(--portal-border);
+    font-size: 13px;
+    line-height: 1.6;
+}
+
+.pago-liberar {
+    margin: 12px 0 0;
+    text-align: center;
+}
+
+.pago-liberar button {
+    margin: 0;
+    padding: 4px;
+    color: var(--portal-muted);
+    background: none;
+    border: 0;
+    box-shadow: none;
+    font: inherit;
+    font-size: 13px;
+    letter-spacing: normal;
+    text-decoration: underline;
+    text-transform: none;
+    cursor: pointer;
+}
+
+/* Pasarela simulada */
+.pasarela {
+    max-width: 480px;
+    margin: 0 auto;
+}
+
+.pasarela-aviso {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 22px;
+    padding: 12px 14px;
+    color: #5C3A02;
+    background: #FFF4E3;
+    border: 1px dashed var(--portal-secondary-container);
+    border-radius: 12px;
+    font-size: 13px;
+    line-height: 1.55;
+}
+
+.pasarela-cabecera {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+.pasarela-comercio,
+.pasarela-ref {
+    display: block;
+    color: var(--portal-muted);
+    font-size: 13px;
+}
+
+.pasarela .pasarela-cabecera h1 {
+    margin: 4px 0;
+    font-size: 40px;
+}
+
+.pasarela-medios {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    margin: 0 0 16px;
+    padding: 0;
+    border: 0;
+}
+
+.pasarela-medios legend {
+    margin-bottom: 8px;
+    color: var(--portal-muted);
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.pago-page .pasarela-medios label {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    margin: 0;
+    padding: 12px 6px;
+    color: var(--portal-on-surface);
+    border: 1px solid var(--portal-border);
+    border-radius: 12px;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: normal;
+    text-transform: none;
+    cursor: pointer;
+}
+
+.pasarela-medios input {
+    position: absolute;
+    opacity: 0;
+}
+
+.pasarela-medios label:has(input:checked) {
+    background: var(--portal-container);
+    border-color: var(--portal-primary-container);
+}
+
+.pasarela-explica {
+    margin: 0;
+    color: var(--portal-muted);
+    font-size: 14px;
+}
+
+.pasarela-acciones {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+}
+
+.pasarela-acciones form {
+    margin: 0;
+}
+
+.pasarela-acciones .pago-boton {
+    margin-top: 12px;
+    font-size: 15px;
+}
+
+.pasarela-volver {
+    display: block;
+    margin-top: 16px;
+    color: var(--portal-muted);
+    font-size: 13px;
+    text-align: center;
+}
+
+/* Resultado */
+.resultado {
+    max-width: 620px;
+    margin: 0 auto;
+    text-align: center;
+}
+
+.resultado-icono {
+    display: grid;
+    place-items: center;
+    width: 72px;
+    height: 72px;
+    margin: 0 auto 18px;
+    color: #fff;
+    border-radius: 50%;
+}
+
+.resultado-icono .material-symbols-outlined {
+    font-size: 40px;
+    font-weight: 700;
+}
+
+.resultado.is-exito .resultado-icono {
+    background: #1E7A55;
+    box-shadow: 0 0 0 10px #DDF3E8;
+}
+
+.resultado.is-error .resultado-icono {
+    background: #B3261E;
+    box-shadow: 0 0 0 10px #FBE3E1;
+}
+
+.resultado.is-alerta .resultado-icono {
+    background: var(--portal-secondary);
+    box-shadow: 0 0 0 10px #FFF1DD;
+}
+
+.resultado.is-espera .resultado-icono {
+    color: var(--portal-primary);
+    background: var(--portal-container);
+}
+
+.resultado-girando {
+    animation: resultado-giro 1.1s linear infinite;
+}
+
+@keyframes resultado-giro {
+    to { transform: rotate(360deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .resultado-girando {
+        animation: none;
+    }
+}
+
+.resultado-texto {
+    max-width: 480px;
+    margin: 10px auto 0;
+    color: var(--portal-muted);
+    line-height: 1.65;
+}
+
+.resultado-ref {
+    margin: 14px 0 0;
+    color: var(--portal-outline);
+    font-size: 13px;
+}
+
+.comprobante {
+    margin: 24px 0 0;
+    padding: 6px 18px;
+    text-align: left;
+    background: var(--portal-bg);
+    border: 1px dashed var(--portal-border);
+    border-radius: 14px;
+}
+
+.comprobante-fila {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 11px 0;
+    border-bottom: 1px solid var(--portal-border);
+    font-size: 14px;
+}
+
+.comprobante-fila:last-child {
+    border-bottom: 0;
+}
+
+.comprobante-fila span {
+    color: var(--portal-muted);
+}
+
+.comprobante-fila strong {
+    color: var(--portal-on-surface);
+    text-align: right;
+    overflow-wrap: anywhere;
+}
+
+.comprobante-fila.is-tenue strong {
+    color: var(--portal-outline);
+    font-weight: 500;
+}
+
+.resultado-politica {
+    display: flex;
+    gap: 10px;
+    margin: 18px 0 0;
+    padding: 12px 14px;
+    color: var(--portal-muted);
+    text-align: left;
+    background: var(--portal-container);
+    border-radius: 12px;
+    font-size: 13px;
+    line-height: 1.55;
+}
+
+.resultado-politica .material-symbols-outlined {
+    color: var(--portal-primary-container);
+    font-size: 20px;
+}
+
+.resultado-acciones {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-top: 6px;
+}
+
+.resultado-acciones .pago-boton {
+    font-size: 15px;
+}
+
+@media (max-width: 860px) {
+    .pago-grid {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}
+
+@media (max-width: 560px) {
+    .pago-page .pago-main {
+        padding: 92px 16px 40px;
+    }
+
+    .pago-tarjeta {
+        padding: 20px;
+    }
+
+    .pago-pasos li {
+        font-size: 0;
+    }
+
+    .pago-pasos li > span {
+        font-size: 12px;
+    }
+
+    .resultado-acciones,
+    .pasarela-acciones {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}
