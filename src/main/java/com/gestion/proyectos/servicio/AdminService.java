@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -24,10 +25,13 @@ public class AdminService {
 
     private final AdminRepositorio adminRepo;
     private final PersonaRepositorio personaRepo;
+    private final PerfilPublicoService perfilPublicoService;
 
-    public AdminService(AdminRepositorio adminRepo, PersonaRepositorio personaRepo) {
+    public AdminService(AdminRepositorio adminRepo, PersonaRepositorio personaRepo,
+            PerfilPublicoService perfilPublicoService) {
         this.adminRepo = adminRepo;
         this.personaRepo = personaRepo;
+        this.perfilPublicoService = perfilPublicoService;
     }
 
     public List<Admin> listarAdmins() {
@@ -37,7 +41,9 @@ public class AdminService {
     }
 
     public Page<Doctor> listarDoctoresPaginated(int page, int size, String especialidad, String search) {
-        Pageable pageable = PageRequest.of(Math.max(0, page), Math.max(1, size));
+        // Primero los pendientes de activar ("INACTIVO" > "ACTIVO") y, dentro de cada grupo, los más recientes
+        Pageable pageable = PageRequest.of(Math.max(0, page), Math.max(1, size),
+                Sort.by(Sort.Order.desc("estado"), Sort.Order.desc("_id")));
         boolean hasSearch = search != null && !search.isBlank();
         boolean hasEspecialidad = especialidad != null && !especialidad.isBlank();
 
@@ -74,6 +80,8 @@ public class AdminService {
         if (doctor.isPresent()) {
             doctor.get().setEstado("ACTIVO");
             personaRepo.save(doctor.get());
+            // Su página pública de reservas queda lista desde que se activa
+            perfilPublicoService.asegurarSlug(doctor.get());
             log.info("Doctor {} activado", doctorId);
         }
     }
