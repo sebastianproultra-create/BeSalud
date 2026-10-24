@@ -1,5 +1,6 @@
 package com.gestion.proyectos.servicio;
 
+import com.gestion.proyectos.util.Reloj;
 import com.gestion.proyectos.modelo.Cita;
 import com.gestion.proyectos.modelo.CitaEvento;
 import com.gestion.proyectos.modelo.Doctor;
@@ -62,7 +63,7 @@ public class NotificacionService {
     // Cada hora: recordatorio de las citas de mañana que aún no lo recibieron.
     @Scheduled(cron = "0 0 * * * *", zone = "America/Bogota")
     public void enviarRecordatorios() {
-        LocalDate manana = LocalDate.now().plusDays(1);
+        LocalDate manana = Reloj.hoy().plusDays(1);
         int enviados = 0;
         for (Cita cita : citaRepo.findByFechaAndEstado(manana, EstadoCita.PENDIENTE)) {
             if (cita.isRecordatorioEnviado()) continue;

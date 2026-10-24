@@ -1,10 +1,12 @@
 package com.gestion.proyectos.servicio;
 
+import com.gestion.proyectos.util.Reloj;
 import com.gestion.proyectos.util.ValidacionUtil;
 import com.gestion.proyectos.modelo.Cita;
 import com.gestion.proyectos.modelo.CitaEvento;
 import com.gestion.proyectos.modelo.Dictamen;
 import com.gestion.proyectos.modelo.Doctor;
+import com.gestion.proyectos.modelo.EstadoAbono;
 import com.gestion.proyectos.modelo.EstadoCita;
 import com.gestion.proyectos.modelo.HorarioAtencion;
 import com.gestion.proyectos.modelo.Paciente;
@@ -122,7 +124,7 @@ public class DoctorService {
         List<HorarioAtencion> horarios = horarioRepo.findByDoctorId(doctorId);
         List<Map<String, Object>> result = new ArrayList<>();
         Locale localeEs = Locale.forLanguageTag("es-CO");
-        LocalDate today = LocalDate.now();
+        LocalDate today = Reloj.hoy();
         for (int i = 0; i < 7; i++) {
             LocalDate date = today.plusDays(i);
             DayOfWeek dow = date.getDayOfWeek();
@@ -304,33 +306,58 @@ public class DoctorService {
 
     // ── Estado de citas ──────────────────────────────────────────────────────
 
-    public void marcarAsistio(String citaId, String doctorId) {
+    /**
+     * Las acciones del médico solo aplican a citas pendientes. Sin esto, una cita completada podía
+     * volver a "en atención" y su dictamen quedaba sobrescrito por el siguiente (la historia clínica
+     * no puede alterarse). Devuelve la cita o null si no estaba pendiente.
+     */
+    private Cita citaPendienteDe(String citaId, String doctorId) {
         Cita cita = citaRepo.findById(citaId).orElseThrow();
         if (!cita.getDoctorId().equals(doctorId))
             throw new AccessDeniedException("No autorizado");
+        if (cita.getEstado() != EstadoCita.PENDIENTE) {
+            log.warn("Acción ignorada: la cita {} está en estado {}", citaId, cita.getEstado());
+            return null;
+        }
+        return cita;
+    }
+
+    public boolean marcarAsistio(String citaId, String doctorId) {
+        Cita cita = citaPendienteDe(citaId, doctorId);
+        if (cita == null)
+            return false;
         cita.setEstado(EstadoCita.ASISTIO);
-        cita.setInicioAtencion(LocalDateTime.now());
+        cita.setInicioAtencion(Reloj.ahora());
         citaRepo.save(cita);
         log.info("Cita {} marcada ASISTIO por doctor {}", citaId, doctorId);
+        return true;
     }
 
-    public void marcarNoAsistio(String citaId, String doctorId) {
-        Cita cita = citaRepo.findById(citaId).orElseThrow();
-        if (!cita.getDoctorId().equals(doctorId))
-            throw new AccessDeniedException("No autorizado");
+    /** El paciente no llegó: si había pagado abono, el profesional lo conserva. */
+    public boolean marcarNoAsistio(String citaId, String doctorId) {
+        Cita cita = citaPendienteDe(citaId, doctorId);
+        if (cita == null)
+            return false;
         cita.setEstado(EstadoCita.NO_ASISTIO);
+        if (cita.getAbonoCentavos() != null)
+            cita.setEstadoAbono(EstadoAbono.RETENIDO);
         citaRepo.save(cita);
         log.info("Cita {} marcada NO_ASISTIO por doctor {}", citaId, doctorId);
+        return true;
     }
 
-    public void cancelarCita(String citaId, String doctorId) {
-        Cita cita = citaRepo.findById(citaId).orElseThrow();
-        if (!cita.getDoctorId().equals(doctorId))
-            throw new AccessDeniedException("No autorizado");
+    /** Si cancela el profesional, el abono siempre se devuelve. */
+    public boolean cancelarCita(String citaId, String doctorId) {
+        Cita cita = citaPendienteDe(citaId, doctorId);
+        if (cita == null)
+            return false;
         cita.setEstado(EstadoCita.CANCELADA);
+        if (cita.getAbonoCentavos() != null)
+            cita.setEstadoAbono(EstadoAbono.A_REEMBOLSAR);
         citaRepo.save(cita);
         log.info("Cita {} CANCELADA por doctor {}", citaId, doctorId);
         eventos.publishEvent(new CitaEvento(CitaEvento.Tipo.CANCELADA, citaId));
+        return true;
     }
 
     /**
@@ -350,7 +377,7 @@ public class DoctorService {
         // Datos que pone el sistema: inicio real de la atención y firma del médico
         dictamen.setFechaAtencion(cita.getInicioAtencion() != null ? cita.getInicioAtencion()
                 : (cita.getFecha() != null && cita.getHora() != null ? cita.getFecha().atTime(cita.getHora()) : null));
-        dictamen.setFechaEmision(LocalDateTime.now());
+        dictamen.setFechaEmision(Reloj.ahora());
         dictamen.setFirmadoPor(doctor.getNombre() + " " + doctor.getApellido());
         dictamen.setEspecialidadFirmante(doctor.getEspecialidad());
         cita.setDictamen(dictamen);

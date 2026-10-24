@@ -6,8 +6,12 @@ import com.gestion.proyectos.modelo.Cita;
 import com.gestion.proyectos.modelo.Doctor;
 import com.gestion.proyectos.modelo.EstadoCita;
 import com.gestion.proyectos.modelo.Paciente;
+import com.gestion.proyectos.modelo.Reserva;
 import com.gestion.proyectos.servicio.CitaService;
+import com.gestion.proyectos.servicio.PasarelaPagos;
+import com.gestion.proyectos.servicio.ReservaService;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -36,9 +40,16 @@ public class CitaController {
     private static final String REDIRECT_CITAS = "redirect:/citas";
 
     private final CitaService citaService;
+    private final ReservaService reservaService;
+    private final PasarelaPagos pasarela;
+    private final String urlApp;
 
-    public CitaController(CitaService citaService) {
+    public CitaController(CitaService citaService, ReservaService reservaService, PasarelaPagos pasarela,
+            @Value("${app.url:http://localhost:8080}") String urlApp) {
         this.citaService = citaService;
+        this.reservaService = reservaService;
+        this.pasarela = pasarela;
+        this.urlApp = urlApp.replaceAll("/+$", "");
     }
 
     @GetMapping
@@ -74,18 +85,30 @@ public class CitaController {
         return "citas/formulario";
     }
 
+    /** fecha y hora (opcionales) llegan desde la página del profesional o su asistente para dejar el turno elegido. */
     @GetMapping("/nueva")
-    public String nueva(@RequestParam String doctorId, Model model) {
+    public String nueva(@RequestParam String doctorId,
+                        @RequestParam(required = false) String fecha,
+                        @RequestParam(required = false) String hora,
+                        Model model) {
         Doctor doctor = citaService.buscarDoctorPorId(doctorId).orElse(null);
         if (doctor == null) return REDIRECT_PACIENTES_LANDING;
+
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String pacienteId = auth == null ? null
+                : citaService.buscarPacientePorEmail(auth.getName()).map(Paciente::getId).orElse(null);
 
         model.addAttribute("doctorSeleccionado", doctor);
         model.addAttribute("cita", null);
         model.addAttribute("actionUrl", "/citas/guardar-paciente");
         model.addAttribute("pageTitle", "Agendar cita médica");
-        model.addAttribute("submitLabel", "Confirmar cita");
+        model.addAttribute("submitLabel", doctor.cobraAbono() ? "Pagar abono y confirmar" : "Confirmar cita");
         model.addAttribute("backLink", "/pacientes/landing");
-        model.addAttribute("slotsDisponibles", citaService.slotsDisponibles(doctorId, null, null, null));
+        model.addAttribute("slotsDisponibles", citaService.slotsDisponibles(doctorId, null, null, null, pacienteId));
+        model.addAttribute("fechaElegida", fecha);
+        model.addAttribute("horaElegida", hora);
+        model.addAttribute("minutosParaPagar", reservaService.getMinutosParaPagar());
+        model.addAttribute("pagoSimulado", !pasarela.wompiConfigurado());
         return "citas/formulario-paciente";
     }
 
@@ -148,7 +171,11 @@ public class CitaController {
         if (citaService.pacienteTieneConflicto(cita.getPacienteId(), cita.getDoctorId(), fechaCita, horaCita, cita.getId()))
             return "redirect:/citas/" + id + "/reprogramar?error=conflicto_paciente";
 
-        citaService.reprogramar(cita, fechaCita, horaCita);
+        try {
+            citaService.reprogramar(cita, fechaCita, horaCita);
+        } catch (CitaService.TurnoOcupadoException e) {
+            return "redirect:/citas/" + id + "/reprogramar?error=conflicto_cita";
+        }
         return "redirect:/pacientes/landing?success=cita_reprogramada";
     }
 
@@ -180,7 +207,11 @@ public class CitaController {
         if (citaService.hayConflicto(doctorId, fechaCita, horaCita, null)) return "redirect:/citas/crear?error=conflicto_cita";
         if (citaService.pacienteTieneConflicto(pacienteId, doctorId, fechaCita, horaCita, null)) return "redirect:/citas/crear?error=conflicto_paciente";
 
-        citaService.crearCita(doctorId, pacienteId, fechaCita, horaCita, motivo);
+        try {
+            citaService.crearCita(doctorId, pacienteId, fechaCita, horaCita, motivo);
+        } catch (CitaService.TurnoOcupadoException e) {
+            return "redirect:/citas/crear?error=conflicto_cita";
+        }
         return REDIRECT_CITAS;
     }
 
@@ -221,12 +252,23 @@ public class CitaController {
 
         if (!citaService.esHorarioValido(doctorId, fechaCita, horaCita))
             return "redirect:/citas/nueva?doctorId=" + doctorId + "&error=horario_invalido";
-        if (citaService.hayConflicto(doctorId, fechaCita, horaCita, null))
+        // Sus propias reservas sin pagar no cuentan como choque: al apartar de nuevo se anulan
+        if (citaService.hayConflicto(doctorId, fechaCita, horaCita, null, paciente.getId()))
             return "redirect:/citas/nueva?doctorId=" + doctorId + "&error=conflicto_cita";
         if (citaService.pacienteTieneConflicto(paciente.getId(), doctorId, fechaCita, horaCita, null))
             return "redirect:/citas/nueva?doctorId=" + doctorId + "&error=conflicto_paciente";
 
-        citaService.crearCita(doctorId, paciente.getId(), fechaCita, horaCita, motivo);
+        try {
+            if (doctor.cobraAbono()) {
+                // Con abono la cita aún no existe: se aparta el turno y se envía al paciente a pagar
+                Reserva reserva = reservaService.apartar(doctor, paciente.getId(), fechaCita, horaCita, motivo);
+                return "redirect:" + pasarela.urlPago(reserva, paciente.getEmail(),
+                        paciente.getNombre() + " " + paciente.getApellido(), urlApp + "/pagos/retorno");
+            }
+            citaService.crearCita(doctorId, paciente.getId(), fechaCita, horaCita, motivo);
+        } catch (CitaService.TurnoOcupadoException e) {
+            return "redirect:/citas/nueva?doctorId=" + doctorId + "&error=conflicto_cita";
+        }
         return "redirect:/pacientes/landing?success=cita_agendada";
     }
 
@@ -245,11 +287,14 @@ public class CitaController {
             Paciente paciente = citaService.buscarPacientePorEmail(email).orElse(null);
             if (paciente == null || !paciente.getId().equals(cita.getPacienteId()))
                 return "redirect:/pacientes/landing?error=no_autorizado";
-            citaService.cancelar(cita);
+            // Solo se cancelan citas pendientes; una atendida o completada conserva su estado y su dictamen
+            if (!citaService.cancelar(cita, true))
+                return "redirect:/pacientes/landing?error=cancelacion_no_permitida";
             return "redirect:/pacientes/landing?success=cita_cancelada";
         }
         if ("ROLE_ADMIN".equals(role)) {
-            citaService.cancelar(cita);
+            if (!citaService.cancelar(cita))
+                return "redirect:/citas?error=cancelacion_no_permitida";
             return REDIRECT_CITAS;
         }
         return "redirect:/citas?error=no_autorizado";

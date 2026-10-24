@@ -32,6 +32,7 @@ class CitaServiceTest {
     @Mock PersonaRepositorio personaRepo;
     @Mock HorarioAtencionRepositorio horarioRepo;
     @Mock ApplicationEventPublisher eventos;
+    @Mock com.gestion.proyectos.repositorio.ReservaRepositorio reservaRepo;
 
     @InjectMocks CitaService service;
 

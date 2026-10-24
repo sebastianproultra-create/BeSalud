@@ -1,5 +1,6 @@
 package com.gestion.proyectos.controlador;
 
+import com.gestion.proyectos.util.Reloj;
 import com.gestion.proyectos.modelo.CausaExterna;
 import com.gestion.proyectos.modelo.Dictamen;
 import com.gestion.proyectos.modelo.Doctor;
@@ -11,6 +12,8 @@ import com.gestion.proyectos.modelo.ViaAdministracion;
 import com.gestion.proyectos.servicio.DictamenVista;
 import com.gestion.proyectos.servicio.DoctorService;
 import com.gestion.proyectos.servicio.PanelDoctorService;
+import com.gestion.proyectos.servicio.PerfilPublicoService;
+import org.springframework.beans.factory.annotation.Value;
 
 import static com.gestion.proyectos.util.ValidacionUtil.esVacio;
 
@@ -47,10 +50,15 @@ public class DoctorController {
 
     private final DoctorService doctorService;
     private final PanelDoctorService panelDoctorService;
+    private final PerfilPublicoService perfilPublicoService;
+    private final String urlApp;
 
-    public DoctorController(DoctorService doctorService, PanelDoctorService panelDoctorService) {
+    public DoctorController(DoctorService doctorService, PanelDoctorService panelDoctorService,
+            PerfilPublicoService perfilPublicoService, @Value("${app.url:http://localhost:8080}") String urlApp) {
         this.doctorService = doctorService;
         this.panelDoctorService = panelDoctorService;
+        this.perfilPublicoService = perfilPublicoService;
+        this.urlApp = urlApp.replaceAll("/+$", "");
     }
 
     private static String parametros(String... claveValor) {
@@ -89,6 +97,7 @@ public class DoctorController {
             var weeklyAvailability = doctorService.weeklyAvailability(doctor.getId());
 
             model.addAttribute("doctor", doctor);
+            model.addAttribute("enlacePublico", urlApp + "/p/" + perfilPublicoService.asegurarSlug(doctor));
             model.addAttribute("horarios", doctorService.horariosDelDoctor(doctor.getId()));
             model.addAttribute("horario", new HorarioAtencion());
             model.addAttribute("citasPage", panelCitas.pagina());
@@ -107,7 +116,7 @@ public class DoctorController {
             model.addAttribute("paginaCitas", pc);
             model.addAttribute("paramsPacientes", parametros("estado", "TODAS".equals(filtroEstado) ? "" : filtroEstado,
                     "q", q, "pc", pc > 0 ? String.valueOf(pc) : "", "qp", qp));
-            model.addAttribute("hoy", LocalDate.now());
+            model.addAttribute("hoy", Reloj.hoy());
             model.addAttribute("dictamenDataMap", panelCitas.dictamenes());
             model.addAttribute("tiposConsulta", TipoConsulta.values());
             model.addAttribute("causasExternas", CausaExterna.values());
@@ -189,6 +198,27 @@ public class DoctorController {
         if (error != null)
             return "redirect:/doctores?fotoError=" + error + "#perfil";
         return "redirect:/doctores?fotoOk=1#perfil";
+    }
+
+    /** Precio, abono, dirección y política de cancelación que ven los pacientes en la página pública. */
+    @PreAuthorize("hasRole('DOCTOR')")
+    @PostMapping("/perfil/consulta")
+    public String actualizarConsulta(@RequestParam(required = false) Integer precioConsulta,
+            @RequestParam(required = false) Integer abono,
+            @RequestParam(required = false) String direccionConsultorio,
+            @RequestParam(required = false) Integer horasCancelacion,
+            RedirectAttributes redirectAttributes) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        Doctor doctor = doctorService.buscarPorEmail(auth.getName()).orElse(null);
+        if (doctor == null)
+            return REDIRECT_DOCTORES;
+        String error = perfilPublicoService.guardarConsulta(doctor, precioConsulta, abono, direccionConsultorio,
+                horasCancelacion);
+        if (error != null)
+            redirectAttributes.addFlashAttribute("errorConsulta", error);
+        else
+            redirectAttributes.addFlashAttribute("exitoConsulta", "Datos de la consulta guardados.");
+        return "redirect:/doctores#perfil";
     }
 
     @GetMapping("/{id}/horarios")

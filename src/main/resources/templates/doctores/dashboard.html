@@ -180,6 +180,47 @@
                 </div>
             </div>
         </div>
+
+        <!-- Enlace público de reservas y datos de la consulta -->
+        <div class="doc-reservas">
+            <div class="doc-enlace">
+                <span class="doc-label">Tu enlace de reservas</span>
+                <p class="doc-enlace-ayuda">Compártelo en WhatsApp, Instagram o Google: tus pacientes ven tus horarios y reservan desde ahí.</p>
+                <div class="doc-enlace-fila">
+                    <input type="text" id="enlacePublico" th:value="${enlacePublico}" readonly aria-label="Enlace de reservas">
+                    <button type="button" class="doc-btn doc-btn--primary" id="copiarEnlace">
+                        <span class="material-symbols-outlined" aria-hidden="true">content_copy</span><span>Copiar</span>
+                    </button>
+                    <a class="doc-btn doc-btn--glass" th:href="${enlacePublico}" target="_blank" rel="noopener">
+                        <span class="material-symbols-outlined" aria-hidden="true">open_in_new</span><span>Ver</span>
+                    </a>
+                </div>
+            </div>
+
+            <form th:action="@{/doctores/perfil/consulta}" method="post" class="doc-consulta-form">
+                <span class="doc-label">Consulta y abono</span>
+                <div th:if="${exitoConsulta}" class="alert alert-success" th:text="${exitoConsulta}"></div>
+                <div th:if="${errorConsulta}" class="alert alert-error" th:text="${errorConsulta}"></div>
+                <div class="doc-consulta-campos">
+                    <label>Valor de la consulta (COP)
+                        <input type="number" name="precioConsulta" min="0" max="5000000" step="1000" th:value="${doctor.precioConsulta}" placeholder="80000">
+                    </label>
+                    <label>Abono para reservar (COP)
+                        <input type="number" name="abono" min="0" max="5000000" step="1000" th:value="${doctor.abono}" placeholder="0 = sin abono">
+                    </label>
+                    <label>Cancelación sin perder el abono (horas antes)
+                        <input type="number" name="horasCancelacion" min="0" max="168" th:value="${doctor.horasCancelacionEfectivas()}">
+                    </label>
+                    <label class="doc-consulta-direccion">Dirección del consultorio
+                        <input type="text" name="direccionConsultorio" maxlength="160" th:value="${doctor.direccionConsultorio}" placeholder="Calle 10 # 5-20, consultorio 302">
+                    </label>
+                </div>
+                <p class="doc-enlace-ayuda">Con abono, la cita solo se confirma cuando el paciente paga. Si no asiste o cancela tarde, el abono es tuyo.</p>
+                <button type="submit" class="doc-btn doc-btn--amber">
+                    <span class="material-symbols-outlined" aria-hidden="true">save</span><span>Guardar</span>
+                </button>
+            </form>
+        </div>
     </section>
 
     <!-- ═══════════════ HORARIOS ═══════════════ -->
@@ -464,6 +505,10 @@
                               th:text="${cita.estado.descripcion}"></span>
                     </div>
                     <p class="cita-motivo"><strong>Motivo:</strong> <span th:text="${cita.motivo}" th:title="${cita.motivo}"></span></p>
+                    <p th:if="${cita.abonoPesos != null}" class="cita-abono">
+                        <span class="material-symbols-outlined" aria-hidden="true">payments</span>
+                        <span th:text="${'Abono $' + #numbers.formatInteger(cita.abonoPesos, 1, 'POINT') + (cita.estadoAbono != null ? ' · ' + cita.estadoAbono.descripcion : '')}">Abono</span>
+                    </p>
                     <p th:if="${cita.dictamen != null}" class="cita-dx">
                         <span class="material-symbols-outlined" aria-hidden="true">clinical_notes</span>
                         <span class="dictamen-preview" th:classappend="${cita.dictamen.tieneAlergias} ? 'con-alergias'"
@@ -876,6 +921,15 @@ window.BESALUD_DICTAMEN = {
     citaId: /*[[${dictamenCitaId}]]*/ null,
     error: /*[[${errorDictamen}]]*/ null
 };
+</script>
+<script>
+document.getElementById('copiarEnlace')?.addEventListener('click', function () {
+    const campo = document.getElementById('enlacePublico');
+    const texto = this.querySelector('span:last-child');
+    const listo = () => { texto.textContent = 'Copiado'; setTimeout(() => { texto.textContent = 'Copiar'; }, 2000); };
+    if (navigator.clipboard) navigator.clipboard.writeText(campo.value).then(listo, () => { campo.select(); });
+    else { campo.select(); document.execCommand('copy'); listo(); }
+});
 </script>
 <script th:src="@{/js/dictamen.js}"></script>
 <script th:src="@{/js/custom-select.js}"></script>

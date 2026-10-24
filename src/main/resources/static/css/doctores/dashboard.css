@@ -1718,3 +1718,78 @@ a.doc-segmento {
     .btn-quitar-fila { justify-self: end; margin-bottom: 10px; }
 }
 
+
+/* ── Enlace público de reservas y datos de la consulta ── */
+.doc-reservas {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.3fr);
+    gap: 24px;
+    margin-top: 24px;
+    padding-top: 24px;
+    border-top: 1px solid var(--d-highest);
+}
+.doc-enlace-ayuda {
+    margin: 6px 0 12px;
+    color: var(--d-on-var);
+    font-size: 13px;
+    line-height: 1.55;
+}
+.doc-enlace-fila {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+.doc-enlace-fila input {
+    flex: 1 1 220px;
+    min-width: 0;
+    margin: 0;
+    padding: 9px 12px;
+    color: var(--d-primary);
+    background: var(--d-low);
+    border: 1px solid var(--d-highest);
+    border-radius: 8px;
+    font-size: 13px;
+}
+.doc-consulta-campos {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 12px;
+    margin-top: 10px;
+}
+.doc-consulta-campos label {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 6px;
+    color: var(--d-on-var);
+    font-size: 12px;
+    font-weight: 600;
+}
+.doc-consulta-campos .doc-consulta-direccion {
+    grid-column: 1 / -1;
+}
+.doc-consulta-campos input {
+    width: 100%;
+    margin: 0;
+    padding: 9px 12px;
+    color: var(--d-on);
+    background: #fff;
+    border: 1px solid var(--d-outline-var);
+    border-radius: 8px;
+    font-size: 14px;
+}
+.cita-abono {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin: 4px 0 0;
+    color: var(--d-amber);
+    font-size: 13px;
+    font-weight: 600;
+}
+@media (max-width: 900px) {
+    .doc-reservas { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 560px) {
+    .doc-consulta-campos { grid-template-columns: minmax(0, 1fr); }
+}

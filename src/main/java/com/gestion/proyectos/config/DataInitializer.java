@@ -12,8 +12,9 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
+import java.security.SecureRandom;
 import java.time.LocalDate;
-import java.util.Optional;
+import java.util.Base64;
 
 @Component
 public class DataInitializer implements CommandLineRunner {
@@ -27,7 +28,8 @@ public class DataInitializer implements CommandLineRunner {
     @Value("${besalud.admin.email:admin@besalud.com}")
     private String defaultAdminEmail;
 
-    @Value("${besalud.admin.password:admin12345}")
+    // Vacía: el admin nace con una contraseña aleatoria que se muestra una sola vez en el log
+    @Value("${besalud.admin.password:}")
     private String defaultAdminPassword;
 
     @Value("${besalud.doctor.password:seba1234}")
@@ -35,6 +37,11 @@ public class DataInitializer implements CommandLineRunner {
 
     @Value("${besalud.paciente.password:paciente1234}")
     private String defaultPacientePassword;
+
+    // Cuentas de prueba (doctor y paciente) con contraseñas conocidas: solo para desarrollo o una demo.
+    // En producción quedan apagadas para no dejar una puerta trasera.
+    @Value("${besalud.demo.usuarios:false}")
+    private boolean crearUsuariosDemo;
 
     public DataInitializer(AdminRepositorio adminRepositorio, PersonaRepositorio personaRepositorio,
             PasswordEncoder passwordEncoder) {
@@ -50,43 +57,41 @@ public class DataInitializer implements CommandLineRunner {
             Admin admin = new Admin();
             admin.setNombre("Administrador");
             admin.setEmail(email);
-            admin.setPassword(passwordEncoder.encode(defaultAdminPassword));
+            boolean generada = defaultAdminPassword == null || defaultAdminPassword.isBlank();
+            String clave = generada ? claveAleatoria() : defaultAdminPassword;
+            admin.setPassword(passwordEncoder.encode(clave));
             adminRepositorio.save(admin);
             log.info("Usuario admin creado con email: {}", email);
-            log.warn("Contraseña por defecto del admin en uso. Cámbiala en producción vía besalud.admin.password o variable de entorno.");
+            if (generada)
+                log.warn("Contraseña inicial del admin (se muestra solo esta vez, cámbiala): {}", clave);
         }
 
-        // Ensure test doctor exists with BCrypt-encoded password
+        if (!crearUsuariosDemo)
+            return;
+
+        // Solo se crean si faltan: nunca se les vuelve a poner la contraseña de prueba, así quien la
+        // haya cambiado no la pierde en el siguiente arranque. Las contraseñas no van al log.
         String doctorEmail = "sebastianfontalvoayola27@gmail.com";
-        String doctorPassword = defaultDoctorPassword;
-        Optional<Doctor> existingDoctor = personaRepositorio.findDoctorByEmail(doctorEmail);
-        if (existingDoctor.isEmpty()) {
+        if (personaRepositorio.findDoctorByEmail(doctorEmail).isEmpty()) {
             Doctor doctor = new Doctor("Sebastián", "Fontalvo", "3001234567", "1234567890",
-                    doctorEmail, passwordEncoder.encode(doctorPassword),
+                    doctorEmail, passwordEncoder.encode(defaultDoctorPassword),
                     "Medicina General", LocalDate.of(1990, 1, 1), null, null);
             personaRepositorio.save(doctor);
-            log.info("Doctor de prueba creado: {} / contraseña: {}", doctorEmail, doctorPassword);
-        } else {
-            Doctor doctor = existingDoctor.get();
-            doctor.setPassword(passwordEncoder.encode(doctorPassword));
-            personaRepositorio.save(doctor);
-            log.info("Contraseña del doctor {} actualizada. Contraseña: {}", doctorEmail, doctorPassword);
+            log.info("Doctor de prueba creado: {}", doctorEmail);
         }
 
-        // Ensure test patient exists
         String pacienteEmail = "paciente@besalud.com";
-        String pacientePassword = defaultPacientePassword;
-        Optional<Paciente> existingPaciente = personaRepositorio.findPacienteByEmail(pacienteEmail);
-        if (existingPaciente.isEmpty()) {
+        if (personaRepositorio.findPacienteByEmail(pacienteEmail).isEmpty()) {
             Paciente paciente = new Paciente("Paciente", "Prueba", "3009876543", "9876543210",
-                    pacienteEmail, passwordEncoder.encode(pacientePassword));
+                    pacienteEmail, passwordEncoder.encode(defaultPacientePassword));
             personaRepositorio.save(paciente);
-            log.info("Paciente de prueba creado: {} / contraseña: {}", pacienteEmail, pacientePassword);
-        } else {
-            Paciente paciente = existingPaciente.get();
-            paciente.setPassword(passwordEncoder.encode(pacientePassword));
-            personaRepositorio.save(paciente);
-            log.info("Contraseña del paciente {} actualizada. Contraseña: {}", pacienteEmail, pacientePassword);
+            log.info("Paciente de prueba creado: {}", pacienteEmail);
         }
+    }
+
+    private static String claveAleatoria() {
+        byte[] bytes = new byte[12];
+        new SecureRandom().nextBytes(bytes);
+        return Base64.getUrlEncoder().withoutPadding().encodeToString(bytes);
     }
 }

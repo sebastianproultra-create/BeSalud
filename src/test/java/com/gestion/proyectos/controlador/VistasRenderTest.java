@@ -72,6 +72,9 @@ class VistasRenderTest {
     @MockBean private PanelDoctorService panelDoctorService;
     @MockBean private PacienteService pacienteService;
     @MockBean private CitaService citaService;
+    @MockBean private com.gestion.proyectos.servicio.PerfilPublicoService perfilPublicoService;
+    @MockBean private com.gestion.proyectos.servicio.ReservaService reservaService;
+    @MockBean private com.gestion.proyectos.servicio.PasarelaPagos pasarelaPagos;
     @MockBean private RateLimiter rateLimiter;
     @MockBean private com.gestion.proyectos.servicio.RegistroService registroService;
     @MockBean private com.gestion.proyectos.servicio.TriageService triageService;

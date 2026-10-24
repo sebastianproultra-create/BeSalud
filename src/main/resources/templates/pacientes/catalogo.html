@@ -49,12 +49,19 @@
         <div th:if="${param.success != null and param.success[0] == 'cita_cancelada'}" class="alert alert-success" role="status">
             Tu cita fue cancelada.
         </div>
+        <div th:if="${param.success != null and param.success[0] == 'pago_pendiente'}" class="alert alert-success" role="status">
+            Tu pago está en proceso. Apenas la pasarela lo apruebe, la cita aparecerá en tu lista.
+        </div>
         <div th:if="${param.error != null}" class="alert alert-error" role="alert" th:switch="${param.error[0]}">
             <span th:case="'doctor_inactivo'">Ese doctor no está disponible por ahora.</span>
             <span th:case="'doctor_no_existe'">El doctor seleccionado no existe.</span>
             <span th:case="'doctor_requerido'">Selecciona un doctor para agendar.</span>
             <span th:case="'paciente_no_encontrado'">No encontramos tu perfil de paciente.</span>
             <span th:case="'no_autorizado'">No tienes permiso para realizar esa acción.</span>
+            <span th:case="'pago_rechazado'">El pago del abono no fue aprobado. Puedes intentarlo de nuevo.</span>
+            <span th:case="'pago_conflicto'">Recibimos tu pago, pero no pudimos confirmar la cita (el horario ya no estaba disponible o el monto no coincide). Tu abono queda para devolución; escríbenos desde el Centro de Ayuda.</span>
+            <span th:case="'pago_sin_confirmar'">No pudimos confirmar el pago. Si se te cobró, la cita aparecerá en unos minutos; si no, intenta de nuevo.</span>
+            <span th:case="'cancelacion_no_permitida'">Solo se pueden cancelar citas pendientes.</span>
             <span th:case="*">No se pudo completar la acción. Intenta de nuevo.</span>
         </div>
             </div>
@@ -128,7 +135,8 @@
                         </div>
                         <p class="bio" th:text="${doctor.biografia != null ? doctor.biografia : 'Perfil profesional disponible próximamente.'}">Perfil profesional</p>
                         <div class="doctor-card-footer">
-                            <span><i class="fa-solid fa-shield-heart" aria-hidden="true"></i>Perfil profesional</span>
+                            <a th:if="${doctor.slug != null}" th:href="@{/p/{slug}(slug=${doctor.slug})}" class="doctor-profile-link"><i class="fa-solid fa-shield-heart" aria-hidden="true"></i>Ver perfil</a>
+                            <span th:if="${doctor.slug == null}"><i class="fa-solid fa-shield-heart" aria-hidden="true"></i>Perfil profesional</span>
                             <a th:href="@{/citas/nueva(doctorId=${doctor.id})}" class="doctor-book-link">Agendar cita<i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a>
                         </div>
                     </article>
@@ -174,6 +182,10 @@
                         <div class="cita-item-bottom">
                             <span class="cita-meta"><i class="fa-regular fa-calendar"></i> <span th:text="${#temporals.format(cita.fecha, 'dd/MM/yyyy')}"></span></span>
                             <span class="cita-meta"><i class="fa-regular fa-clock"></i> <span th:text="${#temporals.format(cita.hora, 'HH:mm')}"></span></span>
+                        </div>
+                        <div class="cita-abono" th:if="${cita.abonoPesos != null}">
+                            <span th:text="${'Abono $' + #numbers.formatInteger(cita.abonoPesos, 1, 'POINT')}">Abono $20.000</span>
+                            <span th:text="${cita.estadoAbono != null ? '· ' + cita.estadoAbono.descripcion : ''}"></span>
                         </div>
                         <div class="cita-motivo" th:if="${cita.motivo}" th:text="${cita.motivo}"></div>
                         <div class="cita-actions">

@@ -846,3 +846,26 @@
     }
 }
 
+
+/* Aviso del abono previo */
+.abono-aviso {
+    margin-bottom: 20px;
+    padding: 14px 18px;
+    color: #5C3A02;
+    background: #FFF4E3;
+    border-radius: 10px;
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+.abono-aviso p {
+    margin: 0 0 6px;
+}
+
+.abono-aviso p:last-child {
+    margin-bottom: 0;
+}
+
+.abono-aviso .abono-demo {
+    font-weight: 600;
+}

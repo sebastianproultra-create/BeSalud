@@ -29,6 +29,8 @@ public class RateLimitFilter extends OncePerRequestFilter {
     private static final String RUTA_AYUDA = "/ayuda/contacto";
     private static final int MAX_MENSAJES_AYUDA = 5;
     private static final int MAX_TRIAGE = 5;
+    private static final java.util.regex.Pattern RUTA_ASISTENTE = java.util.regex.Pattern.compile("^/p/[^/]+/asistente$");
+    private static final int MAX_ASISTENTE = 20;
     private static final int MAX_POST = 60;
     private static final Duration VENTANA_POST = Duration.ofMinutes(1);
 
@@ -57,6 +59,9 @@ public class RateLimitFilter extends OncePerRequestFilter {
         else if (RUTA_AYUDA.equals(ruta))
             // Formulario público sin sesión: pocos mensajes por IP para frenar el spam.
             permitido = rateLimiter.permitir("ayuda:" + ip, MAX_MENSAJES_AYUDA, VENTANA_REGISTRO);
+        else if (RUTA_ASISTENTE.matcher(ruta).matches())
+            // Chat público de la página del profesional; puede consultar a Gemini.
+            permitido = rateLimiter.permitir("asistente:" + ip, MAX_ASISTENTE, VENTANA_REGISTRO);
         else if (RUTA_TRIAGE.equals(ruta))
             // Cada evaluación consume cuota de la API de Gemini.
             permitido = rateLimiter.permitir("triage:" + ip, MAX_TRIAGE, VENTANA_POST);
@@ -67,7 +72,7 @@ public class RateLimitFilter extends OncePerRequestFilter {
             log.warn("Límite de peticiones excedido: ip={} ruta={}", ip, ruta);
             response.setStatus(429);
             response.setHeader("Retry-After", String.valueOf(RUTAS_REGISTRO.contains(ruta) || RUTA_AYUDA.equals(ruta)
-                    ? VENTANA_REGISTRO.toSeconds() : VENTANA_POST.toSeconds()));
+                    || RUTA_ASISTENTE.matcher(ruta).matches() ? VENTANA_REGISTRO.toSeconds() : VENTANA_POST.toSeconds()));
             response.setContentType("text/html;charset=UTF-8");
             response.getWriter().write("""
                     <!DOCTYPE html><html lang="es"><head><meta charset="UTF-8">

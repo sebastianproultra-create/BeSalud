@@ -27,6 +27,19 @@ public class Cita {
     private LocalDateTime inicioAtencion;
     private boolean recordatorioEnviado;
 
+    /**
+     * "doctorId|fecha|hora" mientras la cita ocupa el turno (pendiente, en atención o completada); vacío si
+     * se canceló o el paciente no asistió. El índice único hace que Mongo rechace dos citas en el mismo
+     * turno aunque lleguen al mismo tiempo. Lo calcula {@link #actualizarTurno()} antes de cada guardado.
+     */
+    @Indexed(unique = true, sparse = true)
+    private String turno;
+
+    /** Abono pagado al reservar (en centavos, como lo maneja la pasarela); null si la cita no tuvo abono. */
+    private Long abonoCentavos;
+    private String referenciaPago;
+    private EstadoAbono estadoAbono;
+
     public String getId() {
         return id;
     }
@@ -97,6 +110,52 @@ public class Cita {
 
     public void setRecordatorioEnviado(boolean recordatorioEnviado) {
         this.recordatorioEnviado = recordatorioEnviado;
+    }
+
+    public static String claveTurno(String doctorId, LocalDate fecha, LocalTime hora) {
+        return doctorId + "|" + fecha + "|" + hora.withSecond(0).withNano(0);
+    }
+
+    public boolean ocupaTurno() {
+        return estado == EstadoCita.PENDIENTE || estado == EstadoCita.ASISTIO || estado == EstadoCita.COMPLETADA;
+    }
+
+    public void actualizarTurno() {
+        turno = ocupaTurno() && doctorId != null && fecha != null && hora != null
+                ? claveTurno(doctorId, fecha, hora) : null;
+    }
+
+    public String getTurno() {
+        return turno;
+    }
+
+    public Long getAbonoCentavos() {
+        return abonoCentavos;
+    }
+
+    public void setAbonoCentavos(Long abonoCentavos) {
+        this.abonoCentavos = abonoCentavos;
+    }
+
+    /** Abono en pesos para mostrar en las vistas. */
+    public Long getAbonoPesos() {
+        return abonoCentavos == null ? null : abonoCentavos / 100;
+    }
+
+    public String getReferenciaPago() {
+        return referenciaPago;
+    }
+
+    public void setReferenciaPago(String referenciaPago) {
+        this.referenciaPago = referenciaPago;
+    }
+
+    public EstadoAbono getEstadoAbono() {
+        return estadoAbono;
+    }
+
+    public void setEstadoAbono(EstadoAbono estadoAbono) {
+        this.estadoAbono = estadoAbono;
     }
 
     public LocalDateTime getInicioAtencion() {

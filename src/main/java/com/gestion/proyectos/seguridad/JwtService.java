@@ -9,6 +9,9 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import javax.crypto.SecretKey;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import java.security.SecureRandom;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
 import java.util.List;
@@ -19,10 +22,29 @@ public class JwtService {
     private final SecretKey secretKey;
     private final long expirationMillis;
 
-    public JwtService(@Value("${app.jwt.secret}") String secret,
+    private static final Logger log = LoggerFactory.getLogger(JwtService.class);
+
+    // Clave que estuvo publicada en application.properties: con ella cualquiera podría firmarse un token de admin
+    private static final String CLAVE_PUBLICADA = "besalud-super-secret-key-min-256-bits-required-for-hmac";
+
+    public JwtService(@Value("${app.jwt.secret:}") String secret,
                       @Value("${app.jwt.expiration-ms}") long expirationMillis) {
-        this.secretKey = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
+        this.secretKey = claveSegura(secret);
         this.expirationMillis = expirationMillis;
+    }
+
+    /**
+     * Sin JWT_SECRET (o con la clave publicada) se usa una clave aleatoria: es segura, pero al reiniciar
+     * la app todos deben volver a iniciar sesión. En producción hay que definir JWT_SECRET.
+     */
+    private static SecretKey claveSegura(String secret) {
+        if (secret == null || secret.isBlank() || CLAVE_PUBLICADA.equals(secret)) {
+            log.warn("JWT_SECRET no está configurado: se usa una clave aleatoria (las sesiones se pierden al reiniciar).");
+            byte[] aleatoria = new byte[32];
+            new SecureRandom().nextBytes(aleatoria);
+            return Keys.hmacShaKeyFor(aleatoria);
+        }
+        return Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
     }
 
     public String generateToken(UserDetails userDetails) {

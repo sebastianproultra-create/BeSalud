@@ -59,6 +59,7 @@
                 </div>
 
                 <form th:action="@{/register/save}" th:object="${user}" method="post" enctype="multipart/form-data" class="auth-form register-form">
+                    <input type="hidden" name="continuar" th:if="${continuar != null}" th:value="${continuar}">
                     <fieldset class="role-picker">
                         <legend>Selecciona tu rol de usuario</legend>
                         <div class="role-segmented">
@@ -146,7 +147,7 @@
                 </form>
 
                 <div class="auth-card-footer">
-                    <p>¿Ya tienes cuenta? <a th:href="@{/login}" data-auth-direction="backward">Inicia sesión aquí <span aria-hidden="true">→</span></a></p>
+                    <p>¿Ya tienes cuenta? <a th:href="${continuar != null} ? @{/login(continuar=${continuar})} : @{/login}" data-auth-direction="backward">Inicia sesión aquí <span aria-hidden="true">→</span></a></p>
                 </div>
             </div>
         </section>

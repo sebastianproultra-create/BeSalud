@@ -47,6 +47,8 @@ class CitaControllerTest {
     }
 
     @MockBean private CitaService citaService;
+    @MockBean private com.gestion.proyectos.servicio.ReservaService reservaService;
+    @MockBean private com.gestion.proyectos.servicio.PasarelaPagos pasarelaPagos;
     @MockBean private CustomUserDetailsService customUserDetailsService;
     @MockBean private PersonaRepositorio personaRepositorio;
     @MockBean private AdminRepositorio adminRepositorio;
@@ -155,7 +157,7 @@ class CitaControllerTest {
         when(citaService.esFechaHoraPasada(any(), any())).thenReturn(false);
         when(citaService.buscarDoctorPorId("d1")).thenReturn(Optional.of(doctorActivo()));
         when(citaService.esHorarioValido(eq("d1"), any(), any())).thenReturn(true);
-        when(citaService.hayConflicto(eq("d1"), any(), any(), isNull())).thenReturn(true);
+        when(citaService.hayConflicto(eq("d1"), any(), any(), isNull(), eq("p1"))).thenReturn(true);
 
         mockMvc.perform(post("/citas/guardar-paciente")
                         .param("doctorId", "d1")
@@ -254,6 +256,7 @@ class CitaControllerTest {
 
         when(citaService.buscarPorId("c1")).thenReturn(Optional.of(cita));
         when(citaService.buscarPacientePorEmail("pac@test.com")).thenReturn(Optional.of(paciente));
+        when(citaService.cancelar(cita, true)).thenReturn(true);
 
         mockMvc.perform(post("/citas/c1/cancelar")
                         .with(csrf())
@@ -261,7 +264,7 @@ class CitaControllerTest {
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/pacientes/landing?success=cita_cancelada"));
 
-        verify(citaService).cancelar(cita);
+        verify(citaService).cancelar(cita, true);
     }
 
     @Test
@@ -272,6 +275,7 @@ class CitaControllerTest {
                 .andExpect(status().isForbidden());
 
         verify(citaService, never()).cancelar(any());
+        verify(citaService, never()).cancelar(any(), org.mockito.ArgumentMatchers.anyBoolean());
     }
 
     @Test
@@ -281,6 +285,7 @@ class CitaControllerTest {
         cita.setEstado(EstadoCita.PENDIENTE);
 
         when(citaService.buscarPorId("c1")).thenReturn(Optional.of(cita));
+        when(citaService.cancelar(cita)).thenReturn(true);
 
         mockMvc.perform(post("/citas/c1/cancelar")
                         .with(csrf())
@@ -309,6 +314,7 @@ class CitaControllerTest {
                 .andExpect(redirectedUrl("/pacientes/landing?error=no_autorizado"));
 
         verify(citaService, never()).cancelar(any());
+        verify(citaService, never()).cancelar(any(), org.mockito.ArgumentMatchers.anyBoolean());
     }
 
     @Test
@@ -321,5 +327,80 @@ class CitaControllerTest {
                             status == 403 || (status >= 300 && status < 400),
                             "Debe ser 403 o redirección, fue: " + status);
                 });
+    }
+
+    // ── abono previo ────────────────────────────────────────────────────────
+
+    private void prepararReservaValida(Doctor doctor) {
+        Paciente paciente = new Paciente();
+        paciente.setId("p1");
+        paciente.setEmail("paciente@test.com");
+        paciente.setNombre("Ana");
+        paciente.setApellido("Ruiz");
+        when(citaService.buscarPacientePorEmail("paciente@test.com")).thenReturn(Optional.of(paciente));
+        when(citaService.esFechaHoraPasada(any(), any())).thenReturn(false);
+        when(citaService.buscarDoctorPorId("d1")).thenReturn(Optional.of(doctor));
+        when(citaService.esHorarioValido(eq("d1"), any(), any())).thenReturn(true);
+    }
+
+    @Test
+    void guardarPaciente_doctorConAbono_apartaTurnoYEnviaAPagar() throws Exception {
+        Doctor doctor = doctorActivo();
+        doctor.setAbono(20000);
+        prepararReservaValida(doctor);
+        com.gestion.proyectos.modelo.Reserva reserva = new com.gestion.proyectos.modelo.Reserva();
+        reserva.setReferencia("BS-123");
+        when(reservaService.apartar(eq(doctor), eq("p1"), any(), any(), eq("Control"))).thenReturn(reserva);
+        when(pasarelaPagos.urlPago(eq(reserva), eq("paciente@test.com"), eq("Ana Ruiz"), anyString()))
+                .thenReturn("/pagos/simulado/BS-123");
+
+        mockMvc.perform(post("/citas/guardar-paciente")
+                        .param("doctorId", "d1")
+                        .param("fecha", LocalDate.now().plusDays(1).toString())
+                        .param("hora", "09:00")
+                        .param("motivo", "Control")
+                        .with(csrf())
+                        .with(user("paciente@test.com").roles("PACIENTE")))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/pagos/simulado/BS-123"));
+
+        // La cita no existe hasta que el pago se apruebe
+        verify(citaService, never()).crearCita(any(), any(), any(), any(), any());
+    }
+
+    @Test
+    void guardarPaciente_turnoTomadoAlGuardar_redirigeConConflicto() throws Exception {
+        prepararReservaValida(doctorActivo());
+        when(citaService.crearCita(any(), any(), any(), any(), any()))
+                .thenThrow(new CitaService.TurnoOcupadoException("d1"));
+
+        mockMvc.perform(post("/citas/guardar-paciente")
+                        .param("doctorId", "d1")
+                        .param("fecha", LocalDate.now().plusDays(1).toString())
+                        .param("hora", "09:00")
+                        .param("motivo", "Control")
+                        .with(csrf())
+                        .with(user("paciente@test.com").roles("PACIENTE")))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/citas/nueva?doctorId=d1&error=conflicto_cita"));
+    }
+
+    @Test
+    void cancelar_citaYaAtendida_noSeCancela() throws Exception {
+        Paciente paciente = new Paciente();
+        paciente.setId("p1");
+        Cita cita = new Cita();
+        cita.setId("c1");
+        cita.setPacienteId("p1");
+        cita.setEstado(EstadoCita.COMPLETADA);
+        when(citaService.buscarPorId("c1")).thenReturn(Optional.of(cita));
+        when(citaService.buscarPacientePorEmail("pac@test.com")).thenReturn(Optional.of(paciente));
+        when(citaService.cancelar(cita, true)).thenReturn(false);
+
+        mockMvc.perform(post("/citas/c1/cancelar")
+                        .with(csrf())
+                        .with(user("pac@test.com").roles("PACIENTE")))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/pacientes/landing?error=cancelacion_no_permitida"));
     }
 }

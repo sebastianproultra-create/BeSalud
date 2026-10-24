@@ -58,7 +58,9 @@
                 <div th:if="${param.sessionExpired}" class="alert alert-error">Tu sesión ha expirado o necesitas iniciar sesión para ver esa página.</div>
                 <div th:if="${param.logout}" class="alert alert-success">Sesión cerrada correctamente.</div>
 
+                <div th:if="${continuar != null and param.error == null and param.bloqueado == null}" class="alert alert-info">Inicia sesión o regístrate para terminar tu reserva.</div>
                 <form th:action="@{/login}" method="post" class="auth-form">
+                    <input type="hidden" name="continuar" th:if="${continuar != null}" th:value="${continuar}">
                     <div class="auth-field">
                         <label for="email">Email / Correo electrónico</label>
                         <div class="auth-input-wrap">
@@ -95,7 +97,7 @@
                 </a>
 
                 <div class="auth-card-footer">
-                    <p>¿No tienes cuenta? <a th:href="@{/register}" data-auth-direction="forward">Regístrate aquí</a></p>
+                    <p>¿No tienes cuenta? <a th:href="${continuar != null} ? @{/register(continuar=${continuar})} : @{/register}" data-auth-direction="forward">Regístrate aquí</a></p>
                 </div>
             </div>
         </section>

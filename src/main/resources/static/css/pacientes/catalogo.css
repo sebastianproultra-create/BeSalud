@@ -2005,3 +2005,23 @@ body.patient-catalog-page {
         transform: rotate(90deg);
     }
 }
+
+/* Abono pagado al reservar y enlace a la página pública del profesional */
+.cita-abono {
+    margin-top: 6px;
+    color: #855403;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.doctor-profile-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: inherit;
+    text-decoration: none;
+}
+
+.doctor-profile-link:hover {
+    text-decoration: underline;
+}

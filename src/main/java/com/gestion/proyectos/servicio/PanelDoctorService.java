@@ -1,5 +1,6 @@
 package com.gestion.proyectos.servicio;
 
+import com.gestion.proyectos.util.Reloj;
 import com.gestion.proyectos.modelo.Cita;
 import com.gestion.proyectos.modelo.EstadoCita;
 import com.gestion.proyectos.modelo.Paciente;
@@ -50,7 +51,7 @@ public class PanelDoctorService {
 
     public PanelCitas citas(String doctorId, String filtro, String busqueda, int pagina, int tamano, String citaFija) {
         filtro = normalizarFiltro(filtro);
-        LocalDate hoy = LocalDate.now();
+        LocalDate hoy = Reloj.hoy();
 
         Criteria criterio = Criteria.where("doctorId").is(doctorId);
         if ("HOY".equals(filtro)) {

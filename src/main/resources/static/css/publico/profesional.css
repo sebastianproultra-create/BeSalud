@@ -1,0 +1,403 @@
+/* Página pública del profesional y pasarela simulada: usa los tokens de auth/portal.css */
+
+.profesional-page .profesional-main {
+    display: block;
+    padding-top: 120px;
+    padding-bottom: 64px;
+}
+
+.profesional-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr);
+    gap: 24px;
+    max-width: 1080px;
+    margin: 0 auto;
+}
+
+.pro-card {
+    min-width: 0;
+    padding: 28px;
+    background: var(--portal-surface);
+    border: 1px solid var(--portal-border);
+    border-radius: 20px;
+    box-shadow: 0 12px 32px rgba(0, 47, 36, 0.06);
+}
+
+.pro-card h2 {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0 0 16px;
+    color: var(--portal-primary);
+    font-family: 'Newsreader', Georgia, serif;
+    font-size: 26px;
+    font-weight: 500;
+}
+
+.pro-perfil {
+    display: flex;
+    gap: 24px;
+    align-items: flex-start;
+}
+
+.pro-foto {
+    flex: 0 0 auto;
+    width: 112px;
+    height: 112px;
+    object-fit: cover;
+    border-radius: 24px;
+    background: var(--portal-container);
+}
+
+.pro-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--portal-secondary);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+}
+
+.pro-eyebrow .material-symbols-outlined {
+    font-size: 16px;
+}
+
+.pro-identidad h1 {
+    margin: 8px 0 4px;
+    color: var(--portal-primary);
+    font-family: 'Newsreader', Georgia, serif;
+    font-size: clamp(30px, 4vw, 42px);
+    font-weight: 400;
+    line-height: 1.1;
+}
+
+.pro-especialidad {
+    margin: 0 0 12px;
+    color: var(--portal-primary-container);
+    font-weight: 600;
+}
+
+.pro-bio {
+    margin: 0;
+    color: var(--portal-muted);
+    line-height: 1.7;
+}
+
+.pro-consulta dl {
+    display: grid;
+    gap: 14px;
+    margin: 0 0 16px;
+}
+
+.pro-consulta dl > div {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--portal-border);
+}
+
+.pro-consulta dt {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--portal-muted);
+    font-size: 14px;
+}
+
+.pro-consulta dt .material-symbols-outlined {
+    font-size: 18px;
+    color: var(--portal-primary-container);
+}
+
+.pro-consulta dd {
+    margin: 0;
+    color: var(--portal-on-surface);
+    font-weight: 700;
+    text-align: right;
+    overflow-wrap: anywhere;
+}
+
+.pro-politica,
+.pro-asistente-nota,
+.pro-vacio,
+.pro-aviso {
+    margin: 0 0 12px;
+    color: var(--portal-muted);
+    font-size: 14px;
+    line-height: 1.65;
+}
+
+.pro-aviso {
+    padding: 10px 14px;
+    background: #FFF4E3;
+    border-radius: 12px;
+    color: var(--portal-secondary);
+}
+
+.pro-horarios,
+.pro-asistente {
+    grid-column: span 1;
+}
+
+.pro-dias {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 16px;
+}
+
+.pro-dia h3 {
+    display: flex;
+    flex-direction: column;
+    margin: 0 0 10px;
+    color: var(--portal-on-surface);
+    font-size: 15px;
+    font-weight: 700;
+}
+
+.pro-dia h3 small {
+    color: var(--portal-outline);
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.pro-dia ul {
+    display: grid;
+    gap: 8px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.pro-slot {
+    display: inline-flex;
+    justify-content: center;
+    min-width: 72px;
+    padding: 8px 12px;
+    color: var(--portal-primary);
+    background: var(--portal-container);
+    border: 1px solid var(--portal-border);
+    border-radius: 999px;
+    font-size: 14px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: background-color 0.15s, color 0.15s;
+}
+
+a.pro-slot:hover,
+a.pro-slot:focus-visible {
+    color: #fff;
+    background: var(--portal-primary-container);
+}
+
+.pro-slot.is-inactivo {
+    color: var(--portal-outline);
+    background: transparent;
+}
+
+.pro-ver-todo {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 20px;
+    color: var(--portal-primary-container);
+    font-weight: 700;
+    text-decoration: none;
+}
+
+.pro-ver-todo .material-symbols-outlined {
+    font-size: 18px;
+}
+
+/* Asistente */
+.pro-asistente {
+    display: flex;
+    flex-direction: column;
+}
+
+.chat-mensajes {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    height: 300px;
+    margin-bottom: 12px;
+    padding: 14px;
+    overflow-y: auto;
+    background: var(--portal-bg);
+    border-radius: 14px;
+}
+
+.chat-msg {
+    max-width: 88%;
+    padding: 10px 14px;
+    border-radius: 14px;
+    font-size: 14px;
+    line-height: 1.55;
+    white-space: pre-line;
+    overflow-wrap: anywhere;
+}
+
+.chat-msg.is-bot {
+    align-self: flex-start;
+    color: var(--portal-on-surface);
+    background: var(--portal-surface);
+    border: 1px solid var(--portal-border);
+}
+
+.chat-msg.is-usuario {
+    align-self: flex-end;
+    color: #fff;
+    background: var(--portal-primary-container);
+}
+
+.chat-msg.is-espera {
+    color: var(--portal-outline);
+    font-style: italic;
+}
+
+.chat-msg.is-emergencia {
+    color: #7A1C12;
+    background: #FDECEA;
+    border-color: #F5C2BC;
+    font-weight: 600;
+}
+
+.chat-horarios {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 10px;
+    white-space: normal;
+}
+
+.chat-sugerencias {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 12px;
+}
+
+.chat-sugerencias button {
+    padding: 6px 12px;
+    color: var(--portal-primary);
+    background: var(--portal-surface);
+    border: 1px solid var(--portal-border);
+    border-radius: 999px;
+    font: inherit;
+    font-size: 13px;
+    letter-spacing: normal;
+    text-transform: none;
+    cursor: pointer;
+}
+
+.chat-sugerencias button:hover {
+    background: var(--portal-container);
+}
+
+.chat-form {
+    display: flex;
+    gap: 8px;
+}
+
+.chat-form input {
+    flex: 1;
+    min-width: 0;
+    margin: 0;
+    padding: 12px 14px;
+    border: 1px solid var(--portal-border);
+    border-radius: 12px;
+    font: inherit;
+}
+
+.chat-form button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    color: #fff;
+    background: var(--portal-primary);
+    border: 0;
+    border-radius: 12px;
+    cursor: pointer;
+}
+
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    border: 0;
+}
+
+/* Pasarela simulada */
+.pago-card {
+    max-width: 520px;
+    margin: 0 auto;
+}
+
+.pago-demo {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+    padding: 12px 14px;
+    color: var(--portal-secondary);
+    background: #FFF4E3;
+    border: 1px dashed var(--portal-secondary-container);
+    border-radius: 12px;
+    font-size: 14px;
+    line-height: 1.55;
+}
+
+.pago-total {
+    margin: 4px 0 20px;
+    color: var(--portal-primary);
+    font-family: 'Newsreader', Georgia, serif;
+    font-size: 44px;
+}
+
+.pago-acciones {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 20px;
+}
+
+.pago-acciones form {
+    flex: 1 1 180px;
+    margin: 0;
+}
+
+.pago-acciones button {
+    width: 100%;
+}
+
+@media (max-width: 860px) {
+    .profesional-layout {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}
+
+@media (max-width: 560px) {
+    .profesional-page .profesional-main {
+        padding-top: 96px;
+    }
+
+    .pro-card {
+        padding: 20px;
+    }
+
+    .pro-perfil {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
+
+    .pro-dias {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
