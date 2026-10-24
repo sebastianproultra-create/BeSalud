@@ -89,6 +89,8 @@ public class CitaController {
                         Model model) {
         Doctor doctor = citaService.buscarDoctorPorId(doctorId).orElse(null);
         if (doctor == null) return REDIRECT_PACIENTES_LANDING;
+        if (!doctor.recibeReservas())
+            return "redirect:/pacientes/landing?error=sin_reservas_en_linea";
 
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         String pacienteId = auth == null ? null
@@ -98,7 +100,7 @@ public class CitaController {
         model.addAttribute("cita", null);
         model.addAttribute("actionUrl", "/citas/guardar-paciente");
         model.addAttribute("pageTitle", "Agendar cita médica");
-        model.addAttribute("submitLabel", doctor.cobraAbono() ? "Pagar abono y confirmar" : "Confirmar cita");
+        model.addAttribute("submitLabel", "Continuar al pago");
         model.addAttribute("backLink", "/pacientes/landing");
         model.addAttribute("slotsDisponibles", citaService.slotsDisponibles(doctorId, null, null, null, pacienteId));
         model.addAttribute("fechaElegida", fecha);
@@ -236,6 +238,8 @@ public class CitaController {
             return "redirect:/pacientes/landing?error=doctor_no_existe";
         if (!"ACTIVO".equals(doctor.getEstado()))
             return "redirect:/pacientes/landing?error=doctor_inactivo";
+        if (!doctor.recibeReservas())
+            return "redirect:/pacientes/landing?error=sin_reservas_en_linea";
 
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         Paciente paciente = citaService.buscarPacientePorEmail(auth.getName()).orElse(null);
@@ -255,16 +259,12 @@ public class CitaController {
             return "redirect:/citas/nueva?doctorId=" + doctorId + "&error=conflicto_paciente";
 
         try {
-            if (doctor.cobraAbono()) {
-                // Con abono la cita aún no existe: se aparta el turno y el paciente ve el resumen para pagar
-                Reserva reserva = reservaService.apartar(doctor, paciente.getId(), fechaCita, horaCita, motivo);
-                return "redirect:/pagos/" + reserva.getReferencia();
-            }
-            citaService.crearCita(doctorId, paciente.getId(), fechaCita, horaCita, motivo);
+            // Toda reserva en línea se paga: la cita no existe hasta que se aprueba el abono
+            Reserva reserva = reservaService.apartar(doctor, paciente.getId(), fechaCita, horaCita, motivo);
+            return "redirect:/pagos/" + reserva.getReferencia();
         } catch (CitaService.TurnoOcupadoException e) {
             return "redirect:/citas/nueva?doctorId=" + doctorId + "&error=conflicto_cita";
         }
-        return "redirect:/pacientes/landing?success=cita_agendada";
     }
 
     /** Archivo .ics para que el paciente guarde la cita en Google Calendar, Outlook o el calendario del celular. */

@@ -49,7 +49,10 @@ public class PerfilPublicoController {
         Doctor doctor = perfilService.buscarActivoPorSlug(slug).orElseThrow(NoSuchElementException::new);
 
         Map<String, List<String>> proximos = new LinkedHashMap<>();
-        for (var e : citaService.slotsDisponibles(doctor.getId(), null, null, null).entrySet()) {
+        // Sin precio publicado no hay reservas en línea: no se muestran horarios
+        Map<String, List<String>> libres = doctor.recibeReservas()
+                ? citaService.slotsDisponibles(doctor.getId(), null, null, null) : Map.of();
+        for (var e : libres.entrySet()) {
             if (proximos.size() == DIAS_VISIBLES)
                 break;
             proximos.put(e.getKey(), e.getValue().subList(0, Math.min(HORAS_POR_DIA, e.getValue().size())));
@@ -80,6 +83,7 @@ public class PerfilPublicoController {
     @PostMapping("/pacientes/asistente")
     @ResponseBody
     public AsistenteService.Respuesta asistenteGeneral(@RequestBody Pregunta pregunta) {
-        return asistenteService.responderGeneral(perfilService.activos(), pregunta == null ? null : pregunta.mensaje());
+        return asistenteService.responderGeneral(
+                perfilService.activos().stream().filter(Doctor::recibeReservas).toList(), pregunta == null ? null : pregunta.mensaje());
     }
 }

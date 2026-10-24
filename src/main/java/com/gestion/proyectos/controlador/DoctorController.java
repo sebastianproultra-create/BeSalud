@@ -204,19 +204,16 @@ public class DoctorController {
     @PreAuthorize("hasRole('DOCTOR')")
     @PostMapping("/perfil/consulta")
     public String actualizarConsulta(@RequestParam(required = false) Integer precioConsulta,
-            @RequestParam(required = false) Integer abono,
+            @RequestParam(required = false) Integer porcentajeAbono,
             @RequestParam(required = false) String direccionConsultorio,
             @RequestParam(required = false) Integer horasCancelacion,
-            @RequestParam(defaultValue = "false") boolean cobrarAbono,
             RedirectAttributes redirectAttributes) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         Doctor doctor = doctorService.buscarPorEmail(auth.getName()).orElse(null);
         if (doctor == null)
             return REDIRECT_DOCTORES;
-        String error = cobrarAbono && (abono == null || abono <= 0)
-                ? "Escribe el valor del abono o desactiva la opción."
-                : perfilPublicoService.guardarConsulta(doctor, precioConsulta, cobrarAbono ? abono : 0,
-                        direccionConsultorio, horasCancelacion);
+        String error = perfilPublicoService.guardarConsulta(doctor, precioConsulta, porcentajeAbono,
+                direccionConsultorio, horasCancelacion);
         if (error != null)
             redirectAttributes.addFlashAttribute("errorConsulta", error);
         else

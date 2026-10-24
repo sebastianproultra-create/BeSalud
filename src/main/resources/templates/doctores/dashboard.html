@@ -203,11 +203,16 @@
                 <div th:if="${exitoConsulta}" class="alert alert-success" th:text="${exitoConsulta}"></div>
                 <div th:if="${errorConsulta}" class="alert alert-error" th:text="${errorConsulta}"></div>
 
+                <p class="doc-aviso-reservas" th:unless="${doctor.recibeReservas()}">
+                    <span class="material-symbols-outlined" aria-hidden="true">info</span>
+                    Pon el precio de tu consulta para empezar a recibir reservas en línea.
+                </p>
+
                 <div class="doc-consulta-campos">
                     <label class="doc-campo">Precio de la consulta
                         <span class="doc-pesos"><span aria-hidden="true">$</span>
-                            <input type="number" name="precioConsulta" min="0" max="5000000" step="1000"
-                                   th:value="${doctor.precioConsulta}" placeholder="80000" inputmode="numeric">
+                            <input type="number" name="precioConsulta" id="precioConsulta" min="5000" max="5000000" step="1000"
+                                   th:value="${doctor.precioConsulta}" placeholder="80000" inputmode="numeric" required>
                         </span>
                     </label>
                     <label class="doc-campo">Dirección del consultorio
@@ -216,19 +221,15 @@
                     </label>
                 </div>
 
-                <label class="doc-interruptor">
-                    <input type="checkbox" name="cobrarAbono" value="true" id="cobrarAbono" th:checked="${doctor.cobraAbono()}">
-                    <span class="doc-interruptor-pista" aria-hidden="true"></span>
-                    <span>Pedir un abono para reservar
-                        <small>Reduce las citas a las que nadie llega.</small></span>
-                </label>
-
-                <div class="doc-consulta-campos doc-abono-campos" id="camposAbono">
-                    <label class="doc-campo">Valor del abono
-                        <span class="doc-pesos"><span aria-hidden="true">$</span>
-                            <input type="number" name="abono" min="0" max="5000000" step="1000"
-                                   th:value="${doctor.cobraAbono() ? doctor.abono : null}" placeholder="20000" inputmode="numeric">
-                        </span>
+                <div class="doc-consulta-campos">
+                    <label class="doc-campo">Abono para reservar
+                        <select name="porcentajeAbono" id="porcentajeAbono">
+                            <option th:each="p : ${T(com.gestion.proyectos.modelo.Doctor).PORCENTAJES_ABONO}"
+                                    th:value="${p}" th:text="${p + ' % del precio'}"
+                                    th:selected="${p == doctor.porcentajeAbonoEfectivo()}">20 % del precio</option>
+                        </select>
+                        <small class="doc-abono-calculo" id="abonoCalculado"
+                               th:text="${doctor.recibeReservas() ? 'El paciente paga $' + #numbers.formatInteger(doctor.abono, 1, 'POINT') + ' al reservar' : ''}"></small>
                     </label>
                     <label class="doc-campo">Se devuelve si cancelan con
                         <select name="horasCancelacion">
@@ -239,8 +240,8 @@
                                     th:text="${horas + ' horas de anticipación'}">Otra</option>
                         </select>
                     </label>
-                    <p class="doc-enlace-ayuda doc-abono-nota">La cita queda confirmada cuando el paciente paga. El abono se descuenta del precio.</p>
                 </div>
+                <p class="doc-enlace-ayuda">Todas las citas se reservan pagando el abono en línea; el resto se paga en el consultorio.</p>
 
                 <button type="submit" class="doc-btn doc-btn--amber">
                     <span class="material-symbols-outlined" aria-hidden="true">save</span><span>Guardar cambios</span>
@@ -950,12 +951,19 @@ window.BESALUD_DICTAMEN = {
 </script>
 <script>
 (function () {
-    const interruptor = document.getElementById('cobrarAbono');
-    const campos = document.getElementById('camposAbono');
-    if (!interruptor || !campos) return;
-    const mostrar = () => { campos.hidden = !interruptor.checked; };
-    interruptor.addEventListener('change', mostrar);
-    mostrar();
+    // Muestra cuánto paga el paciente con el precio y el porcentaje elegidos (mismo cálculo que el servidor)
+    const precio = document.getElementById('precioConsulta');
+    const porcentaje = document.getElementById('porcentajeAbono');
+    const salida = document.getElementById('abonoCalculado');
+    if (!precio || !porcentaje || !salida) return;
+    const calcular = () => {
+        const p = Number(precio.value);
+        if (!p || p < 5000) { salida.textContent = ''; return; }
+        const abono = Math.min(p, Math.max(2000, Math.round(p * Number(porcentaje.value) / 100 / 100) * 100));
+        salida.textContent = 'El paciente paga $' + abono.toLocaleString('es-CO') + ' al reservar';
+    };
+    precio.addEventListener('input', calcular);
+    porcentaje.addEventListener('change', calcular);
 })();
 document.getElementById('copiarEnlace')?.addEventListener('click', function () {
     const campo = document.getElementById('enlacePublico');

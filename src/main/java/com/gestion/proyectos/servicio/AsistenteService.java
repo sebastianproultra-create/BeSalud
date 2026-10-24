@@ -111,6 +111,9 @@ public class AsistenteService {
         String texto = mensaje == null ? "" : mensaje.trim();
         if (texto.length() > MAX_MENSAJE)
             texto = texto.substring(0, MAX_MENSAJE);
+        if (!doctor.recibeReservas() && !triageService.pareceEmergencia(texto))
+            return new Respuesta(nombre(doctor) + " aún no recibe reservas en línea. Puedes buscar otro profesional "
+                    + "disponible en BeSalud.", List.of(), false);
         if (texto.isEmpty())
             return saludo(doctor);
         if (triageService.pareceEmergencia(texto))
@@ -445,19 +448,18 @@ public class AsistenteService {
     }
 
     String textoPrecio(Doctor d) {
-        String base = d.getPrecioConsulta() != null && d.getPrecioConsulta() > 0
-                ? "La consulta con " + nombre(d) + " tiene un valor de " + pesos(d.getPrecioConsulta()) + "."
-                : nombre(d) + " no ha publicado el valor de la consulta; te lo confirmará al atenderte.";
-        if (d.cobraAbono())
-            base += " Para reservar se paga un abono de " + pesos(d.getAbono()) + " que se descuenta del valor total.";
-        return base;
+        if (!d.recibeReservas())
+            return nombre(d) + " aún no recibe reservas en línea.";
+        return "La consulta con " + nombre(d) + " vale " + pesos(d.getPrecioConsulta()) + ". Para reservar pagas en "
+                + "línea un abono del " + d.porcentajeAbonoEfectivo() + " % (" + pesos(d.getAbono())
+                + ") y el resto en el consultorio.";
     }
 
     String textoAbono(Doctor d) {
-        if (!d.cobraAbono())
-            return "Para reservar con " + nombre(d) + " no necesitas pagar nada por adelantado. Si no puedes asistir, "
-                    + "cancela tu cita desde BeSalud para liberar el turno.";
-        return "Para confirmar la cita pagas un abono de " + pesos(d.getAbono()) + " en línea (tarjeta, PSE o Nequi). "
+        if (!d.recibeReservas())
+            return nombre(d) + " aún no recibe reservas en línea.";
+        return "Para confirmar la cita pagas en línea un abono del " + d.porcentajeAbonoEfectivo() + " % del valor ("
+                + pesos(d.getAbono()) + ") con tarjeta, PSE o Nequi. "
                 + "Si cancelas con al menos " + d.horasCancelacionEfectivas() + " horas de anticipación, el abono se te "
                 + "devuelve; si cancelas después o no asistes, el profesional lo conserva.";
     }

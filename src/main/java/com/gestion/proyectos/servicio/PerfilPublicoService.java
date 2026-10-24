@@ -22,8 +22,7 @@ public class PerfilPublicoService {
 
     private static final Logger log = LoggerFactory.getLogger(PerfilPublicoService.class);
     public static final int MAX_PRECIO = 5_000_000;
-    /** Monto mínimo razonable para cobrar en línea (por debajo, la comisión de la pasarela no compensa). */
-    public static final int MIN_ABONO = 2_000;
+    public static final int MIN_PRECIO = 5_000;
     static final int MAX_SLUG = 60;
 
     private final PersonaRepositorio personaRepo;
@@ -97,23 +96,21 @@ public class PerfilPublicoService {
     /**
      * Guarda precio, abono, dirección y política de cancelación. Devuelve el mensaje de error o null.
      */
-    public String guardarConsulta(Doctor doctor, Integer precio, Integer abono, String direccion, Integer horasCancelacion) {
-        if (precio != null && (precio < 0 || precio > MAX_PRECIO))
-            return "El valor de la consulta debe estar entre $0 y $" + String.format(Locale.ROOT, "%,d", MAX_PRECIO).replace(',', '.') + ".";
-        int abonoValor = abono == null ? 0 : abono;
-        if (abonoValor < 0)
-            return "El abono no puede ser negativo.";
-        if (abonoValor > 0 && abonoValor < MIN_ABONO)
-            return "El abono mínimo para cobrar en línea es de $" + String.format(Locale.ROOT, "%,d", MIN_ABONO).replace(',', '.') + ".";
-        if (abonoValor > 0 && precio != null && abonoValor > precio)
-            return "El abono no puede ser mayor que el valor de la consulta.";
+    public String guardarConsulta(Doctor doctor, Integer precio, Integer porcentaje, String direccion, Integer horasCancelacion) {
+        if (precio == null)
+            return "Escribe el precio de la consulta: sin él tus pacientes no pueden reservar en línea.";
+        if (precio < MIN_PRECIO || precio > MAX_PRECIO)
+            return "El precio de la consulta debe estar entre " + AsistenteService.pesos(MIN_PRECIO) + " y "
+                    + AsistenteService.pesos(MAX_PRECIO) + ".";
+        if (porcentaje == null || !Doctor.PORCENTAJES_ABONO.contains(porcentaje))
+            return "Elige el porcentaje del abono.";
         if (horasCancelacion != null && (horasCancelacion < 0 || horasCancelacion > 168))
             return "La anticipación para cancelar debe estar entre 0 y 168 horas.";
         String dir = direccion == null ? null : direccion.trim().replaceAll("\\s+", " ");
         if (dir != null && dir.length() > 160)
             return "La dirección no puede superar los 160 caracteres.";
         doctor.setPrecioConsulta(precio);
-        doctor.setAbono(abonoValor);
+        doctor.setPorcentajeAbono(porcentaje);
         doctor.setDireccionConsultorio(esVacio(dir) ? null : dir);
         doctor.setHorasCancelacion(horasCancelacion);
         personaRepo.save(doctor);

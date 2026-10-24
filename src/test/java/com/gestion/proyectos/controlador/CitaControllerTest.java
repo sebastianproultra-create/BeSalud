@@ -62,20 +62,22 @@ class CitaControllerTest {
         Doctor doctor = new Doctor();
         doctor.setId("d1");
         doctor.setEstado("ACTIVO");
+        doctor.setPrecioConsulta(80000);
         return doctor;
     }
 
     @Test
-    void guardarPaciente_exitoso_redirigeLandingConExito() throws Exception {
+    void guardarPaciente_medicoSinPrecio_noRecibeReservas() throws Exception {
         Paciente paciente = new Paciente();
         paciente.setId("p1");
         paciente.setEmail("paciente@test.com");
 
         when(citaService.buscarPacientePorEmail("paciente@test.com")).thenReturn(Optional.of(paciente));
         when(citaService.esFechaHoraPasada(any(), any())).thenReturn(false);
-        when(citaService.buscarDoctorPorId("d1")).thenReturn(Optional.of(doctorActivo()));
+        Doctor sinPrecio = doctorActivo();
+        sinPrecio.setPrecioConsulta(null);
+        when(citaService.buscarDoctorPorId("d1")).thenReturn(Optional.of(sinPrecio));
         when(citaService.esHorarioValido(eq("d1"), any(), any())).thenReturn(true);
-        when(citaService.hayConflicto(eq("d1"), any(), any(), isNull())).thenReturn(false);
 
         mockMvc.perform(post("/citas/guardar-paciente")
                         .param("doctorId", "d1")
@@ -85,9 +87,10 @@ class CitaControllerTest {
                         .with(csrf())
                         .with(user("paciente@test.com").roles("PACIENTE")))
                 .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl("/pacientes/landing?success=cita_agendada"));
+                .andExpect(redirectedUrl("/pacientes/landing?error=sin_reservas_en_linea"));
 
-        verify(citaService).crearCita(eq("d1"), eq("p1"), any(), any(), eq("Dolor de cabeza"));
+        verify(reservaService, never()).apartar(any(), any(), any(), any(), any());
+        verify(citaService, never()).crearCita(any(), any(), any(), any(), any());
     }
 
     @Test
@@ -344,9 +347,8 @@ class CitaControllerTest {
     }
 
     @Test
-    void guardarPaciente_doctorConAbono_apartaTurnoYEnviaAPagar() throws Exception {
+    void guardarPaciente_siempreApartaTurnoYEnviaAPagar() throws Exception {
         Doctor doctor = doctorActivo();
-        doctor.setAbono(20000);
         prepararReservaValida(doctor);
         com.gestion.proyectos.modelo.Reserva reserva = new com.gestion.proyectos.modelo.Reserva();
         reserva.setReferencia("BS-123");
@@ -369,7 +371,7 @@ class CitaControllerTest {
     @Test
     void guardarPaciente_turnoTomadoAlGuardar_redirigeConConflicto() throws Exception {
         prepararReservaValida(doctorActivo());
-        when(citaService.crearCita(any(), any(), any(), any(), any()))
+        when(reservaService.apartar(any(), any(), any(), any(), any()))
                 .thenThrow(new CitaService.TurnoOcupadoException("d1"));
 
         mockMvc.perform(post("/citas/guardar-paciente")

@@ -24,29 +24,41 @@ class PerfilPublicoServiceTest {
     }
 
     @Test
-    void consultaValida_seGuarda() {
+    void consultaValida_seGuardaConPorcentaje() {
         Doctor d = new Doctor();
-        assertThat(service.guardarConsulta(d, 80_000, 20_000, "  Calle 10   # 5-20 ", 24)).isNull();
-        assertThat(d.cobraAbono()).isTrue();
+        assertThat(service.guardarConsulta(d, 80_000, 20, "  Calle 10   # 5-20 ", 24)).isNull();
+        assertThat(d.recibeReservas()).isTrue();
+        assertThat(d.getAbono()).isEqualTo(16_000);
         assertThat(d.getDireccionConsultorio()).isEqualTo("Calle 10 # 5-20");
         verify(personaRepo).save(d);
     }
 
     @Test
-    void abonoInvalido_noSeGuarda() {
+    void sinPrecioOPorcentajeInvalido_noSeGuarda() {
         Doctor d = new Doctor();
-        assertThat(service.guardarConsulta(d, 80_000, 500, null, 24)).contains("mínimo");
-        assertThat(service.guardarConsulta(d, 80_000, 90_000, null, 24)).contains("mayor");
-        assertThat(service.guardarConsulta(d, 80_000, -1, null, 24)).isNotNull();
-        assertThat(service.guardarConsulta(d, 80_000, 0, null, 500)).isNotNull();
+        assertThat(service.guardarConsulta(d, null, 20, null, 24)).contains("precio");
+        assertThat(service.guardarConsulta(d, 1_000, 20, null, 24)).contains("entre");
+        assertThat(service.guardarConsulta(d, 80_000, 15, null, 24)).contains("porcentaje");
+        assertThat(service.guardarConsulta(d, 80_000, null, null, 24)).contains("porcentaje");
+        assertThat(service.guardarConsulta(d, 80_000, 20, null, 500)).isNotNull();
         verify(personaRepo, never()).save(d);
     }
 
     @Test
-    void sinAbono_noCobra() {
+    void abono_redondeaYRespetaElMinimo() {
         Doctor d = new Doctor();
-        assertThat(service.guardarConsulta(d, null, null, null, null)).isNull();
-        assertThat(d.cobraAbono()).isFalse();
-        assertThat(d.horasCancelacionEfectivas()).isEqualTo(24);
+        assertThat(d.recibeReservas()).isFalse();
+        assertThat(d.getAbono()).isZero();
+
+        d.setPrecioConsulta(75_550);
+        d.setPorcentajeAbono(30);
+        assertThat(d.getAbono()).isEqualTo(22_700); // 22.665 → centena más cercana
+
+        d.setPrecioConsulta(8_000);
+        d.setPorcentajeAbono(10);
+        assertThat(d.getAbono()).isEqualTo(Doctor.MIN_ABONO); // 800 sube al mínimo
+
+        d.setPorcentajeAbono(null);
+        assertThat(d.porcentajeAbonoEfectivo()).isEqualTo(Doctor.PORCENTAJE_ABONO_DEFECTO);
     }
 }

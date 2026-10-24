@@ -22,16 +22,36 @@ public class Doctor extends Persona {
     // ── Página propia de reservas (/p/{slug}) ──
     @Indexed(unique = true, sparse = true)
     private String slug;
-    /** Valor de la consulta particular en pesos; null si el profesional no lo publica. */
+    /** Porcentajes de abono que puede elegir el profesional. */
+    public static final java.util.List<Integer> PORCENTAJES_ABONO = java.util.List.of(10, 20, 30, 40, 50);
+    public static final int PORCENTAJE_ABONO_DEFECTO = 20;
+    /** Monto mínimo que se cobra en línea (por debajo, la comisión de la pasarela no compensa). */
+    public static final int MIN_ABONO = 2_000;
+
+    /** Valor de la consulta particular en pesos; sin él no se reciben reservas en línea. */
     private Integer precioConsulta;
-    /** Abono que se cobra al reservar, en pesos; 0 o null = se reserva sin pagar (como antes). */
-    private Integer abono;
+    /** Porcentaje del precio que el paciente paga como abono al reservar. */
+    private Integer porcentajeAbono;
     private String direccionConsultorio;
     /** Horas de anticipación para cancelar con devolución del abono. */
     private Integer horasCancelacion;
 
-    public boolean cobraAbono() {
-        return abono != null && abono > 0;
+    /** Toda reserva en línea se paga con abono, así que solo se reciben si hay precio publicado. */
+    public boolean recibeReservas() {
+        return precioConsulta != null && precioConsulta > 0;
+    }
+
+    public int porcentajeAbonoEfectivo() {
+        return porcentajeAbono != null && PORCENTAJES_ABONO.contains(porcentajeAbono)
+                ? porcentajeAbono : PORCENTAJE_ABONO_DEFECTO;
+    }
+
+    /** Abono en pesos: el porcentaje del precio redondeado a la centena, nunca menos del mínimo ni más del precio. */
+    public int getAbono() {
+        if (!recibeReservas())
+            return 0;
+        long valor = Math.round(precioConsulta * porcentajeAbonoEfectivo() / 100.0 / 100.0) * 100;
+        return (int) Math.min(precioConsulta, Math.max(MIN_ABONO, valor));
     }
 
     public int horasCancelacionEfectivas() {

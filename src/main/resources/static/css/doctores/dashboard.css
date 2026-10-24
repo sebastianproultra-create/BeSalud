@@ -1807,67 +1807,22 @@ a.doc-segmento {
 .doc-pesos input {
     padding-left: 26px;
 }
-.doc-abono-nota {
-    grid-column: 1 / -1;
-    margin: -4px 0 0;
-}
 
-/* Interruptor "Pedir un abono" */
-.doc-page .doc-interruptor {
-    display: flex;
-    align-items: flex-start;
-    gap: 12px;
-    margin: 0 0 16px;
-    color: var(--d-on);
-    font-size: 14px;
-    font-weight: 600;
-    letter-spacing: normal;
-    text-transform: none;
-    cursor: pointer;
-}
-.doc-interruptor small {
-    display: block;
-    margin-top: 2px;
-    color: var(--d-on-var);
+.doc-abono-calculo {
+    color: var(--d-amber);
     font-size: 13px;
-    font-weight: 400;
+    font-weight: 600;
 }
-.doc-interruptor input {
-    position: absolute;
-    opacity: 0;
-    pointer-events: none;
-}
-.doc-interruptor-pista {
-    position: relative;
-    flex: 0 0 auto;
-    width: 40px;
-    height: 22px;
-    margin-top: 1px;
-    background: var(--d-outline-var);
-    border-radius: 999px;
-    transition: background-color 0.2s;
-}
-.doc-interruptor-pista::after {
-    content: "";
-    position: absolute;
-    top: 3px;
-    left: 3px;
-    width: 16px;
-    height: 16px;
-    background: #fff;
-    border-radius: 50%;
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
-    transition: transform 0.2s;
-}
-.doc-interruptor input:checked + .doc-interruptor-pista {
-    background: var(--d-primary-c);
-}
-.doc-interruptor input:checked + .doc-interruptor-pista::after {
-    transform: translateX(18px);
-}
-.doc-interruptor input:focus-visible + .doc-interruptor-pista {
-    outline: 2px solid var(--d-amber);
-    outline-offset: 2px;
+.doc-aviso-reservas {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0 0 14px;
+    padding: 10px 14px;
+    color: #5C3A02;
+    background: #FFF4E3;
+    border-radius: 10px;
+    font-size: 14px;
 }
 .cita-abono {
     display: flex;

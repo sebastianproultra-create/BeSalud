@@ -87,10 +87,11 @@
             <div class="step-label">Resumen de cita</div>
             <div class="confirm-card">
                 <div class="confirm-summary" id="confirmSummary"></div>
-                <div class="abono-aviso" th:if="${cita == null and doctorSeleccionado.cobraAbono()}">
+                <div class="abono-aviso" th:if="${cita == null and doctorSeleccionado.recibeReservas()}">
                     <p>
-                        <strong th:text="${'Abono de $' + #numbers.formatInteger(doctorSeleccionado.abono, 1, 'POINT')}">Abono de $20.000</strong>
-                        para confirmar la cita; se descuenta del valor de la consulta.
+                        Para confirmar pagas en línea un abono de
+                        <strong th:text="${'$' + #numbers.formatInteger(doctorSeleccionado.abono, 1, 'POINT') + ' (' + doctorSeleccionado.porcentajeAbonoEfectivo() + ' % de la consulta)'}">$16.000</strong>;
+                        el resto lo pagas en el consultorio.
                         Apartamos el horario <span th:text="${minutosParaPagar + ' minutos'}">15 minutos</span> mientras pagas.
                     </p>
                     <p>
