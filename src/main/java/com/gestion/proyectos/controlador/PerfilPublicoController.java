@@ -75,4 +75,11 @@ public class PerfilPublicoController {
                 .map(d -> ResponseEntity.ok(asistenteService.responder(d, pregunta == null ? null : pregunta.mensaje())))
                 .orElse(ResponseEntity.notFound().build());
     }
+
+    /** Asistente del portal del paciente: busca entre todos los profesionales activos. */
+    @PostMapping("/pacientes/asistente")
+    @ResponseBody
+    public AsistenteService.Respuesta asistenteGeneral(@RequestBody Pregunta pregunta) {
+        return asistenteService.responderGeneral(perfilService.activos(), pregunta == null ? null : pregunta.mensaje());
+    }
 }

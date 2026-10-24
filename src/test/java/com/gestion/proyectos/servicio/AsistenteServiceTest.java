@@ -60,6 +60,28 @@ class AsistenteServiceTest {
         assertThat(leer("el 20 de mayo").fecha()).isNull();
     }
 
+    private static com.gestion.proyectos.modelo.Doctor doctor(String apellido, String especialidad) {
+        com.gestion.proyectos.modelo.Doctor d = new com.gestion.proyectos.modelo.Doctor();
+        d.setApellido(apellido);
+        d.setEspecialidad(especialidad);
+        return d;
+    }
+
+    @Test
+    void portal_filtraPorEspecialidadOApellido() {
+        var fontalvo = doctor("Fontalvo", "Medicina General");
+        var ruiz = doctor("Ruiz", "Psicología");
+        var todos = java.util.List.of(fontalvo, ruiz);
+
+        assertThat(AsistenteService.mencionados(todos, AsistenteService.normalizar("Quiero un psicólogo el lunes")))
+                .containsExactly(ruiz);
+        assertThat(AsistenteService.mencionados(todos, AsistenteService.normalizar("cita de medicina general")))
+                .containsExactly(fontalvo);
+        assertThat(AsistenteService.mencionados(todos, AsistenteService.normalizar("con el doctor Fontalvo")))
+                .containsExactly(fontalvo);
+        assertThat(AsistenteService.mencionados(todos, AsistenteService.normalizar("algo mañana en la tarde"))).isEmpty();
+    }
+
     @Test
     void preguntasSinFecha() {
         assertThat(leer("¿Cuánto cuesta la consulta?").intencion()).isEqualTo(Intencion.PRECIO);

@@ -1,0 +1,267 @@
+/* Asistente de agenda: chat de la página del profesional y botón flotante del portal del paciente */
+
+[data-asistente] {
+    --chat-bg: #F0FCF5;
+    --chat-primary: #002F24;
+    --chat-primary-c: #0D4738;
+    --chat-texto: #131E1A;
+    --chat-muted: #404945;
+    --chat-outline: #707975;
+    --chat-borde: #D9E5DF;
+    --chat-suave: #EAF7F0;
+    --chat-superficie: #FFFFFF;
+}
+
+.chat-mensajes {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    height: 300px;
+    margin-bottom: 12px;
+    padding: 14px;
+    overflow-y: auto;
+    background: var(--chat-bg);
+    border-radius: 14px;
+}
+
+.chat-msg {
+    max-width: 88%;
+    padding: 10px 14px;
+    border-radius: 14px;
+    font-size: 14px;
+    line-height: 1.55;
+    white-space: pre-line;
+    overflow-wrap: anywhere;
+}
+
+.chat-msg.is-bot {
+    align-self: flex-start;
+    color: var(--chat-texto);
+    background: var(--chat-superficie);
+    border: 1px solid var(--chat-borde);
+}
+
+.chat-msg.is-usuario {
+    align-self: flex-end;
+    color: #fff;
+    background: var(--chat-primary-c);
+}
+
+.chat-msg.is-espera {
+    color: var(--chat-outline);
+    font-style: italic;
+}
+
+.chat-msg.is-emergencia {
+    color: #7A1C12;
+    background: #FDECEA;
+    border-color: #F5C2BC;
+    font-weight: 600;
+}
+
+.chat-horarios {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 10px;
+    white-space: normal;
+}
+
+.chat-slot {
+    display: inline-flex;
+    padding: 7px 12px;
+    color: var(--chat-primary);
+    background: var(--chat-suave);
+    border: 1px solid var(--chat-borde);
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: background-color 0.15s, color 0.15s;
+}
+
+a.chat-slot:hover,
+a.chat-slot:focus-visible {
+    color: #fff;
+    background: var(--chat-primary-c);
+}
+
+.chat-slot.is-inactivo {
+    color: var(--chat-outline);
+    background: transparent;
+}
+
+.chat-sugerencias {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 12px;
+}
+
+.chat-sugerencias button {
+    margin: 0;
+    padding: 6px 12px;
+    color: var(--chat-primary);
+    background: var(--chat-superficie);
+    border: 1px solid var(--chat-borde);
+    border-radius: 999px;
+    box-shadow: none;
+    font: inherit;
+    font-size: 13px;
+    letter-spacing: normal;
+    text-transform: none;
+    cursor: pointer;
+}
+
+.chat-sugerencias button:hover {
+    background: var(--chat-suave);
+}
+
+.chat-form {
+    display: flex;
+    gap: 8px;
+    margin: 0;
+}
+
+.chat-form input {
+    flex: 1;
+    min-width: 0;
+    margin: 0;
+    padding: 12px 14px;
+    border: 1px solid var(--chat-borde);
+    border-radius: 12px;
+    font: inherit;
+}
+
+.chat-form button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    margin: 0;
+    padding: 0;
+    color: #fff;
+    background: var(--chat-primary);
+    border: 0;
+    border-radius: 12px;
+    cursor: pointer;
+}
+
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    border: 0;
+}
+
+/* ── Botón flotante del portal del paciente ── */
+.asistente-lanzador {
+    position: fixed;
+    right: 24px;
+    bottom: 24px;
+    z-index: 900;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    margin: 0;
+    padding: 14px 20px;
+    color: #fff;
+    background: #0D4738;
+    border: 0;
+    border-radius: 999px;
+    box-shadow: 0 12px 28px rgba(0, 47, 36, 0.28);
+    font: inherit;
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: normal;
+    text-transform: none;
+    cursor: pointer;
+}
+
+.asistente-lanzador:hover {
+    background: #002F24;
+}
+
+.asistente-panel {
+    position: fixed;
+    right: 24px;
+    bottom: 92px;
+    z-index: 901;
+    display: flex;
+    flex-direction: column;
+    width: min(400px, calc(100vw - 32px));
+    max-height: calc(100vh - 120px);
+    padding: 18px;
+    background: #fff;
+    border: 1px solid #D9E5DF;
+    border-radius: 20px;
+    box-shadow: 0 24px 48px rgba(0, 47, 36, 0.22);
+}
+
+.asistente-panel[hidden] {
+    display: none;
+}
+
+.asistente-panel-cabecera {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 8px;
+}
+
+.asistente-panel-cabecera h2 {
+    margin: 0;
+    color: #002F24;
+    font-family: 'Newsreader', Georgia, serif;
+    font-size: 22px;
+    font-weight: 500;
+}
+
+.asistente-panel-cabecera p {
+    margin: 4px 0 0;
+    color: #404945;
+    font-size: 12px;
+    line-height: 1.5;
+}
+
+.asistente-cerrar {
+    flex: 0 0 auto;
+    width: 32px;
+    height: 32px;
+    margin: 0;
+    padding: 0;
+    color: #404945;
+    background: #EAF7F0;
+    border: 0;
+    border-radius: 50%;
+    box-shadow: none;
+    font-size: 18px;
+    line-height: 1;
+    cursor: pointer;
+}
+
+.asistente-panel .chat-mensajes {
+    flex: 1 1 auto;
+    height: 320px;
+    min-height: 160px;
+}
+
+@media (max-width: 560px) {
+    .asistente-lanzador {
+        right: 16px;
+        bottom: 16px;
+        padding: 12px 16px;
+    }
+
+    .asistente-panel {
+        right: 16px;
+        bottom: 80px;
+        left: 16px;
+        width: auto;
+    }
+}

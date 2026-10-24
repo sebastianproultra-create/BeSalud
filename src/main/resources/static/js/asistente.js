@@ -1,19 +1,40 @@
-// Asistente de agenda de la página pública del profesional (/p/{slug}).
+// Asistente de agenda: página pública del profesional (/p/{slug}) y botón flotante del portal del paciente.
 (function () {
-    const caja = document.querySelector('.pro-asistente');
+    const caja = document.querySelector('[data-asistente]');
     if (!caja) return;
 
     const endpoint = caja.dataset.endpoint;
-    const doctorId = caja.dataset.doctorId;
+    const doctorPagina = caja.dataset.doctorId; // vacío en el portal: cada horario trae su profesional
     const modo = caja.dataset.modo; // paciente | visitante | otro
-    const mensajes = document.getElementById('chat-mensajes');
-    const form = document.getElementById('chat-form');
-    const input = document.getElementById('chat-texto');
-    const token = document.querySelector('meta[name="_csrf"]')?.content;
-    const cabecera = document.querySelector('meta[name="_csrf_header"]')?.content;
+    const mensajes = caja.querySelector('.chat-mensajes');
+    const form = caja.querySelector('.chat-form');
+    const input = form.querySelector('input');
+    // Token CSRF: meta de la página o, si no hay, el campo oculto de cualquier formulario (p. ej. cerrar sesión)
+    const token = document.querySelector('meta[name="_csrf"]')?.content
+        || document.querySelector('input[name="_csrf"]')?.value;
+    const cabecera = document.querySelector('meta[name="_csrf_header"]')?.content || 'X-CSRF-TOKEN';
     let ocupado = false;
 
+    // Botón flotante: abre y cierra el panel
+    const lanzador = document.querySelector('[data-asistente-abrir]');
+    if (lanzador) {
+        const alternar = function (abrir) {
+            caja.hidden = !abrir;
+            lanzador.setAttribute('aria-expanded', String(abrir));
+            if (abrir) input.focus();
+        };
+        lanzador.addEventListener('click', function () { alternar(caja.hidden); });
+        caja.querySelector('[data-asistente-cerrar]')?.addEventListener('click', function () {
+            alternar(false);
+            lanzador.focus();
+        });
+        document.addEventListener('keydown', function (e) {
+            if (e.key === 'Escape' && !caja.hidden) alternar(false);
+        });
+    }
+
     function enlaceReserva(h) {
+        const doctorId = h.doctorId || doctorPagina;
         const destino = '/citas/nueva?doctorId=' + encodeURIComponent(doctorId)
             + '&fecha=' + encodeURIComponent(h.fecha) + '&hora=' + encodeURIComponent(h.hora);
         if (modo === 'paciente') return destino;
@@ -38,7 +59,7 @@
             r.horarios.forEach(function (h) {
                 const url = enlaceReserva(h);
                 const el = document.createElement(url ? 'a' : 'span');
-                el.className = 'pro-slot' + (url ? '' : ' is-inactivo');
+                el.className = 'chat-slot' + (url ? '' : ' is-inactivo');
                 el.textContent = h.etiqueta;
                 if (url) el.href = url;
                 lista.appendChild(el);
@@ -56,7 +77,7 @@
         const espera = agregar('Buscando…', 'is-bot is-espera');
         try {
             const headers = { 'Content-Type': 'application/json' };
-            if (token && cabecera) headers[cabecera] = token;
+            if (token) headers[cabecera] = token;
             const res = await fetch(endpoint, {
                 method: 'POST',
                 headers: headers,
@@ -65,8 +86,8 @@
             espera.remove();
             if (res.status === 429) {
                 agregar('Hiciste muchas preguntas seguidas. Espera unos minutos e intenta de nuevo.', 'is-bot');
-            } else if (!res.ok) {
-                agregar('No pude responder ahora. Intenta de nuevo en un momento.', 'is-bot');
+            } else if (!res.ok || !(res.headers.get('Content-Type') || '').includes('json')) {
+                agregar('No pude responder ahora. Recarga la página e intenta de nuevo.', 'is-bot');
             } else {
                 agregarRespuesta(await res.json());
             }

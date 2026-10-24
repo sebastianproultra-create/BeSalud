@@ -6,6 +6,7 @@
     <title>BeSalud · Portal del Paciente</title>
     <link rel="stylesheet" th:href="@{/css/base/global.css}">
     <link rel="stylesheet" th:href="@{/css/pacientes/catalogo.css}">
+    <link rel="stylesheet" th:href="@{/css/base/asistente.css}">
     <link rel="stylesheet" th:href="@{/vendor/fontawesome/css/all.min.css}"/>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -286,6 +287,37 @@
 <!-- Backdrop for mobile sidebar overlay -->
 </main>
 
+<!-- Asistente de citas: busca horarios entre todos los profesionales activos -->
+<button type="button" class="asistente-lanzador" data-asistente-abrir aria-controls="asistente-panel" aria-expanded="false">
+    <i class="fa-regular fa-comments" aria-hidden="true"></i><span>Asistente de citas</span>
+</button>
+<section id="asistente-panel" class="asistente-panel" data-asistente hidden aria-labelledby="asistente-titulo"
+         th:attr="data-endpoint=@{/pacientes/asistente}" data-modo="paciente">
+    <div class="asistente-panel-cabecera">
+        <div>
+            <h2 id="asistente-titulo">Asistente de citas</h2>
+            <p>Busca horario por día, franja, especialidad o médico. No da orientación médica; ante una urgencia llama al <strong>123</strong>.</p>
+        </div>
+        <button type="button" class="asistente-cerrar" data-asistente-cerrar aria-label="Cerrar asistente">&times;</button>
+    </div>
+    <div class="chat-mensajes" aria-live="polite">
+        <div class="chat-msg is-bot">
+            Hola, te ayudo a encontrar cita. Escríbeme algo como
+            <em>“medicina general el jueves en la tarde”</em> o <em>“¿qué hay mañana en la mañana?”</em>
+        </div>
+    </div>
+    <div class="chat-sugerencias">
+        <button type="button" data-pregunta="¿Qué hay mañana en la mañana?">Mañana en la mañana</button>
+        <button type="button" data-pregunta="¿Qué horarios hay esta semana en la tarde?">En la tarde</button>
+        <button type="button" data-pregunta="Próximos horarios">Lo más pronto</button>
+    </div>
+    <form class="chat-form" autocomplete="off">
+        <label for="asistente-texto" class="sr-only">Escribe tu pregunta</label>
+        <input id="asistente-texto" type="text" maxlength="300" placeholder="Escribe tu pregunta…" required>
+        <button type="submit" aria-label="Enviar"><i class="fa-solid fa-paper-plane" aria-hidden="true"></i></button>
+    </form>
+</section>
+
 <footer th:replace="~{fragments/layout :: app-footer}"></footer>
 
 <script>
@@ -317,5 +349,6 @@ function toggleSidebar() {
 if (celular.matches) sidebar.classList.add('collapsed');
 </script>
 <script th:src="@{/js/custom-select.js}"></script>
+<script th:src="@{/js/asistente.js}" defer></script>
 </body>
 </html>

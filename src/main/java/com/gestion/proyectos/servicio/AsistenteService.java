@@ -41,6 +41,7 @@ public class AsistenteService {
     private static final DateTimeFormatter FECHA = DateTimeFormatter.ofPattern("EEEE d 'de' MMMM", ES);
     static final int MAX_MENSAJE = 300;
     private static final int MAX_HORARIOS = 6;
+    private static final int MAX_PROFESIONALES = 30;
 
     enum Intencion { AGENDAR, PRECIO, ABONO, UBICACION, SINTOMAS, SALUDO, OTRO }
 
@@ -48,7 +49,8 @@ public class AsistenteService {
 
     record Interpretacion(Intencion intencion, LocalDate fecha, Franja franja) {}
 
-    public record Horario(String fecha, String hora, String etiqueta) {}
+    /** doctorId va en cada horario porque el asistente del portal mezcla varios profesionales. */
+    public record Horario(String fecha, String hora, String etiqueta, String doctorId) {}
 
     public record Respuesta(String texto, List<Horario> horarios, boolean emergencia) {}
 
@@ -126,6 +128,109 @@ public class AsistenteService {
                     proximos(doctor, 3), false);
             case SALUDO, OTRO -> saludo(doctor);
         };
+    }
+
+    // ── Asistente del portal del paciente (todos los profesionales activos) ──
+
+    /**
+     * Versión del portal: el paciente aún no eligió profesional. Si menciona una especialidad o un
+     * apellido se filtra por ellos; los horarios de varios profesionales se mezclan por fecha y hora.
+     */
+    public Respuesta responderGeneral(List<Doctor> activos, String mensaje) {
+        String texto = mensaje == null ? "" : mensaje.trim();
+        if (texto.length() > MAX_MENSAJE)
+            texto = texto.substring(0, MAX_MENSAJE);
+        List<Doctor> todos = activos.size() > MAX_PROFESIONALES ? activos.subList(0, MAX_PROFESIONALES) : activos;
+        if (todos.isEmpty())
+            return new Respuesta("Por ahora no hay profesionales con agenda disponible.", List.of(), false);
+        if (texto.isEmpty())
+            return saludoGeneral(todos);
+        if (triageService.pareceEmergencia(texto))
+            return new Respuesta("Lo que describes puede ser una emergencia. No esperes una cita: acude ya a urgencias "
+                    + "o llama a la línea 123.", List.of(), true);
+
+        List<Doctor> elegidos = mencionados(todos, normalizar(texto));
+        List<Doctor> candidatos = elegidos.isEmpty() ? todos : elegidos;
+        Interpretacion i = interpretar(texto);
+        return switch (i.intencion()) {
+            case AGENDAR -> horariosGeneral(candidatos, i.fecha(), i.franja(), !elegidos.isEmpty());
+            case PRECIO, ABONO, UBICACION -> candidatos.size() == 1
+                    ? new Respuesta(datoDe(candidatos.get(0), i.intencion()), proximosGeneral(candidatos, 3), false)
+                    : new Respuesta("Cada profesional define su precio, abono y dirección. Dime con quién quieres la cita "
+                            + "(por ejemplo, \"precio " + ejemploApellido(todos) + "\") o abre su perfil en el listado.",
+                            List.of(), false);
+            case SINTOMAS -> new Respuesta("No puedo darte orientación médica por este chat. Para que te sugiramos la "
+                    + "especialidad según tus síntomas usa \"Orientarme por síntomas\". Si ya sabes qué necesitas, estos "
+                    + "son los próximos horarios libres:", proximosGeneral(candidatos, 3), false);
+            case SALUDO, OTRO -> elegidos.isEmpty() ? saludoGeneral(todos) : horariosGeneral(candidatos, null, null, true);
+        };
+    }
+
+    private String datoDe(Doctor d, Intencion intencion) {
+        return intencion == Intencion.PRECIO ? textoPrecio(d)
+                : intencion == Intencion.ABONO ? textoAbono(d) : textoUbicacion(d);
+    }
+
+    /** Profesionales cuya especialidad o apellido aparece en el mensaje (ya normalizado). */
+    static List<Doctor> mencionados(List<Doctor> doctores, String texto) {
+        List<Doctor> resultado = new ArrayList<>();
+        for (Doctor d : doctores) {
+            String esp = d.getEspecialidad() == null ? "" : normalizar(d.getEspecialidad());
+            // Sin las dos últimas letras: "psicologia" también encuentra "psicologo" o "psicologa"
+            String raiz = esp.length() > 6 ? esp.substring(0, esp.length() - 2) : esp;
+            String apellido = d.getApellido() == null ? "" : normalizar(d.getApellido());
+            boolean porEspecialidad = !raiz.isBlank() && texto.contains(raiz);
+            boolean porApellido = apellido.length() >= 3
+                    && Pattern.compile("\\b" + Pattern.quote(apellido) + "\\b").matcher(texto).find();
+            if (porEspecialidad || porApellido)
+                resultado.add(d);
+        }
+        return resultado;
+    }
+
+    private Respuesta horariosGeneral(List<Doctor> doctores, LocalDate fecha, Franja franja, boolean filtrados) {
+        String cuando = (fecha != null ? fecha.format(FECHA) : "los próximos días") + textoFranja(franja);
+        String quien = filtrados && doctores.size() == 1 ? " con " + nombre(doctores.get(0)) : "";
+        List<Horario> delDia = fecha == null ? List.of() : mezclar(doctores, fecha, franja);
+        if (!delDia.isEmpty())
+            return new Respuesta("Horarios libres" + quien + " para " + cuando + ". Elige uno para reservar:", delDia, false);
+        List<Horario> cercanos = mezclar(doctores, null, franja);
+        if (cercanos.isEmpty())
+            cercanos = mezclar(doctores, null, null);
+        if (cercanos.isEmpty())
+            return new Respuesta("No hay horarios libres" + quien + " en los próximos 30 días.", List.of(), false);
+        String inicio = fecha != null ? "No hay horarios libres" + quien + " para " + cuando + ". Los más próximos son:"
+                : "Estos son los próximos horarios libres" + quien + textoFranja(franja) + ":";
+        return new Respuesta(inicio, cercanos, false);
+    }
+
+    /** Horarios de varios profesionales ordenados por fecha y hora; sin fecha, desde hoy. */
+    private List<Horario> mezclar(List<Doctor> doctores, LocalDate fecha, Franja franja) {
+        List<Horario> todos = new ArrayList<>();
+        for (Doctor d : doctores) {
+            Map<String, List<String>> libres = citaService.slotsDisponibles(d.getId(), null, null, null);
+            if (fecha != null)
+                libres = Map.of(fecha.toString(), libres.getOrDefault(fecha.toString(), List.of()));
+            todos.addAll(filtrar(d, libres, franja, true));
+        }
+        todos.sort(java.util.Comparator.comparing(Horario::fecha).thenComparing(Horario::hora));
+        return todos.subList(0, Math.min(MAX_HORARIOS, todos.size()));
+    }
+
+    private List<Horario> proximosGeneral(List<Doctor> doctores, int cuantos) {
+        List<Horario> todos = mezclar(doctores, null, null);
+        return todos.subList(0, Math.min(cuantos, todos.size()));
+    }
+
+    private Respuesta saludoGeneral(List<Doctor> doctores) {
+        return new Respuesta("¡Hola! Te ayudo a encontrar cita. Escríbeme el día y la franja, y si quieres la "
+                + "especialidad o el apellido del profesional (por ejemplo, \"medicina general el jueves en la tarde\"). "
+                + "Estos son los próximos horarios libres:", proximosGeneral(doctores, 3), false);
+    }
+
+    private static String ejemploApellido(List<Doctor> doctores) {
+        return doctores.stream().map(Doctor::getApellido).filter(a -> a != null && !a.isBlank()).findFirst()
+                .orElse("de tu médico");
     }
 
     // ── Interpretación ──────────────────────────────────────────────────────
@@ -272,26 +377,27 @@ public class AsistenteService {
                     List.of(), false);
         String cuando = (fecha != null ? fecha.format(FECHA) : "los próximos días") + textoFranja(franja);
         if (fecha != null) {
-            List<Horario> delDia = filtrar(Map.of(fecha.toString(), libres.getOrDefault(fecha.toString(), List.of())), franja);
+            List<Horario> delDia = filtrar(d, Map.of(fecha.toString(), libres.getOrDefault(fecha.toString(), List.of())), franja, false);
             if (!delDia.isEmpty())
                 return new Respuesta("Estos son los horarios libres para " + cuando + ". Elige uno para reservar:", delDia, false);
         }
-        List<Horario> cercanos = filtrar(libres, franja);
+        List<Horario> cercanos = filtrar(d, libres, franja, false);
         if (cercanos.isEmpty())
-            cercanos = filtrar(libres, null);
+            cercanos = filtrar(d, libres, null, false);
         String inicio = fecha != null ? "No hay horarios libres para " + cuando + ". Los más próximos son:"
                 : "Estos son los próximos horarios libres" + textoFranja(franja) + ":";
         return new Respuesta(inicio, cercanos, false);
     }
 
-    private List<Horario> filtrar(Map<String, List<String>> libres, Franja franja) {
+    private List<Horario> filtrar(Doctor d, Map<String, List<String>> libres, Franja franja, boolean conNombre) {
         List<Horario> resultado = new ArrayList<>();
         for (var e : libres.entrySet()) {
             LocalDate f = LocalDate.parse(e.getKey());
             for (String h : e.getValue()) {
                 if (!enFranja(LocalTime.parse(h), franja))
                     continue;
-                resultado.add(new Horario(e.getKey(), h, f.format(FECHA) + " · " + h));
+                String etiqueta = f.format(FECHA) + " · " + h + (conNombre ? " · " + nombre(d) : "");
+                resultado.add(new Horario(e.getKey(), h, etiqueta, d.getId()));
                 if (resultado.size() == MAX_HORARIOS)
                     return resultado;
             }
@@ -320,7 +426,7 @@ public class AsistenteService {
     }
 
     private List<Horario> proximos(Doctor d, int cuantos) {
-        List<Horario> todos = filtrar(citaService.slotsDisponibles(d.getId(), null, null, null), null);
+        List<Horario> todos = filtrar(d, citaService.slotsDisponibles(d.getId(), null, null, null), null, false);
         return todos.subList(0, Math.min(cuantos, todos.size()));
     }
 

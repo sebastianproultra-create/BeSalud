@@ -81,6 +81,11 @@ public class PerfilPublicoService {
         return slug.length() <= MAX_SLUG ? slug : slug.substring(0, MAX_SLUG).replaceAll("-+$", "");
     }
 
+    /** Médicos activos, para el asistente del portal del paciente. */
+    public java.util.List<Doctor> activos() {
+        return mongo.find(Query.query(Criteria.where("role").is("DOCTOR").and("estado").is("ACTIVO")), Doctor.class);
+    }
+
     /** Solo médicos activos tienen página pública. */
     public Optional<Doctor> buscarActivoPorSlug(String slug) {
         if (esVacio(slug) || !slug.matches("[a-z0-9-]{1,80}"))

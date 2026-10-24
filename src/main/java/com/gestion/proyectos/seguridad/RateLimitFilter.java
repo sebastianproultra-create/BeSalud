@@ -29,7 +29,7 @@ public class RateLimitFilter extends OncePerRequestFilter {
     private static final String RUTA_AYUDA = "/ayuda/contacto";
     private static final int MAX_MENSAJES_AYUDA = 5;
     private static final int MAX_TRIAGE = 5;
-    private static final java.util.regex.Pattern RUTA_ASISTENTE = java.util.regex.Pattern.compile("^/p/[^/]+/asistente$");
+    private static final java.util.regex.Pattern RUTA_ASISTENTE = java.util.regex.Pattern.compile("^(/p/[^/]+|/pacientes)/asistente$");
     private static final int MAX_ASISTENTE = 20;
     private static final int MAX_POST = 60;
     private static final Duration VENTANA_POST = Duration.ofMinutes(1);
