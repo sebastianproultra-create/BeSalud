@@ -26,6 +26,9 @@ public class Cita {
     /** Momento en que el médico marcó la asistencia (inicio real de la atención). */
     private LocalDateTime inicioAtencion;
     private boolean recordatorioEnviado;
+    /** Respuesta del paciente a "¿Vas a ir a tu cita?": true asistirá, null aún no responde. */
+    private Boolean asistenciaConfirmada;
+    private boolean confirmacionSolicitada;
 
     /**
      * "doctorId|fecha|hora" mientras la cita ocupa el turno (pendiente, en atención o completada); vacío si
@@ -110,6 +113,22 @@ public class Cita {
 
     public void setRecordatorioEnviado(boolean recordatorioEnviado) {
         this.recordatorioEnviado = recordatorioEnviado;
+    }
+
+    public Boolean getAsistenciaConfirmada() {
+        return asistenciaConfirmada;
+    }
+
+    public void setAsistenciaConfirmada(Boolean asistenciaConfirmada) {
+        this.asistenciaConfirmada = asistenciaConfirmada;
+    }
+
+    public boolean isConfirmacionSolicitada() {
+        return confirmacionSolicitada;
+    }
+
+    public void setConfirmacionSolicitada(boolean confirmacionSolicitada) {
+        this.confirmacionSolicitada = confirmacionSolicitada;
     }
 
     public static String claveTurno(String doctorId, LocalDate fecha, LocalTime hora) {

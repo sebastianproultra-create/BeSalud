@@ -60,6 +60,33 @@
             </div>
             <a th:href="@{/pagos/{ref}(ref=${r.referencia})}">Completar pago</a>
         </div>
+        <div th:each="c : ${citasPorConfirmar}" class="confirmar-asistencia" role="status">
+            <i class="fa-regular fa-calendar-check" aria-hidden="true"></i>
+            <div>
+                <strong>¿Vas a ir a tu cita?</strong>
+                <span th:text="${(doctoresMap != null and doctoresMap[c.doctorId] != null ? doctoresMap[c.doctorId] + ' · ' : '')
+                        + #strings.capitalize(#temporals.format(c.fecha, 'EEEE d ''de'' MMMM', T(java.util.Locale).forLanguageTag('es-CO'))) + ', ' + #temporals.format(c.hora, 'h:mm a', T(java.util.Locale).forLanguageTag('es-CO'))}">Detalle</span>
+                <small th:if="${c.abonoCentavos != null}">Si no puedes ir, avísanos con tiempo y te devolvemos el abono.</small>
+            </div>
+            <div class="confirmar-asistencia-botones">
+                <form th:action="@{/citas/{id}/asistencia(id=${c.id})}" method="post">
+                    <input type="hidden" name="asistira" value="true">
+                    <button type="submit" class="confirmar-si">Sí, asistiré</button>
+                </form>
+                <form th:action="@{/citas/{id}/asistencia(id=${c.id})}" method="post"
+                      onsubmit="return confirm('Vamos a cancelar esta cita. ¿Continuar?');">
+                    <input type="hidden" name="asistira" value="false">
+                    <button type="submit" class="confirmar-no">No podré ir</button>
+                </form>
+            </div>
+        </div>
+        <div th:if="${param.success != null and param.success[0] == 'asistencia_confirmada'}" class="alert alert-success" role="status">
+            ¡Listo! Le avisamos a tu médico que asistirás.
+            <a th:if="${param.cita != null}" th:href="@{/citas/{id}/google-calendar(id=${param.cita[0]})}" target="_blank" rel="noopener">Agregar a Google Calendar</a>
+        </div>
+        <div th:if="${param.success != null and param.success[0] == 'cita_cancelada_devolucion'}" class="alert alert-success" role="status">
+            Cancelamos tu cita. Como avisaste a tiempo, te devolveremos el abono.
+        </div>
         <div th:if="${param.success != null and param.success[0] == 'pago_pendiente'}" class="alert alert-success" role="status">
             Tu pago está en proceso. Apenas la pasarela lo apruebe, la cita aparecerá en tu lista.
         </div>
@@ -195,6 +222,9 @@
                         <div class="cita-item-bottom">
                             <span class="cita-meta"><i class="fa-regular fa-calendar"></i> <span th:text="${#temporals.format(cita.fecha, 'dd/MM/yyyy')}"></span></span>
                             <span class="cita-meta"><i class="fa-regular fa-clock"></i> <span th:text="${#temporals.format(cita.hora, 'HH:mm')}"></span></span>
+                        </div>
+                        <div class="cita-asistencia" th:if="${cita.estado.name() == 'PENDIENTE' and cita.asistenciaConfirmada != null and cita.asistenciaConfirmada}">
+                            <i class="fa-solid fa-check" aria-hidden="true"></i> Confirmaste tu asistencia
                         </div>
                         <div class="cita-abono" th:if="${cita.abonoPesos != null}">
                             <span th:text="${'Abono $' + #numbers.formatInteger(cita.abonoPesos, 1, 'POINT')}">Abono $20.000</span>

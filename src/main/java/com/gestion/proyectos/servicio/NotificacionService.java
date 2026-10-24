@@ -85,6 +85,37 @@ public class NotificacionService {
         if (enviados > 0) log.info("Recordatorios procesados para {}: {}", manana, enviados);
     }
 
+    // Cada hora: se pregunta "¿Vas a ir?" a las citas que entraron en la ventana de confirmación.
+    @Scheduled(cron = "0 5 * * * *", zone = "America/Bogota")
+    public void pedirConfirmaciones() {
+        var ahora = Reloj.ahora();
+        int enviados = 0;
+        // La ventana más larga es de 48 h de plazo + 24 h de margen: basta con revisar los próximos 4 días
+        for (int d = 0; d <= 4; d++) {
+            for (Cita cita : citaRepo.findByFechaAndEstado(ahora.toLocalDate().plusDays(d), EstadoCita.PENDIENTE)) {
+                if (cita.isConfirmacionSolicitada()) continue;
+                Doctor doctor = personaRepo.findById(cita.getDoctorId())
+                        .filter(p -> p instanceof Doctor).map(p -> (Doctor) p).orElse(null);
+                if (!CitaService.esperaConfirmacion(cita, doctor, ahora)) continue;
+                enviar(cita, "¿Vas a ir a tu cita?", "¿Vas a ir a tu cita?", mensajeConfirmacion(cita, doctor, ahora),
+                        "Responder en BeSalud");
+                cita.setConfirmacionSolicitada(true);
+                citaRepo.save(cita);
+                enviados++;
+            }
+        }
+        if (enviados > 0) log.info("Solicitudes de confirmación de asistencia: {}", enviados);
+    }
+
+    static String mensajeConfirmacion(Cita cita, Doctor doctor, java.time.LocalDateTime ahora) {
+        int horas = doctor == null ? 24 : doctor.horasCancelacionEfectivas();
+        var limite = cita.getFecha().atTime(cita.getHora()).minusHours(horas);
+        if (cita.getAbonoCentavos() == null || !ahora.isBefore(limite))
+            return "Confírmanos si asistirás. Si no puedes ir, avísanos para liberar el turno a otro paciente.";
+        return "Confírmanos si asistirás. Si no puedes ir y nos avisas antes del " + limite.format(FECHA_HORA)
+                + ", cancelamos la cita y te devolvemos el abono.";
+    }
+
     private void enviar(Cita cita, String asunto, String titulo, String mensaje, String textoBoton) {
         Paciente paciente = personaRepo.findById(cita.getPacienteId())
                 .filter(p -> p instanceof Paciente).map(p -> (Paciente) p).orElse(null);

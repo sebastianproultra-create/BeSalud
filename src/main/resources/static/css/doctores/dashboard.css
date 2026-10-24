@@ -1833,6 +1833,17 @@ a.doc-segmento {
     font-size: 13px;
     font-weight: 600;
 }
+.cita-asistencia {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin: 4px 0 0;
+    color: #707975;
+    font-size: 13px;
+    font-weight: 600;
+}
+.cita-asistencia .material-symbols-outlined { font-size: 18px; }
+.cita-asistencia.is-confirmada { color: #0D6B3F; }
 @media (max-width: 900px) {
     .doc-reservas { grid-template-columns: minmax(0, 1fr); }
 }

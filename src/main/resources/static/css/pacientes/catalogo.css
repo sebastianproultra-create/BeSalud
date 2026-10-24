@@ -2066,6 +2066,120 @@ body.patient-catalog-page {
     }
 }
 
+.confirmar-asistencia {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+    padding: 14px 16px;
+    color: #0D4738;
+    background: #EAF7F0;
+    border: 1px solid #CFE6DA;
+    border-radius: 12px;
+    font-size: 14px;
+}
+
+.confirmar-asistencia > i {
+    font-size: 18px;
+}
+
+.confirmar-asistencia > div:first-of-type {
+    flex: 1;
+    min-width: 0;
+}
+
+.confirmar-asistencia strong,
+.confirmar-asistencia span,
+.confirmar-asistencia small {
+    display: block;
+}
+
+.confirmar-asistencia small {
+    margin-top: 2px;
+    color: #404945;
+    font-size: 12px;
+}
+
+.confirmar-asistencia-botones {
+    display: flex;
+    flex: 0 0 auto;
+    gap: 8px;
+}
+
+.patient-main .confirmar-asistencia form {
+    margin: 0;
+    padding: 0;
+    background: none;
+    border: 0;
+    box-shadow: none;
+}
+
+.patient-main .confirmar-asistencia button {
+    margin: 0;
+    padding: 8px 14px;
+    border-radius: 8px;
+    box-shadow: none;
+    font: inherit;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: normal;
+    text-transform: none;
+    cursor: pointer;
+}
+
+.patient-main .confirmar-asistencia .confirmar-si {
+    color: #fff;
+    background: #0D4738;
+    border: 1px solid #0D4738;
+}
+
+.patient-main .confirmar-asistencia .confirmar-no {
+    color: #0D4738;
+    background: #fff;
+    border: 1px solid #B9CFC4;
+}
+
+.patient-main .confirmar-asistencia .confirmar-si:hover {
+    color: #fff;
+    background: #002F24;
+}
+
+.patient-main .confirmar-asistencia .confirmar-no:hover {
+    color: #0D4738;
+    background: #F0FCF5;
+}
+
+.cita-asistencia {
+    margin-top: 6px;
+    color: #0D6B3F;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.alert-success a {
+    margin-left: 6px;
+    color: inherit;
+    font-weight: 700;
+}
+
+@media (max-width: 560px) {
+    .confirmar-asistencia {
+        flex-wrap: wrap;
+    }
+
+    .confirmar-asistencia-botones {
+        width: 100%;
+    }
+
+    .confirmar-asistencia-botones form {
+        flex: 1;
+    }
+
+    .patient-main .confirmar-asistencia button {
+        width: 100%;
+    }
+}
+
 .doctor-sin-reservas {
     color: #707975;
     font-size: 13px;

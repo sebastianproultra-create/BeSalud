@@ -289,6 +289,39 @@ public class CitaController {
                 .body(ics.getBytes(java.nio.charset.StandardCharsets.UTF_8));
     }
 
+    /** El paciente responde si asistirá. Si no, la cita se cancela (con devolución del abono si está a tiempo). */
+    @PostMapping("/{id}/asistencia")
+    public String responderAsistencia(@PathVariable String id, @RequestParam boolean asistira) {
+        Cita cita = citaDelPaciente(id);
+        if (cita == null)
+            return "redirect:/pacientes/landing?error=no_autorizado";
+        boolean devolucion = !asistira && cita.getAbonoCentavos() != null && citaService.cancelaConAnticipacion(cita);
+        if (!citaService.responderAsistencia(cita, asistira))
+            return "redirect:/pacientes/landing?error=cancelacion_no_permitida";
+        if (asistira)
+            return "redirect:/pacientes/landing?success=asistencia_confirmada&cita=" + cita.getId();
+        return "redirect:/pacientes/landing?success=" + (devolucion ? "cita_cancelada_devolucion" : "cita_cancelada");
+    }
+
+    /** Abre Google Calendar con la cita lista para guardar. */
+    @GetMapping("/{id}/google-calendar")
+    public String googleCalendar(@PathVariable String id) {
+        Cita cita = citaDelPaciente(id);
+        if (cita == null || cita.getEstado() != EstadoCita.PENDIENTE)
+            return "redirect:/pacientes/landing?error=no_autorizado";
+        Doctor doctor = citaService.buscarDoctorPorId(cita.getDoctorId()).orElse(null);
+        String quien = doctor == null ? "tu profesional" : "Dr(a). " + doctor.getNombre() + " " + doctor.getApellido();
+        return "redirect:" + com.gestion.proyectos.util.Calendario.enlaceGoogle(cita.getFecha().atTime(cita.getHora()), 30,
+                "Cita con " + quien, doctor == null ? null : doctor.getDireccionConsultorio(), "Cita agendada en BeSalud.");
+    }
+
+    private Cita citaDelPaciente(String id) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        Paciente paciente = auth == null ? null : citaService.buscarPacientePorEmail(auth.getName()).orElse(null);
+        Cita cita = citaService.buscarPorId(id).orElse(null);
+        return paciente != null && cita != null && paciente.getId().equals(cita.getPacienteId()) ? cita : null;
+    }
+
     @PostMapping("/{id}/cancelar")
     public String cancelar(@PathVariable String id) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();

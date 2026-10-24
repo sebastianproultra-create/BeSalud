@@ -536,6 +536,12 @@
                         <span class="material-symbols-outlined" aria-hidden="true">payments</span>
                         <span th:text="${'Abono $' + #numbers.formatInteger(cita.abonoPesos, 1, 'POINT') + (cita.estadoAbono != null ? ' · ' + cita.estadoAbono.descripcion : '')}">Abono</span>
                     </p>
+                    <p th:if="${cita.estado.name() == 'PENDIENTE' and (cita.asistenciaConfirmada != null or cita.confirmacionSolicitada)}"
+                       class="cita-asistencia" th:classappend="${cita.asistenciaConfirmada != null} ? 'is-confirmada'">
+                        <span class="material-symbols-outlined" aria-hidden="true"
+                              th:text="${cita.asistenciaConfirmada != null ? 'event_available' : 'schedule'}">schedule</span>
+                        <span th:text="${cita.asistenciaConfirmada != null ? 'El paciente confirmó que asistirá' : 'Esperando que el paciente confirme'}">Asistencia</span>
+                    </p>
                     <p th:if="${cita.dictamen != null}" class="cita-dx">
                         <span class="material-symbols-outlined" aria-hidden="true">clinical_notes</span>
                         <span class="dictamen-preview" th:classappend="${cita.dictamen.tieneAlergias} ? 'con-alergias'"
