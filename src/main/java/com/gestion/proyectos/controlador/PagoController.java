@@ -59,6 +59,7 @@ public class PagoController {
         model.addAttribute("reserva", reserva);
         model.addAttribute("doctor", doctor);
         model.addAttribute("segundosRestantes", segundosRestantes(reserva));
+        model.addAttribute("segundosTotales", reservaService.getMinutosParaPagar() * 60);
         model.addAttribute("saldo", saldo(doctor, reserva));
         model.addAttribute("pagoSimulado", !pasarela.wompiConfigurado());
         model.addAttribute("urlPago", pasarela.urlPago(reserva, paciente.getEmail(),
@@ -84,6 +85,7 @@ public class PagoController {
         model.addAttribute("reserva", reserva);
         model.addAttribute("doctor", doctorDe(reserva));
         model.addAttribute("segundosRestantes", segundosRestantes(reserva));
+        model.addAttribute("segundosTotales", reservaService.getMinutosParaPagar() * 60);
         return "pagos/simulado";
     }
 

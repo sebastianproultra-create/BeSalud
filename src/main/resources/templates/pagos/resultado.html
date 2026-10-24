@@ -13,7 +13,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400&amp;family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@100..700&amp;display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@100..700&amp;display=block" rel="stylesheet">
     <link rel="stylesheet" th:href="@{/css/auth/portal.css}">
     <link rel="stylesheet" th:href="@{/css/publico/pagos.css}">
 </head>
@@ -82,17 +82,25 @@
 
     <!-- ✖ Rechazada -->
     <section class="pago-tarjeta resultado is-error" th:if="${vista == 'RECHAZADA'}" aria-labelledby="res-titulo-r">
-        <div class="resultado-icono" aria-hidden="true"><span class="material-symbols-outlined">close</span></div>
-        <h1 id="res-titulo-r">El pago no fue aprobado</h1>
+        <div class="resultado-icono" aria-hidden="true"><span class="material-symbols-outlined">credit_card_off</span></div>
+        <h1 id="res-titulo-r">No pudimos procesar tu pago</h1>
         <p class="resultado-texto">
-            Tu banco o la pasarela rechazó el pago, así que <strong>no se hizo ningún cobro</strong> y el horario quedó libre.
-            Puedes intentarlo de nuevo con otro medio de pago.
+            No te cobramos nada. Tu cita del <strong th:text="${fechaFrase + ', ' + horaCorta}">martes</strong>
+            con <span th:text="${nombreMedico}">el profesional</span> aún no está confirmada.
         </p>
+        <div class="resultado-causas">
+            <h2>Suele pasar por</h2>
+            <ul>
+                <li>Saldo o cupo insuficiente.</li>
+                <li>Datos de la tarjeta o de la cuenta mal escritos.</li>
+                <li>Tu banco bloqueó la compra en línea; puedes autorizarla desde su app.</li>
+            </ul>
+        </div>
         <div class="resultado-acciones">
             <a class="pago-boton" th:href="@{/citas/nueva(doctorId=${doctor.id}, fecha=${reserva.fecha.toString()}, hora=${#temporals.format(reserva.hora, 'HH:mm')})}">
-                <span class="material-symbols-outlined" aria-hidden="true">refresh</span>Intentar de nuevo
+                Intentar de nuevo
             </a>
-            <a class="pago-boton is-secundario" th:href="@{/pacientes/landing}">Volver a mis citas</a>
+            <a class="pago-boton is-secundario" th:href="@{/citas/nueva(doctorId=${doctor.id})}">Elegir otro horario</a>
         </div>
     </section>
 

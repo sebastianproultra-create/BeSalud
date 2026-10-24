@@ -185,35 +185,77 @@
     font-weight: 700;
 }
 
-/* Reloj del apartado */
+/* El CSS global da a todo <form> aspecto de tarjeta: aquí los formularios son solo contenedores */
+.pago-page form {
+    margin: 0;
+    padding: 0;
+    background: none;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+}
+
+/* Reloj del apartado: discreto, con barra de progreso */
 .pago-reloj {
+    margin-bottom: 20px;
+    padding: 12px 14px 10px;
+    background: var(--portal-bg);
+    border: 1px solid var(--portal-border);
+    border-radius: 12px;
+}
+
+.pago-reloj-fila {
     display: flex;
     align-items: center;
     gap: 8px;
-    margin-bottom: 18px;
-    padding: 10px 14px;
-    color: #5C3A02;
-    background: #FFF4E3;
-    border-radius: 12px;
-    font-size: 14px;
+    color: var(--portal-muted);
+    font-size: 13px;
 }
 
-.pago-reloj.is-compacto {
-    margin: 0;
-    padding: 8px 12px;
-}
-
-.pago-reloj.is-urgente {
-    color: #7A1C12;
-    background: #FDECEA;
+.pago-reloj-fila .material-symbols-outlined {
+    color: var(--portal-primary-container);
+    font-size: 18px;
 }
 
 .pago-reloj-tiempo {
+    margin-left: auto;
+    color: var(--portal-primary);
+    font-size: 15px;
+    font-weight: 700;
     font-variant-numeric: tabular-nums;
 }
 
-/* Botones */
-.pago-boton {
+.pago-reloj-barra {
+    height: 4px;
+    margin-top: 10px;
+    overflow: hidden;
+    background: var(--portal-border);
+    border-radius: 999px;
+}
+
+.pago-reloj-barra span {
+    display: block;
+    height: 100%;
+    background: var(--portal-primary-container);
+    border-radius: inherit;
+    transition: width 1s linear;
+}
+
+.pago-reloj.is-urgente .pago-reloj-tiempo {
+    color: #B3261E;
+}
+
+.pago-reloj.is-urgente .pago-reloj-barra span {
+    background: #B3261E;
+}
+
+.pago-reloj.is-compacto {
+    min-width: 148px;
+    margin: 0;
+}
+
+/* Botones (con .pago-page para ganarle a button[type=submit] del CSS global) */
+.pago-page .pago-boton {
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -223,35 +265,46 @@
     padding: 15px 20px;
     color: #fff;
     background: var(--portal-primary);
-    border: 0;
+    border: 1px solid var(--portal-primary);
     border-radius: 12px;
     box-shadow: 0 8px 20px rgba(0, 47, 36, 0.18);
-    font: inherit;
+    font-family: 'Plus Jakarta Sans', sans-serif;
     font-size: 16px;
     font-weight: 700;
     letter-spacing: normal;
+    line-height: 1.2;
+    text-align: center;
     text-decoration: none;
     text-transform: none;
     cursor: pointer;
-    transition: background-color 0.15s;
+    transform: none;
+    transition: background-color 0.15s, border-color 0.15s;
 }
 
-.pago-boton:hover,
-.pago-boton:focus-visible {
+.pago-page .pago-boton:hover,
+.pago-page .pago-boton:focus-visible {
     color: #fff;
     background: var(--portal-primary-container);
+    border-color: var(--portal-primary-container);
+    transform: none;
 }
 
-.pago-boton.is-secundario {
+.pago-page .pago-boton.is-secundario {
     color: var(--portal-primary);
     background: var(--portal-surface);
-    border: 1px solid var(--portal-border);
+    border-color: var(--portal-border);
     box-shadow: none;
 }
 
-.pago-boton.is-secundario:hover {
+.pago-page .pago-boton.is-secundario:hover,
+.pago-page .pago-boton.is-secundario:focus-visible {
     color: var(--portal-primary);
     background: var(--portal-container);
+    border-color: var(--portal-border);
+}
+
+.pago-page .pago-boton .material-symbols-outlined {
+    font-size: 20px;
 }
 
 .pago-medios {
@@ -267,13 +320,12 @@
     justify-content: center;
     gap: 6px;
     margin: 8px 0 0;
-    color: var(--portal-secondary);
-    font-size: 13px;
-    font-weight: 600;
+    color: var(--portal-muted);
+    font-size: 12px;
 }
 
 .pago-demo-nota .material-symbols-outlined {
-    font-size: 18px;
+    font-size: 16px;
 }
 
 .pago-politica {
@@ -285,24 +337,31 @@
     line-height: 1.6;
 }
 
-.pago-liberar {
-    margin: 12px 0 0;
+.pago-page .pago-liberar {
+    margin-top: 10px;
     text-align: center;
 }
 
-.pago-liberar button {
+.pago-page .pago-liberar button {
     margin: 0;
-    padding: 4px;
+    padding: 6px;
     color: var(--portal-muted);
     background: none;
     border: 0;
     box-shadow: none;
-    font: inherit;
+    font-family: 'Plus Jakarta Sans', sans-serif;
     font-size: 13px;
+    font-weight: 500;
     letter-spacing: normal;
     text-decoration: underline;
     text-transform: none;
     cursor: pointer;
+}
+
+.pago-page .pago-liberar button:hover {
+    color: var(--portal-primary);
+    background: none;
+    transform: none;
 }
 
 /* Pasarela simulada */
@@ -335,6 +394,7 @@
 .pasarela-comercio,
 .pasarela-ref {
     display: block;
+    white-space: nowrap;
     color: var(--portal-muted);
     font-size: 13px;
 }
@@ -403,7 +463,7 @@
     margin: 0;
 }
 
-.pasarela-acciones .pago-boton {
+.pago-page .pasarela-acciones .pago-boton {
     margin-top: 12px;
     font-size: 15px;
 }
@@ -426,36 +486,60 @@
 .resultado-icono {
     display: grid;
     place-items: center;
-    width: 72px;
-    height: 72px;
+    width: 64px;
+    height: 64px;
     margin: 0 auto 18px;
-    color: #fff;
     border-radius: 50%;
 }
 
 .resultado-icono .material-symbols-outlined {
-    font-size: 40px;
-    font-weight: 700;
+    font-size: 34px;
 }
 
 .resultado.is-exito .resultado-icono {
-    background: #1E7A55;
-    box-shadow: 0 0 0 10px #DDF3E8;
+    color: #1E7A55;
+    background: #DDF3E8;
 }
 
 .resultado.is-error .resultado-icono {
-    background: #B3261E;
-    box-shadow: 0 0 0 10px #FBE3E1;
+    color: #9A3B32;
+    background: #F8E9E6;
 }
 
 .resultado.is-alerta .resultado-icono {
-    background: var(--portal-secondary);
-    box-shadow: 0 0 0 10px #FFF1DD;
+    color: var(--portal-secondary);
+    background: #FBF0E1;
 }
 
 .resultado.is-espera .resultado-icono {
     color: var(--portal-primary);
     background: var(--portal-container);
+}
+
+/* Causas frecuentes de un rechazo */
+.resultado-causas {
+    margin: 22px 0 0;
+    padding: 16px 18px;
+    text-align: left;
+    background: var(--portal-bg);
+    border: 1px solid var(--portal-border);
+    border-radius: 14px;
+}
+
+.resultado-causas h2 {
+    margin: 0 0 8px;
+    color: var(--portal-primary);
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+}
+
+.resultado-causas ul {
+    margin: 0;
+    padding-left: 18px;
+    color: var(--portal-muted);
+    font-size: 14px;
+    line-height: 1.7;
 }
 
 .resultado-girando {
@@ -544,16 +628,67 @@
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 10px;
-    margin-top: 6px;
+    margin-top: 24px;
 }
 
-.resultado-acciones .pago-boton {
+.pago-page .resultado-acciones .pago-boton {
+    margin-top: 0;
     font-size: 15px;
+}
+
+.pago-barra-movil {
+    display: none;
 }
 
 @media (max-width: 860px) {
     .pago-grid {
         grid-template-columns: minmax(0, 1fr);
+    }
+
+    .pago-page .pago-main:has(.pago-barra-movil) {
+        padding-bottom: 112px;
+    }
+
+    .pago-barra-movil {
+        position: fixed;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        z-index: 60;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        padding: 12px 16px calc(12px + env(safe-area-inset-bottom));
+        background: rgba(255, 255, 255, 0.96);
+        border-top: 1px solid var(--portal-border);
+        box-shadow: 0 -8px 24px rgba(0, 47, 36, 0.08);
+        backdrop-filter: blur(8px);
+    }
+
+    .pago-barra-movil span {
+        display: block;
+        color: var(--portal-muted);
+        font-size: 12px;
+    }
+
+    .pago-barra-movil strong {
+        color: var(--portal-primary);
+        font-size: 20px;
+    }
+
+    .pago-page .pago-barra-movil .pago-boton {
+        width: auto;
+        min-width: 150px;
+        margin: 0;
+        padding: 13px 22px;
+        box-shadow: none;
+    }
+
+    .pago-page .pago-barra-movil .pago-boton span {
+        display: inline;
+        color: inherit;
+        font-size: 18px;
     }
 }
 
@@ -577,5 +712,27 @@
     .resultado-acciones,
     .pasarela-acciones {
         grid-template-columns: minmax(0, 1fr);
+    }
+
+    .pasarela-cabecera {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .pago-reloj.is-compacto {
+        min-width: 0;
+    }
+
+    .comprobante {
+        padding: 4px 14px;
+    }
+
+    .comprobante-fila {
+        flex-wrap: wrap;
+        gap: 2px 12px;
+    }
+
+    .comprobante-fila strong {
+        margin-left: auto;
     }
 }

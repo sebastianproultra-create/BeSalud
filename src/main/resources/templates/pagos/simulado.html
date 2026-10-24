@@ -8,7 +8,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400&amp;family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@100..700&amp;display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@100..700&amp;display=block" rel="stylesheet">
     <link rel="stylesheet" th:href="@{/css/auth/portal.css}">
     <link rel="stylesheet" th:href="@{/css/publico/pagos.css}">
 </head>
@@ -29,9 +29,12 @@
                 <h1 id="pasarela-titulo" th:text="${'$' + #numbers.formatInteger(reserva.montoPesos, 1, 'POINT')}">$20.000</h1>
                 <span class="pasarela-ref" th:text="${'Ref. ' + reserva.referencia}">Ref. BS-…</span>
             </div>
-            <div class="pago-reloj is-compacto" role="timer" th:attr="data-segundos=${segundosRestantes}">
-                <span class="material-symbols-outlined" aria-hidden="true">timer</span>
-                <strong class="pago-reloj-tiempo">15:00</strong>
+            <div class="pago-reloj is-compacto" role="timer" th:attr="data-segundos=${segundosRestantes},data-total=${segundosTotales}">
+                <div class="pago-reloj-fila">
+                    <span class="material-symbols-outlined" aria-hidden="true">schedule</span>
+                    <strong class="pago-reloj-tiempo">15:00</strong>
+                </div>
+                <div class="pago-reloj-barra" aria-hidden="true"><span></span></div>
             </div>
         </div>
 

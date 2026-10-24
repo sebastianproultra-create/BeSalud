@@ -3,11 +3,14 @@
     // Cuenta regresiva: al llegar a cero se recarga y el servidor muestra que el horario se liberó
     document.querySelectorAll('.pago-reloj[data-segundos]').forEach(function (reloj) {
         const tiempo = reloj.querySelector('.pago-reloj-tiempo');
+        const barra = reloj.querySelector('.pago-reloj-barra span');
+        const total = Number(reloj.dataset.total) || Number(reloj.dataset.segundos) || 1;
         const fin = Date.now() + Number(reloj.dataset.segundos) * 1000;
         function pintar() {
             const resta = Math.max(0, Math.round((fin - Date.now()) / 1000));
             tiempo.textContent = Math.floor(resta / 60) + ':' + String(resta % 60).padStart(2, '0');
             reloj.classList.toggle('is-urgente', resta <= 120);
+            if (barra) barra.style.width = Math.min(100, resta / total * 100) + '%';
             if (resta === 0) {
                 clearInterval(intervalo);
                 setTimeout(function () { location.reload(); }, 1500);

@@ -9,7 +9,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400&amp;family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@100..700&amp;display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@100..700&amp;display=block" rel="stylesheet">
     <link rel="stylesheet" th:href="@{/css/auth/portal.css}">
     <link rel="stylesheet" th:href="@{/css/publico/pagos.css}">
 </head>
@@ -57,9 +57,13 @@
         </section>
 
         <aside class="pago-tarjeta pago-cobro" aria-labelledby="cobro-titulo">
-            <div class="pago-reloj" role="timer" th:attr="data-segundos=${segundosRestantes}">
-                <span class="material-symbols-outlined" aria-hidden="true">timer</span>
-                <span>Horario apartado por <strong class="pago-reloj-tiempo">15:00</strong></span>
+            <div class="pago-reloj" role="timer" th:attr="data-segundos=${segundosRestantes},data-total=${segundosTotales}">
+                <div class="pago-reloj-fila">
+                    <span class="material-symbols-outlined" aria-hidden="true">schedule</span>
+                    <span>Te guardamos este horario</span>
+                    <strong class="pago-reloj-tiempo">15:00</strong>
+                </div>
+                <div class="pago-reloj-barra" aria-hidden="true"><span></span></div>
             </div>
 
             <h2 id="cobro-titulo">Pago del abono</h2>
@@ -97,6 +101,17 @@
                 <button type="submit">Cambiar horario y liberar este</button>
             </form>
         </aside>
+    </div>
+
+    <!-- En el celular el botón de pago queda siempre a mano -->
+    <div class="pago-barra-movil">
+        <div>
+            <span>Abono</span>
+            <strong th:text="${'$' + #numbers.formatInteger(reserva.montoPesos, 1, 'POINT')}">$16.000</strong>
+        </div>
+        <a class="pago-boton" th:href="${urlPago}">
+            <span class="material-symbols-outlined" aria-hidden="true">lock</span>Pagar
+        </a>
     </div>
 </main>
 

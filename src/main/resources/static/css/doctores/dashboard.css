@@ -1839,3 +1839,17 @@ a.doc-segmento {
 @media (max-width: 560px) {
     .doc-consulta-campos { grid-template-columns: minmax(0, 1fr); }
 }
+
+/* Botón Guardar del bloque "Precio y pagos" (le gana a button[type=submit] del CSS global) */
+.doc-page .doc-consulta-form .doc-btn,
+.doc-page .doc-consulta-form .doc-btn:hover {
+    color: #fff;
+    background: var(--d-primary-c);
+    border: 0;
+    letter-spacing: normal;
+    text-transform: none;
+    transform: none;
+}
+.doc-page .doc-consulta-form .doc-btn:hover {
+    background: var(--d-primary);
+}
