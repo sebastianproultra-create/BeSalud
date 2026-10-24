@@ -74,10 +74,15 @@
             <a class="pago-boton" th:href="@{/pacientes/landing}">
                 <span class="material-symbols-outlined" aria-hidden="true">event_note</span>Ver mis citas
             </a>
-            <a class="pago-boton is-secundario" th:if="${cita != null}" th:href="@{/citas/{id}/calendario.ics(id=${cita.id})}">
-                <span class="material-symbols-outlined" aria-hidden="true">calendar_add_on</span>Agregar a mi calendario
+            <a class="pago-boton is-secundario" th:if="${enlaceGoogle != null}" th:href="${enlaceGoogle}"
+               target="_blank" rel="noopener">
+                <span class="material-symbols-outlined" aria-hidden="true">calendar_add_on</span>Agregar a Google Calendar
             </a>
         </div>
+        <p class="resultado-ics" th:if="${cita != null}">
+            ¿Usas Outlook o el calendario del iPhone?
+            <a th:href="@{/citas/{id}/calendario.ics(id=${cita.id})}">Descarga la cita</a> y ábrela con tu calendario.
+        </p>
     </section>
 
     <!-- ✖ Rechazada -->

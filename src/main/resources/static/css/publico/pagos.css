@@ -71,7 +71,39 @@
     display: grid;
     grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
     gap: 24px;
-    align-items: start;
+    align-items: stretch;
+}
+
+/* La tarjeta de la cita ocupa el mismo alto que la del pago; la nota del correo queda al fondo */
+.pago-grid > .pago-tarjeta:first-child {
+    display: flex;
+    flex-direction: column;
+}
+
+.pago-correo {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    margin: auto 0 0;
+    padding: 14px 16px;
+    color: var(--portal-muted);
+    background: var(--portal-container);
+    border-radius: 14px;
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+.pago-correo .material-symbols-outlined {
+    color: var(--portal-primary-container);
+    font-size: 20px;
+}
+
+.pago-datos {
+    margin-bottom: 20px;
+}
+
+.pago-datos dd {
+    max-width: 65%;
 }
 
 .pago-tarjeta {
@@ -636,13 +668,27 @@
     font-size: 15px;
 }
 
+.resultado-ics {
+    margin: 14px 0 0;
+    color: var(--portal-muted);
+    font-size: 13px;
+    text-align: center;
+}
+
+.resultado-ics a {
+    color: var(--portal-primary);
+    font-weight: 700;
+}
+
 .pago-barra-movil {
     display: none;
 }
 
-@media (max-width: 860px) {
+@media (max-width: 960px) {
     .pago-grid {
         grid-template-columns: minmax(0, 1fr);
+        max-width: 620px;
+        margin: 0 auto;
     }
 
     .pago-page .pago-main:has(.pago-barra-movil) {

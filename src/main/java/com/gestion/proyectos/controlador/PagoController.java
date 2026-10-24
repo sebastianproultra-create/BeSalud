@@ -7,6 +7,7 @@ import com.gestion.proyectos.modelo.Reserva;
 import com.gestion.proyectos.servicio.CitaService;
 import com.gestion.proyectos.servicio.PasarelaPagos;
 import com.gestion.proyectos.servicio.ReservaService;
+import com.gestion.proyectos.util.Calendario;
 import com.gestion.proyectos.util.Reloj;
 import java.time.Duration;
 import java.util.Map;
@@ -146,7 +147,13 @@ public class PagoController {
         model.addAttribute("cancelarHasta", reserva.getFecha().atTime(reserva.getHora())
                 .minusHours(doctor.horasCancelacionEfectivas()));
         if (vista == Vista.CONFIRMADA && reserva.getCitaId() != null)
-            citaService.buscarPorId(reserva.getCitaId()).ifPresent(c -> model.addAttribute("cita", c));
+            citaService.buscarPorId(reserva.getCitaId()).ifPresent(c -> {
+                model.addAttribute("cita", c);
+                model.addAttribute("enlaceGoogle", Calendario.enlaceGoogle(c.getFecha().atTime(c.getHora()), 30,
+                        "Cita con Dr(a). " + doctor.getNombre() + " " + doctor.getApellido(),
+                        doctor.getDireccionConsultorio(),
+                        "Cita agendada en BeSalud. Referencia del abono: " + reserva.getReferencia() + "."));
+            });
         return "pagos/resultado";
     }
 

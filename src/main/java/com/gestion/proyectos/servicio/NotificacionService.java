@@ -129,7 +129,13 @@ public class NotificacionService {
             var limite = cita.getFecha().atTime(cita.getHora()).minusHours(doctor.horasCancelacionEfectivas());
             politica = "<p style=\"margin:16px 0 0;font-size:13px;line-height:1.6;color:#5F6662;\">Si no puedes ir, cancela antes del "
                     + "<strong style=\"color:#171B19;\">" + esc(limite.format(FECHA_HORA)) + "</strong> y te devolvemos el abono. "
-                    + "Después de esa hora, el profesional lo conserva. Adjuntamos la cita para que la guardes en tu calendario.</p>";
+                    + "Después de esa hora, el profesional lo conserva.</p>";
+            String google = Calendario.enlaceGoogle(cita.getFecha().atTime(cita.getHora()), 30,
+                    "Cita con Dr(a). " + doctor.getNombre() + " " + doctor.getApellido(),
+                    doctor.getDireccionConsultorio(), "Referencia del abono: " + cita.getReferenciaPago());
+            politica += "<p style=\"margin:12px 0 0;font-size:13px;line-height:1.6;color:#5F6662;\">"
+                    + "<a href=\"" + esc(google) + "\" style=\"color:#0D4738;font-weight:700;\">Agregar a Google Calendar</a>"
+                    + " · Para Outlook o el iPhone, abre el archivo de la cita que va adjunto.</p>";
         }
         return """
                 <table role="presentation" width="100%%" cellpadding="0" cellspacing="0" style="margin-top:20px;border:1px dashed #D5DED8;border-radius:3px;">
