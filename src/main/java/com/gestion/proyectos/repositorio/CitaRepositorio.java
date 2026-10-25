@@ -21,6 +21,8 @@ public interface CitaRepositorio extends MongoRepository<Cita, String> {
     List<Cita> findByDoctorIdAndFecha(String doctorId, LocalDate fecha);
     List<Cita> findByPacienteIdAndFecha(String pacienteId, LocalDate fecha);
     List<Cita> findByFechaAndEstado(LocalDate fecha, EstadoCita estado);
+    List<Cita> findByDoctorIdAndEstadoAbonoOrderByFechaAsc(String doctorId, com.gestion.proyectos.modelo.EstadoAbono estadoAbono);
+    List<Cita> findByDoctorIdAndFechaBetweenAndAbonoCentavosIsNotNull(String doctorId, LocalDate desde, LocalDate hasta);
 
     /**
      * Marca que ya se pidió la confirmación sin reescribir la cita: si el paciente la cancela o responde

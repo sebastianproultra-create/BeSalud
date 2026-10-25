@@ -43,6 +43,8 @@ public class Cita {
     private String referenciaPago;
     private String medioPago;
     private EstadoAbono estadoAbono;
+    /** Cuándo el profesional registró que devolvió el abono. */
+    private LocalDateTime abonoDevueltoEn;
 
     public String getId() {
         return id;
@@ -184,6 +186,14 @@ public class Cita {
 
     public void setEstadoAbono(EstadoAbono estadoAbono) {
         this.estadoAbono = estadoAbono;
+    }
+
+    public LocalDateTime getAbonoDevueltoEn() {
+        return abonoDevueltoEn;
+    }
+
+    public void setAbonoDevueltoEn(LocalDateTime abonoDevueltoEn) {
+        this.abonoDevueltoEn = abonoDevueltoEn;
     }
 
     public LocalDateTime getInicioAtencion() {

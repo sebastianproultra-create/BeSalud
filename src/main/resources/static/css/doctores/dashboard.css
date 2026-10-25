@@ -1898,3 +1898,49 @@ a.doc-segmento {
     .doc-aviso-precio { flex-wrap: wrap; }
     .doc-aviso-precio a { width: 100%; text-align: center; }
 }
+
+/* Abonos: resumen del mes y devoluciones pendientes */
+.abonos-resumen {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 12px;
+}
+.abonos-dato {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 16px 18px;
+    background: var(--d-low);
+    border: 1px solid var(--d-highest);
+    border-radius: 14px;
+}
+.abonos-dato span { color: var(--d-on-var); font-size: 13px; font-weight: 600; }
+.abonos-dato strong { color: var(--d-primary); font-size: 24px; }
+.abonos-dato small { color: var(--d-on-var); font-size: 12px; }
+.abonos-dato.is-pendiente { background: #FFF4E3; border-color: var(--d-amber-f); }
+.abonos-dato.is-pendiente strong { color: var(--d-amber); }
+.abonos-pendientes { margin-top: 24px; }
+.abonos-ayuda { margin: 4px 0 14px; color: var(--d-on-var); font-size: 13px; line-height: 1.55; }
+.abonos-pendientes ul { display: grid; gap: 10px; margin: 0; padding: 0; list-style: none; }
+.abonos-pendientes li {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 14px 16px;
+    background: #fff;
+    border: 1px solid var(--d-highest);
+    border-radius: 14px;
+}
+.abonos-pendientes li > div { flex: 1; min-width: 0; }
+.abonos-pendientes li > div > * { display: block; }
+.abonos-pendientes li > div span { color: var(--d-on-var); font-size: 13px; }
+.abonos-pendientes .abonos-ref { color: #707975; font-size: 12px; overflow-wrap: anywhere; }
+.abonos-monto { color: var(--d-amber); font-size: 18px; white-space: nowrap; }
+.doc-page .abonos-pendientes form { margin: 0; padding: 0; background: none; border: 0; box-shadow: none; }
+.doc-page .abonos-pendientes .doc-btn { margin: 0; text-transform: none; white-space: nowrap; }
+@media (max-width: 760px) {
+    .abonos-resumen { grid-template-columns: minmax(0, 1fr); }
+    .abonos-pendientes li { flex-wrap: wrap; }
+    .abonos-pendientes form { width: 100%; }
+    .doc-page .abonos-pendientes .doc-btn { width: 100%; justify-content: center; }
+}

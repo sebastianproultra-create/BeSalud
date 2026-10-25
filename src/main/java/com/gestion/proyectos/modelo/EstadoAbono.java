@@ -4,7 +4,8 @@ package com.gestion.proyectos.modelo;
 public enum EstadoAbono {
     PAGADO("Abono pagado"),
     A_REEMBOLSAR("Abono a reembolsar"),
-    RETENIDO("Abono retenido");
+    RETENIDO("Abono retenido"),
+    DEVUELTO("Abono devuelto");
 
     private final String descripcion;
 

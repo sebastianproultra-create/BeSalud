@@ -65,6 +65,9 @@ public class NotificacionService {
                 // Sin datos clínicos en el correo: la historia clínica es reservada y solo se consulta dentro de la app.
                 case DICTAMEN -> enviar(cita, "Tu dictamen médico está disponible", "Tu dictamen médico está disponible",
                         "Tu médico registró el resultado de la consulta. Ingresa a BeSalud para verlo.", "Ver mi dictamen");
+                case ABONO_DEVUELTO -> enviar(cita, "Te devolvimos el abono", "Te devolvimos el abono",
+                        "El profesional registró la devolución de tu abono de " + pesos(cita.getAbonoPesos() == null ? 0 : cita.getAbonoPesos())
+                                + ". Según tu banco, puede tardar unos días hábiles en verse reflejado.", "Ver mis citas");
             }
         });
     }
