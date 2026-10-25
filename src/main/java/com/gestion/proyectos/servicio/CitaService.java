@@ -211,6 +211,8 @@ public class CitaService {
     public List<Cita> porConfirmarDe(String pacienteId) {
         LocalDateTime ahora = Reloj.ahora();
         return citaRepo.findByPacienteId(pacienteId).stream()
+                .filter(c -> c.getEstado() == EstadoCita.PENDIENTE && c.getFecha() != null
+                        && !c.getFecha().isBefore(ahora.toLocalDate()))
                 .filter(c -> esperaConfirmacion(c, buscarDoctorPorId(c.getDoctorId()).orElse(null), ahora))
                 .sorted(java.util.Comparator.comparing(Cita::getFecha).thenComparing(Cita::getHora))
                 .toList();

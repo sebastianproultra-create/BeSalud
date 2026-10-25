@@ -99,8 +99,7 @@ public class NotificacionService {
                 if (!CitaService.esperaConfirmacion(cita, doctor, ahora)) continue;
                 enviar(cita, "¿Vas a ir a tu cita?", "¿Vas a ir a tu cita?", mensajeConfirmacion(cita, doctor, ahora),
                         "Responder en BeSalud");
-                cita.setConfirmacionSolicitada(true);
-                citaRepo.save(cita);
+                citaRepo.marcarConfirmacionSolicitada(cita.getId());
                 enviados++;
             }
         }
