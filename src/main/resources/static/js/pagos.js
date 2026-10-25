@@ -10,6 +10,7 @@
             const resta = Math.max(0, Math.round((fin - Date.now()) / 1000));
             tiempo.textContent = Math.floor(resta / 60) + ':' + String(resta % 60).padStart(2, '0');
             reloj.classList.toggle('is-urgente', resta <= 120);
+            reloj.classList.toggle('is-agotado', resta === 0);
             if (barra) barra.style.width = Math.min(100, resta / total * 100) + '%';
             if (resta === 0) {
                 clearInterval(intervalo);
@@ -19,6 +20,15 @@
         const intervalo = setInterval(pintar, 1000);
         pintar();
     });
+
+    // Barra fija del celular: se oculta mientras el botón principal de pago está a la vista
+    const barra = document.querySelector('.pago-barra-movil');
+    const principal = document.querySelector('.pago-cobro .pago-boton');
+    if (barra && principal && 'IntersectionObserver' in window) {
+        new IntersectionObserver(function (entradas) {
+            barra.classList.toggle('is-oculta', entradas[0].isIntersecting);
+        }).observe(principal);
+    }
 
     // Pago en proceso (PSE, Nequi): se consulta el estado cada pocos segundos
     const espera = document.querySelector('[data-estado-url]');

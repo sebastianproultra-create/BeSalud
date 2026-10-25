@@ -14,11 +14,21 @@
         NEQUI: ['Enviando la notificación…', 'Revisa tu celular y acepta el pago en la app Nequi.'],
         BANCOLOMBIA_TRANSFER: ['Conectando con Bancolombia…', 'Autoriza la transferencia en la Sucursal Virtual.']
     };
+    // Campos que se validan para cada medio, en el orden en que aparecen
+    const CAMPOS = {
+        CARD: ['numero', 'vence', 'cvc', 'nombre', 'documento'],
+        PSE: ['banco', 'documentoPse'],
+        NEQUI: ['celular'],
+        BANCOLOMBIA_TRANSFER: []
+    };
 
     const paso = nombre => raiz.querySelector('[data-paso="' + nombre + '"]');
     const campo = nombre => raiz.querySelector('[data-campo="' + nombre + '"]');
-    const error = raiz.querySelector('[data-error]');
+    const soloDigitos = v => v.replace(/\D/g, '');
+    const errorGeneral = raiz.querySelector('[data-error]');
+    const botonPagar = raiz.querySelector('[data-pagar]');
     let medio = null;
+    let enviando = false;
 
     // ── Navegación entre pasos ──
     raiz.querySelectorAll('[data-medio]').forEach(function (boton) {
@@ -27,7 +37,8 @@
     raiz.querySelector('[data-atras]').addEventListener('click', function () {
         paso('datos').hidden = true;
         paso('medios').hidden = false;
-        mostrarError(null);
+        limpiarErrores();
+        raiz.querySelector('[data-medio="' + medio + '"]').focus();
     });
 
     function elegir(m) {
@@ -36,20 +47,29 @@
         paso('datos').hidden = false;
         raiz.querySelector('[data-titulo-medio]').textContent = TITULOS[m];
         raiz.querySelectorAll('[data-form]').forEach(function (f) { f.hidden = f.dataset.form !== m; });
-        mostrarError(null);
+        limpiarErrores();
+        // En el celular no se enfoca solo: abriría el teclado y taparía el formulario
+        if (!window.matchMedia('(pointer: fine)').matches) return raiz.scrollIntoView({ block: 'start' });
         const primero = raiz.querySelector('[data-form="' + m + '"] input:not([readonly]), [data-form="' + m + '"] select');
         if (primero) primero.focus();
+        else botonPagar.focus();
     }
 
-    // ── Tarjeta: formato, marca y vista previa ──
-    const soloDigitos = v => v.replace(/\D/g, '');
-
+    // ── Tarjeta ──
     function marcaDe(n) {
         if (/^4/.test(n)) return 'VISA';
         if (/^(5[1-5]|2(2[2-9]|[3-6]\d|7[01]|720))/.test(n)) return 'MASTERCARD';
         if (/^3[47]/.test(n)) return 'AMEX';
         if (/^3(0[0-5]|[68])/.test(n)) return 'DINERS';
         return null;
+    }
+    const LARGO = { AMEX: 15, DINERS: 14 };
+    const largoDe = marca => LARGO[marca] || 16;
+
+    function agrupar(n, marca) {
+        if (marca === 'AMEX') return [n.slice(0, 4), n.slice(4, 10), n.slice(10, 15)].filter(Boolean).join(' ');
+        if (marca === 'DINERS') return [n.slice(0, 4), n.slice(4, 10), n.slice(10, 14)].filter(Boolean).join(' ');
+        return n.replace(/(\d{4})(?=\d)/g, '$1 ');
     }
 
     function luhn(n) {
@@ -59,55 +79,142 @@
             if (i % 2 === 1) { d *= 2; if (d > 9) d -= 9; }
             suma += d;
         }
-        return n.length >= 13 && suma % 10 === 0;
+        return suma % 10 === 0;
     }
 
     const NOMBRE_MARCA = { VISA: 'VISA', MASTERCARD: 'Mastercard', AMEX: 'AMEX', DINERS: 'Diners' };
 
     campo('numero').addEventListener('input', function (e) {
-        const n = soloDigitos(e.target.value).slice(0, 19);
-        e.target.value = n.replace(/(\d{4})(?=\d)/g, '$1 ');
-        const marca = marcaDe(n);
+        const marca = marcaDe(soloDigitos(e.target.value));
+        const n = soloDigitos(e.target.value).slice(0, largoDe(marca));
+        e.target.value = agrupar(n, marca);
         raiz.querySelector('[data-vista-marca]').textContent = marca ? NOMBRE_MARCA[marca] : '';
         raiz.querySelector('.tarjeta-vista').dataset.marca = marca || '';
-        const relleno = (n + '•'.repeat(Math.max(0, 16 - n.length))).replace(/(.{4})(?=.)/g, '$1 ');
-        raiz.querySelector('[data-vista-numero]').textContent = relleno;
+        raiz.querySelector('[data-vista-numero]').textContent = agrupar(n + '•'.repeat(Math.max(0, largoDe(marca) - n.length)), marca);
+        campo('cvc').placeholder = marca === 'AMEX' ? '1234' : '123';
+        if (n.length === largoDe(marca) && !validar('numero')) campo('vence').focus();
     });
     campo('vence').addEventListener('input', function (e) {
-        const d = soloDigitos(e.target.value).slice(0, 4);
-        e.target.value = d.length > 2 ? d.slice(0, 2) + '/' + d.slice(2) : d;
+        let d = soloDigitos(e.target.value).slice(0, 4);
+        if (d.length === 1 && d > '1') d = '0' + d; // "5" -> "05"
+        e.target.value = d.length > 2 || (d.length === 2 && e.inputType !== 'deleteContentBackward') ? d.slice(0, 2) + '/' + d.slice(2) : d;
         raiz.querySelector('[data-vista-vence]').textContent = e.target.value || 'MM/AA';
+        if (d.length === 4 && !validar('vence')) campo('cvc').focus();
     });
     campo('cvc').addEventListener('input', function (e) { e.target.value = soloDigitos(e.target.value).slice(0, 4); });
     campo('nombre').addEventListener('input', function (e) {
-        raiz.querySelector('[data-vista-nombre]').textContent = e.target.value.toUpperCase() || 'NOMBRE EN LA TARJETA';
+        e.target.value = e.target.value.replace(/[^A-Za-zÁÉÍÓÚÜÑáéíóúüñ' ]/g, '').replace(/\s{2,}/g, ' ');
+        raiz.querySelector('[data-vista-nombre]').textContent = e.target.value.trim().toUpperCase() || 'NOMBRE EN LA TARJETA';
     });
     ['documento', 'documentoPse'].forEach(function (c) {
-        campo(c).addEventListener('input', function (e) { e.target.value = soloDigitos(e.target.value).slice(0, 12); });
+        campo(c).addEventListener('input', function (e) { e.target.value = soloDigitos(e.target.value).slice(0, 10); });
     });
     campo('celular').addEventListener('input', function (e) {
         const d = soloDigitos(e.target.value).slice(0, 10);
-        e.target.value = d.replace(/^(\d{3})(\d{0,3})(\d{0,4}).*/, function (_, a, b, c) { return [a, b, c].filter(Boolean).join(' '); });
+        e.target.value = [d.slice(0, 3), d.slice(3, 6), d.slice(6)].filter(Boolean).join(' ');
     });
 
-    function venceValido(v) {
-        const m = /^(\d{2})\/(\d{2})$/.exec(v);
-        if (!m || Number(m[1]) < 1 || Number(m[1]) > 12) return false;
-        const fin = new Date(2000 + Number(m[2]), Number(m[1]), 1);
-        return fin > new Date();
+    // ── Reglas de cada campo: devuelven el mensaje de error o null ──
+    const REGLAS = {
+        numero: function () {
+            const n = soloDigitos(campo('numero').value);
+            const marca = marcaDe(n);
+            if (!n) return 'Escribe el número de la tarjeta.';
+            if (!marca) return 'Aceptamos Visa, Mastercard, American Express y Diners.';
+            if (n.length !== largoDe(marca) || !luhn(n)) return 'El número de la tarjeta no es válido.';
+            if (!TARJETAS[n]) return 'Modo pruebas: usa una tarjeta de prueba, no una real.';
+            return null;
+        },
+        vence: function () {
+            const m = /^(\d{2})\/(\d{2})$/.exec(campo('vence').value);
+            if (!m) return 'Escribe mes y año (MM/AA).';
+            const mes = Number(m[1]);
+            if (mes < 1 || mes > 12) return 'El mes debe estar entre 01 y 12.';
+            if (new Date(2000 + Number(m[2]), mes, 1) <= new Date()) return 'La tarjeta está vencida.';
+            return null;
+        },
+        cvc: function () {
+            const largo = marcaDe(soloDigitos(campo('numero').value)) === 'AMEX' ? 4 : 3;
+            return campo('cvc').value.length === largo ? null : 'Debe tener ' + largo + ' dígitos.';
+        },
+        nombre: function () {
+            return campo('nombre').value.trim().split(' ').filter(Boolean).length >= 2 ? null : 'Escribe nombre y apellido.';
+        },
+        documento: function () {
+            return campo('documento').value.length >= 6 ? null : 'Escribe un documento de 6 a 10 dígitos.';
+        },
+        banco: function () {
+            return campo('banco').value !== '' ? null : 'Selecciona tu banco.';
+        },
+        documentoPse: function () {
+            return campo('documentoPse').value.length >= 6 ? null : 'Escribe un documento de 6 a 10 dígitos.';
+        },
+        celular: function () {
+            const cel = soloDigitos(campo('celular').value);
+            if (!/^3\d{9}$/.test(cel)) return 'Escribe un celular de 10 dígitos que empiece por 3.';
+            if (!CELULARES[cel]) return 'Modo pruebas: usa un celular de prueba.';
+            return null;
+        }
+    };
+
+    // Muestra (o quita) el error debajo del campo; devuelve el mensaje
+    function validar(nombre) {
+        const c = campo(nombre);
+        const mensaje = REGLAS[nombre]();
+        const contenedor = c.closest('.pasarela-campo');
+        let aviso = contenedor.querySelector('.pasarela-campo-error');
+        if (!aviso) {
+            aviso = document.createElement('small');
+            aviso.className = 'pasarela-campo-error';
+            aviso.id = 'error-' + nombre;
+            contenedor.appendChild(aviso);
+        }
+        aviso.textContent = mensaje || '';
+        aviso.hidden = !mensaje;
+        c.classList.toggle('is-invalido', !!mensaje);
+        c.setAttribute('aria-invalid', mensaje ? 'true' : 'false');
+        if (mensaje) c.setAttribute('aria-describedby', aviso.id);
+        else c.removeAttribute('aria-describedby');
+        return mensaje;
     }
+
+    Object.keys(REGLAS).forEach(function (nombre) {
+        const c = campo(nombre);
+        // Al salir del campo se revisa si ya escribió algo; mientras corrige, el error se actualiza
+        c.addEventListener('blur', function () { if (c.value !== '') validar(nombre); });
+        c.addEventListener(c.tagName === 'SELECT' ? 'change' : 'input', function () {
+            if (c.classList.contains('is-invalido')) validar(nombre);
+        });
+    });
+
+    function limpiarErrores() {
+        raiz.querySelectorAll('.pasarela-campo-error').forEach(function (a) { a.hidden = true; });
+        raiz.querySelectorAll('.is-invalido').forEach(function (c) {
+            c.classList.remove('is-invalido');
+            c.setAttribute('aria-invalid', 'false');
+        });
+        mostrarErrorGeneral(null);
+    }
+
+    function mostrarErrorGeneral(texto) {
+        errorGeneral.hidden = !texto;
+        errorGeneral.textContent = texto || '';
+    }
+
+    campo('terminos').addEventListener('change', function () { if (this.checked) mostrarErrorGeneral(null); });
 
     // ── Datos de prueba: un clic los llena ──
     raiz.querySelectorAll('[data-llenar]').forEach(function (b) {
         b.addEventListener('click', function () {
             elegir('CARD');
             escribir('numero', b.dataset.llenar);
-            const anio = String((new Date().getFullYear() + 3) % 100).padStart(2, '0');
-            escribir('vence', '12' + anio);
+            escribir('vence', '12' + String((new Date().getFullYear() + 3) % 100).padStart(2, '0'));
             escribir('cvc', '123');
             escribir('nombre', 'Paciente Prueba');
             escribir('documento', '1234567890');
             campo('terminos').checked = true;
+            limpiarErrores();
+            botonPagar.focus();
         });
     });
     raiz.querySelectorAll('[data-llenar-celular]').forEach(function (b) {
@@ -115,6 +222,8 @@
             elegir('NEQUI');
             escribir('celular', b.dataset.llenarCelular);
             campo('terminos').checked = true;
+            limpiarErrores();
+            botonPagar.focus();
         });
     });
     function escribir(nombre, valor) {
@@ -123,48 +232,33 @@
         c.dispatchEvent(new Event('input'));
     }
 
-    // ── Validación y envío ──
-    function mostrarError(texto, campoConError) {
-        error.hidden = !texto;
-        error.textContent = texto || '';
-        raiz.querySelectorAll('.is-invalido').forEach(function (c) { c.classList.remove('is-invalido'); });
-        if (campoConError) {
-            campoConError.classList.add('is-invalido');
-            campoConError.focus();
+    // ── Envío ──
+    // Enter en cualquier campo equivale a pagar
+    paso('datos').addEventListener('keydown', function (e) {
+        if (e.key === 'Enter' && e.target.matches('input:not([type="checkbox"])')) {
+            e.preventDefault();
+            pagar();
         }
-    }
+    });
+    botonPagar.addEventListener('click', pagar);
 
-    function validar() {
-        if (medio === 'CARD') {
-            const n = soloDigitos(campo('numero').value);
-            if (!luhn(n) || !marcaDe(n)) return ['Revisa el número de la tarjeta.', campo('numero')];
-            if (!venceValido(campo('vence').value)) return ['La fecha de vencimiento no es válida.', campo('vence')];
-            const largoCvc = marcaDe(n) === 'AMEX' ? 4 : 3;
-            if (campo('cvc').value.length !== largoCvc) return ['El CVC debe tener ' + largoCvc + ' dígitos.', campo('cvc')];
-            if (campo('nombre').value.trim().length < 3) return ['Escribe el nombre como aparece en la tarjeta.', campo('nombre')];
-            if (campo('documento').value.length < 5) return ['Escribe tu número de documento.', campo('documento')];
-            if (!TARJETAS[n]) return ['Estás en modo pruebas: usa una de las tarjetas de prueba (no ingreses tarjetas reales).', campo('numero')];
-            return null;
+    function pagar() {
+        if (enviando) return;
+        if (raiz.querySelector('.pago-reloj.is-agotado')) {
+            return mostrarErrorGeneral('Se acabó el tiempo para pagar. Vuelve al resumen para apartar el horario de nuevo.');
         }
-        if (medio === 'PSE') {
-            if (campo('banco').value === '') return ['Selecciona tu banco.', campo('banco')];
-            if (campo('documentoPse').value.length < 5) return ['Escribe tu número de documento.', campo('documentoPse')];
-            return null;
+        const conError = CAMPOS[medio].filter(function (n) { return validar(n); });
+        if (conError.length) {
+            mostrarErrorGeneral(null);
+            return campo(conError[0]).focus();
         }
-        if (medio === 'NEQUI') {
-            const cel = soloDigitos(campo('celular').value);
-            if (!/^3\d{9}$/.test(cel)) return ['Escribe un celular de 10 dígitos que empiece por 3.', campo('celular')];
-            if (!CELULARES[cel]) return ['Estás en modo pruebas: usa uno de los celulares de prueba.', campo('celular')];
-            return null;
+        if (!campo('terminos').checked) {
+            mostrarErrorGeneral('Para continuar, acepta los términos y condiciones.');
+            return campo('terminos').focus();
         }
-        return null;
-    }
-
-    raiz.querySelector('[data-pagar]').addEventListener('click', function () {
-        const fallo = validar();
-        if (fallo) return mostrarError(fallo[0], fallo[1]);
-        if (!campo('terminos').checked) return mostrarError('Debes aceptar los términos para continuar.', campo('terminos'));
-        mostrarError(null);
+        mostrarErrorGeneral(null);
+        enviando = true;
+        botonPagar.disabled = true;
 
         const envio = raiz.querySelector('[data-envio]');
         const poner = (n, v) => { envio.elements[n].value = v == null ? '' : v; };
@@ -191,5 +285,5 @@
         espera.hidden = false;
         // Pausa breve, como la respuesta del banco
         setTimeout(function () { envio.submit(); }, 1800);
-    });
+    }
 })();
