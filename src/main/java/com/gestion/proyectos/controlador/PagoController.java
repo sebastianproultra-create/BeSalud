@@ -63,7 +63,7 @@ public class PagoController {
         model.addAttribute("segundosRestantes", segundosRestantes(reserva));
         model.addAttribute("segundosTotales", reservaService.getMinutosParaPagar() * 60);
         model.addAttribute("saldo", saldo(doctor, reserva));
-        model.addAttribute("pagoSimulado", !pasarela.wompiConfigurado());
+        model.addAttribute("pagoSimulado", pasarela.usaSimulada());
         model.addAttribute("urlPago", pasarela.urlPago(reserva, paciente.getEmail(),
                 paciente.getNombre() + " " + paciente.getApellido(), urlApp + "/pagos/retorno"));
         return "pagos/resumen";
@@ -126,7 +126,7 @@ public class PagoController {
             "AMEX", "American Express", "DINERS", "Diners Club");
 
     private Reserva reservaSimulada(String referencia, Authentication auth) {
-        if (pasarela.wompiConfigurado())
+        if (!pasarela.usaSimulada())
             throw new NoSuchElementException();
         return reservaDe(referencia, paciente(auth));
     }
@@ -201,8 +201,10 @@ public class PagoController {
                 && (r.getEstado() == Reserva.Estado.ESPERANDO_PAGO || r.getEstado() == Reserva.Estado.EXPIRADA);
         if (!pendiente)
             return r;
-        if (!pasarela.wompiConfigurado())
+        if (pasarela.usaSimulada())
             return reservaService.resolverSimulacion(r);
+        if (!pasarela.wompiConfigurado())
+            return r;
         pasarela.consultar(r.getTransaccionId()).ifPresent(t ->
                 reservaService.confirmarPago(t.referencia(), t.id(), t.estado(), t.montoCentavos(), t.moneda()));
         return reservaService.buscarPorReferencia(r.getReferencia()).orElse(r);

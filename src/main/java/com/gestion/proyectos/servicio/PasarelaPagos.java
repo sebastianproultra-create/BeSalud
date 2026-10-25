@@ -45,6 +45,7 @@ public class PasarelaPagos {
     private final String secretoIntegridad;
     private final String secretoEventos;
     private final String llavePrivada;
+    private final boolean simulados;
     private final ObjectMapper mapper;
     private final RestClient http;
 
@@ -52,22 +53,35 @@ public class PasarelaPagos {
             @Value("${app.pagos.wompi.secreto-integridad:}") String secretoIntegridad,
             @Value("${app.pagos.wompi.secreto-eventos:}") String secretoEventos,
             @Value("${app.pagos.wompi.llave-privada:}") String llavePrivada,
+            @Value("${app.pagos.simulados:true}") boolean simulados,
             ObjectMapper mapper) {
         this.llavePublica = limpiar(llavePublica);
         this.secretoIntegridad = limpiar(secretoIntegridad);
         this.secretoEventos = limpiar(secretoEventos);
         this.llavePrivada = limpiar(llavePrivada);
+        this.simulados = simulados;
         this.mapper = mapper;
         SimpleClientHttpRequestFactory tiempos = new SimpleClientHttpRequestFactory();
         tiempos.setConnectTimeout(4_000);
         tiempos.setReadTimeout(8_000);
         this.http = RestClient.builder().requestFactory(tiempos).build();
         if (!wompiConfigurado())
-            log.info("Wompi sin configurar: los abonos usan la pasarela simulada de demostración.");
+            log.info(simulados ? "Wompi sin configurar: los abonos usan la pasarela simulada de demostración."
+                    : "Wompi sin configurar y pasarela de pruebas apagada: las reservas en línea están pausadas.");
     }
 
     private static String limpiar(String s) {
         return s == null ? "" : s.trim();
+    }
+
+    /** Sin Wompi, la pasarela de pruebas solo se usa si está permitida (PAGOS_SIMULADOS). */
+    public boolean usaSimulada() {
+        return !wompiConfigurado() && simulados;
+    }
+
+    /** ¿Se puede cobrar el abono? Con Wompi o, si está permitida, con la pasarela de pruebas. */
+    public boolean pagosDisponibles() {
+        return wompiConfigurado() || simulados;
     }
 
     public boolean wompiConfigurado() {

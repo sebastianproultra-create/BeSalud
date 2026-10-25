@@ -44,6 +44,7 @@ class CitaControllerTest {
     @BeforeEach
     void permitirPeticiones() {
         when(rateLimiter.permitir(anyString(), anyInt(), any())).thenReturn(true);
+        org.mockito.Mockito.lenient().when(pasarelaPagos.pagosDisponibles()).thenReturn(true);
     }
 
     @MockBean private CitaService citaService;
@@ -91,6 +92,25 @@ class CitaControllerTest {
 
         verify(reservaService, never()).apartar(any(), any(), any(), any(), any());
         verify(citaService, never()).crearCita(any(), any(), any(), any(), any());
+    }
+
+    @Test
+    void guardarPaciente_sinWompiNiPasarelaDePruebas_pausaLasReservas() throws Exception {
+        when(pasarelaPagos.pagosDisponibles()).thenReturn(false);
+        when(citaService.esFechaHoraPasada(any(), any())).thenReturn(false);
+        when(citaService.buscarDoctorPorId("d1")).thenReturn(Optional.of(doctorActivo()));
+
+        mockMvc.perform(post("/citas/guardar-paciente")
+                        .param("doctorId", "d1")
+                        .param("fecha", LocalDate.now().plusDays(1).toString())
+                        .param("hora", "09:00")
+                        .param("motivo", "Dolor de cabeza")
+                        .with(csrf())
+                        .with(user("paciente@test.com").roles("PACIENTE")))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/pacientes/landing?error=pagos_no_disponibles"));
+
+        verify(reservaService, never()).apartar(any(), any(), any(), any(), any());
     }
 
     @Test

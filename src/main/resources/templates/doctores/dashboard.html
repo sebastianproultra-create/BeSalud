@@ -80,6 +80,16 @@
         </div>
     </section>
 
+    <!-- Sin precio no hay reservas en línea: se avisa arriba para que no pase desapercibido -->
+    <div class="doc-aviso-precio" role="status" th:unless="${doctor.recibeReservas()}">
+        <span class="material-symbols-outlined" aria-hidden="true">sell</span>
+        <div>
+            <strong>Aún no recibes reservas en línea</strong>
+            <span>Pon el precio de tu consulta y el abono para que los pacientes puedan agendar y pagar contigo.</span>
+        </div>
+        <a href="#precio-y-pagos">Configurar precio</a>
+    </div>
+
     <!-- ═══════════════ NAV DE SECCIONES ═══════════════ -->
     <nav class="section-nav" aria-label="Secciones del panel">
         <div class="section-nav-links">
@@ -197,7 +207,7 @@
                 </div>
             </div>
 
-            <form th:action="@{/doctores/perfil/consulta}" method="post" class="doc-consulta-form"
+            <form th:action="@{/doctores/perfil/consulta}" method="post" class="doc-consulta-form" id="precio-y-pagos"
                   th:with="horas=${doctor.horasCancelacionEfectivas()}">
                 <h3 class="doc-bloque-titulo">Precio y pagos</h3>
                 <div th:if="${exitoConsulta}" class="alert alert-success" th:text="${exitoConsulta}"></div>

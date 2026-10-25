@@ -1864,3 +1864,37 @@ a.doc-segmento {
 .doc-page .doc-consulta-form .doc-btn:hover {
     background: var(--d-primary);
 }
+
+/* Aviso de médico sin precio (no recibe reservas en línea) */
+.doc-aviso-precio {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin: 20px 0 0;
+    padding: 16px 18px;
+    color: #5C3A02;
+    background: #FFF4E3;
+    border: 1px solid #FFDDB8;
+    border-radius: 16px;
+    font-size: 14px;
+}
+.doc-aviso-precio > .material-symbols-outlined { font-size: 24px; color: #855403; }
+.doc-aviso-precio > div { flex: 1; min-width: 0; }
+.doc-aviso-precio strong,
+.doc-aviso-precio span { display: block; }
+.doc-aviso-precio div span { margin-top: 2px; line-height: 1.5; }
+.doc-aviso-precio a {
+    flex: 0 0 auto;
+    padding: 10px 16px;
+    color: #fff;
+    background: #855403;
+    border-radius: 10px;
+    font-weight: 700;
+    text-decoration: none;
+}
+.doc-aviso-precio a:hover { background: #6B4302; }
+.doc-consulta-form { scroll-margin-top: 120px; }
+@media (max-width: 560px) {
+    .doc-aviso-precio { flex-wrap: wrap; }
+    .doc-aviso-precio a { width: 100%; text-align: center; }
+}

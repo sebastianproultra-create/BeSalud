@@ -240,6 +240,8 @@ public class CitaController {
             return "redirect:/pacientes/landing?error=doctor_inactivo";
         if (!doctor.recibeReservas())
             return "redirect:/pacientes/landing?error=sin_reservas_en_linea";
+        if (!pasarela.pagosDisponibles())
+            return "redirect:/pacientes/landing?error=pagos_no_disponibles";
 
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         Paciente paciente = citaService.buscarPacientePorEmail(auth.getName()).orElse(null);
