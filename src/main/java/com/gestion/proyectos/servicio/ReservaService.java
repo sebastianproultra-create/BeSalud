@@ -166,11 +166,52 @@ public class ReservaService {
 
     /** Pago simulado (solo cuando Wompi no está configurado): mismo camino que un pago real. */
     public Resultado pagoSimulado(String referencia, boolean aprobar) {
+        return pagoSimulado(referencia, "CARD", null, aprobar ? "APPROVED" : "DECLINED");
+    }
+
+    /** Segundos que tarda en resolverse un pago de prueba por PSE, Nequi o Bancolombia. */
+    public static final int SEGUNDOS_SIMULACION = 8;
+
+    /**
+     * Pasarela de pruebas que imita a Wompi: la tarjeta responde de inmediato; PSE, Nequi y Bancolombia
+     * quedan en proceso unos segundos (como cuando el banco o la app del paciente confirman) y luego se
+     * resuelven por el mismo camino que un pago real.
+     */
+    public Resultado pagoSimulado(String referencia, String tipoMedio, String medioPago, String estadoFinal) {
         Reserva r = reservaRepo.findByReferencia(referencia).orElse(null);
         if (r == null)
             return Resultado.NO_EXISTE;
-        return confirmarPago(referencia, "SIM-" + referencia, aprobar ? "APPROVED" : "DECLINED",
-                r.getMontoCentavos(), "COP");
+        if (r.getEstado() != Reserva.Estado.ESPERANDO_PAGO || r.getTransaccionId() != null)
+            return Resultado.PENDIENTE; // ya se envió un pago para esta reserva
+        String transaccion = idTransaccionDePrueba();
+        r.setTipoMedio(tipoMedio);
+        r.setMedioPago(medioPago);
+        if ("CARD".equals(tipoMedio)) {
+            reservaRepo.save(r);
+            return confirmarPago(referencia, transaccion, estadoFinal, r.getMontoCentavos(), "COP");
+        }
+        r.setTransaccionId(transaccion);
+        r.setSimulacionEstado(estadoFinal);
+        r.setSimulacionListaEn(Reloj.ahora().plusSeconds(SEGUNDOS_SIMULACION));
+        reservaRepo.save(r);
+        log.info("Pago de prueba en proceso: referencia={} medio={}", referencia, tipoMedio);
+        return Resultado.PENDIENTE;
+    }
+
+    /** Termina un pago de prueba en proceso cuando ya pasó su tiempo de espera. */
+    public Reserva resolverSimulacion(Reserva r) {
+        boolean enProceso = r.getSimulacionEstado() != null && r.getTransaccionId() != null
+                && (r.getEstado() == Reserva.Estado.ESPERANDO_PAGO || r.getEstado() == Reserva.Estado.EXPIRADA);
+        if (!enProceso || r.getSimulacionListaEn() == null || Reloj.ahora().isBefore(r.getSimulacionListaEn()))
+            return r;
+        confirmarPago(r.getReferencia(), r.getTransaccionId(), r.getSimulacionEstado(), r.getMontoCentavos(), "COP");
+        return reservaRepo.findByReferencia(r.getReferencia()).orElse(r);
+    }
+
+    /** Mismo formato que los ids de Wompi: comercio-epoch-consecutivo. */
+    private static String idTransaccionDePrueba() {
+        var azar = java.util.concurrent.ThreadLocalRandom.current();
+        return "1" + azar.nextInt(1000, 9999) + "-" + (System.currentTimeMillis() / 1000) + "-" + azar.nextInt(10000, 99999);
     }
 
     private void terminar(Reserva r, Reserva.Estado estado, String citaId) {

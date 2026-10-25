@@ -41,6 +41,7 @@ public class Cita {
     /** Abono pagado al reservar (en centavos, como lo maneja la pasarela); null si la cita no tuvo abono. */
     private Long abonoCentavos;
     private String referenciaPago;
+    private String medioPago;
     private EstadoAbono estadoAbono;
 
     public String getId() {
@@ -113,6 +114,14 @@ public class Cita {
 
     public void setRecordatorioEnviado(boolean recordatorioEnviado) {
         this.recordatorioEnviado = recordatorioEnviado;
+    }
+
+    public String getMedioPago() {
+        return medioPago;
+    }
+
+    public void setMedioPago(String medioPago) {
+        this.medioPago = medioPago;
     }
 
     public Boolean getAsistenciaConfirmada() {

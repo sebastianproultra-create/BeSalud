@@ -10,6 +10,7 @@ import com.gestion.proyectos.servicio.ReservaService;
 import com.gestion.proyectos.util.Calendario;
 import com.gestion.proyectos.util.Reloj;
 import java.time.Duration;
+import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import org.springframework.beans.factory.annotation.Value;
@@ -87,15 +88,42 @@ public class PagoController {
         model.addAttribute("doctor", doctorDe(reserva));
         model.addAttribute("segundosRestantes", segundosRestantes(reserva));
         model.addAttribute("segundosTotales", reservaService.getMinutosParaPagar() * 60);
+        model.addAttribute("bancos", BANCOS_PRUEBA);
+        model.addAttribute("correoPaciente", auth.getName());
         return "pagos/simulado";
     }
 
+    /** Bancos de la lista de PSE en la pasarela de pruebas; los dos primeros son los de prueba de Wompi. */
+    static final List<String> BANCOS_PRUEBA = List.of("Banco que aprueba", "Banco que rechaza");
+
+    /**
+     * Recibe solo lo necesario para el comprobante (marca y últimos 4 dígitos, banco, últimos 4 del
+     * celular). El número completo de la tarjeta, la fecha y el CVC nunca salen del navegador.
+     */
     @PostMapping("/pagos/simulado/{referencia}")
-    public String pagarSimulado(@PathVariable String referencia, @RequestParam String resultado, Authentication auth) {
+    public String pagarSimulado(@PathVariable String referencia, @RequestParam String medio,
+            @RequestParam String escenario, @RequestParam(required = false) String marca,
+            @RequestParam(required = false) String ultimos4, @RequestParam(required = false) Integer banco,
+            Authentication auth) {
         reservaSimulada(referencia, auth);
-        reservaService.pagoSimulado(referencia, "aprobar".equals(resultado));
+        String estado = "APPROVED".equals(escenario) ? "APPROVED" : "DECLINED";
+        String digitos = ultimos4 != null && ultimos4.matches("\\d{4}") ? ultimos4 : "••••";
+        String descripcion = switch (medio) {
+            case "CARD" -> MARCAS.getOrDefault(marca, "Tarjeta") + " •••• " + digitos;
+            case "PSE" -> "PSE · " + (banco != null && banco >= 0 && banco < BANCOS_PRUEBA.size()
+                    ? BANCOS_PRUEBA.get(banco) : "Banco");
+            case "NEQUI" -> "Nequi •••• " + digitos;
+            case "BANCOLOMBIA_TRANSFER" -> "Botón Bancolombia";
+            default -> null;
+        };
+        if (descripcion == null)
+            return "redirect:/pagos/simulado/" + referencia;
+        reservaService.pagoSimulado(referencia, medio, descripcion, estado);
         return "redirect:/pagos/" + referencia + "/resultado";
     }
+
+    private static final Map<String, String> MARCAS = Map.of("VISA", "Visa", "MASTERCARD", "Mastercard",
+            "AMEX", "American Express", "DINERS", "Diners Club");
 
     private Reserva reservaSimulada(String referencia, Authentication auth) {
         if (pasarela.wompiConfigurado())
@@ -171,8 +199,10 @@ public class PagoController {
     private Reserva actualizar(Reserva r) {
         boolean pendiente = r.getTransaccionId() != null
                 && (r.getEstado() == Reserva.Estado.ESPERANDO_PAGO || r.getEstado() == Reserva.Estado.EXPIRADA);
-        if (!pendiente || !pasarela.wompiConfigurado())
+        if (!pendiente)
             return r;
+        if (!pasarela.wompiConfigurado())
+            return reservaService.resolverSimulacion(r);
         pasarela.consultar(r.getTransaccionId()).ifPresent(t ->
                 reservaService.confirmarPago(t.referencia(), t.id(), t.estado(), t.montoCentavos(), t.moneda()));
         return reservaService.buscarPorReferencia(r.getReferencia()).orElse(r);

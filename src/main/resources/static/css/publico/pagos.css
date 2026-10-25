@@ -396,8 +396,9 @@
     transform: none;
 }
 
-/* Pasarela simulada */
+/* Pasarela de pruebas (imita el checkout de Wompi) */
 .pasarela {
+    position: relative;
     max-width: 480px;
     margin: 0 auto;
 }
@@ -421,6 +422,8 @@
     justify-content: space-between;
     gap: 12px;
     margin-bottom: 20px;
+    padding-bottom: 18px;
+    border-bottom: 1px solid var(--portal-border);
 }
 
 .pasarela-comercio,
@@ -436,68 +439,385 @@
     font-size: 40px;
 }
 
-.pasarela-medios {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 8px;
-    margin: 0 0 16px;
-    padding: 0;
-    border: 0;
+.pasarela-subtitulo {
+    margin: 0 0 12px;
+    color: var(--portal-on-surface);
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
 }
 
-.pasarela-medios legend {
-    margin-bottom: 8px;
+.pasarela-lista-medios {
+    display: grid;
+    gap: 10px;
+}
+
+.pago-page .pasarela-medio {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    width: 100%;
+    margin: 0;
+    padding: 14px 16px;
+    color: var(--portal-on-surface);
+    background: var(--portal-surface);
+    border: 1px solid var(--portal-border);
+    border-radius: 14px;
+    box-shadow: none;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 14px;
+    letter-spacing: normal;
+    text-align: left;
+    text-transform: none;
+    cursor: pointer;
+    transition: border-color 0.15s, background-color 0.15s;
+}
+
+.pago-page .pasarela-medio:hover,
+.pago-page .pasarela-medio:focus-visible {
+    color: var(--portal-on-surface);
+    background: var(--portal-bg);
+    border-color: var(--portal-primary-container);
+    transform: none;
+}
+
+.pasarela-medio > .material-symbols-outlined:first-child {
+    display: grid;
+    place-items: center;
+    flex: 0 0 auto;
+    width: 40px;
+    height: 40px;
+    color: var(--portal-primary-container);
+    background: var(--portal-container);
+    border-radius: 10px;
+    font-size: 22px;
+}
+
+.pasarela-medio > span:nth-child(2) {
+    flex: 1;
+    min-width: 0;
+}
+
+.pasarela-medio strong,
+.pasarela-medio small {
+    display: block;
+}
+
+.pasarela-medio small {
+    margin-top: 2px;
+    color: var(--portal-muted);
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.pasarela-flecha {
+    color: var(--portal-outline);
+}
+
+.pago-page .pasarela-atras {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0 0 16px;
+    padding: 4px 0;
+    color: var(--portal-primary);
+    background: none;
+    border: 0;
+    box-shadow: none;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: normal;
+    text-transform: none;
+    cursor: pointer;
+}
+
+.pago-page .pasarela-atras:hover {
+    color: var(--portal-primary-container);
+    background: none;
+    transform: none;
+}
+
+/* Vista previa de la tarjeta */
+.tarjeta-vista {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    aspect-ratio: 1.586;
+    max-width: 320px;
+    width: 100%;
+    margin: 0 auto 20px;
+    padding: 18px 20px;
+    color: #fff;
+    background: linear-gradient(135deg, #2D3B36, #0D4738);
+    border-radius: 16px;
+    box-shadow: 0 14px 30px rgba(0, 47, 36, 0.25);
+    font-family: 'Plus Jakarta Sans', sans-serif;
+}
+
+.tarjeta-vista[data-marca="VISA"] { background: linear-gradient(135deg, #1A1F71, #3949AB); }
+.tarjeta-vista[data-marca="MASTERCARD"] { background: linear-gradient(135deg, #3A2A1E, #C2410C); }
+.tarjeta-vista[data-marca="AMEX"] { background: linear-gradient(135deg, #0E5A8A, #2E8BC0); }
+.tarjeta-vista[data-marca="DINERS"] { background: linear-gradient(135deg, #2F3640, #636E72); }
+
+.tarjeta-vista-arriba,
+.tarjeta-vista-abajo {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.tarjeta-chip {
+    width: 38px;
+    height: 28px;
+    background: linear-gradient(135deg, #E9C46A, #B8860B);
+    border-radius: 6px;
+}
+
+.tarjeta-marca {
+    font-size: 16px;
+    font-style: italic;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+}
+
+.tarjeta-numero {
+    font-size: 19px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    white-space: nowrap;
+}
+
+.tarjeta-vista-abajo {
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    opacity: 0.9;
+}
+
+.tarjeta-vista-abajo span:first-child {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* Campos */
+.pasarela-form {
+    display: grid;
+    gap: 12px;
+}
+
+.pasarela-form[hidden] {
+    display: none;
+}
+
+.pago-page .pasarela-campo {
+    display: grid;
+    gap: 6px;
+    min-width: 0;
+    margin: 0;
     color: var(--portal-muted);
     font-size: 13px;
     font-weight: 600;
+    letter-spacing: normal;
+    text-transform: none;
 }
 
-.pago-page .pasarela-medios label {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 4px;
+.pago-page .pasarela-campo input,
+.pago-page .pasarela-campo select {
+    width: 100%;
     margin: 0;
-    padding: 12px 6px;
+    padding: 12px 14px;
     color: var(--portal-on-surface);
+    background-color: var(--portal-surface);
     border: 1px solid var(--portal-border);
+    border-radius: 10px;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 15px;
+    font-weight: 500;
+}
+
+.pago-page .pasarela-campo input:focus,
+.pago-page .pasarela-campo select:focus {
+    border-color: var(--portal-primary-container);
+    outline: 2px solid rgba(13, 71, 56, 0.15);
+}
+
+.pago-page .pasarela-campo input[readonly] {
+    color: var(--portal-muted);
+    background-color: var(--portal-bg);
+}
+
+.pago-page .pasarela .is-invalido {
+    border-color: #B3261E;
+    outline: 2px solid rgba(179, 38, 30, 0.12);
+}
+
+.pasarela-fila {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+}
+
+.pasarela-fila:has(.is-ancho) {
+    grid-template-columns: 110px minmax(0, 1fr);
+}
+
+.pasarela-nota {
+    margin: 0;
+    padding: 12px 14px;
+    color: var(--portal-muted);
+    background: var(--portal-bg);
+    border-radius: 10px;
+    font-size: 13px;
+    line-height: 1.55;
+}
+
+.pasarela-error {
+    margin: 14px 0 0;
+    padding: 10px 12px;
+    color: #8C1D18;
+    background: #FBEAE8;
+    border-radius: 10px;
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+.pasarela-error[hidden] {
+    display: none;
+}
+
+.pago-page .pasarela-terminos {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    margin: 18px 0 0;
+    color: var(--portal-muted);
+    font-size: 12px;
+    font-weight: 500;
+    line-height: 1.5;
+    letter-spacing: normal;
+    text-transform: none;
+    cursor: pointer;
+}
+
+.pasarela-terminos input {
+    flex: 0 0 auto;
+    width: 16px;
+    height: 16px;
+    margin: 1px 0 0;
+    accent-color: var(--portal-primary-container);
+}
+
+.pasarela-seguro {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    margin: 12px 0 0;
+    color: var(--portal-outline);
+    font-size: 12px;
+}
+
+.pasarela-seguro .material-symbols-outlined {
+    font-size: 16px;
+}
+
+/* Datos de prueba */
+.pasarela-pruebas {
+    margin-top: 22px;
+    padding: 12px 14px;
+    background: var(--portal-bg);
+    border: 1px dashed var(--portal-border);
     border-radius: 12px;
     font-size: 13px;
+}
+
+.pasarela-pruebas summary {
+    color: var(--portal-primary);
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.pasarela-pruebas dl {
+    display: grid;
+    gap: 8px;
+    margin: 12px 0 0;
+}
+
+.pasarela-pruebas dl > div {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 4px 12px;
+}
+
+.pasarela-pruebas dt {
+    color: var(--portal-muted);
+}
+
+.pasarela-pruebas dd {
+    margin: 0;
+    color: var(--portal-on-surface);
+    font-weight: 600;
+    text-align: right;
+}
+
+.pago-page .pasarela-pruebas dd button {
+    margin: 0;
+    padding: 2px 8px;
+    color: var(--portal-primary);
+    background: var(--portal-container);
+    border: 0;
+    border-radius: 6px;
+    box-shadow: none;
+    font-family: ui-monospace, Consolas, monospace;
+    font-size: 12px;
     font-weight: 600;
     letter-spacing: normal;
     text-transform: none;
     cursor: pointer;
 }
 
-.pasarela-medios input {
-    position: absolute;
-    opacity: 0;
+.pago-page .pasarela-pruebas dd button:hover {
+    color: #fff;
+    background: var(--portal-primary-container);
+    transform: none;
 }
 
-.pasarela-medios label:has(input:checked) {
-    background: var(--portal-container);
-    border-color: var(--portal-primary-container);
+/* Capa mientras "responde el banco" */
+.pasarela-procesando {
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 24px;
+    color: var(--portal-on-surface);
+    background: rgba(255, 255, 255, 0.96);
+    text-align: center;
 }
 
-.pasarela-explica {
-    margin: 0;
+.pasarela-procesando[hidden] {
+    display: none;
+}
+
+.pasarela-procesando .material-symbols-outlined {
+    color: var(--portal-primary-container);
+    font-size: 44px;
+}
+
+.pasarela-procesando strong {
+    font-size: 17px;
+}
+
+.pasarela-procesando span:last-child {
+    max-width: 280px;
     color: var(--portal-muted);
     font-size: 14px;
-}
-
-.pasarela-acciones {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 10px;
-}
-
-.pasarela-acciones form {
-    margin: 0;
-}
-
-.pago-page .pasarela-acciones .pago-boton {
-    margin-top: 12px;
-    font-size: 15px;
 }
 
 .pasarela-volver {
@@ -663,6 +983,10 @@
     margin-top: 24px;
 }
 
+.resultado-acciones > :only-child {
+    grid-column: 1 / -1;
+}
+
 .pago-page .resultado-acciones .pago-boton {
     margin-top: 0;
     font-size: 15px;
@@ -755,8 +1079,7 @@
         font-size: 12px;
     }
 
-    .resultado-acciones,
-    .pasarela-acciones {
+    .resultado-acciones {
         grid-template-columns: minmax(0, 1fr);
     }
 

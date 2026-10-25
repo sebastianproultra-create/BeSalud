@@ -127,6 +127,7 @@ public class CitaService {
         cita.setMotivo(reserva.getMotivo());
         cita.setAbonoCentavos(reserva.getMontoCentavos());
         cita.setReferenciaPago(reserva.getReferencia());
+        cita.setMedioPago(reserva.getMedioPago());
         cita.setEstadoAbono(EstadoAbono.PAGADO);
         Cita guardada = guardarOcupandoTurno(cita);
         log.info("Cita creada con abono: id={} referencia={}", guardada.getId(), reserva.getReferencia());

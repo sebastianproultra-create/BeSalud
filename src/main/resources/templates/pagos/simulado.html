@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pasarela de demostración · BeSalud</title>
+    <title>Pago del abono · BeSalud</title>
     <link rel="stylesheet" th:href="@{/css/base/global.css}">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -16,11 +16,12 @@
 <header th:replace="~{fragments/layout :: pago-header}"></header>
 
 <main class="auth-main pago-main">
-    <section class="pago-tarjeta pasarela" aria-labelledby="pasarela-titulo">
+    <section class="pago-tarjeta pasarela" aria-labelledby="pasarela-titulo" data-pasarela
+             th:attr="data-monto=${'$' + #numbers.formatInteger(reserva.montoPesos, 1, 'POINT')}">
         <div class="pasarela-aviso" role="note">
             <span class="material-symbols-outlined" aria-hidden="true">science</span>
-            <span><strong>Pasarela de demostración.</strong> No se cobra dinero real. Con las llaves de Wompi
-                configuradas, aquí se abre el checkout de Wompi.</span>
+            <span><strong>Modo pruebas.</strong> Funciona como el checkout de Wompi, pero no se cobra dinero.
+                Usa los datos de prueba de abajo.</span>
         </div>
 
         <div class="pasarela-cabecera">
@@ -38,29 +39,164 @@
             </div>
         </div>
 
-        <fieldset class="pasarela-medios">
-            <legend>Medio de pago (simulado)</legend>
-            <label><input type="radio" name="medio" value="tarjeta" checked><span class="material-symbols-outlined" aria-hidden="true">credit_card</span>Tarjeta</label>
-            <label><input type="radio" name="medio" value="pse"><span class="material-symbols-outlined" aria-hidden="true">account_balance</span>PSE</label>
-            <label><input type="radio" name="medio" value="nequi"><span class="material-symbols-outlined" aria-hidden="true">smartphone</span>Nequi</label>
-        </fieldset>
+        <noscript><p class="pasarela-error">Activa JavaScript para pagar.</p></noscript>
 
-        <p class="pasarela-explica">Elige qué respuesta quieres que dé el banco para probar cada caso:</p>
-        <div class="pasarela-acciones">
-            <form th:action="@{/pagos/simulado/{ref}(ref=${reserva.referencia})}" method="post">
-                <input type="hidden" name="resultado" value="aprobar">
-                <button type="submit" class="pago-boton"><span class="material-symbols-outlined" aria-hidden="true">check_circle</span>Pago aprobado</button>
-            </form>
-            <form th:action="@{/pagos/simulado/{ref}(ref=${reserva.referencia})}" method="post">
-                <input type="hidden" name="resultado" value="rechazar">
-                <button type="submit" class="pago-boton is-secundario"><span class="material-symbols-outlined" aria-hidden="true">cancel</span>Pago rechazado</button>
-            </form>
+        <!-- Paso 1: medio de pago -->
+        <div class="pasarela-paso" data-paso="medios">
+            <h2 class="pasarela-subtitulo">¿Cómo quieres pagar?</h2>
+            <div class="pasarela-lista-medios">
+                <button type="button" class="pasarela-medio" data-medio="CARD">
+                    <span class="material-symbols-outlined" aria-hidden="true">credit_card</span>
+                    <span><strong>Tarjeta de crédito o débito</strong><small>Visa, Mastercard, American Express, Diners</small></span>
+                    <span class="material-symbols-outlined pasarela-flecha" aria-hidden="true">chevron_right</span>
+                </button>
+                <button type="button" class="pasarela-medio" data-medio="PSE">
+                    <span class="material-symbols-outlined" aria-hidden="true">account_balance</span>
+                    <span><strong>PSE</strong><small>Débito desde tu cuenta de ahorros o corriente</small></span>
+                    <span class="material-symbols-outlined pasarela-flecha" aria-hidden="true">chevron_right</span>
+                </button>
+                <button type="button" class="pasarela-medio" data-medio="NEQUI">
+                    <span class="material-symbols-outlined" aria-hidden="true">smartphone</span>
+                    <span><strong>Nequi</strong><small>Aceptas el pago desde la app</small></span>
+                    <span class="material-symbols-outlined pasarela-flecha" aria-hidden="true">chevron_right</span>
+                </button>
+                <button type="button" class="pasarela-medio" data-medio="BANCOLOMBIA_TRANSFER">
+                    <span class="material-symbols-outlined" aria-hidden="true">account_balance_wallet</span>
+                    <span><strong>Botón Bancolombia</strong><small>Transfiere desde tu cuenta Bancolombia</small></span>
+                    <span class="material-symbols-outlined pasarela-flecha" aria-hidden="true">chevron_right</span>
+                </button>
+            </div>
+            <a class="pasarela-volver" th:href="@{/pagos/{ref}(ref=${reserva.referencia})}">Volver al resumen</a>
         </div>
-        <a class="pasarela-volver" th:href="@{/pagos/{ref}(ref=${reserva.referencia})}">Volver al resumen</a>
+
+        <!-- Paso 2: datos del medio elegido. Los campos sensibles no tienen "name": nunca se envían. -->
+        <div class="pasarela-paso" data-paso="datos" hidden>
+            <button type="button" class="pasarela-atras" data-atras>
+                <span class="material-symbols-outlined" aria-hidden="true">arrow_back</span>
+                <span data-titulo-medio>Tarjeta</span>
+            </button>
+
+            <div class="pasarela-form" data-form="CARD" hidden>
+                <div class="tarjeta-vista" aria-hidden="true">
+                    <div class="tarjeta-vista-arriba">
+                        <span class="tarjeta-chip"></span>
+                        <span class="tarjeta-marca" data-vista-marca></span>
+                    </div>
+                    <div class="tarjeta-numero" data-vista-numero>•••• •••• •••• ••••</div>
+                    <div class="tarjeta-vista-abajo">
+                        <span data-vista-nombre>NOMBRE EN LA TARJETA</span>
+                        <span data-vista-vence>MM/AA</span>
+                    </div>
+                </div>
+                <label class="pasarela-campo">Número de la tarjeta
+                    <input type="text" inputmode="numeric" autocomplete="off" data-campo="numero" placeholder="0000 0000 0000 0000" maxlength="23">
+                </label>
+                <div class="pasarela-fila">
+                    <label class="pasarela-campo">Vence
+                        <input type="text" inputmode="numeric" autocomplete="off" data-campo="vence" placeholder="MM/AA" maxlength="5">
+                    </label>
+                    <label class="pasarela-campo">CVC
+                        <input type="password" inputmode="numeric" autocomplete="off" data-campo="cvc" placeholder="123" maxlength="4">
+                    </label>
+                </div>
+                <label class="pasarela-campo">Nombre en la tarjeta
+                    <input type="text" autocomplete="off" data-campo="nombre" placeholder="Como aparece en la tarjeta" maxlength="40">
+                </label>
+                <div class="pasarela-fila">
+                    <label class="pasarela-campo">Documento
+                        <select data-campo="tipoDoc"><option>CC</option><option>CE</option><option>NIT</option><option>PP</option></select>
+                    </label>
+                    <label class="pasarela-campo is-ancho">Número de documento
+                        <input type="text" inputmode="numeric" autocomplete="off" data-campo="documento" placeholder="1234567890" maxlength="12">
+                    </label>
+                </div>
+                <label class="pasarela-campo">Cuotas
+                    <select data-campo="cuotas">
+                        <option value="1">1 cuota</option><option>2</option><option>3</option><option>6</option><option>12</option><option>24</option><option>36</option>
+                    </select>
+                </label>
+            </div>
+
+            <div class="pasarela-form" data-form="PSE" hidden>
+                <label class="pasarela-campo">Tipo de persona
+                    <select data-campo="persona"><option>Natural</option><option>Jurídica</option></select>
+                </label>
+                <label class="pasarela-campo">Banco
+                    <select data-campo="banco">
+                        <option value="">Selecciona tu banco</option>
+                        <option th:each="b, i : ${bancos}" th:value="${i.index}" th:text="${b}">Banco</option>
+                    </select>
+                </label>
+                <div class="pasarela-fila">
+                    <label class="pasarela-campo">Documento
+                        <select data-campo="tipoDocPse"><option>CC</option><option>CE</option><option>NIT</option></select>
+                    </label>
+                    <label class="pasarela-campo is-ancho">Número de documento
+                        <input type="text" inputmode="numeric" autocomplete="off" data-campo="documentoPse" placeholder="1234567890" maxlength="12">
+                    </label>
+                </div>
+                <label class="pasarela-campo">Correo
+                    <input type="email" th:value="${correoPaciente}" readonly>
+                </label>
+            </div>
+
+            <div class="pasarela-form" data-form="NEQUI" hidden>
+                <label class="pasarela-campo">Celular registrado en Nequi
+                    <input type="tel" inputmode="numeric" autocomplete="off" data-campo="celular" placeholder="300 000 0000" maxlength="12">
+                </label>
+                <p class="pasarela-nota">Te llegará una notificación a la app Nequi para aceptar el pago.</p>
+            </div>
+
+            <div class="pasarela-form" data-form="BANCOLOMBIA_TRANSFER" hidden>
+                <p class="pasarela-nota">Al continuar te llevamos a la Sucursal Virtual Personas de Bancolombia
+                    para autorizar la transferencia.</p>
+            </div>
+
+            <p class="pasarela-error" data-error role="alert" hidden></p>
+
+            <label class="pasarela-terminos">
+                <input type="checkbox" data-campo="terminos">
+                <span>Acepto los términos y condiciones y autorizo el tratamiento de mis datos para procesar este pago.</span>
+            </label>
+
+            <button type="button" class="pago-boton" data-pagar>
+                <span class="material-symbols-outlined" aria-hidden="true">lock</span>
+                <span th:text="${'Pagar $' + #numbers.formatInteger(reserva.montoPesos, 1, 'POINT')}">Pagar $20.000</span>
+            </button>
+            <p class="pasarela-seguro"><span class="material-symbols-outlined" aria-hidden="true">verified_user</span>Pago protegido · conexión cifrada</p>
+        </div>
+
+        <details class="pasarela-pruebas">
+            <summary>Datos de prueba</summary>
+            <dl>
+                <div><dt>Tarjeta aprobada</dt><dd><button type="button" data-llenar="4242424242424242">4242 4242 4242 4242</button></dd></div>
+                <div><dt>Tarjeta rechazada</dt><dd><button type="button" data-llenar="4111111111111111">4111 1111 1111 1111</button></dd></div>
+                <div><dt>Vence y CVC</dt><dd>Cualquier fecha futura y 3 dígitos</dd></div>
+                <div><dt>PSE</dt><dd>“Banco que aprueba” o “Banco que rechaza”</dd></div>
+                <div><dt>Nequi aprobado</dt><dd><button type="button" data-llenar-celular="3991111111">399 111 1111</button></dd></div>
+                <div><dt>Nequi rechazado</dt><dd><button type="button" data-llenar-celular="3992222222">399 222 2222</button></dd></div>
+                <div><dt>Botón Bancolombia</dt><dd>Siempre se aprueba</dd></div>
+            </dl>
+        </details>
+
+        <form th:action="@{/pagos/simulado/{ref}(ref=${reserva.referencia})}" method="post" data-envio hidden>
+            <input type="hidden" name="medio">
+            <input type="hidden" name="escenario">
+            <input type="hidden" name="marca">
+            <input type="hidden" name="ultimos4">
+            <input type="hidden" name="banco">
+        </form>
+
+        <div class="pasarela-procesando" data-procesando hidden role="status" aria-live="polite">
+            <span class="material-symbols-outlined resultado-girando" aria-hidden="true">progress_activity</span>
+            <strong data-procesando-titulo>Procesando tu pago…</strong>
+            <span data-procesando-texto>No cierres esta ventana.</span>
+        </div>
     </section>
 </main>
 
 <div th:replace="~{fragments/layout :: auth-footer}"></div>
 <script th:src="@{/js/pagos.js}" defer></script>
+<script th:src="@{/js/pasarela-pruebas.js}" defer></script>
 </body>
 </html>

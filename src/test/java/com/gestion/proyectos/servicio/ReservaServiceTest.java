@@ -113,4 +113,52 @@ class ReservaServiceTest {
     void referenciaDesconocida() {
         assertThat(service.confirmarPago("BS-X", "tx1", "APPROVED", 1, "COP")).isEqualTo(Resultado.NO_EXISTE);
     }
+
+    // ── Pasarela de pruebas ─────────────────────────────────────────────────
+
+    @Test
+    void pruebaConTarjeta_seResuelveDeInmediatoYGuardaElMedio() {
+        laReservaSeToma();
+        when(citaService.doctorActivo("d1")).thenReturn(true);
+        Cita cita = new Cita();
+        cita.setId("c1");
+        when(citaService.crearCitaConAbono(reserva)).thenReturn(cita);
+
+        assertThat(service.pagoSimulado("BS-1", "CARD", "Visa •••• 4242", "APPROVED")).isEqualTo(Resultado.APROBADA);
+        assertThat(reserva.getMedioPago()).isEqualTo("Visa •••• 4242");
+        assertThat(reserva.getEstado()).isEqualTo(Reserva.Estado.APROBADA);
+    }
+
+    @Test
+    void pruebaConNequi_quedaEnProcesoHastaQuePaseLaEspera() {
+        assertThat(service.pagoSimulado("BS-1", "NEQUI", "Nequi •••• 1111", "APPROVED")).isEqualTo(Resultado.PENDIENTE);
+        assertThat(reserva.getTransaccionId()).matches("\\d{5}-\\d+-\\d{5}");
+        assertThat(reserva.getSimulacionEstado()).isEqualTo("APPROVED");
+
+        service.resolverSimulacion(reserva); // todavía no pasan los segundos de espera
+        verify(citaService, never()).crearCitaConAbono(any());
+        assertThat(reserva.getEstado()).isEqualTo(Reserva.Estado.ESPERANDO_PAGO);
+    }
+
+    @Test
+    void pruebaEnProceso_alTerminarLaEsperaSeConfirma() {
+        service.pagoSimulado("BS-1", "PSE", "PSE · Banco que rechaza", "DECLINED");
+        reserva.setSimulacionListaEn(com.gestion.proyectos.util.Reloj.ahora().minusSeconds(1));
+        laReservaSeToma();
+
+        service.resolverSimulacion(reserva);
+
+        assertThat(reserva.getEstado()).isEqualTo(Reserva.Estado.RECHAZADA);
+        verify(citaService, never()).crearCitaConAbono(any());
+    }
+
+    @Test
+    void pruebaRepetida_noCambiaElPagoEnCurso() {
+        service.pagoSimulado("BS-1", "NEQUI", "Nequi •••• 1111", "APPROVED");
+        String transaccion = reserva.getTransaccionId();
+
+        assertThat(service.pagoSimulado("BS-1", "CARD", "Visa •••• 4111", "DECLINED")).isEqualTo(Resultado.PENDIENTE);
+        assertThat(reserva.getTransaccionId()).isEqualTo(transaccion);
+        assertThat(reserva.getMedioPago()).isEqualTo("Nequi •••• 1111");
+    }
 }

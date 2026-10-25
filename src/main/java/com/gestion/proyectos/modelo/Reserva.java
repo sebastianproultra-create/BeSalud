@@ -34,6 +34,13 @@ public class Reserva {
     private LocalDateTime expiraEn;
     private String transaccionId;
     private String citaId;
+    /** Cómo pagó, para mostrarlo en el comprobante: "Visa •••• 4242", "PSE · Bancolombia", "Nequi •••• 1111". */
+    private String medioPago;
+    /** CARD, PSE, NEQUI o BANCOLOMBIA_TRANSFER, como los nombra Wompi. */
+    private String tipoMedio;
+    /** Solo en la pasarela de pruebas: cómo termina un pago que queda en proceso y desde cuándo. */
+    private String simulacionEstado;
+    private LocalDateTime simulacionListaEn;
     /** Igual que en la cita: "doctorId|fecha|hora" solo mientras espera el pago, con índice único. */
     @Indexed(unique = true, sparse = true)
     private String turno;
@@ -45,6 +52,38 @@ public class Reserva {
 
     public boolean vencida(LocalDateTime ahora) {
         return expiraEn != null && expiraEn.isBefore(ahora);
+    }
+
+    public String getMedioPago() {
+        return medioPago;
+    }
+
+    public void setMedioPago(String medioPago) {
+        this.medioPago = medioPago;
+    }
+
+    public String getTipoMedio() {
+        return tipoMedio;
+    }
+
+    public void setTipoMedio(String tipoMedio) {
+        this.tipoMedio = tipoMedio;
+    }
+
+    public String getSimulacionEstado() {
+        return simulacionEstado;
+    }
+
+    public void setSimulacionEstado(String simulacionEstado) {
+        this.simulacionEstado = simulacionEstado;
+    }
+
+    public LocalDateTime getSimulacionListaEn() {
+        return simulacionListaEn;
+    }
+
+    public void setSimulacionListaEn(LocalDateTime simulacionListaEn) {
+        this.simulacionListaEn = simulacionListaEn;
     }
 
     public String getId() {

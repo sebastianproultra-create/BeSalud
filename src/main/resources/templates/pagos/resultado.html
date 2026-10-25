@@ -53,6 +53,10 @@
                 <span>Abono pagado</span>
                 <strong th:text="${'$' + #numbers.formatInteger(reserva.montoPesos, 1, 'POINT')}">$20.000</strong>
             </div>
+            <div class="comprobante-fila" th:if="${reserva.medioPago != null}">
+                <span>Medio de pago</span>
+                <strong th:text="${reserva.medioPago}">Visa •••• 4242</strong>
+            </div>
             <div class="comprobante-fila" th:if="${saldo != null}">
                 <span>Pagas en el consultorio</span>
                 <strong th:text="${'$' + #numbers.formatInteger(saldo, 1, 'POINT')}">$60.000</strong>
@@ -93,6 +97,7 @@
             No te cobramos nada. Tu cita del <strong th:text="${fechaFrase + ', ' + horaCorta}">martes</strong>
             con <span th:text="${nombreMedico}">el profesional</span> aún no está confirmada.
         </p>
+        <p class="resultado-ref" th:if="${reserva.medioPago != null}" th:text="${'Intentaste con ' + reserva.medioPago}">Intentaste con Visa •••• 4111</p>
         <div class="resultado-causas">
             <h2>Suele pasar por</h2>
             <ul>
@@ -113,10 +118,18 @@
     <section class="pago-tarjeta resultado is-espera" th:if="${vista == 'PROCESANDO'}" aria-labelledby="res-titulo-p"
              th:attr="data-estado-url=@{/pagos/{ref}/estado(ref=${reserva.referencia})}">
         <div class="resultado-icono" aria-hidden="true"><span class="material-symbols-outlined resultado-girando">progress_activity</span></div>
-        <h1 id="res-titulo-p">Estamos confirmando tu pago</h1>
-        <p class="resultado-texto">
-            Algunos medios como PSE o Nequi tardan unos minutos. Esta página se actualiza sola;
-            también puedes cerrarla: la cita aparecerá en tus citas apenas el pago se apruebe.
+        <h1 id="res-titulo-p" th:text="${reserva.tipoMedio == 'NEQUI' ? 'Acepta el pago en tu app Nequi' : 'Estamos confirmando tu pago'}">Estamos confirmando tu pago</h1>
+        <p class="resultado-texto" th:switch="${reserva.tipoMedio}">
+            <span th:case="'NEQUI'">Te enviamos una notificación al celular terminado en
+                <strong th:text="${#strings.substringAfter(reserva.medioPago, '•••• ')}">1111</strong>. Ábrela y acepta el pago.</span>
+            <span th:case="'PSE'">Tu banco está confirmando el débito. Suele tardar menos de un minuto.</span>
+            <span th:case="'BANCOLOMBIA_TRANSFER'">Bancolombia está confirmando la transferencia.</span>
+            <span th:case="*">Algunos medios como PSE o Nequi tardan unos minutos.</span>
+            Esta página se actualiza sola; también puedes cerrarla: la cita aparecerá en tus citas apenas el pago se apruebe.
+        </p>
+        <p class="pago-demo-nota" th:if="${reserva.simulacionEstado != null}">
+            <span class="material-symbols-outlined" aria-hidden="true">science</span>
+            Modo pruebas: el pago se resuelve solo en unos segundos.
         </p>
         <p class="resultado-ref" th:text="${'Referencia ' + reserva.referencia}">Referencia</p>
         <div class="resultado-acciones">

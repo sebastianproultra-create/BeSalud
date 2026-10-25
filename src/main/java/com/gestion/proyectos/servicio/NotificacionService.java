@@ -154,6 +154,8 @@ public class NotificacionService {
             filas.append(fila("Pagas en el consultorio", pesos(doctor.getPrecioConsulta() - abono)));
         if (doctor != null && doctor.getDireccionConsultorio() != null)
             filas.append(fila("Lugar", doctor.getDireccionConsultorio()));
+        if (cita.getMedioPago() != null)
+            filas.append(fila("Medio de pago", cita.getMedioPago()));
         filas.append(fila("Referencia", cita.getReferenciaPago()));
         String politica = "";
         if (doctor != null && cita.getFecha() != null && cita.getHora() != null) {
