@@ -40,7 +40,7 @@ public class SecurityConfig {
                                                 .requestMatchers("/citas").hasRole("ADMIN")
                                                 .requestMatchers("/citas/*/cancelar").hasAnyRole("PACIENTE", "ADMIN")
                                                 .requestMatchers("/doctores/*/horarios").hasRole("ADMIN")
-                                                .requestMatchers("/pacientes/landing", "/pacientes/asistente", "/triage", "/triage/agendar", "/citas/nueva",
+                                                .requestMatchers("/pacientes/landing", "/pacientes/asistente", "/pacientes/pagos", "/triage", "/triage/agendar", "/citas/nueva",
                                                                 "/citas/guardar-paciente", "/citas/*/reprogramar")
                                                 .hasRole("PACIENTE")
                                                 .requestMatchers("/pacientes", "/pacientes/**",

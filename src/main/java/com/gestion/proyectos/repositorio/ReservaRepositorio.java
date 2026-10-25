@@ -10,4 +10,5 @@ public interface ReservaRepositorio extends MongoRepository<Reserva, String> {
     Optional<Reserva> findByReferencia(String referencia);
     List<Reserva> findByDoctorIdAndFechaAndEstado(String doctorId, LocalDate fecha, Reserva.Estado estado);
     List<Reserva> findByPacienteIdAndEstado(String pacienteId, Reserva.Estado estado);
+    List<Reserva> findByPacienteIdOrderByCreadaEnDesc(String pacienteId);
 }

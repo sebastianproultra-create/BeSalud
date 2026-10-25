@@ -161,4 +161,50 @@ class ReservaServiceTest {
         assertThat(reserva.getTransaccionId()).isEqualTo(transaccion);
         assertThat(reserva.getMedioPago()).isEqualTo("Nequi •••• 1111");
     }
+
+    // ── Historial de pagos ──────────────────────────────────────────────────
+
+    @Test
+    void historial_omiteLoQueNuncaSePagoYTraduceElEstadoDelAbono() {
+        Reserva aprobada = new Reserva();
+        aprobada.setReferencia("BS-A");
+        aprobada.setDoctorId("d1");
+        aprobada.setEstado(Reserva.Estado.APROBADA);
+        aprobada.setCitaId("c1");
+        aprobada.setMontoCentavos(1_200_000);
+        Reserva rechazada = new Reserva();
+        rechazada.setReferencia("BS-R");
+        rechazada.setDoctorId("d1");
+        rechazada.setEstado(Reserva.Estado.RECHAZADA);
+        rechazada.setMontoCentavos(1_200_000);
+        Reserva sinIntento = new Reserva();
+        sinIntento.setReferencia("BS-X");
+        sinIntento.setDoctorId("d1");
+        sinIntento.setEstado(Reserva.Estado.EXPIRADA);
+        when(reservaRepo.findByPacienteIdOrderByCreadaEnDesc("p1")).thenReturn(java.util.List.of(aprobada, rechazada, sinIntento));
+        Cita devuelta = new Cita();
+        devuelta.setEstadoAbono(com.gestion.proyectos.modelo.EstadoAbono.DEVUELTO);
+        when(citaService.buscarPorId("c1")).thenReturn(Optional.of(devuelta));
+        when(citaService.buscarDoctorPorId("d1")).thenReturn(Optional.empty());
+
+        ReservaService.HistorialPagos h = service.historialDe("p1");
+
+        assertThat(h.movimientos()).extracting(ReservaService.MovimientoPago::referencia).containsExactly("BS-A", "BS-R");
+        assertThat(h.movimientos()).extracting(ReservaService.MovimientoPago::estado)
+                .containsExactly(ReservaService.EstadoPago.DEVUELTO, ReservaService.EstadoPago.RECHAZADO);
+        assertThat(h.totalPagado()).isZero();
+        assertThat(h.totalDevuelto()).isEqualTo(12_000);
+    }
+
+    @Test
+    void estadoDelPago_pagoEnProcesoYPagadoSinCupo() {
+        Reserva enProceso = new Reserva();
+        enProceso.setEstado(Reserva.Estado.ESPERANDO_PAGO);
+        enProceso.setTransaccionId("1234-1-12345");
+        Reserva sinCupo = new Reserva();
+        sinCupo.setEstado(Reserva.Estado.CONFLICTO);
+
+        assertThat(service.estadoPagoDe(enProceso)).isEqualTo(ReservaService.EstadoPago.EN_PROCESO);
+        assertThat(service.estadoPagoDe(sinCupo)).isEqualTo(ReservaService.EstadoPago.POR_DEVOLVER);
+    }
 }

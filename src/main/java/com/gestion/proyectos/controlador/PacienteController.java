@@ -89,4 +89,13 @@ public class PacienteController {
 
         return "pacientes/catalogo";
     }
+
+    /** Historial de pagos del paciente: abonos pagados, rechazados, devueltos y en proceso. */
+    @GetMapping("/pagos")
+    public String pagos(Model model) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        var paciente = pacienteService.buscarPorEmail(auth.getName()).orElseThrow();
+        model.addAttribute("historial", reservaService.historialDe(paciente.getId()));
+        return "pacientes/pagos";
+    }
 }

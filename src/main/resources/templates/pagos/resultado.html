@@ -8,7 +8,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title th:text="${vista == 'CONFIRMADA' ? '¡Cita confirmada! · BeSalud' : 'Estado de tu pago · BeSalud'}">Resultado · BeSalud</title>
+    <title th:text="${vista == 'CONFIRMADA' ? (cita == null or cita.estado.name() == 'PENDIENTE' ? '¡Cita confirmada! · BeSalud' : 'Comprobante de pago · BeSalud') : 'Estado de tu pago · BeSalud'}">Resultado · BeSalud</title>
     <link rel="stylesheet" th:href="@{/css/base/global.css}">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -21,19 +21,25 @@
 <header th:replace="~{fragments/layout :: pago-header}"></header>
 
 <main class="auth-main pago-main">
-    <ol class="pago-pasos" aria-label="Pasos de la reserva" th:if="${vista == 'CONFIRMADA'}">
+    <ol class="pago-pasos" aria-label="Pasos de la reserva" th:if="${vista == 'CONFIRMADA' and (cita == null or cita.estado.name() == 'PENDIENTE')}">
         <li class="is-hecho"><span>1</span>Horario</li>
         <li class="is-hecho"><span>2</span>Pago del abono</li>
         <li class="is-hecho is-actual" aria-current="step"><span>3</span>Confirmación</li>
     </ol>
 
     <!-- ✔ Confirmada -->
-    <section class="pago-tarjeta resultado is-exito" th:if="${vista == 'CONFIRMADA'}" aria-labelledby="res-titulo">
-        <div class="resultado-icono" aria-hidden="true"><span class="material-symbols-outlined">check</span></div>
-        <h1 id="res-titulo">¡Tu cita está confirmada!</h1>
-        <p class="resultado-texto">
+    <!-- Si la cita ya pasó o se canceló, la misma página sirve como comprobante (desde "Mis pagos") -->
+    <section class="pago-tarjeta resultado is-exito" th:if="${vista == 'CONFIRMADA'}" aria-labelledby="res-titulo"
+             th:with="vigente=${cita == null or cita.estado.name() == 'PENDIENTE'}">
+        <div class="resultado-icono" aria-hidden="true"><span class="material-symbols-outlined" th:text="${vigente ? 'check' : 'receipt_long'}">check</span></div>
+        <h1 id="res-titulo" th:text="${vigente ? '¡Tu cita está confirmada!' : 'Comprobante de pago'}">¡Tu cita está confirmada!</h1>
+        <p class="resultado-texto" th:if="${vigente}">
             Recibimos tu abono de <strong th:text="${'$' + #numbers.formatInteger(reserva.montoPesos, 1, 'POINT')}">$20.000</strong>.
             Te esperamos el <strong th:text="${fechaFrase + ', ' + horaCorta}">martes</strong>
+        </p>
+        <p class="resultado-texto" th:unless="${vigente}">
+            Pagaste un abono de <strong th:text="${'$' + #numbers.formatInteger(reserva.montoPesos, 1, 'POINT')}">$20.000</strong>
+            para tu cita del <strong th:text="${fechaFrase + ', ' + horaCorta}">martes</strong>
         </p>
 
         <div class="comprobante" aria-label="Comprobante">
@@ -57,9 +63,17 @@
                 <span>Medio de pago</span>
                 <strong th:text="${reserva.medioPago}">Visa •••• 4242</strong>
             </div>
-            <div class="comprobante-fila" th:if="${saldo != null}">
+            <div class="comprobante-fila" th:if="${vigente and saldo != null}">
                 <span>Pagas en el consultorio</span>
                 <strong th:text="${'$' + #numbers.formatInteger(saldo, 1, 'POINT')}">$60.000</strong>
+            </div>
+            <div class="comprobante-fila" th:unless="${vigente}">
+                <span>Estado de la cita</span>
+                <strong th:text="${cita.estado.descripcion}">Cancelada</strong>
+            </div>
+            <div class="comprobante-fila" th:if="${!vigente and cita.estadoAbono != null}">
+                <span>Abono</span>
+                <strong th:text="${cita.estadoAbono.descripcion}">Abono devuelto</strong>
             </div>
             <div class="comprobante-fila is-tenue">
                 <span>Referencia</span>
@@ -67,7 +81,7 @@
             </div>
         </div>
 
-        <p class="resultado-politica">
+        <p class="resultado-politica" th:if="${vigente}">
             <span class="material-symbols-outlined" aria-hidden="true">event_busy</span>
             <span>Si no puedes ir, cancela antes del
                 <strong th:text="${#temporals.format(cancelarHasta, 'EEEE d ''de'' MMMM, h:mm a', loc)}">lunes</strong>
@@ -75,15 +89,18 @@
         </p>
 
         <div class="resultado-acciones">
-            <a class="pago-boton" th:href="@{/pacientes/landing}">
+            <a class="pago-boton" th:href="@{/pacientes/landing}" th:if="${vigente}">
                 <span class="material-symbols-outlined" aria-hidden="true">event_note</span>Ver mis citas
             </a>
-            <a class="pago-boton is-secundario" th:if="${enlaceGoogle != null}" th:href="${enlaceGoogle}"
+            <a class="pago-boton" th:href="@{/pacientes/pagos}" th:unless="${vigente}">
+                <span class="material-symbols-outlined" aria-hidden="true">receipt_long</span>Volver a mis pagos
+            </a>
+            <a class="pago-boton is-secundario" th:if="${vigente and enlaceGoogle != null}" th:href="${enlaceGoogle}"
                target="_blank" rel="noopener">
                 <span class="material-symbols-outlined" aria-hidden="true">calendar_add_on</span>Agregar a Google Calendar
             </a>
         </div>
-        <p class="resultado-ics" th:if="${cita != null}">
+        <p class="resultado-ics" th:if="${vigente and cita != null}">
             ¿Usas Outlook o el calendario del iPhone?
             <a th:href="@{/citas/{id}/calendario.ics(id=${cita.id})}">Descarga la cita</a> y ábrela con tu calendario.
         </p>

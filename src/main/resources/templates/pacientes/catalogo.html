@@ -23,8 +23,9 @@
             </span>
         </a>
         <nav class="patient-nav" aria-label="Navegación del paciente">
-            <a class="is-active" th:href="@{/pacientes/landing}" aria-current="page"><i class="fa-solid fa-user-doctor" aria-hidden="true"></i>Doctores</a>
-            <a th:href="@{/triage}"><i class="fa-solid fa-stethoscope" aria-hidden="true"></i>Asistente</a>
+            <a class="is-active" th:href="@{/pacientes/landing}" aria-current="page" title="Doctores"><i class="fa-solid fa-user-doctor" aria-hidden="true"></i>Doctores</a>
+            <a th:href="@{/triage}" title="Asistente de síntomas"><i class="fa-solid fa-stethoscope" aria-hidden="true"></i>Asistente</a>
+            <a th:href="@{/pacientes/pagos}" title="Mis pagos"><i class="fa-solid fa-receipt" aria-hidden="true"></i>Pagos</a>
         </nav>
         <div class="patient-account">
             <img th:src="@{/images/default-avatar.jpg}" alt="" class="patient-avatar">

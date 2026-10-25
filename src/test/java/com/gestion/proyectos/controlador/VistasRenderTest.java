@@ -443,4 +443,35 @@ class VistasRenderTest {
                 .andExpect(status().isMethodNotAllowed())
                 .andExpect(header().exists("Allow"));
     }
+
+    @Test
+    void misPagos_listaLosAbonosConSuEstadoYComprobante() throws Exception {
+        Paciente p = new Paciente();
+        p.setId("p1");
+        when(pacienteService.buscarPorEmail("pac@test.com")).thenReturn(Optional.of(p));
+        var pago = new com.gestion.proyectos.servicio.ReservaService.MovimientoPago("BS-1",
+                java.time.LocalDateTime.of(2026, 10, 20, 9, 0), "Dr(a). Ana Ruiz", "Psicología",
+                java.time.LocalDate.of(2026, 11, 4), java.time.LocalTime.of(8, 0), 12_000, "Visa •••• 4242",
+                com.gestion.proyectos.servicio.ReservaService.EstadoPago.PAGADO);
+        var rechazado = new com.gestion.proyectos.servicio.ReservaService.MovimientoPago("BS-2",
+                java.time.LocalDateTime.of(2026, 10, 19, 9, 0), "Dr(a). Ana Ruiz", "Psicología",
+                java.time.LocalDate.of(2026, 11, 4), java.time.LocalTime.of(8, 0), 12_000, null,
+                com.gestion.proyectos.servicio.ReservaService.EstadoPago.RECHAZADO);
+        when(reservaService.historialDe("p1")).thenReturn(
+                new com.gestion.proyectos.servicio.ReservaService.HistorialPagos(List.of(pago, rechazado), 12_000, 0));
+
+        mockMvc.perform(get("/pacientes/pagos").with(user("pac@test.com").roles("PACIENTE")))
+                .andExpect(status().isOk())
+                .andExpect(content().string(containsString("Mis pagos")))
+                .andExpect(content().string(containsString("Visa •••• 4242")))
+                .andExpect(content().string(containsString("/pagos/BS-1/resultado")))
+                .andExpect(content().string(containsString("Rechazado")))
+                .andExpect(content().string(containsString("$12.000")));
+    }
+
+    @Test
+    void misPagos_soloParaPacientes() throws Exception {
+        mockMvc.perform(get("/pacientes/pagos").with(user("doc@test.com").roles("DOCTOR")))
+                .andExpect(status().isForbidden());
+    }
 }

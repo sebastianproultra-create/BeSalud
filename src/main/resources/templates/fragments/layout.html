@@ -68,6 +68,7 @@
         <nav class="app-nav" aria-label="Navegación principal">
             <a th:href="@{/pacientes/landing}" th:classappend="${active == 'catalogo'} ? 'is-active'" aria-label="Doctores" title="Doctores"><i class="fa-solid fa-user-doctor" aria-hidden="true"></i><span class="patient-nav-label">Doctores</span></a>
             <a th:href="@{/triage}" th:classappend="${active == 'triage'} ? 'is-active'" aria-label="Asistente de síntomas" title="Asistente de síntomas"><i class="fa-solid fa-stethoscope" aria-hidden="true"></i><span class="patient-nav-label">Asistente de síntomas</span></a>
+            <a th:href="@{/pacientes/pagos}" th:classappend="${active == 'pagos'} ? 'is-active'" aria-label="Mis pagos" title="Mis pagos"><i class="fa-solid fa-receipt" aria-hidden="true"></i><span class="patient-nav-label">Mis pagos</span></a>
         </nav>
         <div class="app-user">
             <span class="app-user-name" sec:authentication="name">Paciente</span>
@@ -163,6 +164,7 @@
         </a>
         <nav class="auth-nav" aria-label="Navegación">
             <a th:href="@{/pacientes/landing}" class="auth-nav-link">Mis citas</a>
+            <a th:href="@{/pacientes/pagos}" class="auth-nav-link">Mis pagos</a>
             <a th:href="@{/ayuda}" class="auth-nav-link">Ayuda</a>
         </nav>
         <div class="portal-header-meta">

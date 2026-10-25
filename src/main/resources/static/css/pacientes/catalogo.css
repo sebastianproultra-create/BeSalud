@@ -1763,22 +1763,11 @@ body.patient-catalog-page {
         display: none;
     }
 
-    .patient-nav i {
-        display: none;
-    }
-
+    /* Tres enlaces: solo íconos para que el encabezado quepa (el texto sigue para lectores de pantalla) */
     .patient-catalog-page .patient-nav a {
-        width: auto;
+        width: 34px;
+        min-height: 34px;
         padding: 7px;
-        font-size: 9px;
-    }
-
-    .patient-nav a.is-active::before {
-        content: '';
-        width: 5px;
-        height: 5px;
-        background: #A7E2CC;
-        border-radius: 50%;
     }
 
     .patient-main {

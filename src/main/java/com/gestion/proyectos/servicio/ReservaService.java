@@ -8,6 +8,10 @@ import com.gestion.proyectos.util.Reloj;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import org.slf4j.Logger;
@@ -31,6 +35,86 @@ public class ReservaService {
     private static final Logger log = LoggerFactory.getLogger(ReservaService.class);
 
     public enum Resultado { APROBADA, RECHAZADA, PENDIENTE, EXPIRADA, CONFLICTO, NO_EXISTE }
+
+    /** Cómo se ve un pago en el historial del paciente. */
+    public enum EstadoPago {
+        PAGADO("Pagado", "ok"),
+        EN_PROCESO("En proceso", "espera"),
+        RECHAZADO("Rechazado", "error"),
+        POR_DEVOLVER("Devolución en proceso", "espera"),
+        DEVUELTO("Devuelto", "neutro"),
+        CONSERVADO("No reembolsable", "neutro");
+
+        private final String texto;
+        private final String tono;
+
+        EstadoPago(String texto, String tono) {
+            this.texto = texto;
+            this.tono = tono;
+        }
+
+        public String getTexto() {
+            return texto;
+        }
+
+        public String getTono() {
+            return tono;
+        }
+    }
+
+    /** Una fila del historial: el intento de pago con su cita y lo que pasó con el dinero. */
+    public record MovimientoPago(String referencia, LocalDateTime fechaPago, String profesional, String especialidad,
+            LocalDate fechaCita, LocalTime horaCita, long montoPesos, String medioPago, EstadoPago estado) {
+    }
+
+    /** Resumen del historial: lo pagado (sin lo devuelto) y lo devuelto o por devolver. */
+    public record HistorialPagos(List<MovimientoPago> movimientos, long totalPagado, long totalDevuelto) {
+    }
+
+    /**
+     * Pagos del paciente, del más reciente al más antiguo. No incluye los horarios apartados que nunca
+     * se intentaron pagar: esos se muestran como pendientes en el portal mientras siguen vigentes.
+     */
+    public HistorialPagos historialDe(String pacienteId) {
+        List<MovimientoPago> movimientos = new ArrayList<>();
+        Map<String, Doctor> doctores = new HashMap<>();
+        for (Reserva r : reservaRepo.findByPacienteIdOrderByCreadaEnDesc(pacienteId)) {
+            EstadoPago estado = estadoPagoDe(r);
+            if (estado == null)
+                continue;
+            Doctor d = doctores.computeIfAbsent(r.getDoctorId(), id -> citaService.buscarDoctorPorId(id).orElse(null));
+            movimientos.add(new MovimientoPago(r.getReferencia(), r.getCreadaEn(),
+                    d == null ? "Profesional" : "Dr(a). " + d.getNombre() + " " + d.getApellido(),
+                    d == null ? null : d.getEspecialidad(), r.getFecha(), r.getHora(), r.getMontoPesos(),
+                    r.getMedioPago(), estado));
+        }
+        long pagado = movimientos.stream().filter(m -> m.estado() == EstadoPago.PAGADO || m.estado() == EstadoPago.CONSERVADO)
+                .mapToLong(MovimientoPago::montoPesos).sum();
+        long devuelto = movimientos.stream().filter(m -> m.estado() == EstadoPago.DEVUELTO || m.estado() == EstadoPago.POR_DEVOLVER)
+                .mapToLong(MovimientoPago::montoPesos).sum();
+        return new HistorialPagos(movimientos, pagado, devuelto);
+    }
+
+    EstadoPago estadoPagoDe(Reserva r) {
+        return switch (r.getEstado()) {
+            case RECHAZADA -> EstadoPago.RECHAZADO;
+            case CONFLICTO -> EstadoPago.POR_DEVOLVER; // pagó pero el turno ya no estaba
+            case PROCESANDO -> EstadoPago.EN_PROCESO;
+            case ESPERANDO_PAGO, EXPIRADA -> r.getTransaccionId() != null ? EstadoPago.EN_PROCESO : null;
+            case APROBADA -> {
+                Cita cita = r.getCitaId() == null ? null : citaService.buscarPorId(r.getCitaId()).orElse(null);
+                if (cita == null || cita.getEstadoAbono() == null)
+                    yield EstadoPago.PAGADO;
+                yield switch (cita.getEstadoAbono()) {
+                    case PAGADO -> EstadoPago.PAGADO;
+                    case A_REEMBOLSAR -> EstadoPago.POR_DEVOLVER;
+                    case DEVUELTO -> EstadoPago.DEVUELTO;
+                    case RETENIDO -> EstadoPago.CONSERVADO;
+                };
+            }
+        };
+    }
+
 
     private final ReservaRepositorio reservaRepo;
     private final CitaService citaService;
