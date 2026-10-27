@@ -41,6 +41,9 @@ public class Reserva {
     /** Solo en la pasarela de pruebas: cómo termina un pago que queda en proceso y desde cuándo. */
     private String simulacionEstado;
     private LocalDateTime simulacionListaEn;
+    /** Código de autorización del banco y momento en que se aprobó el pago, para el comprobante. */
+    private String codigoAutorizacion;
+    private LocalDateTime pagadaEn;
     /** Igual que en la cita: "doctorId|fecha|hora" solo mientras espera el pago, con índice único. */
     @Indexed(unique = true, sparse = true)
     private String turno;
@@ -84,6 +87,22 @@ public class Reserva {
 
     public void setSimulacionListaEn(LocalDateTime simulacionListaEn) {
         this.simulacionListaEn = simulacionListaEn;
+    }
+
+    public String getCodigoAutorizacion() {
+        return codigoAutorizacion;
+    }
+
+    public void setCodigoAutorizacion(String codigoAutorizacion) {
+        this.codigoAutorizacion = codigoAutorizacion;
+    }
+
+    public LocalDateTime getPagadaEn() {
+        return pagadaEn;
+    }
+
+    public void setPagadaEn(LocalDateTime pagadaEn) {
+        this.pagadaEn = pagadaEn;
     }
 
     public String getId() {

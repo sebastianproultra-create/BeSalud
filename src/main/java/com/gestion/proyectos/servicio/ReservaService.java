@@ -277,6 +277,8 @@ public class ReservaService {
         String transaccion = idTransaccionDePrueba();
         r.setTipoMedio(tipoMedio);
         r.setMedioPago(medioPago);
+        if ("APPROVED".equals(estadoFinal))
+            r.setCodigoAutorizacion(String.valueOf(java.util.concurrent.ThreadLocalRandom.current().nextInt(100000, 1000000)));
         if ("CARD".equals(tipoMedio)) {
             reservaRepo.save(r);
             return confirmarPago(referencia, transaccion, estadoFinal, r.getMontoCentavos(), "COP");
@@ -306,6 +308,8 @@ public class ReservaService {
     }
 
     private void terminar(Reserva r, Reserva.Estado estado, String citaId) {
+        if (estado == Reserva.Estado.APROBADA && r.getPagadaEn() == null)
+            r.setPagadaEn(Reloj.ahora());
         r.setEstado(estado);
         r.setCitaId(citaId);
         reservaRepo.save(r);

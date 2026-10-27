@@ -86,6 +86,30 @@
             </div>
         </div>
 
+        <!-- Datos de la transacción, como en el recibo de la pasarela -->
+        <dl class="recibo-transaccion" aria-label="Datos de la transacción">
+            <div>
+                <dt>Comercio</dt>
+                <dd th:text="${'BeSalud' + (nitComercio != null ? ' · NIT ' + nitComercio : '')}">BeSalud</dd>
+            </div>
+            <div th:if="${reserva.pagadaEn != null}">
+                <dt>Aprobado el</dt>
+                <dd th:text="${#temporals.format(reserva.pagadaEn, 'd MMM yyyy, h:mm a', loc)}">26 oct 2026</dd>
+            </div>
+            <div th:if="${reserva.codigoAutorizacion != null}">
+                <dt>Autorización</dt>
+                <dd th:text="${reserva.codigoAutorizacion}">482913</dd>
+            </div>
+            <div th:if="${reserva.transaccionId != null}">
+                <dt>Transacción</dt>
+                <dd th:text="${reserva.transaccionId}">1234-1700000000-12345</dd>
+            </div>
+            <div>
+                <dt>Procesado por</dt>
+                <dd th:text="${pagoSimulado ? 'Pasarela de pruebas' : 'Wompi'}">Wompi</dd>
+            </div>
+        </dl>
+
         <p class="resultado-politica" th:if="${vigente}">
             <span class="material-symbols-outlined" aria-hidden="true">event_busy</span>
             <span>Si no puedes ir, cancela antes del

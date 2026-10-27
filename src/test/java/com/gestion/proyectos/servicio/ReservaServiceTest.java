@@ -127,6 +127,19 @@ class ReservaServiceTest {
         assertThat(service.pagoSimulado("BS-1", "CARD", "Visa •••• 4242", "APPROVED")).isEqualTo(Resultado.APROBADA);
         assertThat(reserva.getMedioPago()).isEqualTo("Visa •••• 4242");
         assertThat(reserva.getEstado()).isEqualTo(Reserva.Estado.APROBADA);
+        assertThat(reserva.getCodigoAutorizacion()).matches("\\d{6}");
+        assertThat(reserva.getPagadaEn()).isNotNull();
+    }
+
+    @Test
+    void pruebaRechazada_noTieneCodigoDeAutorizacion() {
+        laReservaSeToma();
+
+        service.pagoSimulado("BS-1", "CARD", "Visa •••• 4111", "DECLINED");
+
+        assertThat(reserva.getEstado()).isEqualTo(Reserva.Estado.RECHAZADA);
+        assertThat(reserva.getCodigoAutorizacion()).isNull();
+        assertThat(reserva.getPagadaEn()).isNull();
     }
 
     @Test

@@ -283,11 +283,111 @@
             poner('escenario', 'APPROVED');
         }
 
-        const espera = raiz.querySelector('[data-procesando]');
-        raiz.querySelector('[data-procesando-titulo]').textContent = ESPERA[medio][0];
-        raiz.querySelector('[data-procesando-texto]').textContent = ESPERA[medio][1];
-        espera.hidden = false;
-        // Pausa breve, como la respuesta del banco
-        setTimeout(function () { envio.submit(); }, 1800);
+        if (medio === 'BANCOLOMBIA_TRANSFER') return procesar();
+        // Antes de procesar, el paso del banco o de la app; el aviso de "procesando" cubre la espera
+        mostrarProcesando(ESPERA[medio][0], ESPERA[medio][1]);
+        setTimeout(function () { verificar(medio); }, 1200);
     }
+
+    function mostrarProcesando(titulo, texto) {
+        raiz.querySelector('[data-procesando-titulo]').textContent = titulo;
+        raiz.querySelector('[data-procesando-texto]').textContent = texto;
+        raiz.querySelector('[data-procesando]').hidden = false;
+    }
+
+    function procesar(escenario) {
+        const envio = raiz.querySelector('[data-envio]');
+        if (escenario) envio.elements.escenario.value = escenario;
+        mostrarProcesando(medio === 'CARD' ? 'Procesando tu pago…' : 'Confirmando el pago…', 'No cierres esta ventana.');
+        // Pausa breve, como la respuesta del banco
+        setTimeout(function () { envio.submit(); }, 1500);
+    }
+
+    // ── Verificación: 3D Secure, portal del banco (PSE) o notificación de Nequi ──
+    const CODIGO_PRUEBA = '123456';
+    const capa = raiz.querySelector('[data-verificacion]');
+    let caja = null, cuenta = null, intentos = 0;
+
+    function verificar(m) {
+        raiz.querySelector('[data-procesando]').hidden = true;
+        caja = capa.querySelector('[data-ver="' + m + '"]');
+        capa.querySelectorAll('[data-ver]').forEach(function (c) { c.hidden = c !== caja; });
+        if (m === 'CARD') {
+            const n = soloDigitos(campo('numero').value);
+            const chip = caja.querySelector('[data-ver-marca]');
+            chip.textContent = NOMBRE_MARCA[marcaDe(n)];
+            chip.className = 'marca-chip is-' + marcaDe(n).toLowerCase();
+            caja.querySelector('[data-ver-tarjeta]').textContent = '•••• ' + n.slice(-4);
+            caja.querySelector('[data-ver-codigo]').value = '';
+            caja.querySelector('[data-ver-error]').hidden = true;
+            intentos = 0;
+        } else if (m === 'PSE') {
+            const banco = campo('banco');
+            caja.querySelector('[data-ver-banco]').textContent = banco.options[banco.selectedIndex].text;
+        } else if (m === 'NEQUI') {
+            const ahora = new Date();
+            caja.querySelector('[data-ver-hora]').textContent = ahora.getHours() + ':' + String(ahora.getMinutes()).padStart(2, '0');
+            let quedan = 60;
+            caja.querySelector('[data-ver-cuenta]').textContent = quedan;
+            cuenta = setInterval(function () {
+                quedan--;
+                caja.querySelector('[data-ver-cuenta]').textContent = quedan;
+                if (quedan <= 0) cerrarVerificacion('La solicitud en Nequi venció. Intenta de nuevo.');
+            }, 1000);
+        }
+        capa.hidden = false;
+        document.body.classList.add('sin-scroll');
+        (caja.querySelector('[data-ver-codigo]') || caja.querySelector('[data-ver-confirmar]')).focus();
+    }
+
+    function cerrarVerificacion(error) {
+        clearInterval(cuenta);
+        capa.hidden = true;
+        document.body.classList.remove('sin-scroll');
+        enviando = false;
+        botonPagar.disabled = false;
+        if (error) mostrarErrorGeneral(error);
+        botonPagar.focus();
+    }
+
+    function finalizarVerificacion(escenario) {
+        clearInterval(cuenta);
+        capa.hidden = true;
+        document.body.classList.remove('sin-scroll');
+        procesar(escenario);
+    }
+
+    const CANCELADO = 'Cancelaste el pago. Puedes intentarlo de nuevo.';
+    capa.querySelectorAll('[data-ver-cancelar]').forEach(function (b) {
+        b.addEventListener('click', function () { cerrarVerificacion(CANCELADO); });
+    });
+    capa.querySelector('[data-ver-rechazar]').addEventListener('click', function () { finalizarVerificacion('DECLINED'); });
+    capa.querySelectorAll('[data-ver-confirmar]').forEach(function (b) {
+        b.addEventListener('click', function () {
+            if (caja.dataset.ver !== 'CARD') return finalizarVerificacion();
+            const entrada = caja.querySelector('[data-ver-codigo]');
+            const error = caja.querySelector('[data-ver-error]');
+            if (soloDigitos(entrada.value) === CODIGO_PRUEBA) return finalizarVerificacion();
+            intentos++;
+            // Tres intentos fallidos: el banco no autoriza el pago
+            if (intentos >= 3) return finalizarVerificacion('DECLINED');
+            const quedan = 3 - intentos;
+            error.textContent = 'El código no es correcto. Te ' + (quedan === 1 ? 'queda 1 intento.' : 'quedan ' + quedan + ' intentos.');
+            error.hidden = false;
+            entrada.classList.add('is-invalido');
+            entrada.select();
+        });
+    });
+    const codigo = capa.querySelector('[data-ver-codigo]');
+    codigo.addEventListener('input', function () {
+        codigo.value = soloDigitos(codigo.value).slice(0, 6);
+        codigo.classList.remove('is-invalido');
+        caja.querySelector('[data-ver-error]').hidden = true;
+    });
+    codigo.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter') caja.querySelector('[data-ver-confirmar]').click();
+    });
+    document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape' && !capa.hidden) cerrarVerificacion(CANCELADO);
+    });
 })();

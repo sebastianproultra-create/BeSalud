@@ -1690,3 +1690,345 @@
     outline: 3px solid rgba(13, 71, 56, 0.35);
     outline-offset: 2px;
 }
+
+/* Comprobante: datos de la transacción */
+.recibo-transaccion {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 10px 16px;
+    margin: 14px 0 0;
+    padding: 0 4px;
+    text-align: left;
+}
+
+.recibo-transaccion div {
+    min-width: 0;
+}
+
+.recibo-transaccion dt {
+    color: var(--portal-outline);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+}
+
+.recibo-transaccion dd {
+    margin: 2px 0 0;
+    color: var(--portal-on-surface);
+    font-size: 13px;
+    font-variant-numeric: tabular-nums;
+    overflow-wrap: anywhere;
+}
+
+/* Pasarela: verificación del banco o de la app antes de procesar */
+body.sin-scroll {
+    overflow: hidden;
+}
+
+.verificacion {
+    position: fixed;
+    inset: 0;
+    z-index: 1001;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+    overflow-y: auto;
+    background: rgba(0, 47, 36, 0.62);
+}
+
+.verificacion[hidden],
+.verificacion-caja[hidden] {
+    display: none;
+}
+
+.verificacion-caja {
+    width: 100%;
+    max-width: 380px;
+    margin: auto;
+    padding: 22px;
+    color: var(--portal-on-surface);
+    background: var(--portal-surface);
+    border-radius: 18px;
+    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.25);
+    animation: pasarela-entra 0.22s ease-out;
+}
+
+.verificacion-cabecera {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: -22px -22px 18px;
+    padding: 12px 22px;
+    color: var(--portal-muted);
+    background: var(--portal-bg);
+    border-bottom: 1px solid var(--portal-border);
+    border-radius: 18px 18px 0 0;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.verificacion-cabecera small {
+    margin-left: auto;
+    font-weight: 500;
+}
+
+.verificacion-caja.is-banco .verificacion-cabecera {
+    color: #fff;
+    background: #24364D;
+    border-bottom: 0;
+}
+
+.verificacion-caja.is-banco .verificacion-cabecera small {
+    color: rgba(255, 255, 255, 0.75);
+}
+
+.pago-page .verificacion-caja h2 {
+    margin: 0 0 6px;
+    font-family: 'Newsreader', serif;
+    font-size: 24px;
+    font-weight: 500;
+}
+
+.verificacion-caja > p {
+    margin: 0 0 14px;
+    color: var(--portal-muted);
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+.verificacion-resumen {
+    margin: 0 0 16px;
+    padding: 4px 14px;
+    background: var(--portal-bg);
+    border-radius: 12px;
+}
+
+.verificacion-resumen div {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 8px 0;
+    font-size: 13px;
+}
+
+.verificacion-resumen div + div {
+    border-top: 1px solid var(--portal-border);
+}
+
+.verificacion-resumen dt {
+    color: var(--portal-muted);
+}
+
+.verificacion-resumen dd {
+    margin: 0;
+    font-weight: 700;
+    text-align: right;
+}
+
+.pago-page .verificacion-caja [data-ver-codigo] {
+    font-size: 22px;
+    letter-spacing: 0.35em;
+    text-align: center;
+}
+
+.verificacion-cuentas {
+    margin: 0 0 16px;
+    padding: 0;
+    border: 0;
+}
+
+.verificacion-cuentas legend {
+    margin-bottom: 8px;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.verificacion-cuentas label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    border: 1px solid var(--portal-border);
+    border-radius: 10px;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.verificacion-cuentas label + label {
+    margin-top: 8px;
+}
+
+.verificacion-cuentas label:has(input:checked) {
+    background: var(--portal-bg);
+    border-color: var(--portal-primary-container);
+}
+
+.verificacion-cuentas input {
+    width: auto;
+    margin: 0;
+    accent-color: var(--portal-primary-container);
+}
+
+.verificacion-cuentas small {
+    color: var(--portal-muted);
+}
+
+.pago-page .verificacion-cancelar {
+    display: block;
+    width: 100%;
+    margin: 10px 0 0;
+    padding: 8px;
+    color: var(--portal-muted);
+    background: none;
+    border: 0;
+    box-shadow: none;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: normal;
+    text-transform: none;
+    cursor: pointer;
+}
+
+.pago-page .verificacion-cancelar:hover {
+    color: var(--portal-on-surface);
+    background: none;
+    transform: none;
+}
+
+/* Nequi: el celular con la notificación */
+.verificacion-caja.is-celular {
+    max-width: 320px;
+    background: transparent;
+    box-shadow: none;
+    padding: 0;
+    text-align: center;
+}
+
+.celular {
+    padding: 16px 12px 120px;
+    background: linear-gradient(160deg, #2B1A4A, #1A1030);
+    border: 6px solid #111;
+    border-radius: 36px;
+    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.35);
+}
+
+.celular-hora {
+    margin: 14px 0 22px;
+    color: #fff;
+    font-size: 44px;
+    font-weight: 300;
+}
+
+.celular-noti {
+    padding: 14px;
+    color: #171B19;
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 18px;
+    text-align: left;
+    animation: celular-noti-baja 0.35s ease-out;
+}
+
+@keyframes celular-noti-baja {
+    from { opacity: 0; transform: translateY(-14px); }
+    to { opacity: 1; transform: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .verificacion-caja,
+    .celular-noti { animation: none; }
+}
+
+.celular-noti-app {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 6px;
+    color: #5F6662;
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.celular-logo {
+    display: inline-grid;
+    place-items: center;
+    width: 18px;
+    height: 18px;
+    color: #fff;
+    background: #2B1A4A;
+    border-radius: 5px;
+    font-size: 11px;
+    font-weight: 800;
+}
+
+.celular-noti strong {
+    display: block;
+    font-size: 14px;
+}
+
+.celular-noti > span {
+    display: block;
+    margin-top: 2px;
+    color: #3F4643;
+    font-size: 13px;
+    line-height: 1.4;
+}
+
+.celular-acciones {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-top: 12px;
+}
+
+.pago-page .celular-acciones button {
+    margin: 0;
+    padding: 9px;
+    color: #2B1A4A;
+    background: #EEE9F5;
+    border: 0;
+    border-radius: 10px;
+    box-shadow: none;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: normal;
+    text-transform: none;
+    cursor: pointer;
+}
+
+.pago-page .celular-acciones button.is-aceptar {
+    color: #fff;
+    background: #DA0081;
+}
+
+.pago-page .celular-acciones button:hover {
+    transform: none;
+    filter: brightness(0.95);
+}
+
+.verificacion-caja > .celular-espera {
+    display: inline-block;
+    margin: 14px 0 0;
+    padding: 6px 14px;
+    color: #fff;
+    background: rgba(0, 0, 0, 0.6);
+    border-radius: 999px;
+    font-size: 13px;
+}
+
+.pago-page .verificacion-caja.is-celular .verificacion-cancelar {
+    width: fit-content;
+    margin: 10px auto 0;
+    padding: 6px 14px;
+    color: #fff;
+    background: rgba(0, 0, 0, 0.6);
+    border-radius: 999px;
+}
+
+.pago-page .verificacion-caja.is-celular .verificacion-cancelar:hover {
+    color: #fff;
+    background: rgba(0, 0, 0, 0.75);
+}
