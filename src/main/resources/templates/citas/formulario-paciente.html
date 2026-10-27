@@ -87,7 +87,7 @@
             <div class="step-label">Resumen de cita</div>
             <div class="confirm-card">
                 <div class="confirm-summary" id="confirmSummary"></div>
-                <div class="abono-aviso" th:if="${cita == null and doctorSeleccionado.recibeReservas()}">
+                <div class="abono-aviso" th:if="${cita == null}">
                     <p>
                         Para confirmar pagas en línea un abono de
                         <strong th:text="${'$' + #numbers.formatInteger(doctorSeleccionado.abono, 1, 'POINT') + ' (' + doctorSeleccionado.porcentajeAbonoEfectivo() + ' % de la consulta)'}">$16.000</strong>;

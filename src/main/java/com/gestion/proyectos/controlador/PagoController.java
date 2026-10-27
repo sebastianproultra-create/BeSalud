@@ -243,8 +243,6 @@ public class PagoController {
 
     /** Lo que el paciente paga en el consultorio; null si el médico no publicó el valor. */
     private static Long saldo(Doctor doctor, Reserva reserva) {
-        if (doctor.getPrecioConsulta() == null || doctor.getPrecioConsulta() <= 0)
-            return null;
-        return Math.max(0, doctor.getPrecioConsulta() - reserva.getMontoPesos());
+        return Math.max(0, doctor.getPrecioEfectivo() - reserva.getMontoPesos());
     }
 }

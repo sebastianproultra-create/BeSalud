@@ -145,8 +145,8 @@ public class NotificacionService {
         long abono = cita.getAbonoPesos() == null ? 0 : cita.getAbonoPesos();
         StringBuilder filas = new StringBuilder();
         filas.append(fila("Abono pagado", pesos(abono)));
-        if (doctor != null && doctor.getPrecioConsulta() != null && doctor.getPrecioConsulta() > abono)
-            filas.append(fila("Pagas en el consultorio", pesos(doctor.getPrecioConsulta() - abono)));
+        if (doctor != null && doctor.getPrecioEfectivo() > abono)
+            filas.append(fila("Pagas en el consultorio", pesos(doctor.getPrecioEfectivo() - abono)));
         if (doctor != null && doctor.getDireccionConsultorio() != null)
             filas.append(fila("Lugar", doctor.getDireccionConsultorio()));
         if (cita.getMedioPago() != null)

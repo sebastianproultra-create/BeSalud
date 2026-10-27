@@ -37,11 +37,11 @@
         <aside class="pro-card pro-consulta" aria-labelledby="pro-consulta-titulo">
             <h2 id="pro-consulta-titulo">La consulta</h2>
             <dl>
-                <div th:if="${doctor.precioConsulta != null}">
+                <div>
                     <dt><span class="material-symbols-outlined" aria-hidden="true">payments</span>Valor</dt>
-                    <dd th:text="${'$' + #numbers.formatInteger(doctor.precioConsulta, 1, 'POINT')}">$80.000</dd>
+                    <dd th:text="${'$' + #numbers.formatInteger(doctor.precioEfectivo, 1, 'POINT')}">$80.000</dd>
                 </div>
-                <div th:if="${doctor.recibeReservas()}">
+                <div>
                     <dt><span class="material-symbols-outlined" aria-hidden="true">lock</span>Abono para reservar</dt>
                     <dd th:text="${'$' + #numbers.formatInteger(doctor.abono, 1, 'POINT') + ' (' + doctor.porcentajeAbonoEfectivo() + ' %)'}">$16.000 (20 %)</dd>
                 </div>
@@ -50,13 +50,12 @@
                     <dd th:text="${doctor.direccionConsultorio}">Dirección</dd>
                 </div>
             </dl>
-            <p class="pro-politica" th:if="${doctor.recibeReservas()}">
+            <p class="pro-politica">
                 Reservas pagando el abono en línea y el resto en el consultorio. Si cancelas con al menos
                 <strong th:text="${doctor.horasCancelacionEfectivas() + ' horas'}">24 horas</strong> de anticipación, se te devuelve;
                 si no asistes o cancelas más tarde, el profesional lo conserva. Al elegir un horario lo apartamos
                 <strong th:text="${minutosParaPagar + ' minutos'}">15 minutos</strong> mientras pagas.
             </p>
-            <p class="pro-aviso" th:unless="${doctor.recibeReservas()}">Este profesional aún no recibe reservas en línea.</p>
         </aside>
 
         <section class="pro-card pro-horarios" aria-labelledby="pro-horarios-titulo">
@@ -64,7 +63,7 @@
             <p class="pro-aviso" th:if="${sesionIniciada and !esPaciente}">
                 Para reservar debes entrar con una cuenta de paciente.
             </p>
-            <p class="pro-vacio" th:if="${#lists.isEmpty(fechas) and doctor.recibeReservas()}">
+            <p class="pro-vacio" th:if="${#lists.isEmpty(fechas)}">
                 No hay horarios disponibles por ahora. Escríbele al asistente o vuelve pronto.
             </p>
             <div class="pro-dias" th:unless="${#lists.isEmpty(fechas)}">
@@ -85,10 +84,10 @@
                     </ul>
                 </div>
             </div>
-            <a class="pro-ver-todo" th:if="${esPaciente and doctor.recibeReservas()}" th:href="@{/citas/nueva(doctorId=${doctor.id})}">
+            <a class="pro-ver-todo" th:if="${esPaciente}" th:href="@{/citas/nueva(doctorId=${doctor.id})}">
                 Ver todos los horarios<span class="material-symbols-outlined" aria-hidden="true">arrow_forward</span>
             </a>
-            <a class="pro-ver-todo" th:if="${!sesionIniciada and doctor.recibeReservas()}"
+            <a class="pro-ver-todo" th:if="${!sesionIniciada}"
                th:href="@{/login(continuar=${'/citas/nueva?doctorId=' + doctor.id})}">
                 Ver todos los horarios<span class="material-symbols-outlined" aria-hidden="true">arrow_forward</span>
             </a>

@@ -73,9 +73,9 @@
 
             <h2 id="cobro-titulo">Pago del abono</h2>
             <dl class="pago-cuentas">
-                <div th:if="${doctor.precioConsulta != null}">
+                <div>
                     <dt>Valor de la consulta</dt>
-                    <dd th:text="${'$' + #numbers.formatInteger(doctor.precioConsulta, 1, 'POINT')}">$80.000</dd>
+                    <dd th:text="${'$' + #numbers.formatInteger(doctor.precioEfectivo, 1, 'POINT')}">$80.000</dd>
                 </div>
                 <div class="is-total">
                     <dt>Pagas ahora (abono)</dt>
@@ -88,7 +88,7 @@
             </dl>
 
             <div class="pago-reparto" th:if="${saldo != null and saldo > 0}"
-                 th:with="pct=${reserva.montoPesos * 100 / doctor.precioConsulta}">
+                 th:with="pct=${reserva.montoPesos * 100 / doctor.precioEfectivo}">
                 <div class="pago-reparto-barra" aria-hidden="true">
                     <span th:style="${'width:' + pct + '%'}"></span>
                 </div>

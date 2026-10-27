@@ -89,8 +89,6 @@ public class CitaController {
                         Model model) {
         Doctor doctor = citaService.buscarDoctorPorId(doctorId).orElse(null);
         if (doctor == null) return REDIRECT_PACIENTES_LANDING;
-        if (!doctor.recibeReservas())
-            return "redirect:/pacientes/landing?error=sin_reservas_en_linea";
 
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         String pacienteId = auth == null ? null
@@ -238,8 +236,6 @@ public class CitaController {
             return "redirect:/pacientes/landing?error=doctor_no_existe";
         if (!"ACTIVO".equals(doctor.getEstado()))
             return "redirect:/pacientes/landing?error=doctor_inactivo";
-        if (!doctor.recibeReservas())
-            return "redirect:/pacientes/landing?error=sin_reservas_en_linea";
         if (!pasarela.pagosDisponibles())
             return "redirect:/pacientes/landing?error=pagos_no_disponibles";
 

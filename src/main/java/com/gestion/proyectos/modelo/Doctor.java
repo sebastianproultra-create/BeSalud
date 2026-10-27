@@ -27,8 +27,10 @@ public class Doctor extends Persona {
     public static final int PORCENTAJE_ABONO_DEFECTO = 20;
     /** Monto mínimo que se cobra en línea (por debajo, la comisión de la pasarela no compensa). */
     public static final int MIN_ABONO = 2_000;
+    /** Precio base para calcular el abono mientras el profesional no publica el suyo. */
+    public static final int PRECIO_CONSULTA_DEFECTO = 50_000;
 
-    /** Valor de la consulta particular en pesos; sin él no se reciben reservas en línea. */
+    /** Valor de la consulta particular en pesos; sin él se usa el precio base. */
     private Integer precioConsulta;
     /** Porcentaje del precio que el paciente paga como abono al reservar. */
     private Integer porcentajeAbono;
@@ -36,9 +38,13 @@ public class Doctor extends Persona {
     /** Horas de anticipación para cancelar con devolución del abono. */
     private Integer horasCancelacion;
 
-    /** Toda reserva en línea se paga con abono, así que solo se reciben si hay precio publicado. */
-    public boolean recibeReservas() {
+    public boolean tienePrecioPropio() {
         return precioConsulta != null && precioConsulta > 0;
+    }
+
+    /** Precio sobre el que se calcula el abono: el del profesional o, si no lo ha puesto, el precio base. */
+    public int getPrecioEfectivo() {
+        return tienePrecioPropio() ? precioConsulta : PRECIO_CONSULTA_DEFECTO;
     }
 
     public int porcentajeAbonoEfectivo() {
@@ -48,10 +54,9 @@ public class Doctor extends Persona {
 
     /** Abono en pesos: el porcentaje del precio redondeado a la centena, nunca menos del mínimo ni más del precio. */
     public int getAbono() {
-        if (!recibeReservas())
-            return 0;
-        long valor = Math.round(precioConsulta * porcentajeAbonoEfectivo() / 100.0 / 100.0) * 100;
-        return (int) Math.min(precioConsulta, Math.max(MIN_ABONO, valor));
+        int precio = getPrecioEfectivo();
+        long valor = Math.round(precio * porcentajeAbonoEfectivo() / 100.0 / 100.0) * 100;
+        return (int) Math.min(precio, Math.max(MIN_ABONO, valor));
     }
 
     public int horasCancelacionEfectivas() {
