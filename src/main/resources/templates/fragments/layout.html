@@ -2,98 +2,15 @@
 <html xmlns:th="http://www.thymeleaf.org"
       xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 
-<!-- ── Header de marca ── -->
-<header th:fragment="header-brand" class="app-header">
-    <div class="app-header-inner">
-        <a th:href="@{/}" class="app-brand" aria-label="BeSalud, inicio"><span class="material-symbols-outlined app-brand-icon" aria-hidden="true">local_hospital</span><span class="app-brand-text">BeSalud</span></a>
-        <p class="app-header-tagline">Sistema de gestión de citas médicas</p>
-    </div>
-</header>
-
-<header th:fragment="auth-header(active)" class="portal-header">
-    <div class="portal-header-inner">
-        <a th:href="@{/}" class="portal-brand" aria-label="BeSalud, inicio">
-            <span class="material-symbols-outlined portal-brand-icon" aria-hidden="true">local_hospital</span>
-            <span class="portal-brand-copy">
-                <span class="portal-brand-name">BeSalud</span>
-                <span class="portal-brand-subtitle">Gestión Médica</span>
-            </span>
-        </a>
-        <nav class="auth-nav" aria-label="Acceso a la cuenta">
-            <a th:href="@{/login}" class="auth-nav-link" th:classappend="${active == 'login'} ? ' is-active'"
-               th:attr="aria-current=${active == 'login'} ? 'page'" data-auth-direction="backward">Iniciar Sesión</a>
-            <a th:href="@{/register}" class="auth-nav-link" th:classappend="${active == 'register'} ? ' is-active'"
-               th:attr="aria-current=${active == 'register'} ? 'page'" data-auth-direction="forward">Registro<span class="auth-nav-extra"> Paciente</span></a>
-            <a th:href="@{/ayuda}" class="auth-nav-link" th:classappend="${active == 'ayuda'} ? ' is-active'"
-               th:attr="aria-current=${active == 'ayuda'} ? 'page'"><span class="auth-nav-extra">Centro de </span>Ayuda</a>
-        </nav>
-        <div class="portal-header-meta">
-            <span class="secure-label"><span class="material-symbols-outlined" aria-hidden="true">shield</span>Acceso Seguro</span>
-            <span class="portal-avatar" aria-hidden="true"><span class="material-symbols-outlined">person</span></span>
-        </div>
-    </div>
-</header>
-
-<!-- ── Shell admin: marca + navegación + usuario + logout (active: doctores|pacientes|citas|panel) ── -->
-<header th:fragment="shell-admin(active)" class="app-header">
-    <div class="app-header-inner">
-        <a th:href="@{/admin}" class="app-brand" aria-label="BeSalud, inicio"><span class="material-symbols-outlined app-brand-icon" aria-hidden="true">local_hospital</span><span class="app-brand-text">BeSalud</span></a>
-        <nav class="app-nav" aria-label="Navegación principal">
-            <a sec:authorize="hasRole('ADMIN')" th:href="@{/admin}" th:classappend="${active == 'panel'} ? 'is-active'">Panel</a>
-            <a sec:authorize="hasRole('ADMIN')" th:href="@{/admin/estadisticas}" th:classappend="${active == 'estadisticas'} ? 'is-active'">Estadísticas</a>
-            <a sec:authorize="hasRole('ADMIN')" th:href="@{/doctores}" th:classappend="${active == 'doctores'} ? 'is-active'">Doctores</a>
-            <a sec:authorize="hasRole('ADMIN')" th:href="@{/pacientes}" th:classappend="${active == 'pacientes'} ? 'is-active'">Pacientes</a>
-            <a th:href="@{/citas}" th:classappend="${active == 'citas'} ? 'is-active'">Citas</a>
-        </nav>
-        <script>
-            // En celular la navegación se desliza de lado: deja visible la sección actual
-            (function (nav) {
-                var activo = nav && nav.querySelector('.is-active');
-                if (activo) nav.scrollLeft = activo.offsetLeft - (nav.clientWidth - activo.offsetWidth) / 2;
-            })(document.currentScript.previousElementSibling);
-        </script>
-        <div class="app-user">
-            <span class="app-user-name" sec:authentication="name">Administrador</span>
-            <form th:action="@{/logout}" method="post" class="form-inline">
-                <button type="submit" class="app-logout">Cerrar sesión</button>
-            </form>
-        </div>
-    </div>
-</header>
-
-<!-- ── Shell paciente (active: catalogo|triage) ── -->
-<header th:fragment="shell-paciente(active)" class="app-header">
-    <div class="app-header-inner">
-        <a th:href="@{/pacientes/landing}" class="app-brand" aria-label="BeSalud, inicio"><span class="material-symbols-outlined app-brand-icon" aria-hidden="true">local_hospital</span><span class="app-brand-text">BeSalud</span></a>
-        <nav class="app-nav" aria-label="Navegación principal">
-            <a th:href="@{/pacientes/landing}" th:classappend="${active == 'catalogo'} ? 'is-active'" aria-label="Doctores" title="Doctores"><i class="fa-solid fa-user-doctor" aria-hidden="true"></i><span class="patient-nav-label">Doctores</span></a>
-            <a th:href="@{/triage}" th:classappend="${active == 'triage'} ? 'is-active'" aria-label="Asistente de síntomas" title="Asistente de síntomas"><i class="fa-solid fa-stethoscope" aria-hidden="true"></i><span class="patient-nav-label">Asistente de síntomas</span></a>
-            <a th:href="@{/pacientes/pagos}" th:classappend="${active == 'pagos'} ? 'is-active'" aria-label="Mis pagos" title="Mis pagos"><i class="fa-solid fa-receipt" aria-hidden="true"></i><span class="patient-nav-label">Mis pagos</span></a>
-        </nav>
-        <div class="app-user">
-            <span class="app-user-name" sec:authentication="name">Paciente</span>
-            <form th:action="@{/logout}" method="post" class="form-inline">
-                <button type="submit" class="app-logout"><span>Cerrar sesión</span><i class="fa-solid fa-arrow-right-from-bracket" aria-hidden="true"></i></button>
-            </form>
-        </div>
-    </div>
-</header>
-
-<!-- ── Shell doctor ── -->
-<header th:fragment="shell-doctor" class="app-header">
-    <div class="app-header-inner">
-        <a th:href="@{/doctores}" class="app-brand" aria-label="BeSalud, inicio"><span class="material-symbols-outlined app-brand-icon" aria-hidden="true">local_hospital</span><span class="app-brand-text">BeSalud</span></a>
-        <nav class="app-nav" aria-label="Navegación principal">
-            <a th:href="@{/doctores}" class="is-active">Mi panel médico</a>
-        </nav>
-        <div class="app-user">
-            <span class="app-user-name" sec:authentication="name">Doctor</span>
-            <form th:action="@{/logout}" method="post" class="form-inline">
-                <button type="submit" class="app-logout">Cerrar sesión</button>
-            </form>
-        </div>
-    </div>
-</header>
+<th:block th:fragment="design-system">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" th:href="@{/css/tokens.css}">
+    <link rel="stylesheet" th:href="@{/css/base.css}">
+    <link rel="stylesheet" th:href="@{/css/components.css}">
+    <link rel="stylesheet" th:href="@{/css/layout.css}">
+    <link rel="stylesheet" th:href="@{/css/navbar.css}">
+    <script th:src="@{/js/navbar.js}" defer></script>
+</th:block>
 
 <!-- ── Paginación reutilizable (page: Page, url: ruta base, search y especialidad: filtros o null) ── -->
 <nav th:fragment="pagination(page, url, search, especialidad)" th:if="${page.totalPages > 1}" class="pagination" aria-label="Paginación"
@@ -148,33 +65,12 @@
 
 <!-- ── Footer de la app. Se llama app-footer y no footer: el selector ":: footer" también
      toma cualquier <footer> del archivo y la página saldría con dos pies. ── -->
-<footer th:fragment="app-footer">
+<footer th:fragment="app-footer" class="bs-footer">
     <p>&copy; 2026 BeSalud - Sistema de citas médicas. Todos los derechos reservados. · <a th:href="@{/privacidad}">Política de privacidad</a></p>
 </footer>
 
-<!-- ── Encabezado de las páginas de pago (paciente con sesión) ── -->
-<header th:fragment="pago-header" class="portal-header">
-    <div class="portal-header-inner">
-        <a th:href="@{/pacientes/landing}" class="portal-brand" aria-label="BeSalud, mis citas">
-            <span class="material-symbols-outlined portal-brand-icon" aria-hidden="true">local_hospital</span>
-            <span class="portal-brand-copy">
-                <span class="portal-brand-name">BeSalud</span>
-                <span class="portal-brand-subtitle">Pago seguro</span>
-            </span>
-        </a>
-        <nav class="auth-nav" aria-label="Navegación">
-            <a th:href="@{/pacientes/landing}" class="auth-nav-link">Mis citas</a>
-            <a th:href="@{/pacientes/pagos}" class="auth-nav-link">Mis pagos</a>
-            <a th:href="@{/ayuda}" class="auth-nav-link">Ayuda</a>
-        </nav>
-        <div class="portal-header-meta">
-            <span class="secure-label"><span class="material-symbols-outlined" aria-hidden="true">lock</span>Conexión segura</span>
-        </div>
-    </div>
-</header>
-
-<div th:fragment="auth-footer" class="auth-footer" role="contentinfo">
+<footer th:fragment="auth-footer" class="bs-footer" role="contentinfo">
     <p>&copy; 2026 BeSalud · Sistema de Gestión de Citas Médicas · Privacidad y Seguridad · <a th:href="@{/privacidad}">Política de privacidad</a></p>
-</div>
+</footer>
 
 </html>

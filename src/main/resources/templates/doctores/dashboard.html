@@ -3,13 +3,13 @@
       xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Panel médico — BeSalud</title>
     <link rel="stylesheet" th:href="@{/css/base/global.css}">
     <link rel="stylesheet" th:href="@{/css/doctores/dashboard.css}">
+    <th:block th:replace="~{fragments/layout :: design-system}"></th:block>
 </head>
 <body class="doc-page">
-<header th:replace="~{fragments/layout :: shell-doctor}"></header>
+<header th:replace="~{fragments/navbar :: navbar}"></header>
 
 <main class="doc-main" th:with="
     loc=${T(java.util.Locale).forLanguageTag('es-CO')},
@@ -150,7 +150,7 @@
                 <div class="doc-perfil-foto">
                     <img th:src="${doctor.foto != null ? doctor.foto : '/images/default-avatar.jpg'}"
                          th:alt="'Foto de ' + ${doctor.nombre}"
-                         onerror="this.src='/images/default-avatar.jpg'">
+                         onerror="this.hidden=true">
                     <span class="doc-perfil-check material-symbols-outlined" title="Médico registrado" aria-hidden="true">check</span>
                 </div>
                 <div class="doc-perfil-datos">
@@ -315,7 +315,7 @@
                                     </div>
                                     <button type="button" class="add-interval-btn" th:id="'add2-' + ${d[0]}" th:data-day="${d[0]}" onclick="toggleSecond(this.dataset.day)">+ 2° intervalo</button>
                                 </div>
-                                <div class="time-row second-row" th:id="'second-' + ${d[0]}" style="display:none">
+                                <div class="time-row second-row" th:id="'second-' + ${d[0]}" hidden>
                                     <div class="time-field">
                                         <span class="time-label">Entrada 2</span>
                                         <input type="time" th:id="'start2_' + ${d[0]}" th:name="|startTimes2[${d[0]}]|" disabled/>
@@ -700,12 +700,12 @@
 </main>
 
 <!-- ═══════════════ MODAL DICTAMEN (SOAP) ═══════════════ -->
-<div id="dictamenModal" class="modal-overlay" style="display:none" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+<div id="dictamenModal" class="modal-overlay" hidden role="dialog" aria-modal="true" aria-labelledby="modalTitle">
     <div class="modal-content modal-dictamen">
         <h3 id="modalTitle">Registrar dictamen</h3>
         <p class="dictamen-ayuda">Los campos con <span class="obligatorio">*</span> son obligatorios. El resto se llena solo si aplica.</p>
         <div id="dictamenError" class="alert alert-danger" role="alert" hidden></div>
-        <form id="dictamenForm" method="post">
+        <form id="dictamenForm" class="dictamen-form" method="post">
             <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
 
             <fieldset class="dictamen-seccion">
@@ -932,7 +932,7 @@
 </template>
 
 <!-- ═══════════════ MODAL VER DICTAMEN ═══════════════ -->
-<div id="verDictamenModal" class="modal-overlay" style="display:none" role="dialog" aria-modal="true" aria-labelledby="verDictamenTitle">
+<div id="verDictamenModal" class="modal-overlay" hidden role="dialog" aria-modal="true" aria-labelledby="verDictamenTitle">
     <div class="modal-content modal-dictamen">
         <h3 id="verDictamenTitle">Dictamen de la cita</h3>
         <div id="verDictamenCuerpo" class="dictamen-detail"></div>
@@ -961,7 +961,7 @@ function toggleDay(cb, day) {
         end.value   = '';
         const secondRow = document.getElementById('second-' + day);
         if (secondRow) {
-            secondRow.style.display = 'none';
+            secondRow.hidden = true;
             const s2 = document.getElementById('start2_' + day);
             const e2 = document.getElementById('end2_' + day);
             s2.disabled = true; s2.value = '';
@@ -977,13 +977,13 @@ function toggleSecond(day) {
     const s2  = document.getElementById('start2_' + day);
     const e2  = document.getElementById('end2_' + day);
     const btn = document.getElementById('add2-' + day);
-    if (row.style.display === 'none') {
-        row.style.display = 'flex';
+    if (row.hidden) {
+        row.hidden = false;
         s2.disabled = false;
         e2.disabled = false;
         btn.textContent = '− Quitar 2° intervalo';
     } else {
-        row.style.display = 'none';
+        row.hidden = true;
         s2.disabled = true; s2.value = '';
         e2.disabled = true; e2.value = '';
         btn.textContent = '+ 2° intervalo';

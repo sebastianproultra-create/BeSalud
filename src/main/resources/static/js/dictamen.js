@@ -345,13 +345,13 @@
         $('dictamenError').hidden = true;
         actualizarImc();
         actualizarAlergias();
-        $('dictamenModal').style.display = 'flex';
+        $('dictamenModal').hidden = false;
         ajustarTextos();
         $('tipoConsulta').focus();
     };
 
     window.cerrarModal = function () {
-        $('dictamenModal').style.display = 'none';
+        $('dictamenModal').hidden = true;
     };
 
     // Si el servidor rechazó el dictamen, se reabre con lo que el médico había escrito
@@ -496,11 +496,11 @@
         var d = (CFG.datos || {})[citaId];
         if (!d) return;
         pintar($('verDictamenCuerpo'), d);
-        $('verDictamenModal').style.display = 'flex';
+        $('verDictamenModal').hidden = false;
     };
 
     window.cerrarVerModal = function () {
-        $('verDictamenModal').style.display = 'none';
+        $('verDictamenModal').hidden = true;
     };
 
     $('dictamenModal').addEventListener('click', function (e) { if (e.target === this) window.cerrarModal(); });

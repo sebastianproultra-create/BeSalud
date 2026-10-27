@@ -2,15 +2,14 @@
 
 .profesional-page .profesional-main {
     display: block;
-    padding-top: 120px;
-    padding-bottom: 64px;
+    padding: var(--space-8) var(--space-page) var(--space-10);
 }
 
 .profesional-layout {
     display: grid;
-    grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr);
-    gap: 24px;
-    max-width: 1080px;
+    grid-template-columns: minmax(0, 1.6fr) minmax(18rem, 1fr);
+    gap: var(--space-5);
+    width: min(100%, 67.5rem);
     margin: 0 auto;
 }
 
@@ -29,7 +28,7 @@
     gap: 8px;
     margin: 0 0 16px;
     color: var(--portal-primary);
-    font-family: 'Newsreader', Georgia, serif;
+    font-family: var(--font-heading);
     font-size: 26px;
     font-weight: 500;
 }
@@ -67,7 +66,7 @@
 .pro-identidad h1 {
     margin: 8px 0 4px;
     color: var(--portal-primary);
-    font-family: 'Newsreader', Georgia, serif;
+    font-family: var(--font-heading);
     font-size: clamp(30px, 4vw, 42px);
     font-weight: 400;
     line-height: 1.1;
@@ -140,6 +139,10 @@
 .pro-horarios,
 .pro-asistente {
     grid-column: span 1;
+}
+
+.pro-horarios {
+    align-self: start;
 }
 
 .pro-dias {
@@ -221,15 +224,22 @@ a.pro-slot:focus-visible {
     .profesional-layout {
         grid-template-columns: minmax(0, 1fr);
     }
+
+    .pro-consulta,
+    .pro-horarios,
+    .pro-asistente {
+        grid-column: auto;
+    }
 }
 
 @media (max-width: 560px) {
     .profesional-page .profesional-main {
-        padding-top: 96px;
+        padding-top: var(--space-5);
+        padding-bottom: var(--space-8);
     }
 
     .pro-card {
-        padding: 20px;
+        padding: var(--space-4);
     }
 
     .pro-perfil {
@@ -240,5 +250,11 @@ a.pro-slot:focus-visible {
 
     .pro-dias {
         grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 360px) {
+    .pro-dias {
+        grid-template-columns: minmax(0, 1fr);
     }
 }

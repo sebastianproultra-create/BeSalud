@@ -4,22 +4,18 @@
                nombreCompleto=${doctor.nombre + ' ' + doctor.apellido}">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title th:text="${nombreCompleto + ' · Agenda tu cita · BeSalud'}">Profesional · BeSalud</title>
     <meta name="description" th:content="${'Agenda tu cita con ' + nombreCompleto + (doctor.especialidad != null ? ', ' + doctor.especialidad : '') + ' en BeSalud.'}">
     <meta name="_csrf" th:content="${_csrf.token}">
     <meta name="_csrf_header" th:content="${_csrf.headerName}">
     <link rel="stylesheet" th:href="@{/css/base/global.css}">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400&amp;family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@100..700&amp;display=block" rel="stylesheet">
     <link rel="stylesheet" th:href="@{/css/auth/portal.css}">
     <link rel="stylesheet" th:href="@{/css/publico/profesional.css}">
     <link rel="stylesheet" th:href="@{/css/base/asistente.css}">
+    <th:block th:replace="~{fragments/layout :: design-system}"></th:block>
 </head>
 <body class="auth-page profesional-page">
-<header th:replace="~{fragments/layout :: auth-header('')}"></header>
+<header th:replace="~{fragments/navbar :: navbar}"></header>
 
 <main class="auth-main profesional-main">
     <div class="profesional-layout">
@@ -64,8 +60,14 @@
             <p class="pro-aviso" th:if="${sesionIniciada and !esPaciente}">
                 Para reservar debes entrar con una cuenta de paciente.
             </p>
+            <p class="pro-aviso" th:if="${!doctor.recibeReservas()}">
+                El profesional aún no ha publicado el valor de consulta. Los horarios están visibles, pero las reservas en línea se habilitan cuando lo configure.
+            </p>
             <p class="pro-vacio" th:if="${#lists.isEmpty(fechas) and doctor.recibeReservas()}">
                 No hay horarios disponibles por ahora. Escríbele al asistente o vuelve pronto.
+            </p>
+            <p class="pro-vacio" th:if="${#lists.isEmpty(fechas) and !doctor.recibeReservas()}">
+                No hay horarios disponibles por ahora.
             </p>
             <div class="pro-dias" th:unless="${#lists.isEmpty(fechas)}">
                 <div class="pro-dia" th:each="f : ${fechas}">
@@ -75,12 +77,14 @@
                     </h3>
                     <ul>
                         <li th:each="h : ${proximos[f.toString()]}">
-                            <a class="pro-slot" th:if="${esPaciente}"
+                            <a class="pro-slot" th:if="${doctor.recibeReservas() and esPaciente}"
                                th:href="@{/citas/nueva(doctorId=${doctor.id}, fecha=${f.toString()}, hora=${h})}" th:text="${h}">09:00</a>
-                            <a class="pro-slot" th:if="${!sesionIniciada}"
+                            <a class="pro-slot" th:if="${doctor.recibeReservas() and !sesionIniciada}"
                                th:href="@{/login(continuar=${'/citas/nueva?doctorId=' + doctor.id + '&fecha=' + f.toString() + '&hora=' + h})}"
                                th:text="${h}">09:00</a>
-                            <span class="pro-slot is-inactivo" th:if="${sesionIniciada and !esPaciente}" th:text="${h}">09:00</span>
+                            <span class="pro-slot is-inactivo" th:if="${!doctor.recibeReservas() or (sesionIniciada and !esPaciente)}"
+                                  aria-disabled="true"
+                                  th:text="${h}">09:00</span>
                         </li>
                     </ul>
                 </div>

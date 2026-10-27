@@ -49,9 +49,7 @@ public class PerfilPublicoController {
         Doctor doctor = perfilService.buscarActivoPorSlug(slug).orElseThrow(NoSuchElementException::new);
 
         Map<String, List<String>> proximos = new LinkedHashMap<>();
-        // Sin precio publicado no hay reservas en línea: no se muestran horarios
-        Map<String, List<String>> libres = doctor.recibeReservas()
-                ? citaService.slotsDisponibles(doctor.getId(), null, null, null) : Map.of();
+        Map<String, List<String>> libres = citaService.slotsDisponibles(doctor.getId(), null, null, null);
         for (var e : libres.entrySet()) {
             if (proximos.size() == DIAS_VISIBLES)
                 break;

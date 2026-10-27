@@ -282,7 +282,7 @@
     min-height: 100vh;
     color: #1E293B;
     background: #F4FAF6;
-    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-family: var(--font-body);
     font-size: 14px;
 }
 
@@ -314,7 +314,7 @@
     align-items: center;
     gap: 10px;
     color: #fff;
-    font-family: 'Newsreader', Georgia, serif;
+    font-family: var(--font-heading);
     font-size: 23px;
     font-weight: 500;
     text-decoration: none;
@@ -331,7 +331,7 @@
     background: rgba(255, 255, 255, 0.1);
     border: 1px solid rgba(255, 255, 255, 0.2);
     border-radius: 10px;
-    font-family: 'Material Symbols Outlined';
+    font-family: var(--font-symbols);
     font-size: 22px;
     font-weight: 400;
     line-height: 1;
@@ -394,7 +394,7 @@
     background: rgba(255, 255, 255, 0.1);
     border: 1px solid rgba(255, 255, 255, 0.17);
     border-radius: 8px;
-    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-family: var(--font-body);
     font-size: 9px;
     font-weight: 700;
     letter-spacing: 0.06em;
@@ -447,7 +447,7 @@
     padding: 0;
     color: #0D4738;
     border: 0;
-    font-family: 'Newsreader', Georgia, serif;
+    font-family: var(--font-heading);
     font-size: 40px;
     font-weight: 500;
     line-height: 1.15;
@@ -490,14 +490,14 @@
 .patient-booking-page .doc-avatar-placeholder {
     background: linear-gradient(140deg, #0D4738, #197052);
     color: #fff;
-    font-family: 'Newsreader', Georgia, serif;
+    font-family: var(--font-heading);
     font-size: 30px;
 }
 
 .patient-booking-page .doc-info h2 {
     margin: 0 0 5px;
     color: #172C23;
-    font-family: 'Newsreader', Georgia, serif;
+    font-family: var(--font-heading);
     font-size: 21px;
     font-weight: 500;
 }
@@ -532,7 +532,7 @@
     margin-bottom: 13px;
     color: #263B32;
     border-bottom: 1px solid #EDF2EF;
-    font-family: 'Newsreader', Georgia, serif;
+    font-family: var(--font-heading);
     font-size: 22px;
     font-weight: 500;
 }
@@ -573,7 +573,7 @@
 }
 
 .patient-booking-page .date-num {
-    font-family: 'Newsreader', Georgia, serif;
+    font-family: var(--font-heading);
     font-size: 30px;
     font-weight: 500;
 }
@@ -608,7 +608,7 @@
     background: #F7FAF8;
     border: 1px solid #DCE7E0;
     border-radius: 8px;
-    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-family: var(--font-body);
     font-size: 14px;
     font-weight: 600;
 }
@@ -663,7 +663,7 @@
     background: #F7FAF8;
     border: 1px solid #DCE7E0;
     border-radius: 9px;
-    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-family: var(--font-body);
     font-size: 14px;
 }
 
@@ -679,7 +679,7 @@
     background: #0D4738;
     border: 1px solid #0D4738;
     border-radius: 9px;
-    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-family: var(--font-body);
     font-size: 13px;
     font-weight: 700;
 }
@@ -692,7 +692,7 @@
 
 .patient-booking-page .btn-change {
     color: #627D72;
-    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-family: var(--font-body);
     font-size: 12px;
 }
 
@@ -706,7 +706,7 @@
 
 .patient-booking-page .no-availability h3 {
     color: #0D4738;
-    font-family: 'Newsreader', Georgia, serif;
+    font-family: var(--font-heading);
     font-size: 22px;
     font-weight: 500;
 }

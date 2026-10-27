@@ -25,7 +25,7 @@ body.auth-page {
     background-position: center;
     background-size: cover;
     background-attachment: fixed;
-    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-family: var(--font-body);
     font-size: 15px;
     font-weight: 400;
     letter-spacing: 0;
@@ -33,7 +33,7 @@ body.auth-page {
 }
 
 .material-symbols-outlined {
-    font-family: 'Material Symbols Outlined';
+    font-family: var(--font-symbols);
     font-weight: normal;
     font-style: normal;
     font-size: 24px;
@@ -110,7 +110,7 @@ body.auth-page {
 
 .portal-brand-name {
     color: var(--portal-primary);
-    font-family: 'Newsreader', Georgia, serif;
+    font-family: var(--font-heading);
     font-size: 23px;
     font-weight: 500;
     line-height: 1.05;
@@ -262,7 +262,7 @@ body.auth-page {
 .auth-intro h1 {
     max-width: 440px;
     color: var(--portal-primary);
-    font-family: 'Newsreader', Georgia, serif;
+    font-family: var(--font-heading);
     font-size: 40px;
     font-weight: 400;
     letter-spacing: 0;
@@ -389,7 +389,7 @@ body.auth-page {
     padding: 0;
     color: var(--portal-primary);
     border: 0;
-    font-family: 'Newsreader', Georgia, serif;
+    font-family: var(--font-heading);
     font-size: 28px;
     font-weight: 500;
     letter-spacing: 0;
@@ -504,7 +504,7 @@ body.auth-page {
     background-color: rgba(234, 247, 240, 0.52);
     border: 1px solid transparent;
     border-radius: 8px;
-    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-family: var(--font-body);
     font-size: 13px;
     font-weight: 400;
     line-height: 1.5;
@@ -583,7 +583,7 @@ body.auth-page {
     border: 1px solid var(--portal-primary);
     border-radius: 8px;
     box-shadow: 0 2px 5px rgba(0, 47, 36, 0.1);
-    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-family: var(--font-body);
     font-size: 12px;
     font-weight: 700;
     letter-spacing: 0.1em;
@@ -640,7 +640,7 @@ body.auth-page {
     border: 1px solid var(--portal-border);
     border-radius: 8px;
     box-shadow: 0 1px 3px rgba(19, 30, 26, 0.06);
-    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-family: var(--font-body);
     font-size: 12px;
     font-weight: 600;
     letter-spacing: 0;
@@ -748,12 +748,12 @@ body.auth-page {
 }
 
 .auth-page .register-card input.input-error {
-    border-color: #BA1A1A !important;
+    border-color: #BA1A1A ;
     box-shadow: 0 0 0 1px rgba(186, 26, 26, 0.12);
 }
 
 .auth-page .register-card input.input-success {
-    border-color: #27805B !important;
+    border-color: #27805B ;
 }
 
 .doctor-fields {
@@ -768,7 +768,7 @@ body.auth-page {
 }
 
 .doctor-fields[style*="display: none"] {
-    display: none !important;
+    display: none ;
 }
 
 .auth-page .auth-field > input[type="file"] {
@@ -1061,10 +1061,10 @@ html[data-auth-entry="from-left"] .auth-shell {
 
 @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after {
-        scroll-behavior: auto !important;
-        animation-duration: 0.01ms !important;
-        animation-iteration-count: 1 !important;
-        transition-duration: 0.01ms !important;
+        scroll-behavior: auto ;
+        animation-duration: 0.01ms ;
+        animation-iteration-count: 1 ;
+        transition-duration: 0.01ms ;
     }
 }
 
@@ -1133,7 +1133,7 @@ html[data-auth-entry="from-left"] .auth-shell {
 .register-promise-panel > h1 {
     max-width: 340px;
     color: #fff;
-    font-family: 'Newsreader', Georgia, serif;
+    font-family: var(--font-heading);
     font-size: 27px;
     font-weight: 400;
     letter-spacing: 0;
@@ -1178,7 +1178,7 @@ html[data-auth-entry="from-left"] .auth-shell {
 
 .register-metrics strong {
     color: #A9E8D2;
-    font-family: 'Newsreader', Georgia, serif;
+    font-family: var(--font-heading);
     font-size: 17px;
     font-weight: 500;
     line-height: 1;
@@ -1335,7 +1335,7 @@ html[data-auth-entry="from-left"] .auth-shell {
 
 .register-form-heading h2 {
     color: var(--portal-primary);
-    font-family: 'Newsreader', Georgia, serif;
+    font-family: var(--font-heading);
     font-size: 21px;
     font-weight: 500;
     line-height: 1.2;
@@ -1598,7 +1598,7 @@ html[data-auth-entry="from-left"] .auth-shell {
 
 .help-copy strong {
     color: var(--portal-primary);
-    font-family: 'Newsreader', Georgia, serif;
+    font-family: var(--font-heading);
     font-size: 15px;
     font-weight: 500;
 }
@@ -2144,7 +2144,7 @@ html[data-auth-entry="from-left"] .auth-shell {
     background-color: rgba(234, 247, 240, 0.52);
     border: 1px solid transparent;
     border-radius: 6px;
-    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-family: var(--font-body);
     font-size: 11px;
     font-weight: 400;
     line-height: 1.35;

@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<body>
+<header th:fragment="navbar" class="bs-navbar">
+    <div class="bs-navbar__inner">
+        <a class="bs-navbar__brand" th:href="@{/}" aria-label="BeSalud, inicio">
+            <span class="bs-navbar__brand-mark" aria-hidden="true">+</span>
+            <span>BeSalud</span>
+        </a>
+        <button class="bs-navbar__toggle" type="button" aria-label="Abrir menú de navegación"
+                aria-expanded="false" aria-controls="bs-primary-navigation" data-navbar-toggle>
+            <span class="bs-navbar__toggle-line"></span>
+            <span class="bs-navbar__toggle-line"></span>
+            <span class="bs-navbar__toggle-line"></span>
+        </button>
+        <nav id="bs-primary-navigation" class="bs-navbar__menu"
+             aria-label="Navegación del paciente" data-navbar-menu>
+            <a class="bs-navbar__link" th:href="@{/pacientes/landing}" data-route="/pacientes/landing">Mis citas</a>
+            <a class="bs-navbar__link" th:href="@{/triage}" data-route="/triage">Asistente de síntomas</a>
+            <a class="bs-navbar__link" th:href="@{/pacientes/pagos}" data-route="/pacientes/pagos">Mis pagos</a>
+            <a class="bs-navbar__link" th:href="@{/ayuda}" data-route="/ayuda">Ayuda</a>
+            <div class="bs-navbar__account">
+                <span class="bs-navbar__username" sec:authentication="name">Usuario</span>
+                <form th:action="@{/logout}" method="post" class="bs-navbar__logout-form">
+                    <button class="bs-navbar__logout" type="submit">Cerrar sesión</button>
+                </form>
+            </div>
+        </nav>
+    </div>
+</header>
+</body>
+</html>
