@@ -1010,18 +1010,6 @@
     font-size: 15px;
 }
 
-.resultado-ics {
-    margin: 14px 0 0;
-    color: var(--portal-muted);
-    font-size: 13px;
-    text-align: center;
-}
-
-.resultado-ics a {
-    color: var(--portal-primary);
-    font-weight: 700;
-}
-
 .pago-barra-movil {
     display: none;
 }
@@ -1449,7 +1437,6 @@
     .pago-page .auth-footer,
     .pago-pasos,
     .resultado-acciones,
-    .resultado-ics,
     .resultado-imprimir,
     .resultado-politica .material-symbols-outlined,
     .pago-barra-movil {

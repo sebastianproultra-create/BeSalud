@@ -269,28 +269,6 @@ public class CitaController {
         }
     }
 
-    /** Archivo .ics para que el paciente guarde la cita en Google Calendar, Outlook o el calendario del celular. */
-    @GetMapping("/{id}/calendario.ics")
-    public org.springframework.http.ResponseEntity<byte[]> calendario(@PathVariable String id) {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        Paciente paciente = citaService.buscarPacientePorEmail(auth.getName()).orElse(null);
-        Cita cita = citaService.buscarPorId(id).orElse(null);
-        if (paciente == null || cita == null || !paciente.getId().equals(cita.getPacienteId())
-                || cita.getEstado() != EstadoCita.PENDIENTE)
-            return org.springframework.http.ResponseEntity.notFound().build();
-        Doctor doctor = citaService.buscarDoctorPorId(cita.getDoctorId()).orElse(null);
-        String quien = doctor == null ? "tu profesional" : "Dr(a). " + doctor.getNombre() + " " + doctor.getApellido();
-        String ics = com.gestion.proyectos.util.Calendario.evento(cita.getId() + "@besalud",
-                cita.getFecha().atTime(cita.getHora()), 30, "Cita con " + quien,
-                doctor == null ? null : doctor.getDireccionConsultorio(),
-                "Cita agendada en BeSalud." + (cita.getReferenciaPago() != null
-                        ? " Referencia del abono: " + cita.getReferenciaPago() + "." : ""));
-        return org.springframework.http.ResponseEntity.ok()
-                .header("Content-Disposition", "attachment; filename=\"cita-besalud.ics\"")
-                .contentType(org.springframework.http.MediaType.parseMediaType("text/calendar; charset=UTF-8"))
-                .body(ics.getBytes(java.nio.charset.StandardCharsets.UTF_8));
-    }
-
     /** El paciente responde si asistirá. Si no, la cita se cancela (con devolución del abono si está a tiempo). */
     @PostMapping("/{id}/asistencia")
     public String responderAsistencia(@PathVariable String id, @RequestParam boolean asistira) {

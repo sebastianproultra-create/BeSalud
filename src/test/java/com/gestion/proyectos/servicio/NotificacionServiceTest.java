@@ -101,8 +101,7 @@ class NotificacionServiceTest {
     }
 
     @Test
-    @SuppressWarnings("unchecked")
-    void citaPagada_enviaComprobanteConCalendarioAdjunto() throws Exception {
+    void citaPagada_enviaComprobanteConEnlaceAGoogleCalendar() throws Exception {
         Cita pagada = cita(LocalDate.of(2026, 10, 30));
         pagada.setMotivo("Chequeo anual");
         pagada.setReferenciaPago("BS-3236031AB887409B");
@@ -115,13 +114,11 @@ class NotificacionServiceTest {
         service.alCambiarCita(new CitaEvento(CitaEvento.Tipo.CREADA, "c1"));
 
         ArgumentCaptor<String> html = ArgumentCaptor.forClass(String.class);
-        ArgumentCaptor<java.util.Map<String, byte[]>> adjuntos = ArgumentCaptor.forClass(java.util.Map.class);
         verify(correo).enviar(eq("ana@gmail.com"), anyString(), eq("Cita confirmada · comprobante de pago · BeSalud"),
-                html.capture(), adjuntos.capture());
+                html.capture());
         assertThat(html.getValue()).contains("Comprobante de pago", "$16.000", "$64.000", "BS-3236031AB887409B",
-                "jueves 29 de octubre");
-        assertThat(new String(adjuntos.getValue().get("cita-besalud.ics"), java.nio.charset.StandardCharsets.UTF_8))
-                .contains("DTSTART;TZID=America/Bogota:20261030T093000");
+                "jueves 29 de octubre", "calendar.google.com", "dates=20261030T093000")
+                .doesNotContain("Outlook");
         // Vista previa opcional: mvn test -Dpreview.correo=ruta.html
         String destino = System.getProperty("preview.correo");
         if (destino != null)
