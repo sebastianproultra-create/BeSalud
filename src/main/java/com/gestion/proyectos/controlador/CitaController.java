@@ -89,8 +89,6 @@ public class CitaController {
                         Model model) {
         Doctor doctor = citaService.buscarDoctorPorId(doctorId).orElse(null);
         if (doctor == null) return REDIRECT_PACIENTES_LANDING;
-        if (!doctor.recibeReservas())
-            return "redirect:/pacientes/landing?error=sin_reservas_en_linea";
 
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         String pacienteId = auth == null ? null
@@ -238,8 +236,6 @@ public class CitaController {
             return "redirect:/pacientes/landing?error=doctor_no_existe";
         if (!"ACTIVO".equals(doctor.getEstado()))
             return "redirect:/pacientes/landing?error=doctor_inactivo";
-        if (!doctor.recibeReservas())
-            return "redirect:/pacientes/landing?error=sin_reservas_en_linea";
         if (!pasarela.pagosDisponibles())
             return "redirect:/pacientes/landing?error=pagos_no_disponibles";
 
@@ -267,28 +263,6 @@ public class CitaController {
         } catch (CitaService.TurnoOcupadoException e) {
             return "redirect:/citas/nueva?doctorId=" + doctorId + "&error=conflicto_cita";
         }
-    }
-
-    /** Archivo .ics para que el paciente guarde la cita en Google Calendar, Outlook o el calendario del celular. */
-    @GetMapping("/{id}/calendario.ics")
-    public org.springframework.http.ResponseEntity<byte[]> calendario(@PathVariable String id) {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        Paciente paciente = citaService.buscarPacientePorEmail(auth.getName()).orElse(null);
-        Cita cita = citaService.buscarPorId(id).orElse(null);
-        if (paciente == null || cita == null || !paciente.getId().equals(cita.getPacienteId())
-                || cita.getEstado() != EstadoCita.PENDIENTE)
-            return org.springframework.http.ResponseEntity.notFound().build();
-        Doctor doctor = citaService.buscarDoctorPorId(cita.getDoctorId()).orElse(null);
-        String quien = doctor == null ? "tu profesional" : "Dr(a). " + doctor.getNombre() + " " + doctor.getApellido();
-        String ics = com.gestion.proyectos.util.Calendario.evento(cita.getId() + "@besalud",
-                cita.getFecha().atTime(cita.getHora()), 30, "Cita con " + quien,
-                doctor == null ? null : doctor.getDireccionConsultorio(),
-                "Cita agendada en BeSalud." + (cita.getReferenciaPago() != null
-                        ? " Referencia del abono: " + cita.getReferenciaPago() + "." : ""));
-        return org.springframework.http.ResponseEntity.ok()
-                .header("Content-Disposition", "attachment; filename=\"cita-besalud.ics\"")
-                .contentType(org.springframework.http.MediaType.parseMediaType("text/calendar; charset=UTF-8"))
-                .body(ics.getBytes(java.nio.charset.StandardCharsets.UTF_8));
     }
 
     /** El paciente responde si asistirá. Si no, la cita se cancela (con devolución del abono si está a tiempo). */

@@ -359,7 +359,7 @@ class VistasRenderTest {
     }
 
     @Test
-    void perfilPublico_muestraHorariosPeroNoPermiteReservarSinPrecioPublicado() throws Exception {
+    void perfilPublico_muestraHorariosYPermiteReservarConPrecioBase() throws Exception {
         Doctor d = new Doctor();
         d.setId("d1");
         d.setNombre("Ana");
@@ -372,8 +372,8 @@ class VistasRenderTest {
         mockMvc.perform(get("/p/ana-ruiz").with(user("pac@test.com").roles("PACIENTE")))
                 .andExpect(status().isOk())
                 .andExpect(content().string(containsString("09:00")))
-                .andExpect(content().string(containsString("El profesional aún no ha publicado el valor de consulta.")))
-                .andExpect(content().string(not(containsString("href=\"/citas/nueva"))));
+                .andExpect(content().string(containsString("$50.000")))
+                .andExpect(content().string(containsString("href=\"/citas/nueva?doctorId=d1")));
     }
 
     @Test

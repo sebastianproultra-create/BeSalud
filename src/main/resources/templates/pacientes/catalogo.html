@@ -73,7 +73,6 @@
             <span th:case="'paciente_no_encontrado'">No encontramos tu perfil de paciente.</span>
             <span th:case="'no_autorizado'">No tienes permiso para realizar esa acción.</span>
             <span th:case="'pagos_no_disponibles'">Las reservas en línea están pausadas por un momento. Intenta más tarde.</span>
-            <span th:case="'sin_reservas_en_linea'">Ese profesional aún no recibe reservas en línea. Elige otro de la lista.</span>
             <span th:case="'pago_rechazado'">El pago del abono no fue aprobado. Puedes intentarlo de nuevo.</span>
             <span th:case="'pago_conflicto'">Recibimos tu pago, pero no pudimos confirmar la cita (el horario ya no estaba disponible o el monto no coincide). Tu abono queda para devolución; escríbenos desde el Centro de Ayuda.</span>
             <span th:case="'pago_sin_confirmar'">No pudimos confirmar el pago. Si se te cobró, la cita aparecerá en unos minutos; si no, intenta de nuevo.</span>
@@ -153,8 +152,7 @@
                         <div class="doctor-card-footer">
                             <a th:if="${doctor.slug != null}" th:href="@{/p/{slug}(slug=${doctor.slug})}" class="doctor-profile-link"><i class="fa-solid fa-shield-heart" aria-hidden="true"></i>Ver perfil</a>
                             <span th:if="${doctor.slug == null}"><i class="fa-solid fa-shield-heart" aria-hidden="true"></i>Perfil profesional</span>
-                            <a th:if="${doctor.recibeReservas()}" th:href="@{/citas/nueva(doctorId=${doctor.id})}" class="doctor-book-link">Agendar cita<i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a>
-                            <span th:unless="${doctor.recibeReservas()}" class="doctor-sin-reservas">Sin reservas en línea</span>
+                            <a th:href="@{/citas/nueva(doctorId=${doctor.id})}" class="doctor-book-link">Agendar cita<i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a>
                         </div>
                     </article>
                 </div>

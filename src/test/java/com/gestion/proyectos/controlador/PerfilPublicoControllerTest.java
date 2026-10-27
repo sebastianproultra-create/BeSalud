@@ -21,7 +21,7 @@ import static org.mockito.Mockito.when;
 class PerfilPublicoControllerTest {
 
     @Test
-    void perfilMuestraHorariosAunqueElDoctorAunNoPubliquePrecio() {
+    void perfilConsultaHorariosDisponiblesDelDoctor() {
         PerfilPublicoService perfilService = mock(PerfilPublicoService.class);
         CitaService citaService = mock(CitaService.class);
         Doctor doctor = new Doctor();

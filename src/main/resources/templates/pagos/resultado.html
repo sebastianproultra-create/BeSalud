@@ -27,6 +27,11 @@
     <!-- Si la cita ya pasó o se canceló, la misma página sirve como comprobante (desde "Mis pagos") -->
     <section class="pago-tarjeta resultado is-exito" th:if="${vista == 'CONFIRMADA'}" aria-labelledby="res-titulo"
              th:with="vigente=${cita == null or cita.estado.name() == 'PENDIENTE'}">
+        <!-- Solo al imprimir: encabezado del recibo -->
+        <div class="impreso-cabecera" aria-hidden="true">
+            <strong>BeSalud</strong>
+            <span th:text="${'Comprobante de pago · emitido el ' + #temporals.format(T(com.gestion.proyectos.util.Reloj).ahora(), 'd ''de'' MMMM ''de'' yyyy, h:mm a', loc)}">Comprobante</span>
+        </div>
         <div class="resultado-icono" aria-hidden="true"><span class="material-symbols-outlined" th:text="${vigente ? 'check' : 'receipt_long'}">check</span></div>
         <h1 id="res-titulo" th:text="${vigente ? '¡Tu cita está confirmada!' : 'Comprobante de pago'}">¡Tu cita está confirmada!</h1>
         <p class="resultado-texto" th:if="${vigente}">
@@ -77,6 +82,30 @@
             </div>
         </div>
 
+        <!-- Datos de la transacción, como en el recibo de la pasarela -->
+        <dl class="recibo-transaccion" aria-label="Datos de la transacción">
+            <div>
+                <dt>Comercio</dt>
+                <dd th:text="${'BeSalud' + (nitComercio != null ? ' · NIT ' + nitComercio : '')}">BeSalud</dd>
+            </div>
+            <div th:if="${reserva.pagadaEn != null}">
+                <dt>Aprobado el</dt>
+                <dd th:text="${#temporals.format(reserva.pagadaEn, 'd MMM yyyy, h:mm a', loc)}">26 oct 2026</dd>
+            </div>
+            <div th:if="${reserva.codigoAutorizacion != null}">
+                <dt>Autorización</dt>
+                <dd th:text="${reserva.codigoAutorizacion}">482913</dd>
+            </div>
+            <div th:if="${reserva.transaccionId != null}">
+                <dt>Transacción</dt>
+                <dd th:text="${reserva.transaccionId}">1234-1700000000-12345</dd>
+            </div>
+            <div>
+                <dt>Procesado por</dt>
+                <dd th:text="${pagoSimulado ? 'Pasarela de pruebas' : 'Wompi'}">Wompi</dd>
+            </div>
+        </dl>
+
         <p class="resultado-politica" th:if="${vigente}">
             <span class="material-symbols-outlined" aria-hidden="true">event_busy</span>
             <span>Si no puedes ir, cancela antes del
@@ -96,10 +125,9 @@
                 <span class="material-symbols-outlined" aria-hidden="true">calendar_add_on</span>Agregar a Google Calendar
             </a>
         </div>
-        <p class="resultado-ics" th:if="${vigente and cita != null}">
-            ¿Usas Outlook o el calendario del iPhone?
-            <a th:href="@{/citas/{id}/calendario.ics(id=${cita.id})}">Descarga la cita</a> y ábrela con tu calendario.
-        </p>
+        <button type="button" class="resultado-imprimir" data-imprimir>
+            <span class="material-symbols-outlined" aria-hidden="true">print</span>Imprimir o guardar en PDF
+        </button>
     </section>
 
     <!-- ✖ Rechazada -->

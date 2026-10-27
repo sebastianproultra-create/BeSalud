@@ -20,8 +20,6 @@ import org.springframework.web.util.HtmlUtils;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Locale;
-import java.util.Map;
-import java.nio.charset.StandardCharsets;
 import com.gestion.proyectos.util.Calendario;
 
 @Service
@@ -138,13 +136,8 @@ public class NotificacionService {
         String html = plantilla(paciente, doctor, cita, "¡Tu cita está confirmada!",
                 "Recibimos el pago de tu abono. Guarda este correo como comprobante.", "Ver mis citas",
                 bloqueComprobante(doctor, cita));
-        String quien = doctor == null ? "tu profesional" : "Dr(a). " + doctor.getNombre() + " " + doctor.getApellido();
-        String ics = Calendario.evento(cita.getId() + "@besalud", cita.getFecha().atTime(cita.getHora()), 30,
-                "Cita con " + quien, doctor == null ? null : doctor.getDireccionConsultorio(),
-                "Referencia del abono: " + cita.getReferenciaPago());
         correo.enviar(paciente.getEmail(), paciente.getNombre() + " " + paciente.getApellido(),
-                "Cita confirmada · comprobante de pago · BeSalud", html,
-                Map.of("cita-besalud.ics", ics.getBytes(StandardCharsets.UTF_8)));
+                "Cita confirmada · comprobante de pago · BeSalud", html);
     }
 
     /** Filas del comprobante: abono, saldo, lugar, referencia y hasta cuándo se puede cancelar con devolución. */
@@ -152,8 +145,8 @@ public class NotificacionService {
         long abono = cita.getAbonoPesos() == null ? 0 : cita.getAbonoPesos();
         StringBuilder filas = new StringBuilder();
         filas.append(fila("Abono pagado", pesos(abono)));
-        if (doctor != null && doctor.getPrecioConsulta() != null && doctor.getPrecioConsulta() > abono)
-            filas.append(fila("Pagas en el consultorio", pesos(doctor.getPrecioConsulta() - abono)));
+        if (doctor != null && doctor.getPrecioEfectivo() > abono)
+            filas.append(fila("Pagas en el consultorio", pesos(doctor.getPrecioEfectivo() - abono)));
         if (doctor != null && doctor.getDireccionConsultorio() != null)
             filas.append(fila("Lugar", doctor.getDireccionConsultorio()));
         if (cita.getMedioPago() != null)
@@ -169,8 +162,7 @@ public class NotificacionService {
                     "Cita con Dr(a). " + doctor.getNombre() + " " + doctor.getApellido(),
                     doctor.getDireccionConsultorio(), "Referencia del abono: " + cita.getReferenciaPago());
             politica += "<p style=\"margin:12px 0 0;font-size:13px;line-height:1.6;color:#5F6662;\">"
-                    + "<a href=\"" + esc(google) + "\" style=\"color:#0D4738;font-weight:700;\">Agregar a Google Calendar</a>"
-                    + " · Para Outlook o el iPhone, abre el archivo de la cita que va adjunto.</p>";
+                    + "<a href=\"" + esc(google) + "\" style=\"color:#0D4738;font-weight:700;\">Agregar a Google Calendar</a></p>";
         }
         return """
                 <table role="presentation" width="100%%" cellpadding="0" cellspacing="0" style="margin-top:20px;border:1px dashed #D5DED8;border-radius:3px;">

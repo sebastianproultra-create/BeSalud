@@ -39,13 +39,16 @@ public class PagoController {
     private final PasarelaPagos pasarela;
     private final CitaService citaService;
     private final String urlApp;
+    private final String nitComercio;
 
     public PagoController(ReservaService reservaService, PasarelaPagos pasarela, CitaService citaService,
-            @Value("${app.url:http://localhost:8080}") String urlApp) {
+            @Value("${app.url:http://localhost:8080}") String urlApp,
+            @Value("${app.comercio.nit:}") String nitComercio) {
         this.reservaService = reservaService;
         this.pasarela = pasarela;
         this.citaService = citaService;
         this.urlApp = urlApp.replaceAll("/+$", "");
+        this.nitComercio = nitComercio;
     }
 
     // ── Resumen antes de pagar ──────────────────────────────────────────────
@@ -172,6 +175,8 @@ public class PagoController {
         model.addAttribute("reserva", reserva);
         model.addAttribute("doctor", doctor);
         model.addAttribute("saldo", saldo(doctor, reserva));
+        model.addAttribute("pagoSimulado", pasarela.usaSimulada());
+        model.addAttribute("nitComercio", nitComercio.isBlank() ? null : nitComercio);
         model.addAttribute("cancelarHasta", reserva.getFecha().atTime(reserva.getHora())
                 .minusHours(doctor.horasCancelacionEfectivas()));
         if (vista == Vista.CONFIRMADA && reserva.getCitaId() != null)
@@ -243,8 +248,6 @@ public class PagoController {
 
     /** Lo que el paciente paga en el consultorio; null si el médico no publicó el valor. */
     private static Long saldo(Doctor doctor, Reserva reserva) {
-        if (doctor.getPrecioConsulta() == null || doctor.getPrecioConsulta() <= 0)
-            return null;
-        return Math.max(0, doctor.getPrecioConsulta() - reserva.getMontoPesos());
+        return Math.max(0, doctor.getPrecioEfectivo() - reserva.getMontoPesos());
     }
 }

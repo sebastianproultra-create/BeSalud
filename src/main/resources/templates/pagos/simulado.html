@@ -43,7 +43,7 @@
             <div class="pasarela-lista-medios">
                 <button type="button" class="pasarela-medio" data-medio="CARD">
                     <span class="material-symbols-outlined" aria-hidden="true">credit_card</span>
-                    <span><strong>Tarjeta de crédito o débito</strong><small>Visa, Mastercard, American Express, Diners</small></span>
+                    <span><strong>Tarjeta de crédito o débito</strong><small class="pasarela-marcas"><span class="marca-chip is-visa">VISA</span><span class="marca-chip is-mastercard">Mastercard</span><span class="marca-chip is-amex">AMEX</span><span class="marca-chip is-diners">Diners</span></small></span>
                     <span class="material-symbols-outlined pasarela-flecha" aria-hidden="true">chevron_right</span>
                 </button>
                 <button type="button" class="pasarela-medio" data-medio="PSE">
@@ -85,7 +85,10 @@
                     </div>
                 </div>
                 <label class="pasarela-campo">Número de la tarjeta
-                    <input type="text" inputmode="numeric" autocomplete="off" data-campo="numero" placeholder="0000 0000 0000 0000" maxlength="23">
+                    <span class="pasarela-numero">
+                        <input type="text" inputmode="numeric" autocomplete="off" data-campo="numero" placeholder="0000 0000 0000 0000" maxlength="23">
+                        <span class="marca-chip" data-marca-campo aria-hidden="true" hidden></span>
+                    </span>
                 </label>
                 <div class="pasarela-fila">
                     <label class="pasarela-campo">Vence
@@ -168,6 +171,7 @@
                 <div><dt>Tarjeta aprobada</dt><dd><button type="button" data-llenar="4242424242424242">4242 4242 4242 4242</button></dd></div>
                 <div><dt>Tarjeta rechazada</dt><dd><button type="button" data-llenar="4111111111111111">4111 1111 1111 1111</button></dd></div>
                 <div><dt>Vence y CVC</dt><dd>Cualquier fecha futura y 3 dígitos</dd></div>
+                <div><dt>Código del banco</dt><dd>123456</dd></div>
                 <div><dt>PSE</dt><dd>“Banco que aprueba” o “Banco que rechaza”</dd></div>
                 <div><dt>Nequi aprobado</dt><dd><button type="button" data-llenar-celular="3991111111">399 111 1111</button></dd></div>
                 <div><dt>Nequi rechazado</dt><dd><button type="button" data-llenar-celular="3992222222">399 222 2222</button></dd></div>
@@ -182,6 +186,67 @@
             <input type="hidden" name="ultimos4">
             <input type="hidden" name="banco">
         </form>
+
+        <!-- Paso del banco o de la app antes de procesar, como en un pago real. Nada de esto se envía. -->
+        <div class="verificacion" data-verificacion hidden>
+            <div class="verificacion-caja" data-ver="CARD" role="dialog" aria-modal="true" aria-labelledby="ver-tarjeta-titulo" hidden>
+                <div class="verificacion-cabecera">
+                    <span class="marca-chip" data-ver-marca>VISA</span>
+                    <span>Verificación segura</span>
+                </div>
+                <h2 id="ver-tarjeta-titulo">Confirma que eres tú</h2>
+                <p>Tu banco envió un código de 6 dígitos al celular terminado en <strong>••• 4821</strong>.</p>
+                <dl class="verificacion-resumen">
+                    <div><dt>Comercio</dt><dd>BeSalud</dd></div>
+                    <div><dt>Valor</dt><dd th:text="${'$' + #numbers.formatInteger(reserva.montoPesos, 1, 'POINT') + ' COP'}">$12.000 COP</dd></div>
+                    <div><dt>Tarjeta</dt><dd data-ver-tarjeta>•••• 4242</dd></div>
+                </dl>
+                <label class="pasarela-campo">Código de verificación
+                    <input type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="000000" data-ver-codigo>
+                </label>
+                <p class="pasarela-campo-error" data-ver-error role="alert" hidden></p>
+                <button type="button" class="pago-boton" data-ver-confirmar>Confirmar</button>
+                <button type="button" class="verificacion-cancelar" data-ver-cancelar>Cancelar pago</button>
+            </div>
+
+            <div class="verificacion-caja is-banco" data-ver="PSE" role="dialog" aria-modal="true" aria-labelledby="ver-pse-titulo" hidden>
+                <div class="verificacion-cabecera">
+                    <span class="material-symbols-outlined" aria-hidden="true">account_balance</span>
+                    <span data-ver-banco>Banco</span>
+                    <small>Portal de pagos PSE</small>
+                </div>
+                <h2 id="ver-pse-titulo">Autoriza el débito</h2>
+                <dl class="verificacion-resumen">
+                    <div><dt>Comercio</dt><dd>BeSalud</dd></div>
+                    <div><dt>Valor</dt><dd th:text="${'$' + #numbers.formatInteger(reserva.montoPesos, 1, 'POINT') + ' COP'}">$12.000 COP</dd></div>
+                    <div><dt>Referencia</dt><dd th:text="${reserva.referencia}">BS-…</dd></div>
+                </dl>
+                <fieldset class="verificacion-cuentas">
+                    <legend>¿De qué cuenta debitamos?</legend>
+                    <label><input type="radio" name="cuentaPse" checked><span>Cuenta de ahorros <small>•••• 3150</small></span></label>
+                    <label><input type="radio" name="cuentaPse"><span>Cuenta corriente <small>•••• 7702</small></span></label>
+                </fieldset>
+                <button type="button" class="pago-boton" data-ver-confirmar>Autorizar débito</button>
+                <button type="button" class="verificacion-cancelar" data-ver-cancelar>Cancelar y volver al comercio</button>
+            </div>
+
+            <div class="verificacion-caja is-celular" data-ver="NEQUI" role="dialog" aria-modal="true" aria-labelledby="ver-nequi-titulo" hidden>
+                <div class="celular">
+                    <div class="celular-hora" data-ver-hora>9:41</div>
+                    <div class="celular-noti">
+                        <div class="celular-noti-app"><span class="celular-logo" aria-hidden="true">N</span>Nequi · ahora</div>
+                        <strong id="ver-nequi-titulo">Tienes un cobro pendiente</strong>
+                        <span th:text="${'BeSalud te está cobrando $' + #numbers.formatInteger(reserva.montoPesos, 1, 'POINT') + '. ¿Lo aceptas?'}">BeSalud te está cobrando $12.000. ¿Lo aceptas?</span>
+                        <div class="celular-acciones">
+                            <button type="button" data-ver-rechazar>Rechazar</button>
+                            <button type="button" class="is-aceptar" data-ver-confirmar>Aceptar</button>
+                        </div>
+                    </div>
+                </div>
+                <p class="celular-espera" role="status">Tienes <strong data-ver-cuenta>60</strong> segundos para aceptar en la app.</p>
+                <button type="button" class="verificacion-cancelar" data-ver-cancelar>Cancelar pago</button>
+            </div>
+        </div>
 
         <div class="pasarela-procesando" data-procesando hidden role="status" aria-live="polite">
             <span class="material-symbols-outlined resultado-girando" aria-hidden="true">progress_activity</span>

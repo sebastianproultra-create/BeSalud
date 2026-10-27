@@ -80,12 +80,12 @@
         </div>
     </section>
 
-    <!-- Sin precio no hay reservas en línea: se avisa arriba para que no pase desapercibido -->
-    <div class="doc-aviso-precio" role="status" th:unless="${doctor.recibeReservas()}">
+    <!-- Sin precio propio el abono sale del precio base: se avisa arriba para que no pase desapercibido -->
+    <div class="doc-aviso-precio" role="status" th:unless="${doctor.tienePrecioPropio()}">
         <span class="material-symbols-outlined" aria-hidden="true">sell</span>
         <div>
-            <strong>Aún no recibes reservas en línea</strong>
-            <span>Pon el precio de tu consulta y el abono para que los pacientes puedan agendar y pagar contigo.</span>
+            <strong>Estás usando el precio base</strong>
+            <span th:text="${'Los pacientes reservan con un abono calculado sobre $' + #numbers.formatInteger(T(com.gestion.proyectos.modelo.Doctor).PRECIO_CONSULTA_DEFECTO, 1, 'POINT') + '. Pon el precio real de tu consulta.'}">Los pacientes reservan con un abono calculado sobre el precio base.</span>
         </div>
         <a href="#precio-y-pagos">Configurar precio</a>
     </div>
@@ -98,7 +98,7 @@
             <a href="#disponibilidad" class="section-nav-link">Disponibilidad semanal</a>
             <a href="#demanda" class="section-nav-link">Demanda proyectada</a>
             <a href="#citas" class="section-nav-link">Mis citas</a>
-            <a href="#abonos" class="section-nav-link" th:if="${abonos != null and (doctor.recibeReservas() or abonos.porDevolver > 0)}">Abonos</a>
+            <a href="#abonos" class="section-nav-link" th:if="${abonos != null}">Abonos</a>
             <a href="#pacientes" class="section-nav-link">Pacientes</a>
         </div>
         <span class="section-nav-hoy">
@@ -214,9 +214,9 @@
                 <div th:if="${exitoConsulta}" class="alert alert-success" th:text="${exitoConsulta}"></div>
                 <div th:if="${errorConsulta}" class="alert alert-error" th:text="${errorConsulta}"></div>
 
-                <p class="doc-aviso-reservas" th:unless="${doctor.recibeReservas()}">
+                <p class="doc-aviso-reservas" th:unless="${doctor.tienePrecioPropio()}">
                     <span class="material-symbols-outlined" aria-hidden="true">info</span>
-                    Pon el precio de tu consulta para empezar a recibir reservas en línea.
+                    Mientras no pongas tu precio, el abono se calcula sobre el precio base.
                 </p>
 
                 <div class="doc-consulta-campos">
@@ -240,7 +240,7 @@
                                     th:selected="${p == doctor.porcentajeAbonoEfectivo()}">20 % del precio</option>
                         </select>
                         <small class="doc-abono-calculo" id="abonoCalculado"
-                               th:text="${doctor.recibeReservas() ? 'El paciente paga $' + #numbers.formatInteger(doctor.abono, 1, 'POINT') + ' al reservar' : ''}"></small>
+                               th:text="${doctor.tienePrecioPropio() ? 'El paciente paga $' + #numbers.formatInteger(doctor.abono, 1, 'POINT') + ' al reservar' : ''}"></small>
                     </label>
                     <label class="doc-campo">Se devuelve si cancelan con
                         <select name="horasCancelacion">
@@ -593,7 +593,7 @@
 
     <!-- ═══════════════ ABONOS ═══════════════ -->
     <section id="abonos" class="doc-card" aria-labelledby="abonos-title"
-             th:if="${abonos != null and (doctor.recibeReservas() or abonos.porDevolver > 0)}">
+             th:if="${abonos != null}">
         <div class="doc-card-head">
             <div class="doc-card-title">
                 <span class="doc-card-ico material-symbols-outlined" aria-hidden="true">payments</span>

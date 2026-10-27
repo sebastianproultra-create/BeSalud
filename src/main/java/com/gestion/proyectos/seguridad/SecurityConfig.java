@@ -35,7 +35,7 @@ public class SecurityConfig {
                                                                 "/ayuda", "/ayuda/contacto", "/p/**",
                                                                 "/pagos/retorno", "/pagos/wompi/eventos")
                                                 .permitAll()
-                                                .requestMatchers("/pagos/**", "/citas/*/calendario.ics", "/citas/*/asistencia", "/citas/*/google-calendar").hasRole("PACIENTE")
+                                                .requestMatchers("/pagos/**", "/citas/*/asistencia", "/citas/*/google-calendar").hasRole("PACIENTE")
                                                 .requestMatchers("/admin/**").hasRole("ADMIN")
                                                 .requestMatchers("/citas").hasRole("ADMIN")
                                                 .requestMatchers("/citas/*/cancelar").hasAnyRole("PACIENTE", "ADMIN")

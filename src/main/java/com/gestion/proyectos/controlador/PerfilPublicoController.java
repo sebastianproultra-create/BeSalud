@@ -82,6 +82,6 @@ public class PerfilPublicoController {
     @ResponseBody
     public AsistenteService.Respuesta asistenteGeneral(@RequestBody Pregunta pregunta) {
         return asistenteService.responderGeneral(
-                perfilService.activos().stream().filter(Doctor::recibeReservas).toList(), pregunta == null ? null : pregunta.mensaje());
+                perfilService.activos(), pregunta == null ? null : pregunta.mensaje());
     }
 }
