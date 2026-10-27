@@ -46,8 +46,21 @@
             <a class="pago-boton" th:href="@{/pacientes/landing}">Buscar un profesional</a>
         </div>
 
+        <div class="historial-filtros" role="group" aria-label="Filtrar pagos" data-filtros
+             th:unless="${historial.movimientos.isEmpty()}">
+            <button type="button" class="is-activo" data-filtro="todos" aria-pressed="true">Todos <span data-cuenta></span></button>
+            <button type="button" data-filtro="pagados" aria-pressed="false">Pagados <span data-cuenta></span></button>
+            <button type="button" data-filtro="devoluciones" aria-pressed="false">Devoluciones <span data-cuenta></span></button>
+            <button type="button" data-filtro="rechazados" aria-pressed="false">Rechazados <span data-cuenta></span></button>
+        </div>
+
         <ul class="historial-lista" th:unless="${historial.movimientos.isEmpty()}">
-            <li th:each="m : ${historial.movimientos}" th:class="${'historial-item is-' + m.estado().tono}">
+            <th:block th:each="m, it : ${historial.movimientos}"
+                      th:with="mes=${m.fechaPago() != null ? #temporals.format(m.fechaPago(), 'MMMM yyyy', loc) : 'Sin fecha'},
+                               anterior=${it.index == 0 ? null : historial.movimientos[it.index - 1].fechaPago()},
+                               mesAnterior=${it.index == 0 ? '' : (anterior != null ? #temporals.format(anterior, 'MMMM yyyy', loc) : 'Sin fecha')}">
+            <li class="historial-mes" th:if="${mes != mesAnterior}" th:text="${#strings.capitalize(mes)}" aria-hidden="true">Octubre 2026</li>
+            <li th:class="${'historial-item is-' + m.estado().tono}" th:attr="data-grupo=${m.estado().grupo}">
                 <div class="historial-icono" aria-hidden="true">
                     <span class="material-symbols-outlined"
                           th:text="${m.estado().name() == 'RECHAZADO' ? 'credit_card_off' : (m.estado().name() == 'EN_PROCESO' ? 'hourglass_top' : (m.estado().name() == 'PAGADO' or m.estado().name() == 'CONSERVADO' ? 'receipt_long' : 'undo'))}">receipt_long</span>
@@ -70,7 +83,9 @@
                     <span class="material-symbols-outlined" aria-hidden="true">chevron_right</span>
                 </a>
             </li>
+            </th:block>
         </ul>
+        <p class="historial-sin-resultados" data-sin-resultados hidden>No tienes pagos en esta categoría.</p>
 
         <p class="historial-nota" th:unless="${historial.movimientos.isEmpty()}">
             <span class="material-symbols-outlined" aria-hidden="true">info</span>
@@ -81,5 +96,6 @@
 </main>
 
 <div th:replace="~{fragments/layout :: auth-footer}"></div>
+<script th:src="@{/js/pagos.js}" defer></script>
 </body>
 </html>

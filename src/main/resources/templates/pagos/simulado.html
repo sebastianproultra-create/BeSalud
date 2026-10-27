@@ -47,7 +47,7 @@
             <div class="pasarela-lista-medios">
                 <button type="button" class="pasarela-medio" data-medio="CARD">
                     <span class="material-symbols-outlined" aria-hidden="true">credit_card</span>
-                    <span><strong>Tarjeta de crédito o débito</strong><small>Visa, Mastercard, American Express, Diners</small></span>
+                    <span><strong>Tarjeta de crédito o débito</strong><small class="pasarela-marcas"><span class="marca-chip is-visa">VISA</span><span class="marca-chip is-mastercard">Mastercard</span><span class="marca-chip is-amex">AMEX</span><span class="marca-chip is-diners">Diners</span></small></span>
                     <span class="material-symbols-outlined pasarela-flecha" aria-hidden="true">chevron_right</span>
                 </button>
                 <button type="button" class="pasarela-medio" data-medio="PSE">
@@ -89,7 +89,10 @@
                     </div>
                 </div>
                 <label class="pasarela-campo">Número de la tarjeta
-                    <input type="text" inputmode="numeric" autocomplete="off" data-campo="numero" placeholder="0000 0000 0000 0000" maxlength="23">
+                    <span class="pasarela-numero">
+                        <input type="text" inputmode="numeric" autocomplete="off" data-campo="numero" placeholder="0000 0000 0000 0000" maxlength="23">
+                        <span class="marca-chip" data-marca-campo aria-hidden="true" hidden></span>
+                    </span>
                 </label>
                 <div class="pasarela-fila">
                     <label class="pasarela-campo">Vence

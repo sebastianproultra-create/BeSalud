@@ -38,19 +38,26 @@ public class ReservaService {
 
     /** Cómo se ve un pago en el historial del paciente. */
     public enum EstadoPago {
-        PAGADO("Pagado", "ok"),
-        EN_PROCESO("En proceso", "espera"),
-        RECHAZADO("Rechazado", "error"),
-        POR_DEVOLVER("Devolución en proceso", "espera"),
-        DEVUELTO("Devuelto", "neutro"),
-        CONSERVADO("No reembolsable", "neutro");
+        PAGADO("Pagado", "ok", "pagados"),
+        EN_PROCESO("En proceso", "espera", "pagados"),
+        RECHAZADO("Rechazado", "error", "rechazados"),
+        POR_DEVOLVER("Devolución en proceso", "espera", "devoluciones"),
+        DEVUELTO("Devuelto", "neutro", "devoluciones"),
+        CONSERVADO("No reembolsable", "neutro", "pagados");
 
         private final String texto;
         private final String tono;
+        /** Filtro de "Mis pagos" en el que aparece. */
+        private final String grupo;
 
-        EstadoPago(String texto, String tono) {
+        EstadoPago(String texto, String tono, String grupo) {
             this.texto = texto;
             this.tono = tono;
+            this.grupo = grupo;
+        }
+
+        public String getGrupo() {
+            return grupo;
         }
 
         public String getTexto() {

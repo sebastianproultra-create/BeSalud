@@ -87,6 +87,17 @@
                 </div>
             </dl>
 
+            <div class="pago-reparto" th:if="${saldo != null and saldo > 0}"
+                 th:with="pct=${reserva.montoPesos * 100 / doctor.precioConsulta}">
+                <div class="pago-reparto-barra" aria-hidden="true">
+                    <span th:style="${'width:' + pct + '%'}"></span>
+                </div>
+                <p>
+                    <span><i class="is-ahora"></i><span th:text="${pct + ' % ahora'}">20 % ahora</span></span>
+                    <span><i></i><span th:text="${(100 - pct) + ' % en el consultorio'}">80 % en el consultorio</span></span>
+                </p>
+            </div>
+
             <a class="pago-boton" th:href="${urlPago}">
                 <span class="material-symbols-outlined" aria-hidden="true">lock</span>
                 <span th:text="${'Pagar $' + #numbers.formatInteger(reserva.montoPesos, 1, 'POINT')}">Pagar $20.000</span>

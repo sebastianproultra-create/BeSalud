@@ -90,6 +90,10 @@
         e.target.value = agrupar(n, marca);
         raiz.querySelector('[data-vista-marca]').textContent = marca ? NOMBRE_MARCA[marca] : '';
         raiz.querySelector('.tarjeta-vista').dataset.marca = marca || '';
+        const chip = raiz.querySelector('[data-marca-campo]');
+        chip.hidden = !marca;
+        chip.textContent = marca ? NOMBRE_MARCA[marca] : '';
+        chip.className = 'marca-chip' + (marca ? ' is-' + marca.toLowerCase() : '');
         raiz.querySelector('[data-vista-numero]').textContent = agrupar(n + '•'.repeat(Math.max(0, largoDe(marca) - n.length)), marca);
         campo('cvc').placeholder = marca === 'AMEX' ? '1234' : '123';
         if (n.length === largoDe(marca) && !validar('numero')) campo('vence').focus();

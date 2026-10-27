@@ -31,6 +31,11 @@
     <!-- Si la cita ya pasó o se canceló, la misma página sirve como comprobante (desde "Mis pagos") -->
     <section class="pago-tarjeta resultado is-exito" th:if="${vista == 'CONFIRMADA'}" aria-labelledby="res-titulo"
              th:with="vigente=${cita == null or cita.estado.name() == 'PENDIENTE'}">
+        <!-- Solo al imprimir: encabezado del recibo -->
+        <div class="impreso-cabecera" aria-hidden="true">
+            <strong>BeSalud</strong>
+            <span th:text="${'Comprobante de pago · emitido el ' + #temporals.format(T(com.gestion.proyectos.util.Reloj).ahora(), 'd ''de'' MMMM ''de'' yyyy, h:mm a', loc)}">Comprobante</span>
+        </div>
         <div class="resultado-icono" aria-hidden="true"><span class="material-symbols-outlined" th:text="${vigente ? 'check' : 'receipt_long'}">check</span></div>
         <h1 id="res-titulo" th:text="${vigente ? '¡Tu cita está confirmada!' : 'Comprobante de pago'}">¡Tu cita está confirmada!</h1>
         <p class="resultado-texto" th:if="${vigente}">
@@ -104,6 +109,9 @@
             ¿Usas Outlook o el calendario del iPhone?
             <a th:href="@{/citas/{id}/calendario.ics(id=${cita.id})}">Descarga la cita</a> y ábrela con tu calendario.
         </p>
+        <button type="button" class="resultado-imprimir" data-imprimir>
+            <span class="material-symbols-outlined" aria-hidden="true">print</span>Imprimir o guardar en PDF
+        </button>
     </section>
 
     <!-- ✖ Rechazada -->

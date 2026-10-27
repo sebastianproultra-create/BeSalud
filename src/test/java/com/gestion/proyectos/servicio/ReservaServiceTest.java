@@ -207,4 +207,12 @@ class ReservaServiceTest {
         assertThat(service.estadoPagoDe(enProceso)).isEqualTo(ReservaService.EstadoPago.EN_PROCESO);
         assertThat(service.estadoPagoDe(sinCupo)).isEqualTo(ReservaService.EstadoPago.POR_DEVOLVER);
     }
+
+    @Test
+    void cadaEstadoTieneSuFiltroEnMisPagos() {
+        assertThat(ReservaService.EstadoPago.CONSERVADO.getGrupo()).isEqualTo("pagados");
+        assertThat(ReservaService.EstadoPago.POR_DEVOLVER.getGrupo()).isEqualTo("devoluciones");
+        assertThat(ReservaService.EstadoPago.DEVUELTO.getGrupo()).isEqualTo("devoluciones");
+        assertThat(ReservaService.EstadoPago.RECHAZADO.getGrupo()).isEqualTo("rechazados");
+    }
 }
