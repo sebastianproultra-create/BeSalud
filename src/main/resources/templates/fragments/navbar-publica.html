@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<header th:fragment="navbar" class="bs-navbar">
+    <div class="bs-navbar__inner">
+        <a class="bs-navbar__brand" th:href="@{/}" aria-label="BeSalud, inicio">
+            <span class="bs-navbar__brand-mark" aria-hidden="true">+</span>
+            <span>BeSalud</span>
+        </a>
+        <button class="bs-navbar__toggle" type="button" aria-label="Abrir menú de navegación"
+                aria-expanded="false" aria-controls="bs-primary-navigation" data-navbar-toggle>
+            <span class="bs-navbar__toggle-line"></span>
+            <span class="bs-navbar__toggle-line"></span>
+            <span class="bs-navbar__toggle-line"></span>
+        </button>
+        <nav id="bs-primary-navigation" class="bs-navbar__menu"
+             aria-label="Navegación principal" data-navbar-menu>
+            <a class="bs-navbar__link" th:href="@{/}" data-route="/">Inicio</a>
+            <a class="bs-navbar__link" th:href="@{/#about}">Sobre</a>
+            <a class="bs-navbar__link" th:href="@{/#team}">Equipo</a>
+            <a class="bs-navbar__link" th:href="@{/#contact}">Contacto</a>
+            <a class="bs-navbar__link" th:href="@{/ayuda}" data-route="/ayuda">Ayuda</a>
+            <a class="bs-navbar__link" th:href="@{/login}" data-route="/login">Iniciar sesión</a>
+            <a class="bs-navbar__link bs-navbar__link--action"
+               th:href="@{/register}" data-route="/register">Registrarse</a>
+        </nav>
+    </div>
+</header>
+</body>
+</html>

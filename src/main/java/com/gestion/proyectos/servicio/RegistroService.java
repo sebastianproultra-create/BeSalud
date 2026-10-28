@@ -1,5 +1,6 @@
 package com.gestion.proyectos.servicio;
 
+import com.gestion.proyectos.util.Reloj;
 import static com.gestion.proyectos.util.ValidacionUtil.esVacio;
 
 import com.gestion.proyectos.modelo.Doctor;
@@ -65,7 +66,7 @@ public class RegistroService {
             } catch (Exception e) {
                 return "La fecha de nacimiento no tiene un formato válido (YYYY-MM-DD)";
             }
-            LocalDate hoy = LocalDate.now();
+            LocalDate hoy = Reloj.hoy();
             if (!fechaNac.isBefore(hoy))
                 return "La fecha de nacimiento no puede ser hoy ni una fecha futura";
             int edad = java.time.Period.between(fechaNac, hoy).getYears();

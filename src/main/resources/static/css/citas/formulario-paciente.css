@@ -282,7 +282,7 @@
     min-height: 100vh;
     color: #1E293B;
     background: #F4FAF6;
-    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-family: var(--font-body);
     font-size: 14px;
 }
 
@@ -314,13 +314,14 @@
     align-items: center;
     gap: 10px;
     color: #fff;
-    font-family: 'Newsreader', Georgia, serif;
+    font-family: var(--font-heading);
     font-size: 23px;
     font-weight: 500;
     text-decoration: none;
 }
 
-.patient-booking-page .app-brand span {
+/* Solo el ícono va en la caja; el nombre "BeSalud" queda como texto */
+.patient-booking-page .app-brand .app-brand-icon {
     width: 38px;
     height: 38px;
     display: inline-flex;
@@ -330,8 +331,10 @@
     background: rgba(255, 255, 255, 0.1);
     border: 1px solid rgba(255, 255, 255, 0.2);
     border-radius: 10px;
-    font-family: 'Plus Jakarta Sans', sans-serif;
-    font-size: 18px;
+    font-family: var(--font-symbols);
+    font-size: 22px;
+    font-weight: 400;
+    line-height: 1;
 }
 
 .patient-booking-page .app-nav {
@@ -391,7 +394,7 @@
     background: rgba(255, 255, 255, 0.1);
     border: 1px solid rgba(255, 255, 255, 0.17);
     border-radius: 8px;
-    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-family: var(--font-body);
     font-size: 9px;
     font-weight: 700;
     letter-spacing: 0.06em;
@@ -444,7 +447,7 @@
     padding: 0;
     color: #0D4738;
     border: 0;
-    font-family: 'Newsreader', Georgia, serif;
+    font-family: var(--font-heading);
     font-size: 40px;
     font-weight: 500;
     line-height: 1.15;
@@ -487,14 +490,14 @@
 .patient-booking-page .doc-avatar-placeholder {
     background: linear-gradient(140deg, #0D4738, #197052);
     color: #fff;
-    font-family: 'Newsreader', Georgia, serif;
+    font-family: var(--font-heading);
     font-size: 30px;
 }
 
 .patient-booking-page .doc-info h2 {
     margin: 0 0 5px;
     color: #172C23;
-    font-family: 'Newsreader', Georgia, serif;
+    font-family: var(--font-heading);
     font-size: 21px;
     font-weight: 500;
 }
@@ -529,7 +532,7 @@
     margin-bottom: 13px;
     color: #263B32;
     border-bottom: 1px solid #EDF2EF;
-    font-family: 'Newsreader', Georgia, serif;
+    font-family: var(--font-heading);
     font-size: 22px;
     font-weight: 500;
 }
@@ -570,7 +573,7 @@
 }
 
 .patient-booking-page .date-num {
-    font-family: 'Newsreader', Georgia, serif;
+    font-family: var(--font-heading);
     font-size: 30px;
     font-weight: 500;
 }
@@ -605,7 +608,7 @@
     background: #F7FAF8;
     border: 1px solid #DCE7E0;
     border-radius: 8px;
-    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-family: var(--font-body);
     font-size: 14px;
     font-weight: 600;
 }
@@ -660,7 +663,7 @@
     background: #F7FAF8;
     border: 1px solid #DCE7E0;
     border-radius: 9px;
-    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-family: var(--font-body);
     font-size: 14px;
 }
 
@@ -676,7 +679,7 @@
     background: #0D4738;
     border: 1px solid #0D4738;
     border-radius: 9px;
-    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-family: var(--font-body);
     font-size: 13px;
     font-weight: 700;
 }
@@ -689,7 +692,7 @@
 
 .patient-booking-page .btn-change {
     color: #627D72;
-    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-family: var(--font-body);
     font-size: 12px;
 }
 
@@ -703,7 +706,7 @@
 
 .patient-booking-page .no-availability h3 {
     color: #0D4738;
-    font-family: 'Newsreader', Georgia, serif;
+    font-family: var(--font-heading);
     font-size: 22px;
     font-weight: 500;
 }
@@ -753,7 +756,7 @@
         font-size: 20px;
     }
 
-    .patient-booking-page .app-brand span {
+    .patient-booking-page .app-brand .app-brand-icon {
         width: 34px;
         height: 34px;
     }
@@ -770,7 +773,22 @@
         justify-content: center;
         padding: 7px;
         overflow: hidden;
-        font-size: 0;
+    }
+
+    /* Solo íconos en el celular: se oculta la etiqueta, no el ícono */
+    .patient-booking-page .app-nav .patient-nav-label,
+    .patient-booking-page .app-logout span {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        white-space: nowrap;
+    }
+
+    .patient-booking-page .app-nav a i,
+    .patient-booking-page .app-logout i {
+        font-size: 15px;
     }
 
     .patient-booking-page .app-user {
@@ -782,11 +800,13 @@
     }
 
     .patient-booking-page .app-logout {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
         width: 34px;
         height: 34px;
         overflow: hidden;
         padding: 7px;
-        font-size: 0;
     }
 
     .patient-booking-page .booking-container {
@@ -846,3 +866,34 @@
     }
 }
 
+
+/* Aviso del abono previo */
+.abono-aviso {
+    margin-bottom: 20px;
+    padding: 14px 18px;
+    color: #5C3A02;
+    background: #FFF4E3;
+    border-radius: 10px;
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+.abono-aviso p {
+    margin: 0 0 6px;
+}
+
+.abono-aviso p:last-child {
+    margin-bottom: 0;
+}
+
+.abono-aviso .abono-demo {
+    font-weight: 600;
+}
+
+.alert-info-reserva {
+    margin-bottom: 16px;
+    padding: 12px 16px;
+    color: #0D4738;
+    background: #EAF7F0;
+    border-radius: 10px;
+}

@@ -1,7 +1,7 @@
 /* ============================================
    BeSalud — index.css
    Estilo: Clínica de lujo / Médico elegante
-   Tipografía: Cormorant Garamond + DM Sans
+   Tipografía: Newsreader + Plus Jakarta Sans
    ============================================ */
 
 :root {
@@ -29,7 +29,7 @@ html {
 }
 
 body {
-    font-family: 'DM Sans', sans-serif;
+    font-family: var(--font-body);
     font-weight: 300;
     color: var(--text-dark);
     background-color: var(--white);
@@ -53,7 +53,7 @@ body {
     display: flex;
     align-items: center;
     gap: 10px;
-    font-family: 'Cormorant Garamond', serif;
+    font-family: var(--font-heading);
     font-size: 26px;
     font-weight: 600;
     color: var(--white);
@@ -146,7 +146,7 @@ body {
 }
 
 .hero h1 {
-    font-family: 'Cormorant Garamond', serif;
+    font-family: var(--font-heading);
     font-size: clamp(72px, 10vw, 110px);
     font-weight: 300;
     color: var(--white);
@@ -196,7 +196,7 @@ body {
 /* ─── BUTTONS ─── */
 .btn {
     display: inline-block;
-    font-family: 'DM Sans', sans-serif;
+    font-family: var(--font-body);
     font-size: 12px;
     font-weight: 400;
     letter-spacing: 0.14em;
@@ -265,7 +265,7 @@ body {
 }
 
 .section h2 {
-    font-family: 'Cormorant Garamond', serif;
+    font-family: var(--font-heading);
     font-size: clamp(38px, 5vw, 56px);
     font-weight: 300;
     color: var(--primary);
@@ -314,7 +314,7 @@ body {
 }
 
 .stat-number {
-    font-family: 'Cormorant Garamond', serif;
+    font-family: var(--font-heading);
     font-size: 42px;
     font-weight: 300;
     color: var(--primary);
@@ -413,7 +413,7 @@ body {
 }
 
 .card h3 {
-    font-family: 'Cormorant Garamond', serif;
+    font-family: var(--font-heading);
     font-size: 26px;
     font-weight: 400;
     color: var(--primary);
@@ -480,7 +480,7 @@ body {
 
 .contact-item a,
 .contact-item span:last-child {
-    font-family: 'Cormorant Garamond', serif;
+    font-family: var(--font-heading);
     font-size: 22px;
     font-weight: 400;
     color: var(--primary);
@@ -507,7 +507,7 @@ footer {
 }
 
 .footer-brand {
-    font-family: 'Cormorant Garamond', serif;
+    font-family: var(--font-heading);
     font-size: 22px;
     font-weight: 400;
     color: var(--white);
@@ -601,7 +601,7 @@ html {
 }
 
 body {
-    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-family: var(--font-body);
     font-weight: 300;
     color: #525956;
     background-color: var(--white);
@@ -628,7 +628,7 @@ body {
 
 .nav-brand a {
     gap: 10px;
-    font-family: 'Newsreader', Georgia, serif;
+    font-family: var(--font-heading);
     font-size: 28px;
     font-weight: 500;
     color: #fff;
@@ -644,7 +644,7 @@ body {
     border-radius: 2px;
     background: rgba(255, 255, 255, 0.1);
     color: #A9D5C3;
-    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-family: var(--font-body);
     font-size: 23px;
     font-weight: 400;
     line-height: 1;
@@ -677,7 +677,7 @@ body {
     justify-content: center;
     padding: 12px 28px;
     border-radius: 3px;
-    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-family: var(--font-body);
     font-size: 11px;
     font-weight: 600;
     letter-spacing: 0.14em;
@@ -686,7 +686,7 @@ body {
 
 .btn-secondary {
     padding: 11px 20px;
-    color: #fff !important;
+    color: #fff ;
     background: rgba(255, 255, 255, 0.08);
     border: 1px solid rgba(255, 255, 255, 0.2);
     box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
@@ -771,7 +771,7 @@ body {
 .hero h1 {
     margin-bottom: 20px;
     color: #fff;
-    font-family: 'Newsreader', Georgia, serif;
+    font-family: var(--font-heading);
     font-size: 112px;
     font-weight: 300;
     letter-spacing: 0;
@@ -873,7 +873,7 @@ body {
 .section h2 {
     margin-bottom: 28px;
     color: var(--text-dark);
-    font-family: 'Newsreader', Georgia, serif;
+    font-family: var(--font-heading);
     font-size: 58px;
     font-weight: 400;
     letter-spacing: 0;
@@ -934,7 +934,7 @@ body {
 .stat-number {
     margin-bottom: 2px;
     color: var(--text-dark);
-    font-family: 'Newsreader', Georgia, serif;
+    font-family: var(--font-heading);
     font-size: 34px;
     font-weight: 300;
     letter-spacing: 0;
@@ -1058,7 +1058,7 @@ body {
 .card h3 {
     margin-bottom: 10px;
     color: var(--text-dark);
-    font-family: 'Newsreader', Georgia, serif;
+    font-family: var(--font-heading);
     font-size: 24px;
     font-weight: 500;
 }
@@ -1139,7 +1139,7 @@ body {
 .contact-item a,
 .contact-item span:last-child {
     color: var(--text-dark);
-    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-family: var(--font-body);
     font-size: 17px;
     font-weight: 500;
     overflow-wrap: anywhere;
@@ -1163,7 +1163,7 @@ footer {
 .footer-brand {
     gap: 10px;
     color: #fff;
-    font-family: 'Newsreader', Georgia, serif;
+    font-family: var(--font-heading);
     font-size: 23px;
     font-weight: 500;
 }
@@ -1173,7 +1173,7 @@ footer {
     height: auto;
     color: #69B493;
     background: transparent;
-    font-family: 'Newsreader', Georgia, serif;
+    font-family: var(--font-heading);
     font-size: 24px;
 }
 
@@ -1410,9 +1410,9 @@ footer {
 
 @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after {
-        scroll-behavior: auto !important;
-        animation-duration: 0.01ms !important;
-        animation-iteration-count: 1 !important;
-        transition-duration: 0.01ms !important;
+        scroll-behavior: auto ;
+        animation-duration: 0.01ms ;
+        animation-iteration-count: 1 ;
+        transition-duration: 0.01ms ;
     }
 }

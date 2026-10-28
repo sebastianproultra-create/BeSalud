@@ -1,5 +1,6 @@
 package com.gestion.proyectos.servicio;
 
+import com.gestion.proyectos.util.Reloj;
 import com.gestion.proyectos.modelo.Cita;
 import com.gestion.proyectos.modelo.Doctor;
 import com.gestion.proyectos.modelo.EstadoCita;
@@ -68,7 +69,7 @@ public class EstadisticasService {
         List<Doctor> doctores = personaRepo.findAllDoctores();
         Map<String, Doctor> doctorPorId = doctores.stream()
                 .collect(Collectors.toMap(Doctor::getId, Function.identity(), (a, b) -> a));
-        LocalDate hoy = LocalDate.now();
+        LocalDate hoy = Reloj.hoy();
 
         long atendidas = citas.stream().filter(c -> c.getEstado() == EstadoCita.ASISTIO
                 || c.getEstado() == EstadoCita.COMPLETADA).count();

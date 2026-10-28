@@ -2,12 +2,12 @@
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Doctores — BeSalud</title>
     <link rel="stylesheet" th:href="@{/css/base/global.css}">
+    <th:block th:replace="~{fragments/layout :: design-system}"></th:block>
 </head>
 <body>
-<header th:replace="~{fragments/layout :: shell-admin('doctores')}"></header>
+<header th:replace="~{fragments/navbar :: navbar}"></header>
 
 <main class="container">
 

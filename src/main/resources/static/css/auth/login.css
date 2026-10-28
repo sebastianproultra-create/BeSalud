@@ -58,7 +58,7 @@
     background: var(--white);
     border: 1px solid var(--border-mid);
     border-radius: 2px;
-    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-family: var(--font-body);
     font-size: 13px;
     font-weight: 400;
     color: var(--text-dark);
@@ -84,7 +84,7 @@
 
 @media (max-width: 768px) {
     .card {
-        margin: 20px !important;
-        padding: 24px !important;
+        margin: 20px ;
+        padding: 24px ;
     }
 }

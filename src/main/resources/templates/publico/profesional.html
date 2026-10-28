@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org"
+      th:with="loc=${T(java.util.Locale).forLanguageTag('es-CO')},
+               nombreCompleto=${doctor.nombre + ' ' + doctor.apellido}">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${nombreCompleto + ' · Agenda tu cita · BeSalud'}">Profesional · BeSalud</title>
+    <meta name="description" th:content="${'Agenda tu cita con ' + nombreCompleto + (doctor.especialidad != null ? ', ' + doctor.especialidad : '') + ' en BeSalud.'}">
+    <meta name="_csrf" th:content="${_csrf.token}">
+    <meta name="_csrf_header" th:content="${_csrf.headerName}">
+    <link rel="stylesheet" th:href="@{/css/base/global.css}">
+    <link rel="stylesheet" th:href="@{/css/auth/portal.css}">
+    <link rel="stylesheet" th:href="@{/css/publico/profesional.css}">
+    <link rel="stylesheet" th:href="@{/css/base/asistente.css}">
+    <th:block th:replace="~{fragments/layout :: design-system}"></th:block>
+</head>
+<body class="auth-page profesional-page">
+<header th:replace="~{fragments/navbar :: navbar}"></header>
+
+<main class="auth-main profesional-main">
+    <div class="profesional-layout">
+        <section class="pro-card pro-perfil" aria-labelledby="pro-nombre">
+            <img class="pro-foto" th:src="${doctor.foto != null ? doctor.foto : '/images/default-avatar.jpg'}"
+                 th:alt="${'Foto de ' + nombreCompleto}" width="112" height="112">
+            <div class="pro-identidad">
+                <span class="pro-eyebrow"><span class="material-symbols-outlined" aria-hidden="true">verified</span>Profesional en BeSalud</span>
+                <h1 id="pro-nombre" th:text="${nombreCompleto}">Nombre del profesional</h1>
+                <p class="pro-especialidad" th:if="${doctor.especialidad != null}" th:text="${doctor.especialidad}">Especialidad</p>
+                <p class="pro-bio" th:if="${doctor.biografia != null and !#strings.isEmpty(doctor.biografia)}" th:text="${doctor.biografia}">Biografía</p>
+            </div>
+        </section>
+
+        <aside class="pro-card pro-consulta" aria-labelledby="pro-consulta-titulo">
+            <h2 id="pro-consulta-titulo">La consulta</h2>
+            <dl>
+                <div>
+                    <dt><span class="material-symbols-outlined" aria-hidden="true">payments</span>Valor</dt>
+                    <dd th:text="${'$' + #numbers.formatInteger(doctor.precioEfectivo, 1, 'POINT')}">$80.000</dd>
+                </div>
+                <div>
+                    <dt><span class="material-symbols-outlined" aria-hidden="true">lock</span>Abono para reservar</dt>
+                    <dd th:text="${'$' + #numbers.formatInteger(doctor.abono, 1, 'POINT') + ' (' + doctor.porcentajeAbonoEfectivo() + ' %)'}">$16.000 (20 %)</dd>
+                </div>
+                <div th:if="${doctor.direccionConsultorio != null and !#strings.isEmpty(doctor.direccionConsultorio)}">
+                    <dt><span class="material-symbols-outlined" aria-hidden="true">location_on</span>Dirección</dt>
+                    <dd th:text="${doctor.direccionConsultorio}">Dirección</dd>
+                </div>
+            </dl>
+            <p class="pro-politica">
+                Reservas pagando el abono en línea y el resto en el consultorio. Si cancelas con al menos
+                <strong th:text="${doctor.horasCancelacionEfectivas() + ' horas'}">24 horas</strong> de anticipación, se te devuelve;
+                si no asistes o cancelas más tarde, el profesional lo conserva. Al elegir un horario lo apartamos
+                <strong th:text="${minutosParaPagar + ' minutos'}">15 minutos</strong> mientras pagas.
+            </p>
+        </aside>
+
+        <section class="pro-card pro-horarios" aria-labelledby="pro-horarios-titulo">
+            <h2 id="pro-horarios-titulo">Próximos horarios</h2>
+            <p class="pro-aviso" th:if="${sesionIniciada and !esPaciente}">
+                Para reservar debes entrar con una cuenta de paciente.
+            </p>
+            <p class="pro-vacio" th:if="${#lists.isEmpty(fechas)}">
+                No hay horarios disponibles por ahora. Escríbele al asistente o vuelve pronto.
+            </p>
+            <div class="pro-dias" th:unless="${#lists.isEmpty(fechas)}">
+                <div class="pro-dia" th:each="f : ${fechas}">
+                    <h3>
+                        <span th:text="${#strings.capitalize(#temporals.format(f, 'EEEE', loc))}">Lunes</span>
+                        <small th:text="${#temporals.format(f, 'd MMM', loc)}">3 nov</small>
+                    </h3>
+                    <ul>
+                        <li th:each="h : ${proximos[f.toString()]}">
+                            <a class="pro-slot" th:if="${esPaciente}"
+                               th:href="@{/citas/nueva(doctorId=${doctor.id}, fecha=${f.toString()}, hora=${h})}" th:text="${h}">09:00</a>
+                            <a class="pro-slot" th:if="${!sesionIniciada}"
+                               th:href="@{/login(continuar=${'/citas/nueva?doctorId=' + doctor.id + '&fecha=' + f.toString() + '&hora=' + h})}"
+                               th:text="${h}">09:00</a>
+                            <span class="pro-slot is-inactivo" th:if="${sesionIniciada and !esPaciente}" th:text="${h}">09:00</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <a class="pro-ver-todo" th:if="${esPaciente}" th:href="@{/citas/nueva(doctorId=${doctor.id})}">
+                Ver todos los horarios<span class="material-symbols-outlined" aria-hidden="true">arrow_forward</span>
+            </a>
+            <a class="pro-ver-todo" th:if="${!sesionIniciada}"
+               th:href="@{/login(continuar=${'/citas/nueva?doctorId=' + doctor.id})}">
+                Ver todos los horarios<span class="material-symbols-outlined" aria-hidden="true">arrow_forward</span>
+            </a>
+        </section>
+
+        <section class="pro-card pro-asistente" aria-labelledby="pro-asistente-titulo" data-asistente
+                 th:attr="data-endpoint=@{/p/{slug}/asistente(slug=${doctor.slug})},
+                          data-doctor-id=${doctor.id},
+                          data-modo=${esPaciente ? 'paciente' : (sesionIniciada ? 'otro' : 'visitante')}">
+            <h2 id="pro-asistente-titulo"><span class="material-symbols-outlined" aria-hidden="true">event_available</span>Asistente de agenda</h2>
+            <p class="pro-asistente-nota">
+                Te ayuda a encontrar horario y responde sobre precio, abono y ubicación.
+                No da orientación médica: ante una urgencia llama al <strong>123</strong>.
+            </p>
+            <div class="chat-mensajes" id="chat-mensajes" aria-live="polite">
+                <div class="chat-msg is-bot">
+                    Hola, soy el asistente de agenda. Puedes escribirme cosas como
+                    <em>“¿tienes algo el jueves en la tarde?”</em> o <em>“¿cuánto cuesta la consulta?”</em>
+                </div>
+            </div>
+            <div class="chat-sugerencias">
+                <button type="button" data-pregunta="¿Qué tienes mañana en la mañana?">Mañana en la mañana</button>
+                <button type="button" data-pregunta="¿Cuánto cuesta la consulta?">Precio</button>
+                <button type="button" data-pregunta="¿Cómo funciona el abono?">Abono</button>
+                <button type="button" data-pregunta="¿Dónde queda el consultorio?">Ubicación</button>
+            </div>
+            <form class="chat-form" id="chat-form" autocomplete="off">
+                <label for="chat-texto" class="sr-only">Escribe tu pregunta</label>
+                <input id="chat-texto" type="text" maxlength="300" placeholder="Escribe tu pregunta…" required>
+                <button type="submit" aria-label="Enviar"><span class="material-symbols-outlined" aria-hidden="true">send</span></button>
+            </form>
+        </section>
+    </div>
+</main>
+
+<div th:replace="~{fragments/layout :: auth-footer}"></div>
+<script th:src="@{/js/asistente.js}" defer></script>
+</body>
+</html>

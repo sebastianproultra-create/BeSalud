@@ -26,25 +26,29 @@ public class SecurityConfig {
                         JwtCookieService jwtCookieService,
                         OAuth2LoginSuccessHandler oauth2LoginSuccessHandler) throws Exception {
                 http
-                                .csrf(org.springframework.security.config.Customizer.withDefaults())
+                                // Wompi firma sus eventos con un checksum propio; no puede enviar el token CSRF
+                                .csrf(csrf -> csrf.ignoringRequestMatchers("/pagos/wompi/eventos"))
                                 .authorizeHttpRequests(auth -> auth
                                                 .requestMatchers("/", LOGIN_URL, "/register", "/register/save",
                                                                 "/css/**", "/images/**", "/vendor/**",
                                                                 "/js/**", "/error", "/elegir-rol", "/privacidad",
-                                                                "/ayuda", "/ayuda/contacto")
+                                                                "/ayuda", "/ayuda/contacto", "/p/**",
+                                                                "/pagos/retorno", "/pagos/wompi/eventos")
                                                 .permitAll()
+                                                .requestMatchers("/pagos/**", "/citas/*/asistencia", "/citas/*/google-calendar").hasRole("PACIENTE")
                                                 .requestMatchers("/admin/**").hasRole("ADMIN")
                                                 .requestMatchers("/citas").hasRole("ADMIN")
                                                 .requestMatchers("/citas/*/cancelar").hasAnyRole("PACIENTE", "ADMIN")
                                                 .requestMatchers("/doctores/*/horarios").hasRole("ADMIN")
-                                                .requestMatchers("/pacientes/landing", "/triage", "/triage/agendar", "/citas/nueva",
+                                                .requestMatchers("/pacientes/landing", "/pacientes/asistente", "/pacientes/pagos", "/triage", "/triage/agendar", "/citas/nueva",
                                                                 "/citas/guardar-paciente", "/citas/*/reprogramar")
                                                 .hasRole("PACIENTE")
                                                 .requestMatchers("/pacientes", "/pacientes/**",
                                                                 "/citas/crear", "/citas/guardar",
                                                                 "/doctores/guardar", "/doctores/*/eliminar")
                                                 .hasRole("ADMIN")
-                                                .requestMatchers("/doctores/perfil/foto").hasRole("DOCTOR")
+                                                .requestMatchers("/doctores/perfil/foto", "/doctores/perfil/consulta")
+                                                .hasRole("DOCTOR")
                                                 .requestMatchers("/doctores")
                                                 .hasAnyRole("ADMIN", "DOCTOR")
                                                 .anyRequest().authenticated())

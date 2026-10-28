@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<body>
+<header th:fragment="navbar" class="bs-navbar">
+    <div class="bs-navbar__inner">
+        <a class="bs-navbar__brand" th:href="@{/}" aria-label="BeSalud, inicio">
+            <span class="bs-navbar__brand-mark" aria-hidden="true">+</span>
+            <span>BeSalud</span>
+        </a>
+        <button class="bs-navbar__toggle" type="button" aria-label="Abrir menú de navegación"
+                aria-expanded="false" aria-controls="bs-primary-navigation" data-navbar-toggle>
+            <span class="bs-navbar__toggle-line"></span>
+            <span class="bs-navbar__toggle-line"></span>
+            <span class="bs-navbar__toggle-line"></span>
+        </button>
+        <nav id="bs-primary-navigation" class="bs-navbar__menu"
+             aria-label="Navegación de administración" data-navbar-menu>
+            <a class="bs-navbar__link" th:href="@{/admin}" data-route="/admin" data-route-exact>Panel</a>
+            <a class="bs-navbar__link" th:href="@{/admin/estadisticas}" data-route="/admin/estadisticas">Estadísticas</a>
+            <a class="bs-navbar__link" th:href="@{/doctores}" data-route="/doctores">Doctores</a>
+            <a class="bs-navbar__link" th:href="@{/pacientes}" data-route="/pacientes">Pacientes</a>
+            <a class="bs-navbar__link" th:href="@{/citas}" data-route="/citas">Citas</a>
+            <a class="bs-navbar__link" th:href="@{/ayuda}" data-route="/ayuda">Ayuda</a>
+            <div class="bs-navbar__account">
+                <span class="bs-navbar__username" sec:authentication="name">Usuario</span>
+                <form th:action="@{/logout}" method="post" class="bs-navbar__logout-form">
+                    <button class="bs-navbar__logout" type="submit">Cerrar sesión</button>
+                </form>
+            </div>
+        </nav>
+    </div>
+</header>
+</body>
+</html>

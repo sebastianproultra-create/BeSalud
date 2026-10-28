@@ -268,7 +268,7 @@
     font-weight: 700;
     margin: 0;
     color: var(--white);
-    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-family: var(--font-body);
 }
 .sidebar-count {
     background: rgba(255, 255, 255, 0.25);
@@ -568,11 +568,11 @@
         height: 100vh;
         border-left: 1px solid var(--border-color);
         box-shadow: -4px 0 24px rgba(0, 0, 0, 0.15);
-        transform: none !important;
+        transform: none ;
     }
 
     .citas-sidebar.collapsed .sidebar-inner {
-        transform: none !important;
+        transform: none ;
     }
 
     /* Tab stays on left edge of the drawer (absolute within sidebar) */
@@ -665,7 +665,7 @@ body.patient-catalog-page {
     min-height: 100vh;
     color: #1E293B;
     background: var(--patient-sage);
-    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-family: var(--font-body);
     font-size: 14px;
     font-weight: 400;
     line-height: 1.55;
@@ -733,7 +733,7 @@ body.patient-catalog-page {
 
 .patient-brand-copy strong {
     color: #fff;
-    font-family: 'Newsreader', Georgia, serif;
+    font-family: var(--font-heading);
     font-size: 24px;
     font-weight: 500;
     line-height: 1;
@@ -853,7 +853,7 @@ body.patient-catalog-page {
     background: rgba(255, 255, 255, 0.1);
     border: 1px solid rgba(255, 255, 255, 0.16);
     border-radius: 8px;
-    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-family: var(--font-body);
     font-size: 9px;
     font-weight: 700;
     letter-spacing: 0.08em;
@@ -954,7 +954,7 @@ body.patient-catalog-page {
 .patient-welcome h1 {
     max-width: 680px;
     color: #fff;
-    font-family: 'Newsreader', Georgia, serif;
+    font-family: var(--font-heading);
     font-size: 32px;
     font-weight: 400;
     letter-spacing: 0;
@@ -963,7 +963,7 @@ body.patient-catalog-page {
 
 .patient-welcome h1 em {
     color: #B7EED9;
-    font-family: 'Newsreader', Georgia, serif;
+    font-family: var(--font-heading);
     font-weight: 400;
 }
 
@@ -1035,7 +1035,7 @@ body.patient-catalog-page {
 .doctor-filter-heading h2,
 .doctor-directory-heading h2 {
     color: #1E293B;
-    font-family: 'Newsreader', Georgia, serif;
+    font-family: var(--font-heading);
     font-size: 21px;
     font-weight: 500;
     line-height: 1.25;
@@ -1115,7 +1115,7 @@ body.patient-catalog-page {
     background: #F7FAF8;
     border: 1px solid #DCE7E0;
     border-radius: 9px;
-    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-family: var(--font-body);
     font-size: 10px;
     font-weight: 500;
     line-height: 1.35;
@@ -1159,7 +1159,7 @@ body.patient-catalog-page {
     background: var(--patient-emerald);
     border: 1px solid var(--patient-emerald);
     border-radius: 9px;
-    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-family: var(--font-body);
     font-size: 10px;
     font-weight: 700;
     letter-spacing: 0;
@@ -1280,7 +1280,7 @@ body.patient-catalog-page {
 .doctor-card-identity h3 {
     margin: 5px 0 1px;
     color: #172C23;
-    font-family: 'Newsreader', Georgia, serif;
+    font-family: var(--font-heading);
     font-size: 18px;
     font-weight: 500;
     line-height: 1.2;
@@ -1470,7 +1470,7 @@ body.patient-catalog-page {
 }
 
 .patient-catalog-page .patient-sidebar .sidebar-title h3 {
-    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-family: var(--font-body);
     font-size: 13px;
     letter-spacing: 0.02em;
 }
@@ -1738,11 +1738,11 @@ body.patient-catalog-page {
 
     .patient-catalog-page .patient-sidebar .sidebar-tab,
     .patient-catalog-page .sidebar-backdrop {
-        display: none !important;
+        display: none ;
     }
 
     .patient-catalog-page .patient-sidebar .sidebar-close {
-        display: inline-flex !important;
+        display: inline-flex ;
     }
 
     .patient-catalog-page footer {
@@ -1763,22 +1763,11 @@ body.patient-catalog-page {
         display: none;
     }
 
-    .patient-nav i {
-        display: none;
-    }
-
+    /* Tres enlaces: solo íconos para que el encabezado quepa (el texto sigue para lectores de pantalla) */
     .patient-catalog-page .patient-nav a {
-        width: auto;
+        width: 34px;
+        min-height: 34px;
         padding: 7px;
-        font-size: 9px;
-    }
-
-    .patient-nav a.is-active::before {
-        content: '';
-        width: 5px;
-        height: 5px;
-        background: #A7E2CC;
-        border-radius: 50%;
     }
 
     .patient-main {
@@ -1847,7 +1836,7 @@ body.patient-catalog-page {
         position: static;
         width: 100%;
         min-height: 46px;
-        display: flex !important;
+        display: flex ;
         flex-direction: row;
         justify-content: center;
         gap: 9px;
@@ -1900,7 +1889,7 @@ body.patient-catalog-page {
     max-height: calc(100vh - 112px);
     display: flex;
     flex-direction: column;
-    transform: none !important;
+    transform: none ;
     visibility: visible;
     opacity: 1;
     overflow: hidden;
@@ -1917,7 +1906,7 @@ body.patient-catalog-page {
 
 
 .patient-catalog-page .patient-sidebar .sidebar-close {
-    display: none !important;
+    display: none ;
 }
 
 /* Citas más legibles */
@@ -1988,7 +1977,7 @@ body.patient-catalog-page {
     }
 
     .patient-catalog-page .patient-sidebar .sidebar-close {
-        display: inline-flex !important;
+        display: inline-flex ;
         width: 32px;
         height: 32px;
         padding: 0;
@@ -2003,5 +1992,179 @@ body.patient-catalog-page {
 
     .patient-catalog-page .patient-sidebar.collapsed .sidebar-close {
         transform: rotate(90deg);
+    }
+}
+
+/* Abono pagado al reservar y enlace a la página pública del profesional */
+.cita-abono {
+    margin-top: 6px;
+    color: #855403;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.doctor-profile-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: inherit;
+    text-decoration: none;
+}
+
+.doctor-profile-link:hover {
+    text-decoration: underline;
+}
+
+/* Horario apartado que aún espera el pago del abono */
+.reserva-pendiente {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+    padding: 14px 16px;
+    color: #5C3A02;
+    background: #FFF4E3;
+    border: 1px solid #FFDDB8;
+    border-radius: 12px;
+    font-size: 14px;
+}
+
+.reserva-pendiente > div {
+    flex: 1;
+    min-width: 0;
+}
+
+.reserva-pendiente strong,
+.reserva-pendiente span {
+    display: block;
+}
+
+.reserva-pendiente a {
+    flex: 0 0 auto;
+    padding: 8px 14px;
+    color: #fff;
+    background: #855403;
+    border-radius: 8px;
+    font-weight: 700;
+    text-decoration: none;
+}
+
+@media (max-width: 560px) {
+    .reserva-pendiente {
+        flex-wrap: wrap;
+    }
+}
+
+.confirmar-asistencia {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+    padding: 14px 16px;
+    color: #0D4738;
+    background: #EAF7F0;
+    border: 1px solid #CFE6DA;
+    border-radius: 12px;
+    font-size: 14px;
+}
+
+.confirmar-asistencia > i {
+    font-size: 18px;
+}
+
+.confirmar-asistencia > div:first-of-type {
+    flex: 1;
+    min-width: 0;
+}
+
+.confirmar-asistencia strong,
+.confirmar-asistencia span,
+.confirmar-asistencia small {
+    display: block;
+}
+
+.confirmar-asistencia small {
+    margin-top: 2px;
+    color: #404945;
+    font-size: 12px;
+}
+
+.confirmar-asistencia-botones {
+    display: flex;
+    flex: 0 0 auto;
+    gap: 8px;
+}
+
+.patient-main .confirmar-asistencia form {
+    margin: 0;
+    padding: 0;
+    background: none;
+    border: 0;
+    box-shadow: none;
+}
+
+.patient-main .confirmar-asistencia button {
+    margin: 0;
+    padding: 8px 14px;
+    border-radius: 8px;
+    box-shadow: none;
+    font: inherit;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: normal;
+    text-transform: none;
+    cursor: pointer;
+}
+
+.patient-main .confirmar-asistencia .confirmar-si {
+    color: #fff;
+    background: #0D4738;
+    border: 1px solid #0D4738;
+}
+
+.patient-main .confirmar-asistencia .confirmar-no {
+    color: #0D4738;
+    background: #fff;
+    border: 1px solid #B9CFC4;
+}
+
+.patient-main .confirmar-asistencia .confirmar-si:hover {
+    color: #fff;
+    background: #002F24;
+}
+
+.patient-main .confirmar-asistencia .confirmar-no:hover {
+    color: #0D4738;
+    background: #F0FCF5;
+}
+
+.cita-asistencia {
+    margin-top: 6px;
+    color: #0D6B3F;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.alert-success a {
+    margin-left: 6px;
+    color: inherit;
+    font-weight: 700;
+}
+
+@media (max-width: 560px) {
+    .confirmar-asistencia {
+        flex-wrap: wrap;
+    }
+
+    .confirmar-asistencia-botones {
+        width: 100%;
+    }
+
+    .confirmar-asistencia-botones form {
+        flex: 1;
+    }
+
+    .patient-main .confirmar-asistencia button {
+        width: 100%;
     }
 }

@@ -1,5 +1,6 @@
 package com.gestion.proyectos.servicio;
 
+import com.gestion.proyectos.util.Reloj;
 import java.time.LocalDateTime;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -66,7 +67,7 @@ public class AyudaService {
     }
 
     public MensajeAyuda guardar(MensajeAyuda m) {
-        m.setFecha(LocalDateTime.now());
+        m.setFecha(Reloj.ahora());
         m.setAtendido(false);
         log.info("Mensaje de ayuda recibido ({})", m.getTema());
         return mensajeRepo.save(m);

@@ -1,0 +1,260 @@
+/* Página pública del profesional: usa los tokens de auth/portal.css */
+
+.profesional-page .profesional-main {
+    display: block;
+    padding: var(--space-8) var(--space-page) var(--space-10);
+}
+
+.profesional-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1.6fr) minmax(18rem, 1fr);
+    gap: var(--space-5);
+    width: min(100%, 67.5rem);
+    margin: 0 auto;
+}
+
+.pro-card {
+    min-width: 0;
+    padding: 28px;
+    background: var(--portal-surface);
+    border: 1px solid var(--portal-border);
+    border-radius: 20px;
+    box-shadow: 0 12px 32px rgba(0, 47, 36, 0.06);
+}
+
+.pro-card h2 {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0 0 16px;
+    color: var(--portal-primary);
+    font-family: var(--font-heading);
+    font-size: 26px;
+    font-weight: 500;
+}
+
+.pro-perfil {
+    display: flex;
+    gap: 24px;
+    align-items: flex-start;
+}
+
+.pro-foto {
+    flex: 0 0 auto;
+    width: 112px;
+    height: 112px;
+    object-fit: cover;
+    border-radius: 24px;
+    background: var(--portal-container);
+}
+
+.pro-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--portal-secondary);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+}
+
+.pro-eyebrow .material-symbols-outlined {
+    font-size: 16px;
+}
+
+.pro-identidad h1 {
+    margin: 8px 0 4px;
+    color: var(--portal-primary);
+    font-family: var(--font-heading);
+    font-size: clamp(30px, 4vw, 42px);
+    font-weight: 400;
+    line-height: 1.1;
+}
+
+.pro-especialidad {
+    margin: 0 0 12px;
+    color: var(--portal-primary-container);
+    font-weight: 600;
+}
+
+.pro-bio {
+    margin: 0;
+    color: var(--portal-muted);
+    line-height: 1.7;
+}
+
+.pro-consulta dl {
+    display: grid;
+    gap: 14px;
+    margin: 0 0 16px;
+}
+
+.pro-consulta dl > div {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--portal-border);
+}
+
+.pro-consulta dt {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--portal-muted);
+    font-size: 14px;
+}
+
+.pro-consulta dt .material-symbols-outlined {
+    font-size: 18px;
+    color: var(--portal-primary-container);
+}
+
+.pro-consulta dd {
+    margin: 0;
+    color: var(--portal-on-surface);
+    font-weight: 700;
+    text-align: right;
+    overflow-wrap: anywhere;
+}
+
+.pro-politica,
+.pro-asistente-nota,
+.pro-vacio,
+.pro-aviso {
+    margin: 0 0 12px;
+    color: var(--portal-muted);
+    font-size: 14px;
+    line-height: 1.65;
+}
+
+.pro-aviso {
+    padding: 10px 14px;
+    background: #FFF4E3;
+    border-radius: 12px;
+    color: var(--portal-secondary);
+}
+
+.pro-horarios,
+.pro-asistente {
+    grid-column: span 1;
+}
+
+.pro-horarios {
+    align-self: start;
+}
+
+.pro-dias {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 16px;
+}
+
+.pro-dia h3 {
+    display: flex;
+    flex-direction: column;
+    margin: 0 0 10px;
+    color: var(--portal-on-surface);
+    font-size: 15px;
+    font-weight: 700;
+}
+
+.pro-dia h3 small {
+    color: var(--portal-outline);
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.pro-dia ul {
+    display: grid;
+    gap: 8px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.pro-slot {
+    display: inline-flex;
+    justify-content: center;
+    min-width: 72px;
+    padding: 8px 12px;
+    color: var(--portal-primary);
+    background: var(--portal-container);
+    border: 1px solid var(--portal-border);
+    border-radius: 999px;
+    font-size: 14px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: background-color 0.15s, color 0.15s;
+}
+
+a.pro-slot:hover,
+a.pro-slot:focus-visible {
+    color: #fff;
+    background: var(--portal-primary-container);
+}
+
+.pro-slot.is-inactivo {
+    color: var(--portal-outline);
+    background: transparent;
+}
+
+.pro-ver-todo {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 20px;
+    color: var(--portal-primary-container);
+    font-weight: 700;
+    text-decoration: none;
+}
+
+.pro-ver-todo .material-symbols-outlined {
+    font-size: 18px;
+}
+
+/* Asistente */
+.pro-asistente {
+    display: flex;
+    flex-direction: column;
+}
+
+@media (max-width: 860px) {
+    .profesional-layout {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .pro-consulta,
+    .pro-horarios,
+    .pro-asistente {
+        grid-column: auto;
+    }
+}
+
+@media (max-width: 560px) {
+    .profesional-page .profesional-main {
+        padding-top: var(--space-5);
+        padding-bottom: var(--space-8);
+    }
+
+    .pro-card {
+        padding: var(--space-4);
+    }
+
+    .pro-perfil {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
+
+    .pro-dias {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 360px) {
+    .pro-dias {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}

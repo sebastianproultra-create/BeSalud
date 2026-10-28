@@ -1,10 +1,12 @@
 package com.gestion.proyectos.servicio;
 
+import com.gestion.proyectos.util.Reloj;
 import com.gestion.proyectos.util.ValidacionUtil;
 import com.gestion.proyectos.modelo.Cita;
 import com.gestion.proyectos.modelo.CitaEvento;
 import com.gestion.proyectos.modelo.Dictamen;
 import com.gestion.proyectos.modelo.Doctor;
+import com.gestion.proyectos.modelo.EstadoAbono;
 import com.gestion.proyectos.modelo.EstadoCita;
 import com.gestion.proyectos.modelo.HorarioAtencion;
 import com.gestion.proyectos.modelo.Paciente;
@@ -92,32 +94,8 @@ public class DoctorService {
 
     // ── Dashboard data ───────────────────────────────────────────────────────
 
-    public List<Cita> citasDelDoctor(String doctorId, String filtroEstado) {
-        if (filtroEstado == null || filtroEstado.isEmpty() || "TODAS".equals(filtroEstado)) {
-            return citaRepo.findByDoctorId(doctorId);
-        }
-        return citaRepo.findByDoctorIdAndEstado(doctorId, EstadoCita.valueOf(filtroEstado));
-    }
 
-    public Map<String, String> mapPacienteNombres(List<Cita> citas) {
-        List<String> ids = citas.stream()
-                .map(Cita::getPacienteId)
-                .filter(id -> id != null)
-                .distinct()
-                .toList();
-        Map<String, String> nombres = new HashMap<>();
-        personaRepo.findAllById(ids)
-                .forEach(p -> nombres.put(p.getId(), p.getNombre() + " " + p.getApellido()));
-        return nombres;
-    }
 
-    public Map<String, Map<String, Object>> dictamenDataMap(List<Cita> citas) {
-        Map<String, Map<String, Object>> result = new HashMap<>();
-        for (Cita c : citas)
-            if (c.getDictamen() != null)
-                result.put(c.getId(), DictamenVista.de(c.getDictamen()));
-        return result;
-    }
 
     public String actualizarFoto(Doctor doctor, org.springframework.web.multipart.MultipartFile foto) {
         if (foto == null || foto.isEmpty())
@@ -141,25 +119,12 @@ public class DoctorService {
         }
     }
 
-    public List<Paciente> pacientesDelDoctor(String doctorId) {
-        List<String> ids = citaRepo.findByDoctorId(doctorId).stream()
-                .map(Cita::getPacienteId)
-                .filter(id -> id != null)
-                .distinct()
-                .toList();
-        List<Paciente> pacientes = new ArrayList<>();
-        personaRepo.findAllById(ids).forEach(p -> {
-            if (p instanceof Paciente pac)
-                pacientes.add(pac);
-        });
-        return pacientes;
-    }
 
     public List<Map<String, Object>> weeklyAvailability(String doctorId) {
         List<HorarioAtencion> horarios = horarioRepo.findByDoctorId(doctorId);
         List<Map<String, Object>> result = new ArrayList<>();
         Locale localeEs = Locale.forLanguageTag("es-CO");
-        LocalDate today = LocalDate.now();
+        LocalDate today = Reloj.hoy();
         for (int i = 0; i < 7; i++) {
             LocalDate date = today.plusDays(i);
             DayOfWeek dow = date.getDayOfWeek();
@@ -341,33 +306,101 @@ public class DoctorService {
 
     // ── Estado de citas ──────────────────────────────────────────────────────
 
-    public void marcarAsistio(String citaId, String doctorId) {
+    /**
+     * Las acciones del médico solo aplican a citas pendientes. Sin esto, una cita completada podía
+     * volver a "en atención" y su dictamen quedaba sobrescrito por el siguiente (la historia clínica
+     * no puede alterarse). Devuelve la cita o null si no estaba pendiente.
+     */
+    private Cita citaPendienteDe(String citaId, String doctorId) {
         Cita cita = citaRepo.findById(citaId).orElseThrow();
         if (!cita.getDoctorId().equals(doctorId))
             throw new AccessDeniedException("No autorizado");
+        if (cita.getEstado() != EstadoCita.PENDIENTE) {
+            log.warn("Acción ignorada: la cita {} está en estado {}", citaId, cita.getEstado());
+            return null;
+        }
+        return cita;
+    }
+
+    public boolean marcarAsistio(String citaId, String doctorId) {
+        Cita cita = citaPendienteDe(citaId, doctorId);
+        if (cita == null)
+            return false;
         cita.setEstado(EstadoCita.ASISTIO);
-        cita.setInicioAtencion(LocalDateTime.now());
+        cita.setInicioAtencion(Reloj.ahora());
         citaRepo.save(cita);
         log.info("Cita {} marcada ASISTIO por doctor {}", citaId, doctorId);
+        return true;
     }
 
-    public void marcarNoAsistio(String citaId, String doctorId) {
-        Cita cita = citaRepo.findById(citaId).orElseThrow();
-        if (!cita.getDoctorId().equals(doctorId))
-            throw new AccessDeniedException("No autorizado");
+    /** El paciente no llegó: si había pagado abono, el profesional lo conserva. */
+    public boolean marcarNoAsistio(String citaId, String doctorId) {
+        Cita cita = citaPendienteDe(citaId, doctorId);
+        if (cita == null)
+            return false;
         cita.setEstado(EstadoCita.NO_ASISTIO);
+        if (cita.getAbonoCentavos() != null)
+            cita.setEstadoAbono(EstadoAbono.RETENIDO);
         citaRepo.save(cita);
         log.info("Cita {} marcada NO_ASISTIO por doctor {}", citaId, doctorId);
+        return true;
     }
 
-    public void cancelarCita(String citaId, String doctorId) {
+    // ── Abonos ───────────────────────────────────────────────────────────────
+
+    /** Lo que el médico necesita saber de sus abonos: este mes y lo que tiene pendiente por devolver. */
+    public record ResumenAbonos(long cobradosMes, long retenidosMes, long porDevolver, List<Cita> pendientes,
+            Map<String, String> pacientes) {
+    }
+
+    public ResumenAbonos resumenAbonos(String doctorId) {
+        LocalDate hoy = Reloj.hoy();
+        LocalDate inicio = hoy.withDayOfMonth(1);
+        // Between de Mongo excluye los extremos: se corre un día a cada lado
+        List<Cita> delMes = citaRepo.findByDoctorIdAndFechaBetweenAndAbonoCentavosIsNotNull(doctorId,
+                inicio.minusDays(1), inicio.plusMonths(1));
+        long cobrados = sumar(delMes.stream().filter(c -> c.getEstadoAbono() == EstadoAbono.PAGADO
+                || c.getEstadoAbono() == EstadoAbono.RETENIDO).toList());
+        long retenidos = sumar(delMes.stream().filter(c -> c.getEstadoAbono() == EstadoAbono.RETENIDO).toList());
+        List<Cita> pendientes = citaRepo.findByDoctorIdAndEstadoAbonoOrderByFechaAsc(doctorId, EstadoAbono.A_REEMBOLSAR);
+        Map<String, String> pacientes = new HashMap<>();
+        for (Cita c : pendientes)
+            pacientes.computeIfAbsent(c.getPacienteId(), id -> personaRepo.findById(id)
+                    .map(p -> p.getNombre() + " " + p.getApellido()).orElse("Paciente"));
+        return new ResumenAbonos(cobrados, retenidos, sumar(pendientes), pendientes, pacientes);
+    }
+
+    private static long sumar(List<Cita> citas) {
+        return citas.stream().mapToLong(c -> c.getAbonoPesos() == null ? 0 : c.getAbonoPesos()).sum();
+    }
+
+    /** El médico registra que ya le devolvió el abono al paciente (por Wompi o transferencia). */
+    public boolean marcarAbonoDevuelto(String citaId, String doctorId) {
         Cita cita = citaRepo.findById(citaId).orElseThrow();
         if (!cita.getDoctorId().equals(doctorId))
             throw new AccessDeniedException("No autorizado");
+        if (cita.getEstadoAbono() != EstadoAbono.A_REEMBOLSAR)
+            return false;
+        cita.setEstadoAbono(EstadoAbono.DEVUELTO);
+        cita.setAbonoDevueltoEn(Reloj.ahora());
+        citaRepo.save(cita);
+        log.info("Abono de la cita {} devuelto por doctor {}", citaId, doctorId);
+        eventos.publishEvent(new CitaEvento(CitaEvento.Tipo.ABONO_DEVUELTO, citaId));
+        return true;
+    }
+
+    /** Si cancela el profesional, el abono siempre se devuelve. */
+    public boolean cancelarCita(String citaId, String doctorId) {
+        Cita cita = citaPendienteDe(citaId, doctorId);
+        if (cita == null)
+            return false;
         cita.setEstado(EstadoCita.CANCELADA);
+        if (cita.getAbonoCentavos() != null)
+            cita.setEstadoAbono(EstadoAbono.A_REEMBOLSAR);
         citaRepo.save(cita);
         log.info("Cita {} CANCELADA por doctor {}", citaId, doctorId);
         eventos.publishEvent(new CitaEvento(CitaEvento.Tipo.CANCELADA, citaId));
+        return true;
     }
 
     /**
@@ -387,7 +420,7 @@ public class DoctorService {
         // Datos que pone el sistema: inicio real de la atención y firma del médico
         dictamen.setFechaAtencion(cita.getInicioAtencion() != null ? cita.getInicioAtencion()
                 : (cita.getFecha() != null && cita.getHora() != null ? cita.getFecha().atTime(cita.getHora()) : null));
-        dictamen.setFechaEmision(LocalDateTime.now());
+        dictamen.setFechaEmision(Reloj.ahora());
         dictamen.setFirmadoPor(doctor.getNombre() + " " + doctor.getApellido());
         dictamen.setEspecialidadFirmante(doctor.getEspecialidad());
         cita.setDictamen(dictamen);

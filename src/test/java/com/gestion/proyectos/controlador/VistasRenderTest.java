@@ -26,6 +26,7 @@ import com.gestion.proyectos.servicio.CitaService;
 import com.gestion.proyectos.servicio.DictamenVista;
 import com.gestion.proyectos.servicio.DoctorService;
 import com.gestion.proyectos.servicio.PacienteService;
+import com.gestion.proyectos.servicio.PanelDoctorService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -62,17 +63,22 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 /** Comprueba que las plantillas con mensajes de error y botones nuevos renderizan sin fallar. */
 @WebMvcTest({DoctorController.class, PacienteController.class, CitaController.class, LoginController.class,
-        RolSelectionController.class, TriageController.class})
+        RolSelectionController.class, TriageController.class, PerfilPublicoController.class})
 @Import(SecurityConfig.class)
 class VistasRenderTest {
 
     @Autowired private MockMvc mockMvc;
     @MockBean private DoctorService doctorService;
+    @MockBean private PanelDoctorService panelDoctorService;
     @MockBean private PacienteService pacienteService;
     @MockBean private CitaService citaService;
+    @MockBean private com.gestion.proyectos.servicio.PerfilPublicoService perfilPublicoService;
+    @MockBean private com.gestion.proyectos.servicio.ReservaService reservaService;
+    @MockBean private com.gestion.proyectos.servicio.PasarelaPagos pasarelaPagos;
     @MockBean private RateLimiter rateLimiter;
     @MockBean private com.gestion.proyectos.servicio.RegistroService registroService;
     @MockBean private com.gestion.proyectos.servicio.TriageService triageService;
+    @MockBean private com.gestion.proyectos.servicio.AsistenteService asistenteService;
     @MockBean private org.springframework.security.authentication.AuthenticationManager authenticationManager;
     @MockBean private CustomUserDetailsService customUserDetailsService;
     @MockBean private PersonaRepositorio personaRepositorio;
@@ -84,6 +90,17 @@ class VistasRenderTest {
     @BeforeEach
     void preparar() {
         when(rateLimiter.permitir(anyString(), anyInt(), any())).thenReturn(true);
+        panelConCitas(List.of(), Map.of());
+        when(panelDoctorService.pacientes(any(), any(), anyInt(), anyInt()))
+                .thenReturn(new PanelDoctorService.PanelPacientes(new PageImpl<>(List.of()), 0));
+    }
+
+    private void panelConCitas(List<Cita> citas, Map<String, Map<String, Object>> dictamenes) {
+        Map<String, Long> conteos = new LinkedHashMap<>();
+        PanelDoctorService.FILTROS.forEach(f -> conteos.put(f, 0L));
+        conteos.put("TODAS", (long) citas.size());
+        when(panelDoctorService.citas(any(), any(), any(), anyInt(), anyInt(), any()))
+                .thenReturn(new PanelDoctorService.PanelCitas(new PageImpl<>(citas), conteos, Map.of(), dictamenes));
     }
 
     @Test
@@ -124,6 +141,32 @@ class VistasRenderTest {
                 .andExpect(content().string(containsString("data-inicio=\"08:00\"")))
                 .andExpect(content().string(containsString("data-duracion=\"30\"")))
                 .andExpect(content().string(containsString("/js/prediccion.js")));
+    }
+
+    @Test
+    void dashboardDoctor_citasPaginadasEnElServidorConservanFiltroYBusqueda() throws Exception {
+        Doctor d = new Doctor();
+        d.setId("d1");
+        d.setNombre("Ana");
+        d.setApellido("Ruiz");
+        when(doctorService.buscarPorEmail("doc@test.com")).thenReturn(Optional.of(d));
+        when(doctorService.dailySlotCounts(any())).thenReturn(Map.of());
+        Map<String, Long> conteos = new LinkedHashMap<>();
+        PanelDoctorService.FILTROS.forEach(f -> conteos.put(f, 3L));
+        conteos.put("TODAS", 40L);
+        when(panelDoctorService.citas(eq("d1"), eq("PENDIENTE"), eq("maria"), eq(1), eq(8), any()))
+                .thenReturn(new PanelDoctorService.PanelCitas(
+                        new PageImpl<>(List.of(cita("c1", EstadoCita.PENDIENTE, null)),
+                                org.springframework.data.domain.PageRequest.of(1, 8), 40),
+                        conteos, Map.of(), Map.of()));
+
+        mockMvc.perform(get("/doctores").param("estado", "PENDIENTE").param("q", "maria").param("pc", "1")
+                        .with(user("doc@test.com").roles("DOCTOR")))
+                .andExpect(status().isOk())
+                .andExpect(content().string(containsString("Todas (40)")))
+                .andExpect(content().string(containsString("href=\"/doctores?q=maria&amp;estado=PENDIENTE#citas\"")))
+                .andExpect(content().string(containsString("href=\"/doctores?estado=PENDIENTE&amp;q=maria&amp;pc=2#citas\"")))
+                .andExpect(content().string(containsString("value=\"maria\"")));
     }
 
     /** Dictamen SOAP completo, como lo deja guardado DoctorService. */
@@ -194,8 +237,7 @@ class VistasRenderTest {
                 cita("c3", EstadoCita.COMPLETADA, dictamenAntiguo()));
         when(doctorService.buscarPorEmail("doc@test.com")).thenReturn(Optional.of(d));
         when(doctorService.dailySlotCounts(any())).thenReturn(Map.of());
-        when(doctorService.citasDelDoctor(eq("d1"), any())).thenReturn(citas);
-        when(doctorService.dictamenDataMap(any())).thenReturn(Map.of(
+        panelConCitas(citas, Map.of(
                 "c2", DictamenVista.de(dictamenSoap()), "c3", DictamenVista.de(dictamenAntiguo())));
 
         mockMvc.perform(get("/doctores").with(user("doc@test.com").roles("DOCTOR")))
@@ -231,7 +273,10 @@ class VistasRenderTest {
                 .andExpect(content().string(containsString("Acetaminofén 500 mg (Oral)")))
                 .andExpect(content().string(containsString("2 días — Fiebre")))
                 .andExpect(content().string(containsString("120/80 mmHg")))
-                .andExpect(content().string(containsString("Reposo y líquidos")));
+                .andExpect(content().string(containsString("Reposo y líquidos")))
+                .andExpect(content().string(containsString("Navegación del paciente")))
+                .andExpect(content().string(containsString("data-route=\"/triage\"")))
+                .andExpect(content().string(not(containsString("data-route=\"/admin/estadisticas\""))));
     }
 
     @Test
@@ -311,6 +356,24 @@ class VistasRenderTest {
                 .andExpect(status().isOk())
                 .andExpect(content().string(containsString("ya pasaron")))
                 .andExpect(content().string(not(containsString("id=\"motivo\""))));
+    }
+
+    @Test
+    void perfilPublico_muestraHorariosYPermiteReservarConPrecioBase() throws Exception {
+        Doctor d = new Doctor();
+        d.setId("d1");
+        d.setNombre("Ana");
+        d.setApellido("Ruiz");
+        when(perfilPublicoService.buscarActivoPorSlug("ana-ruiz")).thenReturn(Optional.of(d));
+        Map<String, List<String>> slots = new LinkedHashMap<>();
+        slots.put(LocalDate.now().plusDays(1).toString(), List.of("09:00"));
+        when(citaService.slotsDisponibles("d1", null, null, null)).thenReturn(new LinkedHashMap<>(slots));
+
+        mockMvc.perform(get("/p/ana-ruiz").with(user("pac@test.com").roles("PACIENTE")))
+                .andExpect(status().isOk())
+                .andExpect(content().string(containsString("09:00")))
+                .andExpect(content().string(containsString("$50.000")))
+                .andExpect(content().string(containsString("href=\"/citas/nueva?doctorId=d1")));
     }
 
     @Test
@@ -401,5 +464,36 @@ class VistasRenderTest {
         mockMvc.perform(put("/citas/nueva").param("doctorId", "x").with(csrf()).with(user("p@test.com").roles("PACIENTE")))
                 .andExpect(status().isMethodNotAllowed())
                 .andExpect(header().exists("Allow"));
+    }
+
+    @Test
+    void misPagos_listaLosAbonosConSuEstadoYComprobante() throws Exception {
+        Paciente p = new Paciente();
+        p.setId("p1");
+        when(pacienteService.buscarPorEmail("pac@test.com")).thenReturn(Optional.of(p));
+        var pago = new com.gestion.proyectos.servicio.ReservaService.MovimientoPago("BS-1",
+                java.time.LocalDateTime.of(2026, 10, 20, 9, 0), "Dr(a). Ana Ruiz", "Psicología",
+                java.time.LocalDate.of(2026, 11, 4), java.time.LocalTime.of(8, 0), 12_000, "Visa •••• 4242",
+                com.gestion.proyectos.servicio.ReservaService.EstadoPago.PAGADO);
+        var rechazado = new com.gestion.proyectos.servicio.ReservaService.MovimientoPago("BS-2",
+                java.time.LocalDateTime.of(2026, 10, 19, 9, 0), "Dr(a). Ana Ruiz", "Psicología",
+                java.time.LocalDate.of(2026, 11, 4), java.time.LocalTime.of(8, 0), 12_000, null,
+                com.gestion.proyectos.servicio.ReservaService.EstadoPago.RECHAZADO);
+        when(reservaService.historialDe("p1")).thenReturn(
+                new com.gestion.proyectos.servicio.ReservaService.HistorialPagos(List.of(pago, rechazado), 12_000, 0));
+
+        mockMvc.perform(get("/pacientes/pagos").with(user("pac@test.com").roles("PACIENTE")))
+                .andExpect(status().isOk())
+                .andExpect(content().string(containsString("Mis pagos")))
+                .andExpect(content().string(containsString("Visa •••• 4242")))
+                .andExpect(content().string(containsString("/pagos/BS-1/resultado")))
+                .andExpect(content().string(containsString("Rechazado")))
+                .andExpect(content().string(containsString("$12.000")));
+    }
+
+    @Test
+    void misPagos_soloParaPacientes() throws Exception {
+        mockMvc.perform(get("/pacientes/pagos").with(user("doc@test.com").roles("DOCTOR")))
+                .andExpect(status().isForbidden());
     }
 }

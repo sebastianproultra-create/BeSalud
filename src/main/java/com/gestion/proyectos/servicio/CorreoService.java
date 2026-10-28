@@ -42,9 +42,15 @@ public class CorreoService {
     }
 
     public void enviar(String destinatario, String nombre, String asunto, String html) {
+        enviar(destinatario, nombre, asunto, html, Map.of());
+    }
+
+    /** Igual que {@link #enviar(String, String, String, String)} con archivos adjuntos (nombre → contenido). */
+    public void enviar(String destinatario, String nombre, String asunto, String html, Map<String, byte[]> adjuntos) {
         if (destinatario == null || destinatario.isBlank()) return;
         String email = destinatario.trim().toLowerCase();
-        if (DOMINIOS_FICTICIOS.stream().anyMatch(email::endsWith)) {
+        // Los dominios .test no existen: son las cuentas de prueba locales
+        if (DOMINIOS_FICTICIOS.stream().anyMatch(email::endsWith) || email.endsWith(".test")) {
             log.debug("Correo omitido (cuenta de prueba): {}", email);
             return;
         }
@@ -53,15 +59,21 @@ public class CorreoService {
             return;
         }
         try {
+            Map<String, Object> cuerpo = new java.util.LinkedHashMap<>(Map.of(
+                    "sender", Map.of("name", nombreRemitente, "email", remitente),
+                    "to", List.of(Map.of("email", email, "name", nombre == null ? email : nombre)),
+                    "subject", asunto,
+                    "htmlContent", html));
+            if (!adjuntos.isEmpty())
+                cuerpo.put("attachment", adjuntos.entrySet().stream()
+                        .map(a -> Map.of("name", a.getKey(),
+                                "content", java.util.Base64.getEncoder().encodeToString(a.getValue())))
+                        .toList());
             http.post()
                     .uri("https://api.brevo.com/v3/smtp/email")
                     .header("api-key", apiKey)
                     .contentType(MediaType.APPLICATION_JSON)
-                    .body(Map.of(
-                            "sender", Map.of("name", nombreRemitente, "email", remitente),
-                            "to", List.of(Map.of("email", email, "name", nombre == null ? email : nombre)),
-                            "subject", asunto,
-                            "htmlContent", html))
+                    .body(cuerpo)
                     .retrieve()
                     .toBodilessEntity();
             log.info("Correo enviado: '{}' a {}", asunto, email);

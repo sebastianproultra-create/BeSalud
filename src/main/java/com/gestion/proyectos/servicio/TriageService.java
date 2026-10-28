@@ -1,5 +1,6 @@
 package com.gestion.proyectos.servicio;
 
+import com.gestion.proyectos.util.Reloj;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gestion.proyectos.modelo.Doctor;
@@ -87,8 +88,8 @@ public class TriageService {
             if (fecha == null) return null;
             LocalDate dia = LocalDate.parse(fecha);
             String texto = dia.format(DateTimeFormatter.ofPattern("EEEE d 'de' MMMM", ES));
-            if (dia.equals(LocalDate.now())) return "hoy, " + texto;
-            if (dia.equals(LocalDate.now().plusDays(1))) return "mañana, " + texto;
+            if (dia.equals(Reloj.hoy())) return "hoy, " + texto;
+            if (dia.equals(Reloj.hoy().plusDays(1))) return "mañana, " + texto;
             return texto;
         }
     }

@@ -1,8 +1,10 @@
 # BESalud — guía para agentes
 
 Sistema de citas médicas: Spring Boot 3.2.0 + Thymeleaf + MongoDB (`personas`, `citas`, `horariosAtencion`, `admins`)
-y una API FastAPI/Prophet en `modelo_predictivo/` que Spring consume por HTTP. Monorepo con dos servicios en Railway.
+y una API FastAPI/scikit-learn en `modelo_predictivo/` que Spring consume por HTTP. Monorepo con dos servicios en Railway.
 Responde en español y no hagas commit/push sin que lo pidan.
+
+Antes de crear o modificar cualquier vista o estilo, lee y sigue obligatoriamente [DESIGN_SYSTEM.md](./DESIGN_SYSTEM.md).
 
 ## Comandos
 

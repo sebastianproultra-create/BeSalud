@@ -3,21 +3,21 @@
       xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Panel médico — BeSalud</title>
     <link rel="stylesheet" th:href="@{/css/base/global.css}">
     <link rel="stylesheet" th:href="@{/css/doctores/dashboard.css}">
+    <th:block th:replace="~{fragments/layout :: design-system}"></th:block>
 </head>
 <body class="doc-page">
-<header th:replace="~{fragments/layout :: shell-doctor}"></header>
+<header th:replace="~{fragments/navbar :: navbar}"></header>
 
 <main class="doc-main" th:with="
     loc=${T(java.util.Locale).forLanguageTag('es-CO')},
-    citasHoy=${citas != null ? #lists.size(citas.?[fecha != null and fecha.equals(T(java.time.LocalDate).now())]) : 0},
-    citasPendientes=${citas != null ? #lists.size(citas.?[estado != null and estado.name() == 'PENDIENTE']) : 0},
-    citasCompletadas=${citas != null ? #lists.size(citas.?[estado != null and estado.name() == 'COMPLETADA']) : 0},
-    citasEnAtencion=${citas != null ? #lists.size(citas.?[estado != null and estado.name() == 'ASISTIO']) : 0},
-    totalPacientes=${misPacientes != null ? #lists.size(misPacientes) : 0}">
+    citasHoy=${conteos != null ? conteos['HOY'] : 0},
+    citasPendientes=${conteos != null ? conteos['PENDIENTE'] : 0},
+    citasCompletadas=${conteos != null ? conteos['COMPLETADA'] : 0},
+    citasEnAtencion=${conteos != null ? conteos['ASISTIO'] : 0},
+    citasTotal=${conteos != null ? conteos['TODAS'] : 0}">
 
     <!-- ═══════════════ BANNER DE BIENVENIDA + MÉTRICAS ═══════════════ -->
     <section class="doc-hero" aria-labelledby="hero-title">
@@ -80,6 +80,16 @@
         </div>
     </section>
 
+    <!-- Sin precio propio el abono sale del precio base: se avisa arriba para que no pase desapercibido -->
+    <div class="doc-aviso-precio" role="status" th:unless="${doctor.tienePrecioPropio()}">
+        <span class="material-symbols-outlined" aria-hidden="true">sell</span>
+        <div>
+            <strong>Estás usando el precio base</strong>
+            <span th:text="${'Los pacientes reservan con un abono calculado sobre $' + #numbers.formatInteger(T(com.gestion.proyectos.modelo.Doctor).PRECIO_CONSULTA_DEFECTO, 1, 'POINT') + '. Pon el precio real de tu consulta.'}">Los pacientes reservan con un abono calculado sobre el precio base.</span>
+        </div>
+        <a href="#precio-y-pagos">Configurar precio</a>
+    </div>
+
     <!-- ═══════════════ NAV DE SECCIONES ═══════════════ -->
     <nav class="section-nav" aria-label="Secciones del panel">
         <div class="section-nav-links">
@@ -88,6 +98,7 @@
             <a href="#disponibilidad" class="section-nav-link">Disponibilidad semanal</a>
             <a href="#demanda" class="section-nav-link">Demanda proyectada</a>
             <a href="#citas" class="section-nav-link">Mis citas</a>
+            <a href="#abonos" class="section-nav-link" th:if="${abonos != null}">Abonos</a>
             <a href="#pacientes" class="section-nav-link">Pacientes</a>
         </div>
         <span class="section-nav-hoy">
@@ -139,7 +150,7 @@
                 <div class="doc-perfil-foto">
                     <img th:src="${doctor.foto != null ? doctor.foto : '/images/default-avatar.jpg'}"
                          th:alt="'Foto de ' + ${doctor.nombre}"
-                         onerror="this.src='/images/default-avatar.jpg'">
+                         onerror="this.hidden=true">
                     <span class="doc-perfil-check material-symbols-outlined" title="Médico registrado" aria-hidden="true">check</span>
                 </div>
                 <div class="doc-perfil-datos">
@@ -179,6 +190,74 @@
                     <div><strong th:text="${horarios != null ? #lists.size(horarios) : 0}">0</strong><span>Franjas de horario</span></div>
                 </div>
             </div>
+        </div>
+
+        <!-- Enlace público de reservas y datos de la consulta -->
+        <div class="doc-reservas">
+            <div class="doc-enlace">
+                <h3 class="doc-bloque-titulo">Tu página de citas</h3>
+                <p class="doc-enlace-ayuda">Comparte este enlace con tus pacientes para que reserven contigo.</p>
+                <div class="doc-enlace-fila">
+                    <input type="text" id="enlacePublico" th:value="${enlacePublico}" readonly aria-label="Enlace de reservas">
+                    <button type="button" class="doc-btn doc-btn--primary" id="copiarEnlace">
+                        <span class="material-symbols-outlined" aria-hidden="true">content_copy</span><span>Copiar</span>
+                    </button>
+                    <a class="doc-btn doc-btn--glass" th:href="${enlacePublico}" target="_blank" rel="noopener">
+                        <span class="material-symbols-outlined" aria-hidden="true">open_in_new</span><span>Ver</span>
+                    </a>
+                </div>
+            </div>
+
+            <form th:action="@{/doctores/perfil/consulta}" method="post" class="doc-consulta-form" id="precio-y-pagos"
+                  th:with="horas=${doctor.horasCancelacionEfectivas()}">
+                <h3 class="doc-bloque-titulo">Precio y pagos</h3>
+                <div th:if="${exitoConsulta}" class="alert alert-success" th:text="${exitoConsulta}"></div>
+                <div th:if="${errorConsulta}" class="alert alert-error" th:text="${errorConsulta}"></div>
+
+                <p class="doc-aviso-reservas" th:unless="${doctor.tienePrecioPropio()}">
+                    <span class="material-symbols-outlined" aria-hidden="true">info</span>
+                    Mientras no pongas tu precio, el abono se calcula sobre el precio base.
+                </p>
+
+                <div class="doc-consulta-campos">
+                    <label class="doc-campo">Precio de la consulta
+                        <span class="doc-pesos"><span aria-hidden="true">$</span>
+                            <input type="number" name="precioConsulta" id="precioConsulta" min="5000" max="5000000" step="1000"
+                                   th:value="${doctor.precioConsulta}" placeholder="80000" inputmode="numeric" required>
+                        </span>
+                    </label>
+                    <label class="doc-campo">Dirección del consultorio
+                        <input type="text" name="direccionConsultorio" maxlength="160"
+                               th:value="${doctor.direccionConsultorio}" placeholder="Ej. Cra 45 # 72-10, Barranquilla">
+                    </label>
+                </div>
+
+                <div class="doc-consulta-campos">
+                    <label class="doc-campo">Abono para reservar
+                        <select name="porcentajeAbono" id="porcentajeAbono">
+                            <option th:each="p : ${T(com.gestion.proyectos.modelo.Doctor).PORCENTAJES_ABONO}"
+                                    th:value="${p}" th:text="${p + ' % del precio'}"
+                                    th:selected="${p == doctor.porcentajeAbonoEfectivo()}">20 % del precio</option>
+                        </select>
+                        <small class="doc-abono-calculo" id="abonoCalculado"
+                               th:text="${doctor.tienePrecioPropio() ? 'El paciente paga $' + #numbers.formatInteger(doctor.abono, 1, 'POINT') + ' al reservar' : ''}"></small>
+                    </label>
+                    <label class="doc-campo">Se devuelve si cancelan con
+                        <select name="horasCancelacion">
+                            <option value="12" th:selected="${horas == 12}">12 horas de anticipación</option>
+                            <option value="24" th:selected="${horas == 24}">24 horas de anticipación</option>
+                            <option value="48" th:selected="${horas == 48}">48 horas de anticipación</option>
+                            <option th:if="${horas != 12 and horas != 24 and horas != 48}" th:value="${horas}" selected
+                                    th:text="${horas + ' horas de anticipación'}">Otra</option>
+                        </select>
+                    </label>
+                </div>
+                <p class="doc-enlace-ayuda">Todas las citas se reservan pagando el abono en línea; el resto se paga en el consultorio.</p>
+
+                <button type="submit" class="doc-btn doc-btn--amber">
+                    <span class="material-symbols-outlined" aria-hidden="true">save</span><span>Guardar cambios</span>
+                </button>
+            </form>
         </div>
     </section>
 
@@ -236,7 +315,7 @@
                                     </div>
                                     <button type="button" class="add-interval-btn" th:id="'add2-' + ${d[0]}" th:data-day="${d[0]}" onclick="toggleSecond(this.dataset.day)">+ 2° intervalo</button>
                                 </div>
-                                <div class="time-row second-row" th:id="'second-' + ${d[0]}" style="display:none">
+                                <div class="time-row second-row" th:id="'second-' + ${d[0]}" hidden>
                                     <div class="time-field">
                                         <span class="time-label">Entrada 2</span>
                                         <input type="time" th:id="'start2_' + ${d[0]}" th:name="|startTimes2[${d[0]}]|" disabled/>
@@ -421,26 +500,30 @@
                     <p>Atiende, registra el dictamen o cancela desde cada cita</p>
                 </div>
             </div>
-            <div class="doc-segmentos" role="group" aria-label="Filtrar por estado">
-                <button type="button" class="doc-segmento is-active" data-filtro="TODAS" th:text="${'Todas (' + #lists.size(citas) + ')'}">Todas</button>
-                <button type="button" class="doc-segmento" data-filtro="HOY" th:text="${'Hoy (' + citasHoy + ')'}">Hoy</button>
-                <button type="button" class="doc-segmento" data-filtro="PENDIENTE" th:text="${'Pendientes (' + citasPendientes + ')'}">Pendientes</button>
-                <button type="button" class="doc-segmento" data-filtro="ASISTIO">En atención</button>
-                <button type="button" class="doc-segmento" data-filtro="COMPLETADA">Completadas</button>
-                <button type="button" class="doc-segmento" data-filtro="NO_ASISTIO">No asistió</button>
-                <button type="button" class="doc-segmento" data-filtro="CANCELADA">Canceladas</button>
-            </div>
+            <nav class="doc-segmentos" aria-label="Filtrar por estado">
+                <a th:each="f : ${ {'TODAS','HOY','PENDIENTE','ASISTIO','COMPLETADA','NO_ASISTIO','CANCELADA'} }"
+                   class="doc-segmento" th:classappend="${filtroEstado == f} ? ' is-active'"
+                   th:aria-current="${filtroEstado == f} ? 'true'"
+                   th:href="@{${'/doctores?' + paramsFiltro + (f == 'TODAS' ? '' : 'estado=' + f) + '#citas'}}"
+                   th:text="${(f == 'TODAS' ? 'Todas' : f == 'HOY' ? 'Hoy' : f == 'PENDIENTE' ? 'Pendientes' : f == 'ASISTIO' ? 'En atención' : f == 'COMPLETADA' ? 'Completadas' : f == 'NO_ASISTIO' ? 'No asistió' : 'Canceladas') + ' (' + (conteos != null ? conteos.get(f) : 0) + ')'}">Todas</a>
+            </nav>
         </div>
 
-        <div class="doc-buscador">
+        <form class="doc-buscador" method="get" th:action="|@{/doctores}#citas|" role="search">
             <span class="material-symbols-outlined" aria-hidden="true">search</span>
             <label for="busquedaPaciente" class="sr-only">Buscar paciente</label>
-            <input type="text" id="busquedaPaciente" placeholder="Buscar paciente por nombre…" oninput="filtrarCitas()" />
-        </div>
+            <input type="search" id="busquedaPaciente" name="q" th:value="${busquedaCitas}" placeholder="Buscar paciente por nombre y presiona Enter…" />
+            <input type="hidden" name="estado" th:value="${filtroEstado}" th:unless="${filtroEstado == 'TODAS'}" />
+            <input type="hidden" name="qp" th:value="${busquedaPacientes}" th:unless="${busquedaPacientes == ''}" />
+            <input type="hidden" name="pp" th:value="${paginaPacientes}" th:if="${paginaPacientes > 0}" />
+            <a th:if="${busquedaCitas != ''}" class="doc-buscador-limpiar" th:href="@{${'/doctores?' + paramsLimpiarCitas + '#citas'}}" aria-label="Quitar búsqueda">
+                <span class="material-symbols-outlined" aria-hidden="true">close</span>
+            </a>
+        </form>
 
         <div th:if="${#lists.isEmpty(citas)}" class="empty-state">
             <span class="material-symbols-outlined empty-state-icon" aria-hidden="true">event_busy</span>
-            <p>No hay citas para mostrar.</p>
+            <p th:text="${citasTotal == 0 ? 'No hay citas para mostrar.' : 'No hay citas con ese filtro.'}">No hay citas para mostrar.</p>
         </div>
 
         <div th:if="${!#lists.isEmpty(citas)}" class="citas-lista">
@@ -460,6 +543,16 @@
                               th:text="${cita.estado.descripcion}"></span>
                     </div>
                     <p class="cita-motivo"><strong>Motivo:</strong> <span th:text="${cita.motivo}" th:title="${cita.motivo}"></span></p>
+                    <p th:if="${cita.abonoPesos != null}" class="cita-abono">
+                        <span class="material-symbols-outlined" aria-hidden="true">payments</span>
+                        <span th:text="${'Abono $' + #numbers.formatInteger(cita.abonoPesos, 1, 'POINT') + (cita.estadoAbono != null ? ' · ' + cita.estadoAbono.descripcion : '')}">Abono</span>
+                    </p>
+                    <p th:if="${cita.estado.name() == 'PENDIENTE' and (cita.asistenciaConfirmada != null or cita.confirmacionSolicitada)}"
+                       class="cita-asistencia" th:classappend="${cita.asistenciaConfirmada != null} ? 'is-confirmada'">
+                        <span class="material-symbols-outlined" aria-hidden="true"
+                              th:text="${cita.asistenciaConfirmada != null ? 'event_available' : 'schedule'}">schedule</span>
+                        <span th:text="${cita.asistenciaConfirmada != null ? 'El paciente confirmó que asistirá' : 'Esperando que el paciente confirme'}">Asistencia</span>
+                    </p>
                     <p th:if="${cita.dictamen != null}" class="cita-dx">
                         <span class="material-symbols-outlined" aria-hidden="true">clinical_notes</span>
                         <span class="dictamen-preview" th:classappend="${cita.dictamen.tieneAlergias} ? 'con-alergias'"
@@ -493,9 +586,66 @@
                     </th:block>
                 </div>
             </article>
-            <div id="citas-empty-filter" class="empty-state" style="display:none;">
-                <p>No hay citas con ese filtro.</p>
+
+        </div>
+        <nav th:replace="~{fragments/layout :: paginacionAncla(${citasPage}, ${'/doctores?' + paramsCitas}, 'pc', 'citas')}"></nav>
+    </section>
+
+    <!-- ═══════════════ ABONOS ═══════════════ -->
+    <section id="abonos" class="doc-card" aria-labelledby="abonos-title"
+             th:if="${abonos != null}">
+        <div class="doc-card-head">
+            <div class="doc-card-title">
+                <span class="doc-card-ico material-symbols-outlined" aria-hidden="true">payments</span>
+                <div>
+                    <h2 id="abonos-title">Abonos
+                        <span class="card-counter" th:if="${!abonos.pendientes.isEmpty()}" th:text="${abonos.pendientes.size()}">0</span>
+                    </h2>
+                    <p th:text="${'Resumen de ' + #temporals.format(hoy, 'MMMM', loc) + ' y devoluciones pendientes'}">Resumen del mes</p>
+                </div>
             </div>
+        </div>
+
+        <div th:if="${exitoAbonos}" class="alert alert-success" role="status" th:text="${exitoAbonos}"></div>
+
+        <div class="abonos-resumen">
+            <div class="abonos-dato">
+                <span>Recibidos este mes</span>
+                <strong th:text="${'$' + #numbers.formatInteger(abonos.cobradosMes, 1, 'POINT')}">$0</strong>
+                <small>Citas pagadas del mes</small>
+            </div>
+            <div class="abonos-dato">
+                <span>Conservados</span>
+                <strong th:text="${'$' + #numbers.formatInteger(abonos.retenidosMes, 1, 'POINT')}">$0</strong>
+                <small>Faltas o cancelaciones tardías</small>
+            </div>
+            <div class="abonos-dato" th:classappend="${abonos.porDevolver > 0} ? 'is-pendiente'">
+                <span>Por devolver</span>
+                <strong th:text="${'$' + #numbers.formatInteger(abonos.porDevolver, 1, 'POINT')}">$0</strong>
+                <small th:text="${abonos.pendientes.isEmpty() ? 'Nada pendiente' : abonos.pendientes.size() + (abonos.pendientes.size() == 1 ? ' paciente' : ' pacientes')}">Nada pendiente</small>
+            </div>
+        </div>
+
+        <div th:unless="${abonos.pendientes.isEmpty()}" class="abonos-pendientes">
+            <h3 class="doc-bloque-titulo">Devoluciones pendientes</h3>
+            <p class="abonos-ayuda">Estas citas se cancelaron a tiempo. Devuelve el abono por el mismo medio
+                (desde tu cuenta de Wompi) o por transferencia, y márcalo aquí: le avisamos al paciente.</p>
+            <ul>
+                <li th:each="c : ${abonos.pendientes}">
+                    <div>
+                        <strong th:text="${abonos.pacientes[c.pacienteId]}">Paciente</strong>
+                        <span th:text="${'Cita del ' + #temporals.format(c.fecha, 'd ''de'' MMMM', loc) + ' · ' + #temporals.format(c.hora, 'h:mm a', loc)}">Cita</span>
+                        <span class="abonos-ref" th:if="${c.referenciaPago != null}" th:text="${'Ref. ' + c.referenciaPago + (c.medioPago != null ? ' · ' + c.medioPago : '')}">Ref.</span>
+                    </div>
+                    <strong class="abonos-monto" th:text="${'$' + #numbers.formatInteger(c.abonoPesos, 1, 'POINT')}">$0</strong>
+                    <form th:action="@{/doctores/citas/{id}/abono-devuelto(id=${c.id})}" method="post"
+                          onsubmit="return confirm('¿Ya le devolviste el abono a este paciente?');">
+                        <button type="submit" class="doc-btn doc-btn--primary">
+                            <span class="material-symbols-outlined" aria-hidden="true">check</span>Marcar como devuelto
+                        </button>
+                    </form>
+                </li>
+            </ul>
         </div>
     </section>
 
@@ -506,20 +656,26 @@
                 <span class="doc-card-ico material-symbols-outlined" aria-hidden="true">group</span>
                 <div>
                     <h2 id="pacientes-title">Directorio de pacientes
-                        <span class="card-counter" th:if="${!#lists.isEmpty(misPacientes)}" th:text="${#lists.size(misPacientes)}">0</span>
+                        <span class="card-counter" th:if="${totalPacientes > 0}" th:text="${totalPacientes}">0</span>
                     </h2>
                     <p>Pacientes que han agendado contigo</p>
                 </div>
             </div>
-            <div th:if="${!#lists.isEmpty(misPacientes)}" class="doc-buscador doc-buscador--compacto">
+            <form th:if="${totalPacientes > 0}" class="doc-buscador doc-buscador--compacto" method="get" th:action="|@{/doctores}#pacientes|" role="search">
                 <span class="material-symbols-outlined" aria-hidden="true">search</span>
                 <label for="busquedaMisPacientes" class="sr-only">Buscar paciente</label>
-                <input type="text" id="busquedaMisPacientes" placeholder="Buscar paciente…" oninput="filtrarPacientes()" />
-            </div>
+                <input type="search" id="busquedaMisPacientes" name="qp" th:value="${busquedaPacientes}" placeholder="Buscar paciente…" />
+                <input type="hidden" name="estado" th:value="${filtroEstado}" th:unless="${filtroEstado == 'TODAS'}" />
+                <input type="hidden" name="q" th:value="${busquedaCitas}" th:unless="${busquedaCitas == ''}" />
+                <input type="hidden" name="pc" th:value="${paginaCitas}" th:if="${paginaCitas > 0}" />
+                <a th:if="${busquedaPacientes != ''}" class="doc-buscador-limpiar" th:href="@{${'/doctores?' + (filtroEstado == 'TODAS' ? '' : 'estado=' + filtroEstado + '&') + (busquedaCitas == '' ? '' : 'q=' + #uris.escapeQueryParam(busquedaCitas) + '&') + (paginaCitas > 0 ? 'pc=' + paginaCitas : '') + '#pacientes'}}" aria-label="Quitar búsqueda">
+                    <span class="material-symbols-outlined" aria-hidden="true">close</span>
+                </a>
+            </form>
         </div>
         <div th:if="${#lists.isEmpty(misPacientes)}" class="empty-state">
             <span class="material-symbols-outlined empty-state-icon" aria-hidden="true">person_search</span>
-            <p>Aún no tiene pacientes con citas agendadas.</p>
+            <p th:text="${totalPacientes == 0 ? 'Aún no tiene pacientes con citas agendadas.' : 'Ningún paciente coincide con la búsqueda.'}">Aún no tiene pacientes con citas agendadas.</p>
         </div>
 
         <div th:if="${!#lists.isEmpty(misPacientes)}" class="pacientes-grid">
@@ -539,16 +695,17 @@
                 </ul>
             </article>
         </div>
+        <nav th:replace="~{fragments/layout :: paginacionAncla(${pacientesPage}, ${'/doctores?' + paramsPacientes}, 'pp', 'pacientes')}"></nav>
     </section>
 </main>
 
 <!-- ═══════════════ MODAL DICTAMEN (SOAP) ═══════════════ -->
-<div id="dictamenModal" class="modal-overlay" style="display:none" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+<div id="dictamenModal" class="modal-overlay" hidden role="dialog" aria-modal="true" aria-labelledby="modalTitle">
     <div class="modal-content modal-dictamen">
         <h3 id="modalTitle">Registrar dictamen</h3>
         <p class="dictamen-ayuda">Los campos con <span class="obligatorio">*</span> son obligatorios. El resto se llena solo si aplica.</p>
         <div id="dictamenError" class="alert alert-danger" role="alert" hidden></div>
-        <form id="dictamenForm" method="post">
+        <form id="dictamenForm" class="dictamen-form" method="post">
             <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
 
             <fieldset class="dictamen-seccion">
@@ -775,7 +932,7 @@
 </template>
 
 <!-- ═══════════════ MODAL VER DICTAMEN ═══════════════ -->
-<div id="verDictamenModal" class="modal-overlay" style="display:none" role="dialog" aria-modal="true" aria-labelledby="verDictamenTitle">
+<div id="verDictamenModal" class="modal-overlay" hidden role="dialog" aria-modal="true" aria-labelledby="verDictamenTitle">
     <div class="modal-content modal-dictamen">
         <h3 id="verDictamenTitle">Dictamen de la cita</h3>
         <div id="verDictamenCuerpo" class="dictamen-detail"></div>
@@ -804,7 +961,7 @@ function toggleDay(cb, day) {
         end.value   = '';
         const secondRow = document.getElementById('second-' + day);
         if (secondRow) {
-            secondRow.style.display = 'none';
+            secondRow.hidden = true;
             const s2 = document.getElementById('start2_' + day);
             const e2 = document.getElementById('end2_' + day);
             s2.disabled = true; s2.value = '';
@@ -820,13 +977,13 @@ function toggleSecond(day) {
     const s2  = document.getElementById('start2_' + day);
     const e2  = document.getElementById('end2_' + day);
     const btn = document.getElementById('add2-' + day);
-    if (row.style.display === 'none') {
-        row.style.display = 'flex';
+    if (row.hidden) {
+        row.hidden = false;
         s2.disabled = false;
         e2.disabled = false;
         btn.textContent = '− Quitar 2° intervalo';
     } else {
-        row.style.display = 'none';
+        row.hidden = true;
         s2.disabled = true; s2.value = '';
         e2.disabled = true; e2.value = '';
         btn.textContent = '+ 2° intervalo';
@@ -857,48 +1014,6 @@ document.addEventListener('keydown', function(e) {
     sections.forEach(s => observer.observe(s));
 })();
 
-/* ── Paginación en el navegador: muestra solo una página de los elementos que pasan el filtro ── */
-function paginar(lista, porPagina, contenedorDespues, pagina) {
-    const total = Math.max(1, Math.ceil(lista.items.length / porPagina));
-    pagina = Math.min(Math.max(1, pagina || 1), total);
-    lista.todos.forEach(function(el) { el.style.display = 'none'; });
-    lista.items.forEach(function(el, i) {
-        if (i >= (pagina - 1) * porPagina && i < pagina * porPagina) el.style.display = '';
-    });
-
-    let nav = contenedorDespues.nextElementSibling;
-    if (!nav || !nav.classList.contains('pagination')) {
-        nav = document.createElement('div');
-        nav.className = 'pagination';
-        contenedorDespues.parentNode.insertBefore(nav, contenedorDespues.nextSibling);
-    }
-    nav.innerHTML = '';
-    nav.style.display = total > 1 ? '' : 'none';
-    if (total <= 1) return;
-
-    function boton(texto, clase, destino) {
-        const b = document.createElement('button');
-        b.type = 'button';
-        b.className = clase;
-        b.textContent = texto;
-        b.onclick = function() {
-            paginar(lista, porPagina, contenedorDespues, destino);
-            contenedorDespues.closest('section').scrollIntoView({ behavior: 'smooth', block: 'start' });
-        };
-        nav.appendChild(b);
-    }
-    if (pagina > 1) boton('Anterior', 'pagination-step', pagina - 1);
-    for (let i = 1; i <= total; i++) {
-        if (i === 1 || i === total || (i >= pagina - 1 && i <= pagina + 1)) {
-            boton(String(i), 'pagination-page' + (i === pagina ? ' is-current' : ''), i);
-        } else if (i === pagina - 2 || i === pagina + 2) {
-            const dots = document.createElement('span');
-            dots.textContent = '…';
-            nav.appendChild(dots);
-        }
-    }
-    if (pagina < total) boton('Siguiente', 'pagination-step', pagina + 1);
-}
 </script>
 
 <script th:inline="javascript">
@@ -909,53 +1024,34 @@ window.BESALUD_DICTAMEN = {
     error: /*[[${errorDictamen}]]*/ null
 };
 </script>
+<script>
+(function () {
+    // Muestra cuánto paga el paciente con el precio y el porcentaje elegidos (mismo cálculo que el servidor)
+    const precio = document.getElementById('precioConsulta');
+    const porcentaje = document.getElementById('porcentajeAbono');
+    const salida = document.getElementById('abonoCalculado');
+    if (!precio || !porcentaje || !salida) return;
+    const calcular = () => {
+        const p = Number(precio.value);
+        if (!p || p < 5000) { salida.textContent = ''; return; }
+        const abono = Math.min(p, Math.max(2000, Math.round(p * Number(porcentaje.value) / 100 / 100) * 100));
+        salida.textContent = 'El paciente paga $' + abono.toLocaleString('es-CO') + ' al reservar';
+    };
+    precio.addEventListener('input', calcular);
+    porcentaje.addEventListener('change', calcular);
+})();
+document.getElementById('copiarEnlace')?.addEventListener('click', function () {
+    const campo = document.getElementById('enlacePublico');
+    const texto = this.querySelector('span:last-child');
+    const listo = () => { texto.textContent = 'Copiado'; setTimeout(() => { texto.textContent = 'Copiar'; }, 2000); };
+    if (navigator.clipboard) navigator.clipboard.writeText(campo.value).then(listo, () => { campo.select(); });
+    else { campo.select(); document.execCommand('copy'); listo(); }
+});
+</script>
 <script th:src="@{/js/dictamen.js}"></script>
 <script th:src="@{/js/custom-select.js}"></script>
 <script th:src="@{/js/form-submit.js}"></script>
 <script th:src="@{/vendor/chart/chart.umd.js}"></script>
 <script th:src="@{/js/prediccion.js}"></script>
-<script>
-var filtroCitas = 'TODAS';
-document.querySelectorAll('#citas .doc-segmento').forEach(function(b) {
-    b.addEventListener('click', function() {
-        filtroCitas = b.dataset.filtro;
-        document.querySelectorAll('#citas .doc-segmento').forEach(function(x) { x.classList.toggle('is-active', x === b); });
-        filtrarCitas();
-    });
-});
-
-const CITAS_POR_PAGINA = 8;
-const PACIENTES_POR_PAGINA = 8; // Dos filas completas de la rejilla de 4 columnas
-
-function filtrarCitas() {
-    const q = ((document.getElementById('busquedaPaciente') || {}).value || '').trim().toLowerCase();
-    const todos = Array.from(document.querySelectorAll('#citas .cita-item'));
-    const items = todos.filter(function(item) {
-        const matchEstado = filtroCitas === 'TODAS'
-            || (filtroCitas === 'HOY' ? item.dataset.hoy === 'true' : item.dataset.estado === filtroCitas);
-        const nombre = (item.querySelector('.paciente-cell') || {}).textContent || '';
-        return matchEstado && (q === '' || nombre.toLowerCase().includes(q));
-    });
-    const emptyMsg = document.getElementById('citas-empty-filter');
-    if (emptyMsg) emptyMsg.style.display = items.length === 0 ? '' : 'none';
-    const lista = document.querySelector('#citas .citas-lista');
-    if (lista) paginar({ todos: todos, items: items }, CITAS_POR_PAGINA, lista, 1);
-}
-
-function filtrarPacientes() {
-    const input = document.getElementById('busquedaMisPacientes');
-    const q = ((input || {}).value || '').trim().toLowerCase();
-    const todos = Array.from(document.querySelectorAll('.pacientes-grid .paciente-card'));
-    const items = todos.filter(function(card) {
-        const name = (card.querySelector('.paciente-name') || {}).textContent || '';
-        return q === '' || name.toLowerCase().includes(q);
-    });
-    const grid = document.querySelector('.pacientes-grid');
-    if (grid) paginar({ todos: todos, items: items }, PACIENTES_POR_PAGINA, grid, 1);
-}
-
-filtrarCitas();
-filtrarPacientes();
-</script>
 </body>
 </html>

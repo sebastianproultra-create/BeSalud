@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<body>
+<th:block th:fragment="navbar">
+    <th:block sec:authorize="hasRole('ADMIN')">
+        <th:block th:replace="~{fragments/navbar-admin :: navbar}"></th:block>
+    </th:block>
+    <th:block sec:authorize="hasRole('DOCTOR') and !hasRole('ADMIN')">
+        <th:block th:replace="~{fragments/navbar-doctor :: navbar}"></th:block>
+    </th:block>
+    <th:block sec:authorize="hasRole('PACIENTE') and !hasRole('ADMIN') and !hasRole('DOCTOR')">
+        <th:block th:replace="~{fragments/navbar-paciente :: navbar}"></th:block>
+    </th:block>
+    <th:block sec:authorize="isAnonymous()">
+        <th:block th:replace="~{fragments/navbar-publica :: navbar}"></th:block>
+    </th:block>
+</th:block>
+</body>
+</html>

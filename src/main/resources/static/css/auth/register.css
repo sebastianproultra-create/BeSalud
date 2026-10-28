@@ -108,10 +108,10 @@
 .field-hint.error { color: #e53e3e; }
 
 input.input-error {
-    border: 2px solid #e53e3e !important;
+    border: 2px solid #e53e3e ;
     outline: none;
 }
 input.input-success {
-    border: 2px solid #38a169 !important;
+    border: 2px solid #38a169 ;
     outline: none;
 }

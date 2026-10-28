@@ -101,6 +101,31 @@ class NotificacionServiceTest {
     }
 
     @Test
+    void citaPagada_enviaComprobanteConEnlaceAGoogleCalendar() throws Exception {
+        Cita pagada = cita(LocalDate.of(2026, 10, 30));
+        pagada.setMotivo("Chequeo anual");
+        pagada.setReferenciaPago("BS-3236031AB887409B");
+        pagada.setAbonoCentavos(1_600_000L);
+        doctor.setPrecioConsulta(80_000);
+        doctor.setDireccionConsultorio("Calle 72 # 45-10, consultorio 302");
+        when(citaRepo.findById("c1")).thenReturn(Optional.of(pagada));
+        conPersonas();
+
+        service.alCambiarCita(new CitaEvento(CitaEvento.Tipo.CREADA, "c1"));
+
+        ArgumentCaptor<String> html = ArgumentCaptor.forClass(String.class);
+        verify(correo).enviar(eq("ana@gmail.com"), anyString(), eq("Cita confirmada · comprobante de pago · BeSalud"),
+                html.capture());
+        assertThat(html.getValue()).contains("Comprobante de pago", "$16.000", "$64.000", "BS-3236031AB887409B",
+                "jueves 29 de octubre", "calendar.google.com", "dates=20261030T093000")
+                .doesNotContain("Outlook");
+        // Vista previa opcional: mvn test -Dpreview.correo=ruta.html
+        String destino = System.getProperty("preview.correo");
+        if (destino != null)
+            java.nio.file.Files.writeString(java.nio.file.Path.of(destino), html.getValue());
+    }
+
+    @Test
     void plantilla_escapaElTextoDelUsuario() {
         String html = service.plantilla(paciente, doctor, cita(LocalDate.now()), "T", "M", "B");
         assertThat(html).doesNotContain("<script>").contains("&lt;script&gt;");

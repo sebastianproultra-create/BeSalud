@@ -26,6 +26,25 @@ public class Cita {
     /** Momento en que el médico marcó la asistencia (inicio real de la atención). */
     private LocalDateTime inicioAtencion;
     private boolean recordatorioEnviado;
+    /** Respuesta del paciente a "¿Vas a ir a tu cita?": true asistirá, null aún no responde. */
+    private Boolean asistenciaConfirmada;
+    private boolean confirmacionSolicitada;
+
+    /**
+     * "doctorId|fecha|hora" mientras la cita ocupa el turno (pendiente, en atención o completada); vacío si
+     * se canceló o el paciente no asistió. El índice único hace que Mongo rechace dos citas en el mismo
+     * turno aunque lleguen al mismo tiempo. Lo calcula {@link #actualizarTurno()} antes de cada guardado.
+     */
+    @Indexed(unique = true, sparse = true)
+    private String turno;
+
+    /** Abono pagado al reservar (en centavos, como lo maneja la pasarela); null si la cita no tuvo abono. */
+    private Long abonoCentavos;
+    private String referenciaPago;
+    private String medioPago;
+    private EstadoAbono estadoAbono;
+    /** Cuándo el profesional registró que devolvió el abono. */
+    private LocalDateTime abonoDevueltoEn;
 
     public String getId() {
         return id;
@@ -97,6 +116,84 @@ public class Cita {
 
     public void setRecordatorioEnviado(boolean recordatorioEnviado) {
         this.recordatorioEnviado = recordatorioEnviado;
+    }
+
+    public String getMedioPago() {
+        return medioPago;
+    }
+
+    public void setMedioPago(String medioPago) {
+        this.medioPago = medioPago;
+    }
+
+    public Boolean getAsistenciaConfirmada() {
+        return asistenciaConfirmada;
+    }
+
+    public void setAsistenciaConfirmada(Boolean asistenciaConfirmada) {
+        this.asistenciaConfirmada = asistenciaConfirmada;
+    }
+
+    public boolean isConfirmacionSolicitada() {
+        return confirmacionSolicitada;
+    }
+
+    public void setConfirmacionSolicitada(boolean confirmacionSolicitada) {
+        this.confirmacionSolicitada = confirmacionSolicitada;
+    }
+
+    public static String claveTurno(String doctorId, LocalDate fecha, LocalTime hora) {
+        return doctorId + "|" + fecha + "|" + hora.withSecond(0).withNano(0);
+    }
+
+    public boolean ocupaTurno() {
+        return estado == EstadoCita.PENDIENTE || estado == EstadoCita.ASISTIO || estado == EstadoCita.COMPLETADA;
+    }
+
+    public void actualizarTurno() {
+        turno = ocupaTurno() && doctorId != null && fecha != null && hora != null
+                ? claveTurno(doctorId, fecha, hora) : null;
+    }
+
+    public String getTurno() {
+        return turno;
+    }
+
+    public Long getAbonoCentavos() {
+        return abonoCentavos;
+    }
+
+    public void setAbonoCentavos(Long abonoCentavos) {
+        this.abonoCentavos = abonoCentavos;
+    }
+
+    /** Abono en pesos para mostrar en las vistas. */
+    public Long getAbonoPesos() {
+        return abonoCentavos == null ? null : abonoCentavos / 100;
+    }
+
+    public String getReferenciaPago() {
+        return referenciaPago;
+    }
+
+    public void setReferenciaPago(String referenciaPago) {
+        this.referenciaPago = referenciaPago;
+    }
+
+    public EstadoAbono getEstadoAbono() {
+        return estadoAbono;
+    }
+
+    public void setEstadoAbono(EstadoAbono estadoAbono) {
+        this.estadoAbono = estadoAbono;
+    }
+
+    public LocalDateTime getAbonoDevueltoEn() {
+        return abonoDevueltoEn;
+    }
+
+    public void setAbonoDevueltoEn(LocalDateTime abonoDevueltoEn) {
+        this.abonoDevueltoEn = abonoDevueltoEn;
     }
 
     public LocalDateTime getInicioAtencion() {

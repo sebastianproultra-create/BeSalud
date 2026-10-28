@@ -2,14 +2,14 @@
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title th:text="${pageTitle != null ? pageTitle : 'Agendar cita - BeSalud'}">Agendar cita - BeSalud</title>
     <link rel="stylesheet" th:href="@{/css/base/global.css}">
     <link rel="stylesheet" th:href="@{/css/citas/formulario-paciente.css}">
     <link rel="stylesheet" th:href="@{/vendor/fontawesome/css/all.min.css}"/>
+    <th:block th:replace="~{fragments/layout :: design-system}"></th:block>
 </head>
 <body class="patient-catalog-page patient-booking-page">
-<header th:replace="~{fragments/layout :: shell-paciente('catalogo')}"></header>
+<header th:replace="~{fragments/navbar :: navbar}"></header>
 
 <main class="booking-container">
     <div class="booking-page-heading">
@@ -26,7 +26,7 @@
              th:src="${doctorSeleccionado.foto}"
              alt="Foto"
              class="doc-avatar"
-             onerror="this.style.display='none'"/>
+             onerror="this.hidden=true"/>
         <div class="doc-avatar-placeholder" th:unless="${doctorSeleccionado.foto}">
             <span th:text="${doctorSeleccionado.nombre != null and !doctorSeleccionado.nombre.isEmpty() ? doctorSeleccionado.nombre.substring(0,1) : '?'}"></span>
         </div>
@@ -37,6 +37,9 @@
         </div>
     </div>
 
+    <div th:if="${param.info != null and param.info[0] == 'reserva_liberada'}" class="alert-info-reserva" role="status">
+        Listo, liberamos el horario anterior. Elige uno nuevo cuando quieras.
+    </div>
     <div th:if="${param.error != null}" class="alert-error" role="alert" th:switch="${param.error[0]}">
         <span th:case="'horario_invalido'">El horario seleccionado ya no está disponible. Por favor, elige otro.</span>
         <span th:case="'conflicto_cita'">Ese horario ya fue reservado por otro paciente. Por favor elige otro.</span>
@@ -49,6 +52,8 @@
         <span th:case="'motivo_requerido'">Escribe el motivo de la consulta.</span>
         <span th:case="'fecha_invalida'">La fecha no es válida.</span>
         <span th:case="'hora_invalida'">La hora no es válida.</span>
+        <span th:case="'pago_rechazado'">El pago del abono no fue aprobado y el horario quedó libre. Puedes intentarlo de nuevo con otro medio de pago.</span>
+        <span th:case="'reserva_vencida'">Se acabó el tiempo para pagar y el horario se liberó. Elige un horario de nuevo.</span>
         <span th:case="*">No se pudo guardar la cita. Intenta de nuevo.</span>
     </div>
 
@@ -72,16 +77,29 @@
         </div>
 
         <!-- Step 2: Time slots -->
-        <div class="step-section" id="slotsSection" style="display:none;">
+        <div class="step-section" id="slotsSection" hidden>
             <div class="step-label">Horario disponible</div>
             <div class="slots-grid" id="slotsGrid"></div>
         </div>
 
         <!-- Step 3: Confirm -->
-        <div class="step-section" id="confirmSection" style="display:none;">
+        <div class="step-section" id="confirmSection" hidden>
             <div class="step-label">Resumen de cita</div>
             <div class="confirm-card">
                 <div class="confirm-summary" id="confirmSummary"></div>
+                <div class="abono-aviso" th:if="${cita == null}">
+                    <p>
+                        Para confirmar pagas en línea un abono de
+                        <strong th:text="${'$' + #numbers.formatInteger(doctorSeleccionado.abono, 1, 'POINT') + ' (' + doctorSeleccionado.porcentajeAbonoEfectivo() + ' % de la consulta)'}">$16.000</strong>;
+                        el resto lo pagas en el consultorio.
+                        Apartamos el horario <span th:text="${minutosParaPagar + ' minutos'}">15 minutos</span> mientras pagas.
+                    </p>
+                    <p>
+                        Si cancelas con al menos <span th:text="${doctorSeleccionado.horasCancelacionEfectivas() + ' horas'}">24 horas</span>
+                        de anticipación se te devuelve; si no asistes o cancelas más tarde, el profesional lo conserva.
+                    </p>
+                    <p class="abono-demo" th:if="${pagoSimulado}">Modo demostración: el pago es simulado y no se cobra dinero real.</p>
+                </div>
                 <form th:action="@{${actionUrl}}" method="post" id="bookingForm">
 
                     <input type="hidden" name="doctorId" th:value="${doctorSeleccionado.id}"/>
@@ -140,8 +158,15 @@ function buildDateStrip() {
         strip.appendChild(card);
     });
 
-    // Auto-select first date
-    strip.firstElementChild.click();
+    // Si llega un horario elegido desde la página del profesional se deja marcado; si no, el primer día
+    const fechaElegida = /*[[${fechaElegida}]]*/ null;
+    const horaElegida = /*[[${horaElegida}]]*/ null;
+    const cardElegida = fechaElegida ? strip.querySelector(`[data-date="${CSS.escape(fechaElegida)}"]`) : null;
+    (cardElegida || strip.firstElementChild).click();
+    if (cardElegida && horaElegida) {
+        const btn = [...document.querySelectorAll('.slot-btn')].find(b => b.dataset.time === horaElegida);
+        if (btn) btn.click();
+    }
 }
 
 function selectDate(dateStr, cardEl) {
@@ -165,12 +190,13 @@ function selectDate(dateStr, cardEl) {
         btn.type = 'button';
         btn.className = 'slot-btn';
         btn.textContent = formatHora(time);
+        btn.dataset.time = time;
         btn.addEventListener('click', () => selectSlot(time, btn));
         grid.appendChild(btn);
     });
 
-    document.getElementById('slotsSection').style.display = 'block';
-    document.getElementById('confirmSection').style.display = 'none';
+    document.getElementById('slotsSection').hidden = false;
+    document.getElementById('confirmSection').hidden = true;
     document.getElementById('slotsSection').scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
@@ -193,14 +219,14 @@ function selectSlot(time, btnEl) {
         <div class="summary-item"><span><i class='fa-regular fa-clock'></i></span> ${timeLabel}</div>
     `;
 
-    document.getElementById('confirmSection').style.display = 'block';
+    document.getElementById('confirmSection').hidden = false;
     document.getElementById('confirmSection').scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
 function clearSlot() {
     selectedTime = null;
     document.querySelectorAll('.slot-btn').forEach(b => b.classList.remove('selected'));
-    document.getElementById('confirmSection').style.display = 'none';
+    document.getElementById('confirmSection').hidden = true;
 }
 
 buildDateStrip();
