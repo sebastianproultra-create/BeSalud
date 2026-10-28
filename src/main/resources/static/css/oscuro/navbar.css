@@ -31,6 +31,7 @@ html[data-tema="oscuro"] .bs-navbar .bs-navbar__logout {
     background-color: transparent;
     background-image: none;
     border: 1px solid transparent;
+    text-decoration-color: transparent;
 }
 
 html[data-tema="oscuro"] .bs-navbar .bs-navbar__toggle {
@@ -44,9 +45,14 @@ html[data-tema="oscuro"] .bs-navbar__link:hover,
 html[data-tema="oscuro"] .bs-navbar__link.is-active,
 html[data-tema="oscuro"] .bs-navbar .bs-navbar__logout:hover {
     color: var(--color-surface--t);
-    background-color: var(--color-navbar-hover--f);
+    background-color: transparent;
     background-image: none;
-    border-color: var(--color-navbar-outline--b);
+    border-color: transparent;
+    text-decoration-color: rgba(255, 255, 255, 0.55);
+}
+
+html[data-tema="oscuro"] .bs-navbar__link.is-active {
+    text-decoration-color: var(--color-surface--t);
 }
 
 html[data-tema="oscuro"] .bs-navbar__link--action {

@@ -124,6 +124,17 @@ html[data-tema="oscuro"] .modal-overlay {
     background-color: rgba(0, 0, 0, 0.66);
 }
 
+/* Lista desplegable de los <select>: el navegador la pinta blanca aunque el texto ya sea claro */
+html[data-tema="oscuro"] select option,
+html[data-tema="oscuro"] select optgroup {
+    color: #E6F2EC;
+    background-color: #14231D;
+}
+
+html[data-tema="oscuro"] select option:disabled {
+    color: #8FA79C;
+}
+
 /* Imágenes y fotos: un poco menos de brillo para no deslumbrar */
 html[data-tema="oscuro"] img:not([src$=".svg"]) {
     filter: brightness(0.92);

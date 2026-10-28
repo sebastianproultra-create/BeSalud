@@ -69,8 +69,11 @@
     border: 1px solid transparent;
     border-radius: var(--radius-sm);
     font: 600 var(--font-size-sm) / 1.2 var(--font-body);
-    text-decoration: none;
-    transition: background var(--transition-fast), border-color var(--transition-fast);
+    text-decoration: underline;
+    text-decoration-color: transparent;
+    text-decoration-thickness: 2px;
+    text-underline-offset: 0.45em;
+    transition: background var(--transition-fast), text-decoration-color var(--transition-fast);
 }
 
 .bs-navbar .bs-navbar__toggle {
@@ -86,14 +89,21 @@
 .bs-navbar__link:hover,
 .bs-navbar__link.is-active,
 .bs-navbar .bs-navbar__logout:hover {
+    /* Sin recuadro: solo un subrayado suave bajo el texto */
     color: var(--color-surface);
-    background: var(--color-navbar-hover);
-    border-color: var(--color-navbar-outline);
+    background: transparent;
+    border-color: transparent;
+    text-decoration-color: rgb(255 255 255 / 55%);
+}
+
+.bs-navbar__link.is-active {
+    text-decoration-color: var(--color-surface);
 }
 
 .bs-navbar__link--action {
     color: var(--color-primary);
     background: var(--color-primary-soft);
+    text-decoration: none;
 }
 
 .bs-navbar__link--action:hover {
