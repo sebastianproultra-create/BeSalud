@@ -1,0 +1,132 @@
+/* Generado por scripts/generar_tema_oscuro.py a partir de auth/register.css. No editar a mano:
+   los ajustes van en base/tema-oscuro.css o en el generador. */
+
+html[data-tema="oscuro"] .register-card {
+    background-color: var(--white--f);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.18);
+}
+
+html[data-tema="oscuro"] .register-card h2 {
+    color: var(--primary-color--t);
+}
+
+html[data-tema="oscuro"] .card form {
+    background-color: transparent;
+    background-image: none;
+    border: none;
+    box-shadow: none;
+}
+
+html[data-tema="oscuro"] .register-card input,
+html[data-tema="oscuro"] .register-card select,
+html[data-tema="oscuro"] .register-card textarea {
+    border: 1px solid var(--border-color--b);
+}
+
+html[data-tema="oscuro"] .register-card input:focus,
+html[data-tema="oscuro"] .register-card select:focus,
+html[data-tema="oscuro"] .register-card textarea:focus {
+    outline: none;
+    border-color: var(--secondary-color--b);
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.45);
+}
+
+html[data-tema="oscuro"] .doctor-fields {
+    background-color: #121C19;
+    border-left: 4px solid var(--secondary-color--b);
+}
+
+html[data-tema="oscuro"] .doctor-fields h4 {
+    color: var(--primary-color--t);
+}
+
+html[data-tema="oscuro"] .register-links a {
+    color: var(--secondary-color--t);
+}
+
+html[data-tema="oscuro"] .field-hint.error {
+    color: #E53E3E;
+}
+
+html[data-tema="oscuro"] input.input-error {
+    border: 2px solid #E53E3E !important;
+    outline: none;
+}
+
+html[data-tema="oscuro"] input.input-success {
+    border: 2px solid #38A169 !important;
+    outline: none;
+}
+
+html[data-tema="oscuro"] .register-page .register-card .auth-input-wrap {
+    background-color: transparent;
+    background-image: none;
+    border: 0;
+    border-bottom: 2px solid var(--portal-primary--b);
+    box-shadow: none;
+}
+
+html[data-tema="oscuro"] .register-page .register-card .auth-input-wrap:hover {
+    background-color: transparent;
+    background-image: none;
+}
+
+html[data-tema="oscuro"] .register-page .register-card .auth-input-wrap:focus-within {
+    background-color: transparent;
+    background-image: none;
+    border-bottom-color: var(--portal-primary-container--b);
+    box-shadow: none;
+}
+
+html[data-tema="oscuro"] .register-page .register-card .auth-input-wrap > .material-symbols-outlined {
+    color: var(--portal-primary--t);
+}
+
+html[data-tema="oscuro"] .register-page .register-card .auth-input-wrap input,
+html[data-tema="oscuro"] .register-page .register-card .auth-input-wrap select {
+    background-color: transparent;
+    background-image: none;
+    border: 0;
+    box-shadow: none;
+}
+
+html[data-tema="oscuro"] .register-page .register-card .auth-input-wrap input:focus,
+html[data-tema="oscuro"] .register-page .register-card .auth-input-wrap select:focus {
+    outline: none;
+    box-shadow: none;
+}
+
+html[data-tema="oscuro"] .register-page .register-card .auth-input-wrap:has(input.input-error) {
+    border-bottom-color: var(--color-danger--b);
+}
+
+html[data-tema="oscuro"] .register-page .register-card .auth-input-wrap:has(input.input-success) {
+    border-bottom-color: var(--color-success--b);
+}
+
+html[data-tema="oscuro"] .register-page .register-card .doctor-fields .custom-select-trigger,
+html[data-tema="oscuro"] .register-page .register-card .doctor-fields .custom-select-trigger:hover,
+html[data-tema="oscuro"] .register-page .register-card .doctor-fields .custom-select-wrapper.open .custom-select-trigger,
+html[data-tema="oscuro"] .register-page .register-card .doctor-fields .custom-select-trigger:focus-visible {
+    background-color: transparent;
+    border: 0;
+    box-shadow: none;
+}
+
+html[data-tema="oscuro"] .register-page .register-card .doctor-fields .auth-field > input[type="file"],
+html[data-tema="oscuro"] .register-page .register-card .doctor-fields .auth-field > textarea {
+    background-color: transparent;
+    background-image: none;
+    border: 0;
+    border-bottom: 2px solid var(--portal-primary--b);
+    box-shadow: none;
+}
+
+html[data-tema="oscuro"] .register-page .register-card .doctor-fields .auth-field > input[type="file"]:focus,
+html[data-tema="oscuro"] .register-page .register-card .doctor-fields .auth-field > textarea:focus {
+    background-color: transparent;
+    background-image: none;
+    border-bottom-color: var(--portal-primary-container--b);
+    outline: none;
+    box-shadow: none;
+}

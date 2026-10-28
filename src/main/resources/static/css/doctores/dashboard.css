@@ -1,6 +1,7 @@
 /* ==============================================
    PANEL DEL MÉDICO — BeSalud (estilo "Clinical Serenity" de Stitch)
    ============================================== */
+@import url('../oscuro/doctores/dashboard.css');
 .doc-page {
     --d-primary:      #002F24;
     --d-primary-c:    #0D4738;
@@ -257,7 +258,7 @@
     text-transform: uppercase;
     color: var(--d-on-pc);
 }
-.doc-kpi-ico { color: var(--d-tfd); font-size: 20px ; }
+.doc-kpi-ico { color: var(--d-tfd); font-size: 20px !important; }
 .doc-kpi-ico--amber { color: var(--d-amber-c); }
 .doc-kpi-value {
     margin: 0;
@@ -373,7 +374,7 @@
     border-radius: 8px;
     background: var(--d-high);
     color: var(--d-primary);
-    font-size: 20px ;
+    font-size: 20px !important;
 }
 .doc-card-ico--amber { background: var(--d-amber-f); color: var(--d-amber); }
 .doc-card-title h2 {
@@ -442,7 +443,7 @@
     font-size: 14px;
 }
 .empty-state p { margin: 0; }
-.empty-state-icon { font-size: 36px ; color: var(--d-on-pc); }
+.empty-state-icon { font-size: 36px !important; color: var(--d-on-pc); }
 
 /* ==============================================
    PERFIL
@@ -485,7 +486,7 @@
     border-radius: 50%;
     background: var(--d-primary);
     color: #fff;
-    font-size: 14px ;
+    font-size: 14px !important;
     box-shadow: 0 0 0 2px #fff;
 }
 .doc-perfil-datos h3 {
@@ -499,7 +500,7 @@
     font-weight: 500;
     color: var(--d-on);
 }
-.doc-verificado { color: var(--d-primary); font-size: 16px ; }
+.doc-verificado { color: var(--d-primary); font-size: 16px !important; }
 .doc-perfil-esp {
     margin: 2px 0 8px;
     font-size: 14px;
@@ -517,17 +518,17 @@
 }
 .doc-perfil-linea .material-symbols-outlined { font-size: 16px; }
 .foto-upload-label {
-    display: inline-flex ;
+    display: inline-flex !important;
     align-items: center;
     gap: 6px;
     padding: 6px 14px;
     border-radius: 8px;
     background: #fff;
-    color: var(--d-primary) ;
-    font-size: 13px ;
-    font-weight: 600 ;
-    letter-spacing: 0.01em ;
-    text-transform: none ;
+    color: var(--d-primary) !important;
+    font-size: 13px !important;
+    font-weight: 600 !important;
+    letter-spacing: 0.01em !important;
+    text-transform: none !important;
     cursor: pointer;
     box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
 }
@@ -615,14 +616,14 @@
     background: rgba(234, 247, 240, 0.7);
 }
 .duration-picker label {
-    display: flex ;
+    display: flex !important;
     align-items: center;
     gap: 6px;
-    font-size: 12px ;
-    font-weight: 600 ;
-    letter-spacing: 0.04em ;
-    text-transform: none ;
-    color: var(--d-on) ;
+    font-size: 12px !important;
+    font-weight: 600 !important;
+    letter-spacing: 0.04em !important;
+    text-transform: none !important;
+    color: var(--d-on) !important;
 }
 .duration-picker label .material-symbols-outlined { font-size: 16px; color: var(--d-primary); }
 .duration-picker .custom-select-wrapper,
@@ -670,7 +671,7 @@
 .day-card.active .day-hint { visibility: hidden; }
 .day-toggle {
     position: relative;
-    display: inline-block ;
+    display: inline-block !important;
     width: 40px;
     height: 22px;
     cursor: pointer;
@@ -1022,9 +1023,9 @@
     min-width: 0;
     margin: 0;
     padding: 10px 0;
-    border: none ;
-    background: transparent ;
-    box-shadow: none ;
+    border: none !important;
+    background: transparent !important;
+    box-shadow: none !important;
     font-family: var(--font-body);
     font-size: 14px;
     outline: none;
@@ -1207,7 +1208,7 @@ a.doc-segmento {
 .paciente-meta li { display: flex; justify-content: space-between; gap: 8px; min-width: 0; }
 .paciente-meta li span:last-child { color: var(--d-on); font-weight: 600; }
 .paciente-meta li:has(.paciente-email) { flex-direction: column; gap: 0; }
-.paciente-email { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 500 ; }
+.paciente-email { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 500 !important; }
 .doc-page .pagination { margin-top: 20px; }
 
 /* ==============================================

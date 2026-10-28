@@ -3,6 +3,7 @@
    Estilo: Clínica de lujo / Médico elegante
    Tipografía: Newsreader + Plus Jakarta Sans
    ============================================ */
+@import url('../oscuro/publico/index.css');
 
 :root {
     --primary:      #0D3B2E;   /* Verde bosque profundo */
@@ -686,7 +687,7 @@ body {
 
 .btn-secondary {
     padding: 11px 20px;
-    color: #fff ;
+    color: #fff !important;
     background: rgba(255, 255, 255, 0.08);
     border: 1px solid rgba(255, 255, 255, 0.2);
     box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
@@ -1410,9 +1411,9 @@ footer {
 
 @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after {
-        scroll-behavior: auto ;
-        animation-duration: 0.01ms ;
-        animation-iteration-count: 1 ;
-        transition-duration: 0.01ms ;
+        scroll-behavior: auto !important;
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
     }
 }

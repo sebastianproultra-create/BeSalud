@@ -1,3 +1,6 @@
+
+@import url('../oscuro/triage/triage.css');
+
 .triage-form label {
     display: block;
     font-weight: 600;

@@ -1,6 +1,7 @@
 /* ============================================== 
    PATIENT LANDING PAGE STYLES 
    ============================================== */
+@import url('../oscuro/pacientes/catalogo.css');
 
 .header-section {
     background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
@@ -568,11 +569,11 @@
         height: 100vh;
         border-left: 1px solid var(--border-color);
         box-shadow: -4px 0 24px rgba(0, 0, 0, 0.15);
-        transform: none ;
+        transform: none !important;
     }
 
     .citas-sidebar.collapsed .sidebar-inner {
-        transform: none ;
+        transform: none !important;
     }
 
     /* Tab stays on left edge of the drawer (absolute within sidebar) */
@@ -1738,11 +1739,11 @@ body.patient-catalog-page {
 
     .patient-catalog-page .patient-sidebar .sidebar-tab,
     .patient-catalog-page .sidebar-backdrop {
-        display: none ;
+        display: none !important;
     }
 
     .patient-catalog-page .patient-sidebar .sidebar-close {
-        display: inline-flex ;
+        display: inline-flex !important;
     }
 
     .patient-catalog-page footer {
@@ -1836,7 +1837,7 @@ body.patient-catalog-page {
         position: static;
         width: 100%;
         min-height: 46px;
-        display: flex ;
+        display: flex !important;
         flex-direction: row;
         justify-content: center;
         gap: 9px;
@@ -1889,7 +1890,7 @@ body.patient-catalog-page {
     max-height: calc(100vh - 112px);
     display: flex;
     flex-direction: column;
-    transform: none ;
+    transform: none !important;
     visibility: visible;
     opacity: 1;
     overflow: hidden;
@@ -1906,7 +1907,7 @@ body.patient-catalog-page {
 
 
 .patient-catalog-page .patient-sidebar .sidebar-close {
-    display: none ;
+    display: none !important;
 }
 
 /* Citas más legibles */
@@ -1977,7 +1978,7 @@ body.patient-catalog-page {
     }
 
     .patient-catalog-page .patient-sidebar .sidebar-close {
-        display: inline-flex ;
+        display: inline-flex !important;
         width: 32px;
         height: 32px;
         padding: 0;

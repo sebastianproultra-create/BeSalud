@@ -4,10 +4,12 @@
     <meta charset="UTF-8">
     <title>BeSalud · Registro Clínico</title>
     <link rel="stylesheet" th:href="@{/css/base/global.css}">
-    <link rel="stylesheet" th:href="@{/css/auth/register.css}">
-    <link rel="stylesheet" th:href="@{/css/auth/portal.css}">
     <script th:src="@{/js/auth-transition.js}"></script>
     <th:block th:replace="~{fragments/layout :: design-system}"></th:block>
+    <link rel="stylesheet" th:href="@{/css/auth/portal.css(v=3)}">
+    <link rel="stylesheet" th:href="@{/css/auth/register.css(v=4)}">
+    <link rel="stylesheet" th:href="@{/css/base/tema-oscuro.css}">
+    <script th:src="@{/js/tema.js}"></script>
 </head>
 <body class="auth-page register-page">
 <header th:replace="~{fragments/navbar :: navbar}"></header>

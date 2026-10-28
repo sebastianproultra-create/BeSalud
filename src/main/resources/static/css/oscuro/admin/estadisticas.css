@@ -1,0 +1,62 @@
+/* Generado por scripts/generar_tema_oscuro.py a partir de admin/estadisticas.css. No editar a mano:
+   los ajustes van en base/tema-oscuro.css o en el generador. */
+
+html[data-tema="oscuro"] .kpi {
+    background-color: var(--white--f);
+    background-image: none;
+    border: 1px solid var(--border-color--b);
+    box-shadow: var(--shadow-sm--s);
+}
+
+html[data-tema="oscuro"] .kpi-etiqueta {
+    color: var(--text-light--t);
+}
+
+html[data-tema="oscuro"] .kpi-valor {
+    color: var(--primary-color--t);
+}
+
+html[data-tema="oscuro"] .kpi-nota {
+    color: var(--text-light--t);
+}
+
+html[data-tema="oscuro"] .kpi-enlace {
+    color: var(--danger-color--t);
+}
+
+html[data-tema="oscuro"] .grafica-cabecera h2 {
+    color: var(--primary-color--t);
+}
+
+html[data-tema="oscuro"] .grafica-cabecera p {
+    color: var(--text-light--t);
+}
+
+html[data-tema="oscuro"] .grafica-tabla summary {
+    color: var(--text-light--t);
+}
+
+html[data-tema="oscuro"] .grafica-tabla td,
+html[data-tema="oscuro"] .grafica-tabla th,
+html[data-tema="oscuro"] .ocupacion td,
+html[data-tema="oscuro"] .ocupacion th {
+    border-bottom: 1px solid var(--border-color--b);
+}
+
+html[data-tema="oscuro"] .ocupacion th {
+    color: var(--text-light--t);
+}
+
+html[data-tema="oscuro"] .barra {
+    background-color: var(--off-white--f);
+    background-image: none;
+}
+
+html[data-tema="oscuro"] .barra-relleno {
+    background-color: var(--secondary-color--f);
+    background-image: none;
+}
+
+html[data-tema="oscuro"] .barra-valor {
+    color: var(--text-dark--t);
+}

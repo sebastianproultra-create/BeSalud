@@ -1,0 +1,16 @@
+/* Generado por scripts/generar_tema_oscuro.py a partir de base.css. No editar a mano:
+   los ajustes van en base/tema-oscuro.css o en el generador. */
+
+html[data-tema="oscuro"] body {
+    background-color: var(--color-background--f);
+    background-image: none;
+    color: var(--color-text--t);
+}
+
+html[data-tema="oscuro"] a {
+    color: var(--color-primary--t);
+}
+
+html[data-tema="oscuro"] :focus-visible {
+    outline: 3px solid rgba(159, 209, 196, 0.42);
+}

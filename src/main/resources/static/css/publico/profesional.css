@@ -1,4 +1,5 @@
 /* Página pública del profesional: usa los tokens de auth/portal.css */
+@import url('../oscuro/publico/profesional.css');
 
 .profesional-page .profesional-main {
     display: block;

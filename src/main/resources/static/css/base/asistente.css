@@ -1,4 +1,5 @@
 /* Asistente de agenda: chat de la página del profesional y botón flotante del portal del paciente */
+@import url('../oscuro/base/asistente.css');
 
 [data-asistente] {
     --chat-bg: #F0FCF5;

@@ -1,0 +1,9 @@
+/* Generado por scripts/generar_tema_oscuro.py a partir de layout.css. No editar a mano:
+   los ajustes van en base/tema-oscuro.css o en el generador. */
+
+html[data-tema="oscuro"] .bs-footer {
+    color: var(--color-text-muted--t);
+    background-color: var(--color-surface--f);
+    background-image: none;
+    border-top: 1px solid var(--color-border--b);
+}
