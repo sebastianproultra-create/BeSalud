@@ -5,7 +5,7 @@ html[data-tema="oscuro"] [data-asistente] {
     --chat-bg--f: #131D19;
     --chat-bg--t: #F0FCF5;
     --chat-bg--b: #2D3D37;
-    --chat-bg--s: #F0FCF5;
+    --chat-bg--s: #131D19;
     --chat-primary--f: #00664E;
     --chat-primary--t: #D7E9E5;
     --chat-primary--b: #00664E;
@@ -29,15 +29,15 @@ html[data-tema="oscuro"] [data-asistente] {
     --chat-borde--f: #17241F;
     --chat-borde--t: #D9E5DF;
     --chat-borde--b: #32443D;
-    --chat-borde--s: #D9E5DF;
+    --chat-borde--s: #17241F;
     --chat-suave--f: #141F1B;
     --chat-suave--t: #EAF7F0;
     --chat-suave--b: #2E3F39;
-    --chat-suave--s: #EAF7F0;
+    --chat-suave--s: #141F1B;
     --chat-superficie--f: #1B2A24;
     --chat-superficie--t: #FFFFFF;
     --chat-superficie--b: #2B3B35;
-    --chat-superficie--s: #FFFFFF;
+    --chat-superficie--s: #1B2A24;
 }
 
 html[data-tema="oscuro"] .chat-mensajes {

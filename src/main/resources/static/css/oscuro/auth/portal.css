@@ -5,7 +5,7 @@ html[data-tema="oscuro"] {
     --portal-bg--f: #131D19;
     --portal-bg--t: #F0FCF5;
     --portal-bg--b: #2D3D37;
-    --portal-bg--s: #F0FCF5;
+    --portal-bg--s: #131D19;
     --portal-primary--f: #00664E;
     --portal-primary--t: #D7E9E5;
     --portal-primary--b: #00664E;
@@ -29,15 +29,15 @@ html[data-tema="oscuro"] {
     --portal-border--f: #17241F;
     --portal-border--t: #D9E5DF;
     --portal-border--b: #32443D;
-    --portal-border--s: #D9E5DF;
+    --portal-border--s: #17241F;
     --portal-container--f: #141F1B;
     --portal-container--t: #EAF7F0;
     --portal-container--b: #2E3F39;
-    --portal-container--s: #EAF7F0;
+    --portal-container--s: #141F1B;
     --portal-surface--f: #1B2A24;
     --portal-surface--t: #FFFFFF;
     --portal-surface--b: #2B3B35;
-    --portal-surface--s: #FFFFFF;
+    --portal-surface--s: #1B2A24;
     --portal-secondary--f: #855403;
     --portal-secondary--t: #F1D19D;
     --portal-secondary--b: #855403;

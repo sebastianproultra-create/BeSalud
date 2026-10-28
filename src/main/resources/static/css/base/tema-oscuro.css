@@ -36,20 +36,26 @@ html.tema-cambiando *::after {
     place-items: center;
     width: 44px;
     height: 44px;
+    min-height: 0;
     margin: 0;
     padding: 0;
-    color: #0D4738;
-    background: #FFFFFF;
-    border: 1px solid #D9E5DF;
+    /* Verde de la marca con aro claro: se distingue sobre fondos claros, fotos y tarjetas */
+    color: #EAF7F0;
+    background: linear-gradient(145deg, #0D4738, #002F24);
+    border: 2px solid #EAF7F0;
     border-radius: 50%;
-    box-shadow: 0 6px 20px -8px rgba(0, 47, 36, 0.35);
+    box-shadow: 0 0 0 1px rgba(0, 47, 36, 0.25), 0 8px 22px -8px rgba(0, 47, 36, 0.55);
     cursor: pointer;
-    transition: transform 0.15s ease, box-shadow 0.15s ease;
+    transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
 }
 
 .tema-boton:hover {
     transform: translateY(-1px);
-    box-shadow: 0 10px 24px -10px rgba(0, 47, 36, 0.45);
+    box-shadow: 0 0 0 1px rgba(0, 47, 36, 0.3), 0 12px 26px -10px rgba(0, 47, 36, 0.6);
+}
+
+.tema-boton:active {
+    transform: translateY(0);
 }
 
 .tema-boton:focus-visible {
@@ -67,11 +73,16 @@ html.tema-cambiando *::after {
     stroke-linejoin: round;
 }
 
+/* En oscuro se invierte: menta con el sol en verde bosque, para que resalte sobre el fondo */
 html[data-tema="oscuro"] .tema-boton {
-    color: #FFD48A;
-    background: #1B2A24;
-    border: 1px solid #2E3F39;
-    box-shadow: 0 6px 20px -8px rgba(0, 0, 0, 0.6);
+    color: #002F24;
+    background: linear-gradient(145deg, #EAF7F0, #B7EED9);
+    border: 2px solid #0D4738;
+    box-shadow: 0 0 0 1px rgba(183, 238, 217, 0.35), 0 8px 22px -8px rgba(0, 0, 0, 0.7);
+}
+
+html[data-tema="oscuro"] .tema-boton:hover {
+    box-shadow: 0 0 0 1px rgba(183, 238, 217, 0.5), 0 12px 26px -10px rgba(0, 0, 0, 0.8);
 }
 
 html[data-tema="oscuro"] .tema-boton:focus-visible {

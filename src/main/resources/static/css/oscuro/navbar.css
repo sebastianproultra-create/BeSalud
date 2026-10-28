@@ -14,8 +14,10 @@ html[data-tema="oscuro"] .bs-navbar__brand {
 }
 
 html[data-tema="oscuro"] .bs-navbar__brand-mark {
-    color: var(--color-accent-soft--t);
-    border: 1px solid currentColor;
+    color: var(--color-surface--t);
+    background-color: rgba(255, 255, 255, 0.1);
+    background-image: none;
+    border: 1px solid rgba(255, 255, 255, 0.28);
 }
 
 html[data-tema="oscuro"] .bs-navbar__menu {
@@ -49,14 +51,18 @@ html[data-tema="oscuro"] .bs-navbar .bs-navbar__logout:hover {
 
 html[data-tema="oscuro"] .bs-navbar__link--action {
     color: var(--color-primary--t);
-    background-color: var(--color-accent-soft--f);
+    background-color: var(--color-primary-soft--f);
     background-image: none;
 }
 
 html[data-tema="oscuro"] .bs-navbar__link--action:hover {
     color: var(--color-primary--t);
-    background-color: var(--color-accent--f);
+    background-color: var(--color-surface--f);
     background-image: none;
+}
+
+html[data-tema="oscuro"] .bs-navbar :focus-visible {
+    outline-color: rgba(43, 59, 53, 0.7);
 }
 
 html[data-tema="oscuro"] .bs-navbar__account {

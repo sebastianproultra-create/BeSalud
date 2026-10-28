@@ -85,8 +85,8 @@
 
 @media (max-width: 768px) {
     .card {
-        margin: 20px ;
-        padding: 24px ;
+        margin: 20px !important;
+        padding: 24px !important;
     }
 }
 

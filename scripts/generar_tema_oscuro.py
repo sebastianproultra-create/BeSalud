@@ -132,6 +132,9 @@ def sombra(r, g, b, a):
     h, s, l = a_hsl(r, g, b)
     if l < 0.5:
         return escribir_color(0, 0, 0, min(0.6, a * 1.8))
+    if a >= 0.5:
+        # Aros y "bordes" hechos con sombra (0 0 0 2px #fff) separan del fondo claro: en oscuro, color de superficie
+        return fondo(r, g, b, a)
     return escribir_color(r, g, b, a)
 
 

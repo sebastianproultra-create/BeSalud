@@ -58,8 +58,8 @@ a {
 }
 
 :focus-visible {
-    outline: 3px solid var(--color-accent);
-    outline-offset: 3px;
+    outline: 3px solid rgb(13 71 56 / 35%);
+    outline-offset: 2px;
 }
 
 @media (prefers-reduced-motion: reduce) {

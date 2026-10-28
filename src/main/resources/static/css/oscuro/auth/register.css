@@ -49,12 +49,12 @@ html[data-tema="oscuro"] .field-hint.error {
 }
 
 html[data-tema="oscuro"] input.input-error {
-    border: 2px solid #E53E3E;
+    border: 2px solid #E53E3E !important;
     outline: none;
 }
 
 html[data-tema="oscuro"] input.input-success {
-    border: 2px solid #38A169;
+    border: 2px solid #38A169 !important;
     outline: none;
 }
 

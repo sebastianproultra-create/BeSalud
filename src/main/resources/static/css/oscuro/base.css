@@ -12,5 +12,5 @@ html[data-tema="oscuro"] a {
 }
 
 html[data-tema="oscuro"] :focus-visible {
-    outline: 3px solid var(--color-accent--b);
+    outline: 3px solid rgba(159, 209, 196, 0.42);
 }

@@ -1,13 +1,4 @@
 @import url('oscuro/components.css');
-button,
-.btn,
-.bs-btn,
-input[type="button"],
-input[type="submit"],
-input[type="reset"] {
-    min-height: 2.75rem;
-}
-
 .bs-btn {
     display: inline-flex;
     min-height: 2.75rem;

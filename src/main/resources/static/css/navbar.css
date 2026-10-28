@@ -40,8 +40,9 @@
     width: 2rem;
     aspect-ratio: 1;
     place-items: center;
-    color: var(--color-accent-soft);
-    border: 1px solid currentColor;
+    color: var(--color-surface);
+    background: rgb(255 255 255 / 10%);
+    border: 1px solid rgb(255 255 255 / 28%);
     border-radius: var(--radius-sm);
     font-family: var(--font-body);
     font-weight: 700;
@@ -92,12 +93,16 @@
 
 .bs-navbar__link--action {
     color: var(--color-primary);
-    background: var(--color-accent-soft);
+    background: var(--color-primary-soft);
 }
 
 .bs-navbar__link--action:hover {
     color: var(--color-primary);
-    background: var(--color-accent);
+    background: var(--color-surface);
+}
+
+.bs-navbar :focus-visible {
+    outline-color: rgb(255 255 255 / 70%);
 }
 
 .bs-navbar__account {
