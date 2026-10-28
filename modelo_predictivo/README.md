@@ -4,11 +4,11 @@ Pronostica **cuántas citas va a tener cada especialidad y cada médico** en los
 pueda organizar su agenda antes de que se llene. Es la parte de Minería de Datos del proyecto.
 
 - **Variable objetivo:** `volumen_citas_total` (citas por día).
-- **Algoritmo:** [Prophet](https://facebook.github.io/prophet/) (Meta), un modelo de series de tiempo.
+- **Algoritmo:** ensembles de árboles de scikit-learn (RandomForest vs HistGradientBoosting, elegidos por MAE).
 - **Dónde corre:** una API en Python (FastAPI) desplegada en Railway, que Spring Boot consulta.
 
 ```
-Médico abre su panel ──► Spring Boot ──► API Python (Prophet) ──► CSV con el historial
+Médico abre su panel ──► Spring Boot ──► API Python (scikit-learn) ──► CSV con el historial
    (gráfica)            /api/predicciones/mia    /prediccion/{especialidad}?medico_id=
 ```
 
@@ -71,104 +71,77 @@ qué pasa los festivos) y **repite ese comportamiento hacia el futuro**, con un 
 | ¿Tarea predictiva o descriptiva? | **Predictiva**: estima un valor futuro. Las descriptivas, como el clustering o las reglas de asociación, agrupan o encuentran patrones sin predecir. |
 | ¿Aprendizaje supervisado o no supervisado? | **Supervisado**: aprende de ejemplos donde la respuesta es conocida (cuántas citas hubo cada día). |
 | ¿Clasificación o regresión? | **Regresión**: la salida es un número (cantidad de citas), no una categoría. |
-| ¿Qué tipo de regresión? | **Regresión sobre series de tiempo** con un **modelo aditivo generalizado (GAM)**: Prophet, de Meta. |
+| ¿Qué tipo de regresión? | **Regresión sobre series de tiempo** con **ensembles de árboles** (RandomForest e HistGradientBoosting de scikit-learn). |
 | ¿Variable objetivo? | `volumen_citas_total`: citas por día, de una especialidad o de un médico. |
-| ¿Variables explicativas? | La fecha (de ella salen la tendencia y los patrones semanal y anual), si el día es hábil y el factor de lluvias. |
+| ¿Variables explicativas? | Características derivadas solo de la fecha: mes, día de la semana, día del mes, semana y día del año, si es festivo, si es laborable y el factor de lluvias del mes en días laborables. |
 
 ### Paso a paso
 
 1. **Se toma la historia.** Para una especialidad es la columna `volumen_citas_total` del CSV; para un médico, sus
    citas diarias en `citas_por_medico.csv`. Son unos 1.000 días, desde enero de 2024.
-2. **Se le agregan dos datos que se conocen de antemano:** si cada día es hábil (no es fin de semana ni festivo
-   colombiano) y el factor de lluvia de ese mes en Cartagena.
-3. **Prophet aprende.** Busca la combinación de "piezas" (ver la tabla de abajo) que mejor reproduce la historia.
-   Por ejemplo, descubre solo que en octubre Neumología recibe muchas más citas que en febrero, sin que nadie se lo diga.
-4. **Se proyecta.** Con lo aprendido calcula los próximos días (hasta 180), sumando las piezas para cada fecha futura.
-5. **Se calcula el margen.** Prophet simula muchos futuros posibles y se queda con el rango donde cae el 80 % de ellos.
-6. **Se entrega.** La API devuelve, por cada día, el valor proyectado y el margen, y el panel del médico lo dibuja.
+2. **Se convierten las fechas en características.** De cada fecha se calculan 8 variables numéricas (mes, día de la
+   semana, día del mes, semana del año, día del año, festivo, laborable y lluvias en día laborable). Así el modelo
+   "ve" números y puede aplicarlos igual al pasado que al futuro.
+3. **Se hace un split temporal.** Los últimos 60 días se esconden como test (no aleatorio: en series de tiempo el
+   pasado predice el futuro, y mezclar días filtraría información del futuro al entrenamiento).
+4. **Se entrenan dos modelos y se elige el mejor.** RandomForest e HistGradientBoosting aprenden con el train; se mide
+   el MAE de cada uno sobre los 60 días escondidos y se elige el que menos se equivoca.
+5. **Se reentrena el ganador con todo el historial** y se proyectan los próximos días (hasta 180).
+6. **Se calcula el margen.** Con los residuos del test se estima la desviación σ (por separado para días laborables y
+   no laborables) y el margen es ±1,28·σ, que corresponde al intervalo del 80 %.
+7. **Se entrega.** La API devuelve, por cada día, el valor proyectado y el margen, y el panel del médico lo dibuja.
 
-### Las piezas que suma el modelo
+### Las características (feature engineering)
 
-Prophet descompone la serie de citas en partes que se suman:
+Todas salen de la fecha, así que se conocen de antemano para cualquier día futuro:
 
-```
-citas(día) = tendencia + patrón semanal + patrón anual + efecto de días hábiles + efecto de lluvia en días hábiles
-```
-
-| Componente | Qué aprende |
+| Característica | Qué captura |
 |---|---|
-| Tendencia | Si la demanda va subiendo o bajando con los meses |
-| Estacionalidad semanal | Que los lunes y martes se llenan más que el sábado |
-| Estacionalidad anual | Los picos de mayo–junio y de agosto–noviembre |
-| Regresor `laborable` | 1 si es día hábil y no festivo colombiano. Hace que fines de semana y festivos caigan casi a cero |
-| Regresor `lluvias_laborable` | El factor de lluvia del mes, solo en días hábiles (en fines de semana casi no hay citas, llueva o no) |
+| `mes`, `semana_anio`, `dia_anio` | La estacionalidad anual (picos de lluvias de agosto–noviembre) |
+| `dia_semana`, `laborable`, `es_festivo` | El patrón semanal y la caída de fines de semana y festivos |
+| `dia_mes` | El efecto del día dentro del mes |
+| `lluvias_laborable` | El factor de lluvia del mes, solo en días laborables (en fines de semana casi no hay citas, llueva o no) |
 
-Los dos regresores se conocen de antemano para cualquier fecha futura, porque el calendario y la temporada de lluvias son fijos. Por eso Prophet puede usarlos para proyectar.
+### Cómo funcionan los modelos por dentro
 
-### Cómo funciona Prophet por dentro
+Ambos candidatos son **ensembles de árboles de decisión**: combinan muchos árboles para reducir el error y el sobreajuste.
 
-Prophet es una regresión en la que el tiempo se convierte en varias variables. La fórmula es:
+| Modelo | Cómo aprende |
+|---|---|
+| **RandomForest** | Entrena 300 árboles, cada uno con una muestra aleatoria de los datos y un subconjunto de características, y promedia sus predicciones. |
+| **HistGradientBoosting** | Entrena árboles en secuencia (hasta 300 iteraciones): cada árbol nuevo corrige el error del anterior. Internamente agrupa las características en histogramas, por eso entrena más rápido. |
 
-```
-y(t) = g(t) + s(t) + β · x(t) + ε(t)
-```
+**Selección por MAE.** En cada serie se entrena a ambos con el train y se evalúa su **MAE** sobre el test temporal; gana
+el que se equivoca menos. Ese ganador se **reentrena con todo el historial** antes de proyectar.
 
-| Término | Qué es | Cómo lo calcula |
-|---|---|---|
-| `y(t)` | Citas del día `t` | Es la variable objetivo |
-| `g(t)` | **Tendencia** | Una recta **por tramos**: Prophet coloca 25 posibles "puntos de cambio" en el primer 80 % del historial y en cada uno la pendiente puede cambiar. Una penalización (regularización) evita que cambie de más y se sobreajuste al ruido |
-| `s(t)` | **Estacionalidad** | Ondas de senos y cosenos (**series de Fourier**) que se repiten: 3 pares para la semana (periodo de 7 días) y 10 pares para el año (periodo de 365,25 días). Combinando ondas de distinta frecuencia arma la "forma" del patrón, por ejemplo el pico de octubre |
-| `β · x(t)` | **Regresores** | Igual que en una regresión lineal múltiple: un coeficiente `β` por cada variable extra. `laborable` vale 0 o 1; `lluvias_laborable` se estandariza (media 0, desviación 1) antes de ajustarla |
-| `ε(t)` | **Error** | Lo que el modelo no explica. Se supone ruido normal |
-
-**Entrenamiento.** Prophet usa estadística **bayesiana**: le pone a cada coeficiente una distribución "previa" que lo
-mantiene pequeño salvo que los datos digan lo contrario (esto también funciona como regularización). Luego busca los
-valores más probables dados los datos, lo que se llama **estimación MAP (máximo a posteriori)**. El cálculo lo hace
-**Stan**, una librería de estadística, con el optimizador L-BFGS. Con unos 1.000 días tarda uno o dos segundos.
-
-**Margen de error.** Para cada día futuro simula **1.000 escenarios** posibles: con cambios de tendencia aleatorios
-parecidos a los que vio en la historia, más el ruido. Se queda con el percentil 10 y el 90 de esos escenarios: ese
-es el intervalo del **80 %** que la API entrega como `margenMinimo` y `margenMaximo`.
-
-**Ajustes finales en la API.** Los valores se redondean a citas enteras y los negativos se llevan a 0 (no existen
-"−1 citas"). Se entrena **un modelo por serie** (uno por especialidad y uno por médico) y se guarda en memoria, así
-que solo la primera consulta de cada serie espera el entrenamiento.
+**Margen de error.** Con los residuos del test se calcula la desviación estándar σ, por separado para días laborables y
+no laborables (así los fines de semana y festivos no heredan el margen grande de los días hábiles). El margen es
+**±1,28·σ**, que corresponde al intervalo del **80 %**; si un grupo tiene pocas muestras se usa la σ global. Los valores
+se redondean a citas enteras y los negativos se llevan a 0 (no existen "−1 citas").
 
 Configuración usada en `api_predictiva.py`:
 
 ```python
-modelo = Prophet(yearly_seasonality=True, weekly_seasonality=True, daily_seasonality=False)
-modelo.add_regressor('laborable')
-modelo.add_regressor('lluvias_laborable')
-modelo.fit(historial)   # columnas: ds (fecha), y (citas), laborable, lluvias_laborable
+modelos_candidatos = {
+    'RandomForest': RandomForestRegressor(n_estimators=300, min_samples_leaf=2, random_state=42, n_jobs=-1),
+    'HistGradientBoosting': HistGradientBoostingRegressor(max_iter=300, learning_rate=0.05, max_depth=6, random_state=42),
+}
 ```
 
 ### Ejemplo con números reales (Neumología)
 
-Valores que sacó el modelo entrenado. Las piezas **se leen juntas**: el modelo ajusta todas a la vez, así que una
-puede salir negativa porque otra la compensa (por ejemplo, la de día hábil sale −1,2 y la de lluvia en día hábil
-sale muy positiva). Lo que importa es la suma, que es la proyección.
+Con las características de calendario y lluvia, el modelo aprende el efecto de las reglas de Cartagena: un miércoles
+de octubre (hábil, lluvia fuerte) se proyecta cerca de 14 citas, un sábado cae casi a cero y un miércoles de febrero
+(temporada seca) queda alrededor de 4 citas. Es decir, el mismo día de la semana cambia según la temporada y los
+fines de semana casi no tienen citas, llueva o no.
 
-| Pieza | Miércoles 21 oct 2026 (hábil, lluvia fuerte) | Sábado 24 oct 2026 | Miércoles 17 feb 2027 (hábil, seco) |
-|---|---|---|---|
-| Tendencia (nivel base) | 5,5 | 5,5 | 5,6 |
-| Patrón semanal | 0,0 | +0,1 | 0,0 |
-| Patrón anual | +0,8 | +0,9 | −0,1 |
-| Día hábil + lluvia | **+7,7** | **−4,3** | −1,1 |
-| **Proyección** | **≈ 14 citas** (margen 11–17) | **≈ 2 citas** (margen 0–5) | **≈ 4 citas** (margen 2–7) |
-| Lo que pasó el año anterior, mismo mes | miércoles de oct 2025: 9 a 15 | sábados: 0 a 2 | miércoles de feb 2026: 1 a 7 |
+### ¿Por qué estos modelos y no otra técnica?
 
-Así se ve el efecto de las reglas de Cartagena: el mismo día de la semana pasa de unas 4 citas en temporada seca a
-unas 14 en el pico de lluvias, y el sábado cae casi a cero llueva o no.
-
-### ¿Por qué Prophet y no otra técnica?
-
-- Está hecho para datos **diarios con patrones semanales y anuales**, que es justo el caso de las citas.
-- Acepta **variables extra** (día hábil con festivos colombianos y lluvia) como una regresión normal.
-- Da el **margen de error** sin trabajo adicional.
-- Entrena en segundos con unos pocos años de datos, así que se puede entrenar un modelo **por médico** cuando se pide.
-- Sus piezas se pueden **interpretar** (ver el ejemplo de arriba), cosa importante para explicarle a un médico por qué
-  se espera más demanda.
+- Los **árboles de decisión** manejan bien los datos diarios con patrones semanales y anuales codificados como
+  características, que es justo el caso de las citas.
+- Aceptan las **variables de calendario y lluvia** como cualquier otra columna numérica.
+- Permiten **elegir el mejor entre dos modelos** midiendo el MAE en un split temporal, sin caja negra.
+- Entrenan en segundos con unos pocos años de datos, así que se puede entrenar un modelo **por médico** cuando se pide.
 
 | Alternativa | Por qué no se usó |
 |---|---|
@@ -180,18 +153,15 @@ unas 14 en el pico de lluvias, y el sábado cae casi a cero llueva o no.
 
 ### Qué tan bien predice
 
-**Método de evaluación (validación por retención, *holdout*):** se entrenó con todo el historial menos los últimos
-60 días; esos 60 días se escondieron y luego se compararon con lo que el modelo predijo. La métrica es el **MAE
-(error absoluto medio)**: en promedio, de cuántas citas fue la diferencia por día.
+**Método de evaluación (split temporal / holdout):** se entrena con todo el historial menos los últimos 60 días; esos
+60 días se esconden y se comparan con lo que predice cada candidato. La métrica es el **MAE (error absoluto medio)**:
+en promedio, de cuántas citas fue la diferencia por día. Se comparan **RandomForest**, **HistGradientBoosting** y un
+**baseline ingenuo** (el promedio del train por día de la semana); gana el de menor MAE y es el que se usa para
+proyectar.
 
-| Serie | Versión anterior (festivos + lluvia) | Versión actual (día hábil + lluvia en día hábil) |
-|---|---|---|
-| Medicina General | 5,52 citas/día | **4,20** (−24 %) |
-| Neumología | 2,53 | **1,85** (−27 %) |
-| Dra. Daniela Ramos (Pediatría) | 1,08 | **1,00** |
-
-En fines de semana el error bajó a ~0,6 citas. También se probó el modo **multiplicativo** de Prophet (las piezas se
-multiplican en vez de sumarse) y no mejoró, así que se dejó el aditivo.
+> **Referencia histórica (Prophet):** Medicina General 4,20 citas/día, Neumología 1,85 y Dra. Daniela Ramos
+> (Pediatría) 1,00 en los últimos 60 días. Este enfoque anterior se reemplazó por scikit-learn, que entrena y evalúa
+> de forma explícita.
 
 Para ponerlo en contexto: en esos 60 días (temporada de lluvias) Medicina General recibió unas 28 citas por día hábil,
 así que equivocarse en ~4 citas es un error de alrededor del 15 %, suficiente para planear la agenda.
@@ -203,13 +173,13 @@ así que equivocarse en ~4 citas es un error de alrededor del 15 %, suficiente p
 | 1. Comprensión del negocio | Los médicos no saben con anticipación qué días se les va a llenar la agenda; se busca pronosticar la demanda por especialidad y por médico |
 | 2. Comprensión de los datos | Variables del dataset: fecha, día de la semana, especialidad, festivos, temporada de lluvias, alertas de salud pública y volumen de citas |
 | 3. Preparación de los datos | Agregación de las citas por día; creación de `laborable` y `lluvias_laborable`; serie por médico en `citas_por_medico.csv`; días sin citas completados con 0 |
-| 4. Modelado | Prophet con estacionalidad semanal y anual y dos regresores; un modelo por especialidad y por médico |
-| 5. Evaluación | Holdout de 60 días con MAE; comparación entre versiones (aditivo vs. multiplicativo, con y sin regresores de día hábil) |
+| 4. Modelado | Características de calendario/lluvia + split temporal; RandomForest vs HistGradientBoosting elegidos por MAE; un modelo por especialidad y por médico |
+| 5. Evaluación | Holdout de 60 días con MAE; comparación entre RandomForest, HistGradientBoosting y un baseline ingenuo |
 | 6. Despliegue | API en FastAPI publicada en Railway, consumida por Spring Boot y mostrada en el panel del médico |
 
 ### El margen
 
-Además del valor proyectado, Prophet da un **rango probable** (`margenMinimo` – `margenMaximo`): la demanda real debería caer dentro de ese rango **8 de cada 10 veces**.
+Además del valor proyectado, el modelo da un **rango probable** (`margenMinimo` – `margenMaximo`) calculado como ±1,28·σ de los residuos del test: la demanda real debería caer dentro de ese rango **8 de cada 10 veces**.
 
 ---
 
@@ -302,7 +272,24 @@ python importar_atlas.py --confirmar --borrar-mock-anterior   # 4. reemplaza los
 (`uvicorn api_predictiva:app --host 0.0.0.0 --port $PORT`). El servicio de Spring necesita la variable
 `API_PYTHON_URL` con el dominio de la API, sin `/` al final.
 
-Si se regeneran los CSV, hay que hacer commit para que Railway entrene con los datos nuevos.
+### El archivo del modelo entrenado
+
+`modelos_entrenados.joblib` (~21 MB) guarda los 19 modelos ya entrenados (5 especialidades y 14 médicos): el
+modelo ganador de cada serie, sus MAE de test y la σ de los márgenes. Lo genera `entrenar_modelos.py`, que es el
+entrenamiento explícito (split de 60 días, comparación de los dos modelos y MAE):
+
+```bash
+cd modelo_predictivo
+python entrenar_modelos.py    # entrena todo, imprime el MAE de cada serie y escribe el .joblib (~1 min)
+```
+
+- La API carga el archivo al arrancar, así la primera consulta ya no espera al entrenamiento.
+- Si el archivo falta, está dañado o se entrenó con otra versión de scikit-learn, la API entrena al vuelo como
+  antes. Lo mismo si el CSV tiene días más nuevos que los del archivo.
+- Para inspeccionarlo: `joblib.load('modelos_entrenados.joblib')['modelos']['especialidad:Pediatría']`.
+
+Si se regeneran los CSV o se cambia el código del modelo, hay que correr `entrenar_modelos.py` y hacer commit del
+CSV y del `.joblib` juntos para que Railway use los datos y modelos nuevos.
 
 ---
 
@@ -342,16 +329,15 @@ Los pacientes simulados también pueden entrar con la misma contraseña. Sus cor
 ### Resumen en 30 segundos
 
 > "BESalud pronostica cuántas citas va a tener cada médico en los próximos días. Es una tarea **predictiva y
-> supervisada**: hacemos **regresión sobre series de tiempo** con **Prophet**, un modelo aditivo que descompone la
-> demanda en tendencia, patrón semanal, patrón anual, días hábiles con festivos colombianos y el efecto de la lluvia
-> en Cartagena. Lo evaluamos escondiendo los últimos 60 días y el error medio quedó en unas 4 citas por día en
-> Medicina General. El médico ve el pronóstico de 7, 14 o 30 días en su panel, comparado con los cupos de su
-> horario, para saber qué días abrir más franjas."
+> supervisada**: hacemos **regresión sobre series de tiempo** con **ensembles de árboles** (RandomForest vs
+> HistGradientBoosting), que aprenden de características de calendario y lluvia. Elegimos el mejor midiendo el MAE en
+> los últimos 60 días escondidos. El médico ve el pronóstico de 7, 14 o 30 días en su panel, comparado con los cupos
+> de su horario, para saber qué días abrir más franjas."
 
 ### Orden sugerido para la demo
 
 1. Mostrar el CSV y explicar las reglas de la simulación (sección 1).
-2. Explicar el tipo de técnica y la fórmula de Prophet (sección 2).
+2. Explicar el tipo de técnica, las características y la selección por MAE (sección 2).
 3. Mostrar el ejemplo con números (octubre vs. febrero vs. sábado).
 4. Mostrar la tabla de evaluación (MAE).
 5. Entrar como un médico de **Pediatría o Neumología** (el efecto de la lluvia se ve más) y recorrer "Demanda

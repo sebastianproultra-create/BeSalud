@@ -1,4 +1,4 @@
-/* Demanda proyectada del panel del médico: pide el pronóstico a /api/predicciones/mia (modelo Prophet),
+/* Demanda proyectada del panel del médico: pide el pronóstico a /api/predicciones/mia (modelo scikit-learn),
    lo compara con los cupos del horario del médico y lo dibuja con Chart.js. */
 (function () {
     const seccion = document.getElementById('demanda');

@@ -8,7 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
-/** Cliente de la API predictiva en Python (FastAPI + Prophet). */
+/** Cliente de la API predictiva en Python (FastAPI + scikit-learn). */
 @Service
 public class PrediccionService {
 

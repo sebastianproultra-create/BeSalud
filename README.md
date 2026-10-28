@@ -23,7 +23,7 @@ El proyecto está pensado como una solución de aula para demostrar el uso de au
 - Validación de citas futuras y sin superposición de horarios.
 - Gestión de historial y dictámenes médicos.
 - Sesiones con duración de 45 minutos y máximo una sesión por usuario.
-- Pronóstico de la demanda de citas por especialidad y por médico (modelo predictivo con Prophet).
+- Pronóstico de la demanda de citas por especialidad y por médico (modelo predictivo con scikit-learn).
 
 ## Arquitectura
 
@@ -44,7 +44,7 @@ El proyecto está basado en Spring Boot y sigue una estructura organizada por ca
 - Thymeleaf
 - Spring Security
 - Maven
-- Python, FastAPI y Prophet (modelo predictivo, en `modelo_predictivo/`)
+- Python, FastAPI y scikit-learn (modelo predictivo, en `modelo_predictivo/`)
 
 ## Roles del sistema
 
@@ -86,9 +86,10 @@ médico ajuste su agenda antes de que se llene.
    Cardiología y Dermatología), simuladas con reglas de Cartagena: en temporada de lluvias Pediatría y Neumología se
    duplican o triplican, y los fines de semana y festivos colombianos casi no tienen citas. Las citas están repartidas
    entre 14 médicos con horarios reales y cada una trae su dictamen SOAP.
-2. **Modelo:** [Prophet](https://facebook.github.io/prophet/) aprende de ese historial la tendencia, el patrón de la
-   semana, el patrón del año, el efecto de los días hábiles y el de la lluvia, y con eso proyecta los días que vienen
-   junto con un margen de error (el rango donde cae la demanda 8 de cada 10 veces).
+2. **Modelo:** [scikit-learn](https://scikit-learn.org/) entrena un `RandomForestRegressor` y un
+   `HistGradientBoostingRegressor` con ese historial (mes, día de la semana, festivos, días hábiles y lluvia), los
+   compara por MAE sobre los últimos 60 días y usa el mejor para proyectar los días que vienen, junto con un margen
+   de error (±1,28 desviaciones estándar de los residuos: el rango donde cae la demanda 8 de cada 10 veces).
 3. **API:** un servicio en Python (FastAPI) en Railway entrena el modelo de la especialidad o del médico que se pida y
    devuelve el pronóstico en JSON.
 4. **Spring Boot:** `PrediccionService` consulta esa API (variable `API_PYTHON_URL`) y `/api/predicciones/mia`
