@@ -2,42 +2,17 @@
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BeSalud · Portal del Paciente</title>
     <link rel="stylesheet" th:href="@{/css/base/global.css}">
     <link rel="stylesheet" th:href="@{/css/pacientes/catalogo.css}">
     <link rel="stylesheet" th:href="@{/css/base/asistente.css}">
     <link rel="stylesheet" th:href="@{/vendor/fontawesome/css/all.min.css}"/>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400&amp;family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+    <th:block th:replace="~{fragments/layout :: design-system}"></th:block>
     <link rel="stylesheet" th:href="@{/css/base/tema-oscuro.css}">
     <script th:src="@{/js/tema.js}"></script>
 </head>
 <body class="patient-catalog-page">
-<header class="patient-portal-header">
-    <div class="patient-header-inner">
-        <a class="patient-brand" th:href="@{/pacientes/landing}" title="Inicio BeSalud">
-            <span class="patient-brand-mark" aria-hidden="true"><i class="fa-solid fa-plus"></i></span>
-            <span class="patient-brand-copy">
-                <strong>BeSalud</strong>
-                <small>Encuentra tu doctor ideal</small>
-            </span>
-        </a>
-        <nav class="patient-nav" aria-label="Navegación del paciente">
-            <a class="is-active" th:href="@{/pacientes/landing}" aria-current="page" title="Doctores"><i class="fa-solid fa-user-doctor" aria-hidden="true"></i>Doctores</a>
-            <a th:href="@{/triage}" title="Asistente de síntomas"><i class="fa-solid fa-stethoscope" aria-hidden="true"></i>Asistente</a>
-            <a th:href="@{/pacientes/pagos}" title="Mis pagos"><i class="fa-solid fa-receipt" aria-hidden="true"></i>Pagos</a>
-        </nav>
-        <div class="patient-account">
-            <img th:src="@{/images/default-avatar.jpg}" alt="" class="patient-avatar">
-            <span class="patient-account-copy"><strong th:text="${pacienteNombre}">Paciente</strong><small>Paciente</small></span>
-            <form th:action="@{/logout}" method="post" class="patient-logout-form">
-                <button type="submit" class="patient-logout"><span>Cerrar sesión</span><i class="fa-solid fa-arrow-right-from-bracket" aria-hidden="true"></i></button>
-            </form>
-        </div>
-    </div>
-</header>
+<header th:replace="~{fragments/navbar :: navbar}"></header>
 
 <main class="patient-main">
     <div class="page-layout" id="pageLayout">
@@ -167,7 +142,7 @@
                             <div class="doctor-photo">
                                 <img th:src="${doctor.foto != null ? doctor.foto : '/images/default-avatar.jpg'}"
                                      th:alt="${'Foto de ' + doctor.nombre + ' ' + doctor.apellido}"
-                                     onerror="this.src='/images/default-avatar.jpg'">
+                                     onerror="this.hidden=true">
                             </div>
                             <div class="doctor-card-identity">
                                 <span class="doctor-active-badge"><span aria-hidden="true"></span>Activo</span>

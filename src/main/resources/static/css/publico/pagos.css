@@ -120,7 +120,7 @@
 .pago-tarjeta h2 {
     margin: 0 0 6px;
     color: var(--portal-primary);
-    font-family: 'Newsreader', Georgia, serif;
+    font-family: var(--font-heading);
     font-weight: 500;
     line-height: 1.15;
 }
@@ -278,7 +278,11 @@
     color: #B3261E;
 }
 
-.pago-reloj.is-urgente .pago-reloj-barra span {
+.pago-reloj.is-urgente .pago-reloj-barra::-webkit-progress-value {
+    background: #B3261E;
+}
+
+.pago-reloj.is-urgente .pago-reloj-barra::-moz-progress-bar {
     background: #B3261E;
 }
 
@@ -301,7 +305,7 @@
     border: 1px solid var(--portal-primary);
     border-radius: 12px;
     box-shadow: 0 8px 20px rgba(0, 47, 36, 0.18);
-    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-family: var(--font-body);
     font-size: 16px;
     font-weight: 700;
     letter-spacing: normal;
@@ -382,7 +386,7 @@
     background: none;
     border: 0;
     box-shadow: none;
-    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-family: var(--font-body);
     font-size: 13px;
     font-weight: 500;
     letter-spacing: normal;
@@ -443,7 +447,7 @@
 .pasarela-subtitulo {
     margin: 0 0 12px;
     color: var(--portal-on-surface);
-    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-family: var(--font-body);
     font-size: 15px;
     font-weight: 700;
 }
@@ -465,7 +469,7 @@
     border: 1px solid var(--portal-border);
     border-radius: 14px;
     box-shadow: none;
-    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-family: var(--font-body);
     font-size: 14px;
     letter-spacing: normal;
     text-align: left;
@@ -525,7 +529,7 @@
     background: none;
     border: 0;
     box-shadow: none;
-    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-family: var(--font-body);
     font-size: 15px;
     font-weight: 700;
     letter-spacing: normal;
@@ -553,7 +557,7 @@
     background: linear-gradient(135deg, #2D3B36, #0D4738);
     border-radius: 16px;
     box-shadow: 0 14px 30px rgba(0, 47, 36, 0.25);
-    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-family: var(--font-body);
 }
 
 .tarjeta-vista[data-marca="VISA"] { background: linear-gradient(135deg, #1A1F71, #3949AB); }
@@ -633,7 +637,7 @@
     background-color: var(--portal-surface);
     border: 1px solid var(--portal-border);
     border-radius: 10px;
-    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-family: var(--font-body);
     font-size: 15px;
     font-weight: 500;
 }
@@ -789,7 +793,7 @@
     border: 0;
     border-radius: 6px;
     box-shadow: none;
-    font-family: ui-monospace, Consolas, monospace;
+    font-family: var(--font-mono);
     font-size: 12px;
     font-weight: 600;
     white-space: nowrap;
@@ -900,7 +904,7 @@
 .resultado-causas h2 {
     margin: 0 0 8px;
     color: var(--portal-primary);
-    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-family: var(--font-body);
     font-size: 14px;
     font-weight: 700;
 }

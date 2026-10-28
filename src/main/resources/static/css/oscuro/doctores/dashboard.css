@@ -396,7 +396,7 @@ html[data-tema="oscuro"] .doc-perfil-linea {
 
 html[data-tema="oscuro"] .foto-upload-label {
     background: #1B2A24;
-    color: var(--d-primary--t) !important;
+    color: var(--d-primary--t);
     box-shadow: 0 1px 2px rgba(0, 0, 0, 0.108);
 }
 
@@ -448,7 +448,7 @@ html[data-tema="oscuro"] .duration-picker {
 }
 
 html[data-tema="oscuro"] .duration-picker label {
-    color: var(--d-on--t) !important;
+    color: var(--d-on--t);
 }
 
 html[data-tema="oscuro"] .duration-picker label .material-symbols-outlined {
@@ -699,9 +699,9 @@ html[data-tema="oscuro"] .doc-buscador .material-symbols-outlined {
 }
 
 html[data-tema="oscuro"] .doc-buscador input {
-    border: none !important;
-    background: transparent !important;
-    box-shadow: none !important;
+    border: none;
+    background: transparent;
+    box-shadow: none;
     outline: none;
 }
 
@@ -886,7 +886,7 @@ html[data-tema="oscuro"] .obligatorio {
     color: var(--danger-color--t);
 }
 
-html[data-tema="oscuro"] #dictamenForm {
+html[data-tema="oscuro"] .dictamen-form {
     background: none;
     border: none;
     box-shadow: none;

@@ -183,7 +183,7 @@
     background-color: #F7F9F6;
     background-image: radial-gradient(rgba(10, 50, 39, 0.045) 1px, transparent 1px);
     background-size: 24px 24px;
-    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-family: var(--font-body);
     font-size: 14px;
     letter-spacing: 0;
 }
@@ -216,7 +216,7 @@
     align-items: center;
     gap: 9px;
     color: #fff;
-    font-family: 'Newsreader', Georgia, serif;
+    font-family: var(--font-heading);
     font-size: 23px;
     font-weight: 500;
     text-decoration: none;
@@ -290,7 +290,7 @@
 
 .triage-page .app-user-name {
     color: #E1EBE5;
-    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-family: var(--font-body);
     font-size: 11px;
     font-weight: 500;
 }
@@ -302,7 +302,7 @@
     background: transparent;
     border: 1px solid transparent;
     border-radius: 7px;
-    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-family: var(--font-body);
     font-size: 9px;
     font-weight: 700;
     letter-spacing: 0.06em;
@@ -363,7 +363,7 @@
     padding: 0;
     color: #0A3227;
     border: 0;
-    font-family: 'Newsreader', Georgia, serif;
+    font-family: var(--font-heading);
     font-size: 48px;
     font-weight: 400;
     letter-spacing: 0;
@@ -428,7 +428,7 @@
     color: #71827B;
     background: transparent;
     border: 0;
-    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-family: var(--font-body);
     font-size: 10px;
     font-weight: 600;
     cursor: pointer;
@@ -449,7 +449,7 @@
     background: #fff;
     border: 1px solid #D8E2DC;
     border-radius: 11px;
-    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-family: var(--font-body);
     font-size: 14px;
     line-height: 1.7;
     box-shadow: inset 0 1px 2px rgba(10, 50, 39, 0.025);
@@ -493,7 +493,7 @@
     background: #F8FAF8;
     border: 1px solid #E0E7E2;
     border-radius: 8px;
-    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-family: var(--font-body);
     font-size: 10px;
     font-weight: 500;
     letter-spacing: 0;
@@ -562,7 +562,7 @@
     background: #0D4738;
     border: 1px solid #0D4738;
     border-radius: 10px;
-    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-family: var(--font-body);
     font-size: 11px;
     font-weight: 700;
     letter-spacing: 0.09em;
@@ -617,7 +617,7 @@
 
 .triage-loading strong {
     color: #0A3227;
-    font-family: 'Newsreader', Georgia, serif;
+    font-family: var(--font-heading);
     font-size: 17px;
     font-weight: 500;
 }
@@ -685,7 +685,7 @@
 }
 
 .triage-page .triage-emergencia strong {
-    font-family: 'Newsreader', Georgia, serif;
+    font-family: var(--font-heading);
     font-size: 19px;
 }
 
@@ -707,7 +707,7 @@
 
 .triage-page .triage-resultado-cabecera h2 {
     color: #0A3227;
-    font-family: 'Newsreader', Georgia, serif;
+    font-family: var(--font-heading);
     font-size: 26px;
     font-weight: 500;
     line-height: 1.2;
@@ -762,7 +762,7 @@
 .triage-page .triage-subtitulo {
     margin: 0;
     color: #0A3227;
-    font-family: 'Newsreader', Georgia, serif;
+    font-family: var(--font-heading);
     font-size: 25px;
     font-weight: 500;
 }
@@ -798,7 +798,7 @@
 
 .triage-page .triage-doctor-info h3 {
     color: #172C23;
-    font-family: 'Newsreader', Georgia, serif;
+    font-family: var(--font-heading);
     font-size: 17px;
     font-weight: 500;
     line-height: 1.25;
@@ -856,7 +856,7 @@
     background: #0D4738;
     border: 1px solid #0D4738;
     border-radius: 8px;
-    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-family: var(--font-body);
     font-size: 11px;
     font-weight: 700;
 }
@@ -909,7 +909,7 @@
 
 .triage-guidance h3 {
     color: #0A3227;
-    font-family: 'Newsreader', Georgia, serif;
+    font-family: var(--font-heading);
     font-size: 15px;
     font-weight: 500;
 }

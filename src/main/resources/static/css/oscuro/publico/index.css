@@ -362,7 +362,7 @@ html[data-tema="oscuro"] .nav-links a:hover {
 }
 
 html[data-tema="oscuro"] .btn-secondary {
-    color: #FFFFFF !important;
+    color: #FFFFFF;
     background: rgba(255, 255, 255, 0.08);
     border: 1px solid rgba(255, 255, 255, 0.2);
     box-shadow: 0 1px 2px rgba(0, 0, 0, 0.144);

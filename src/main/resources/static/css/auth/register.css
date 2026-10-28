@@ -109,10 +109,81 @@
 .field-hint.error { color: #e53e3e; }
 
 input.input-error {
-    border: 2px solid #e53e3e !important;
+    border: 2px solid #e53e3e ;
     outline: none;
 }
 input.input-success {
-    border: 2px solid #38a169 !important;
+    border: 2px solid #38a169 ;
     outline: none;
+}
+
+.register-page .register-card .auth-input-wrap {
+    background: transparent;
+    border: 0;
+    border-bottom: 2px solid var(--portal-primary);
+    border-radius: 0;
+    box-shadow: none;
+}
+
+.register-page .register-card .auth-input-wrap:hover {
+    background: transparent;
+}
+
+.register-page .register-card .auth-input-wrap:focus-within {
+    background: transparent;
+    border-bottom-color: var(--portal-primary-container);
+    box-shadow: none;
+}
+
+.register-page .register-card .auth-input-wrap > .material-symbols-outlined {
+    color: var(--portal-primary);
+}
+
+.register-page .register-card .auth-input-wrap input,
+.register-page .register-card .auth-input-wrap select {
+    background: transparent;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+}
+
+.register-page .register-card .auth-input-wrap input:focus,
+.register-page .register-card .auth-input-wrap select:focus {
+    outline: none;
+    box-shadow: none;
+}
+
+.register-page .register-card .auth-input-wrap:has(input.input-error) {
+    border-bottom-color: var(--color-danger);
+}
+
+.register-page .register-card .auth-input-wrap:has(input.input-success) {
+    border-bottom-color: var(--color-success);
+}
+
+.register-page .register-card .doctor-fields .custom-select-trigger,
+.register-page .register-card .doctor-fields .custom-select-trigger:hover,
+.register-page .register-card .doctor-fields .custom-select-wrapper.open .custom-select-trigger,
+.register-page .register-card .doctor-fields .custom-select-trigger:focus-visible {
+    background-color: transparent;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+}
+
+.register-page .register-card .doctor-fields .auth-field > input[type="file"],
+.register-page .register-card .doctor-fields .auth-field > textarea {
+    background: transparent;
+    border: 0;
+    border-bottom: 2px solid var(--portal-primary);
+    border-radius: 0;
+    box-shadow: none;
+}
+
+.register-page .register-card .doctor-fields .auth-field > input[type="file"]:focus,
+.register-page .register-card .doctor-fields .auth-field > textarea:focus {
+    background: transparent;
+    border-bottom-color: var(--portal-primary-container);
+    outline: none;
+    box-shadow: none;
 }

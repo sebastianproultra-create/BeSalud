@@ -48,11 +48,78 @@ html[data-tema="oscuro"] .field-hint.error {
 }
 
 html[data-tema="oscuro"] input.input-error {
-    border: 2px solid #E53E3E !important;
+    border: 2px solid #E53E3E;
     outline: none;
 }
 
 html[data-tema="oscuro"] input.input-success {
-    border: 2px solid #38A169 !important;
+    border: 2px solid #38A169;
     outline: none;
+}
+
+html[data-tema="oscuro"] .register-page .register-card .auth-input-wrap {
+    background: transparent;
+    border: 0;
+    border-bottom: 2px solid var(--portal-primary--b);
+    box-shadow: none;
+}
+
+html[data-tema="oscuro"] .register-page .register-card .auth-input-wrap:hover {
+    background: transparent;
+}
+
+html[data-tema="oscuro"] .register-page .register-card .auth-input-wrap:focus-within {
+    background: transparent;
+    border-bottom-color: var(--portal-primary-container--b);
+    box-shadow: none;
+}
+
+html[data-tema="oscuro"] .register-page .register-card .auth-input-wrap > .material-symbols-outlined {
+    color: var(--portal-primary--t);
+}
+
+html[data-tema="oscuro"] .register-page .register-card .auth-input-wrap input,
+html[data-tema="oscuro"] .register-page .register-card .auth-input-wrap select {
+    background: transparent;
+    border: 0;
+    box-shadow: none;
+}
+
+html[data-tema="oscuro"] .register-page .register-card .auth-input-wrap input:focus,
+html[data-tema="oscuro"] .register-page .register-card .auth-input-wrap select:focus {
+    outline: none;
+    box-shadow: none;
+}
+
+html[data-tema="oscuro"] .register-page .register-card .auth-input-wrap:has(input.input-error) {
+    border-bottom-color: var(--color-danger--b);
+}
+
+html[data-tema="oscuro"] .register-page .register-card .auth-input-wrap:has(input.input-success) {
+    border-bottom-color: var(--color-success--b);
+}
+
+html[data-tema="oscuro"] .register-page .register-card .doctor-fields .custom-select-trigger,
+html[data-tema="oscuro"] .register-page .register-card .doctor-fields .custom-select-trigger:hover,
+html[data-tema="oscuro"] .register-page .register-card .doctor-fields .custom-select-wrapper.open .custom-select-trigger,
+html[data-tema="oscuro"] .register-page .register-card .doctor-fields .custom-select-trigger:focus-visible {
+    background-color: transparent;
+    border: 0;
+    box-shadow: none;
+}
+
+html[data-tema="oscuro"] .register-page .register-card .doctor-fields .auth-field > input[type="file"],
+html[data-tema="oscuro"] .register-page .register-card .doctor-fields .auth-field > textarea {
+    background: transparent;
+    border: 0;
+    border-bottom: 2px solid var(--portal-primary--b);
+    box-shadow: none;
+}
+
+html[data-tema="oscuro"] .register-page .register-card .doctor-fields .auth-field > input[type="file"]:focus,
+html[data-tema="oscuro"] .register-page .register-card .doctor-fields .auth-field > textarea:focus {
+    background: transparent;
+    border-bottom-color: var(--portal-primary-container--b);
+    outline: none;
+    box-shadow: none;
 }

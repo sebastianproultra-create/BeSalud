@@ -54,7 +54,7 @@ html {
 }
 
 body {
-    font-family: 'Plus Jakarta Sans', 'Segoe UI', Tahoma, sans-serif;
+    font-family: var(--font-body);
     font-weight: 300;
     background-color: var(--light-bg);
     color: var(--text-dark);
@@ -91,7 +91,7 @@ header {
 header h1,
 .header-brand h1 {
     margin: 0;
-    font-family: 'Newsreader', Georgia, serif;
+    font-family: var(--font-heading);
     font-size: 26px;
     font-weight: 400;
     line-height: 1.1;
@@ -132,7 +132,7 @@ header > nav button {
     color: var(--accent-light);
     border: 1px solid rgba(201, 138, 46, 0.35);
     padding: 9px 22px;
-    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-family: var(--font-body);
     font-size: 11px;
     font-weight: 400;
     letter-spacing: 0.14em;
@@ -209,7 +209,7 @@ nav a:hover {
 }
 
 .card h2 {
-    font-family: 'Newsreader', Georgia, serif;
+    font-family: var(--font-heading);
     font-size: 28px;
     font-weight: 400;
     color: var(--primary-color);
@@ -275,7 +275,7 @@ textarea {
     border-bottom: 2px solid var(--border-mid);
     border-radius: 3px;
     font-size: 14px;
-    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-family: var(--font-body);
     font-weight: 300;
     color: var(--text-dark);
     background-color: var(--white);
@@ -321,7 +321,7 @@ button,
     padding: 12px 28px;
     border: none;
     border-radius: 2px;
-    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-family: var(--font-body);
     font-size: 11px;
     font-weight: 400;
     letter-spacing: 0.14em;
@@ -567,7 +567,7 @@ footer a:hover {
     border-bottom: 2px solid var(--border-mid);
     border-radius: 3px;
     font-size: 14px;
-    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-family: var(--font-body);
     font-weight: 300;
     color: var(--text-dark);
     background-color: var(--white);
@@ -620,7 +620,7 @@ footer a:hover {
 .custom-select-option {
     padding: 10px 14px;
     font-size: 14px;
-    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-family: var(--font-body);
     font-weight: 300;
     color: var(--text-dark);
     cursor: pointer;
@@ -798,7 +798,7 @@ footer a:hover {
    ============================================== */
 
 h1, h2, h3 {
-    font-family: 'Newsreader', Georgia, serif;
+    font-family: var(--font-heading);
     font-weight: 400;
     color: var(--primary-color);
     line-height: 1.2;
@@ -857,7 +857,7 @@ nav form,
 }
 
 .app-brand {
-    font-family: 'Newsreader', Georgia, serif;
+    font-family: var(--font-heading);
     font-size: 26px;
     line-height: 1.1;
     color: var(--white);
@@ -986,7 +986,7 @@ form.toolbar { margin-bottom: 28px; }
     display: flex;
     align-items: center;
     justify-content: center;
-    font-family: 'Newsreader', Georgia, serif;
+    font-family: var(--font-heading);
     font-size: 22px;
 }
 

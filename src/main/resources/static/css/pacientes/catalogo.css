@@ -269,7 +269,7 @@
     font-weight: 700;
     margin: 0;
     color: var(--white);
-    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-family: var(--font-body);
 }
 .sidebar-count {
     background: rgba(255, 255, 255, 0.25);
@@ -569,11 +569,11 @@
         height: 100vh;
         border-left: 1px solid var(--border-color);
         box-shadow: -4px 0 24px rgba(0, 0, 0, 0.15);
-        transform: none !important;
+        transform: none ;
     }
 
     .citas-sidebar.collapsed .sidebar-inner {
-        transform: none !important;
+        transform: none ;
     }
 
     /* Tab stays on left edge of the drawer (absolute within sidebar) */
@@ -666,7 +666,7 @@ body.patient-catalog-page {
     min-height: 100vh;
     color: #1E293B;
     background: var(--patient-sage);
-    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-family: var(--font-body);
     font-size: 14px;
     font-weight: 400;
     line-height: 1.55;
@@ -734,7 +734,7 @@ body.patient-catalog-page {
 
 .patient-brand-copy strong {
     color: #fff;
-    font-family: 'Newsreader', Georgia, serif;
+    font-family: var(--font-heading);
     font-size: 24px;
     font-weight: 500;
     line-height: 1;
@@ -854,7 +854,7 @@ body.patient-catalog-page {
     background: rgba(255, 255, 255, 0.1);
     border: 1px solid rgba(255, 255, 255, 0.16);
     border-radius: 8px;
-    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-family: var(--font-body);
     font-size: 9px;
     font-weight: 700;
     letter-spacing: 0.08em;
@@ -955,7 +955,7 @@ body.patient-catalog-page {
 .patient-welcome h1 {
     max-width: 680px;
     color: #fff;
-    font-family: 'Newsreader', Georgia, serif;
+    font-family: var(--font-heading);
     font-size: 32px;
     font-weight: 400;
     letter-spacing: 0;
@@ -964,7 +964,7 @@ body.patient-catalog-page {
 
 .patient-welcome h1 em {
     color: #B7EED9;
-    font-family: 'Newsreader', Georgia, serif;
+    font-family: var(--font-heading);
     font-weight: 400;
 }
 
@@ -1036,7 +1036,7 @@ body.patient-catalog-page {
 .doctor-filter-heading h2,
 .doctor-directory-heading h2 {
     color: #1E293B;
-    font-family: 'Newsreader', Georgia, serif;
+    font-family: var(--font-heading);
     font-size: 21px;
     font-weight: 500;
     line-height: 1.25;
@@ -1116,7 +1116,7 @@ body.patient-catalog-page {
     background: #F7FAF8;
     border: 1px solid #DCE7E0;
     border-radius: 9px;
-    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-family: var(--font-body);
     font-size: 10px;
     font-weight: 500;
     line-height: 1.35;
@@ -1160,7 +1160,7 @@ body.patient-catalog-page {
     background: var(--patient-emerald);
     border: 1px solid var(--patient-emerald);
     border-radius: 9px;
-    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-family: var(--font-body);
     font-size: 10px;
     font-weight: 700;
     letter-spacing: 0;
@@ -1281,7 +1281,7 @@ body.patient-catalog-page {
 .doctor-card-identity h3 {
     margin: 5px 0 1px;
     color: #172C23;
-    font-family: 'Newsreader', Georgia, serif;
+    font-family: var(--font-heading);
     font-size: 18px;
     font-weight: 500;
     line-height: 1.2;
@@ -1471,7 +1471,7 @@ body.patient-catalog-page {
 }
 
 .patient-catalog-page .patient-sidebar .sidebar-title h3 {
-    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-family: var(--font-body);
     font-size: 13px;
     letter-spacing: 0.02em;
 }
@@ -1739,11 +1739,11 @@ body.patient-catalog-page {
 
     .patient-catalog-page .patient-sidebar .sidebar-tab,
     .patient-catalog-page .sidebar-backdrop {
-        display: none !important;
+        display: none ;
     }
 
     .patient-catalog-page .patient-sidebar .sidebar-close {
-        display: inline-flex !important;
+        display: inline-flex ;
     }
 
     .patient-catalog-page footer {
@@ -1837,7 +1837,7 @@ body.patient-catalog-page {
         position: static;
         width: 100%;
         min-height: 46px;
-        display: flex !important;
+        display: flex ;
         flex-direction: row;
         justify-content: center;
         gap: 9px;
@@ -1890,7 +1890,7 @@ body.patient-catalog-page {
     max-height: calc(100vh - 112px);
     display: flex;
     flex-direction: column;
-    transform: none !important;
+    transform: none ;
     visibility: visible;
     opacity: 1;
     overflow: hidden;
@@ -1907,7 +1907,7 @@ body.patient-catalog-page {
 
 
 .patient-catalog-page .patient-sidebar .sidebar-close {
-    display: none !important;
+    display: none ;
 }
 
 /* Citas más legibles */
@@ -1978,7 +1978,7 @@ body.patient-catalog-page {
     }
 
     .patient-catalog-page .patient-sidebar .sidebar-close {
-        display: inline-flex !important;
+        display: inline-flex ;
         width: 32px;
         height: 32px;
         padding: 0;

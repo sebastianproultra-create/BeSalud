@@ -204,12 +204,23 @@ html[data-tema="oscuro"] .auth-page .auth-field > label {
     color: var(--portal-on-surface--t);
 }
 
+html[data-tema="oscuro"] .auth-input-wrap {
+    background-color: rgba(20, 31, 27, 0.808);
+    border: 1px solid transparent;
+}
+
 html[data-tema="oscuro"] .auth-input-wrap > .material-symbols-outlined {
     color: var(--portal-muted--t);
 }
 
 html[data-tema="oscuro"] .auth-page .auth-input-wrap input,
-html[data-tema="oscuro"] .auth-page .auth-input-wrap select,
+html[data-tema="oscuro"] .auth-page .auth-input-wrap select {
+    color: var(--portal-on-surface--t);
+    background: transparent;
+    border: 0;
+    box-shadow: none;
+}
+
 html[data-tema="oscuro"] .auth-page .auth-field > input[type="file"],
 html[data-tema="oscuro"] .auth-page .auth-field > textarea {
     color: var(--portal-on-surface--t);
@@ -218,21 +229,24 @@ html[data-tema="oscuro"] .auth-page .auth-field > textarea {
     box-shadow: none;
 }
 
-html[data-tema="oscuro"] .auth-page .auth-input-wrap input:hover,
-html[data-tema="oscuro"] .auth-page .auth-input-wrap select:hover,
+html[data-tema="oscuro"] .auth-page .auth-input-wrap:hover,
 html[data-tema="oscuro"] .auth-page .auth-field > input[type="file"]:hover,
 html[data-tema="oscuro"] .auth-page .auth-field > textarea:hover {
     background-color: var(--portal-container--f);
 }
 
-html[data-tema="oscuro"] .auth-page .auth-input-wrap input:focus,
-html[data-tema="oscuro"] .auth-page .auth-input-wrap select:focus,
+html[data-tema="oscuro"] .auth-page .auth-input-wrap:focus-within,
 html[data-tema="oscuro"] .auth-page .auth-field > input[type="file"]:focus,
 html[data-tema="oscuro"] .auth-page .auth-field > textarea:focus {
-    outline: none;
     background-color: #1B2A24;
     border-color: rgba(159, 209, 197, 0.168);
     box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.216);
+}
+
+html[data-tema="oscuro"] .auth-page .auth-input-wrap input:focus,
+html[data-tema="oscuro"] .auth-page .auth-input-wrap select:focus {
+    outline: none;
+    box-shadow: none;
 }
 
 html[data-tema="oscuro"] .auth-page .auth-input-wrap input::placeholder {
@@ -328,13 +342,13 @@ html[data-tema="oscuro"] .field-hint.error {
     color: #ED7F7F;
 }
 
-html[data-tema="oscuro"] .auth-page .register-card input.input-error {
-    border-color: #BA1A1A !important;
+html[data-tema="oscuro"] .auth-page .register-card .auth-input-wrap:has(input.input-error) {
+    border-color: #BA1A1A;
     box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.216);
 }
 
-html[data-tema="oscuro"] .auth-page .register-card input.input-success {
-    border-color: #27805B !important;
+html[data-tema="oscuro"] .auth-page .register-card .auth-input-wrap:has(input.input-success) {
+    border-color: #27805B;
 }
 
 html[data-tema="oscuro"] .doctor-fields {

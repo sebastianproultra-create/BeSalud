@@ -1,0 +1,300 @@
+@import url('oscuro/components.css');
+button,
+.btn,
+.bs-btn,
+input[type="button"],
+input[type="submit"],
+input[type="reset"] {
+    min-height: 2.75rem;
+}
+
+.bs-btn {
+    display: inline-flex;
+    min-height: 2.75rem;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-2);
+    padding: var(--space-2) var(--space-5);
+    border: 1px solid transparent;
+    border-radius: var(--radius-sm);
+    font: 600 var(--font-size-sm) / 1.25 var(--font-body);
+    text-align: center;
+    text-decoration: none;
+    cursor: pointer;
+    transition: background var(--transition-fast), color var(--transition-fast), border-color var(--transition-fast);
+}
+
+.bs-btn--primary {
+    color: var(--color-surface);
+    background: var(--color-primary);
+}
+
+.bs-btn--primary:hover {
+    background: var(--color-primary-hover);
+}
+
+.bs-btn--secondary {
+    color: var(--color-primary);
+    background: var(--color-surface);
+    border-color: var(--color-border-strong);
+}
+
+.bs-btn--danger {
+    color: var(--color-surface);
+    background: var(--color-danger);
+}
+
+.bs-btn--ghost {
+    color: var(--color-primary);
+    background: transparent;
+    border-color: currentColor;
+}
+
+.bs-btn--small {
+    min-height: 2.75rem;
+    padding-inline: var(--space-3);
+    font-size: var(--font-size-xs);
+}
+
+.bs-btn--large {
+    min-height: 3rem;
+    padding-inline: var(--space-6);
+    font-size: var(--font-size-base);
+}
+
+.bs-field {
+    display: grid;
+    gap: var(--space-2);
+}
+
+.bs-field__label {
+    color: var(--color-text);
+    font-size: var(--font-size-sm);
+    font-weight: 600;
+}
+
+.bs-field__error {
+    color: var(--color-danger);
+    font-size: var(--font-size-sm);
+}
+
+.bs-field__control {
+    width: 100%;
+    min-height: 2.75rem;
+    padding: var(--space-2) var(--space-3);
+    color: var(--color-text);
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+}
+
+.bs-card {
+    padding: var(--space-5);
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-sm);
+}
+
+.bs-table-wrap {
+    max-width: 100%;
+    overflow-x: auto;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    overscroll-behavior-inline: contain;
+}
+
+.bs-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.bs-table th,
+.bs-table td {
+    padding: var(--space-3) var(--space-4);
+    border-bottom: 1px solid var(--color-border);
+    text-align: start;
+}
+
+.bs-alert {
+    padding: var(--space-3) var(--space-4);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+}
+
+.bs-alert--success {
+    color: var(--color-success);
+    background: var(--color-primary-soft);
+}
+
+.bs-alert--danger {
+    color: var(--color-danger);
+    background: var(--color-surface);
+}
+
+.bs-alert--warning {
+    color: var(--color-warning);
+    background: var(--color-surface);
+}
+
+.bs-alert--info {
+    color: var(--color-info);
+    background: var(--color-surface);
+}
+
+.bs-badge {
+    display: inline-flex;
+    min-height: 1.75rem;
+    align-items: center;
+    padding-inline: var(--space-3);
+    border-radius: var(--radius-pill);
+    font-size: var(--font-size-xs);
+    font-weight: 600;
+}
+
+.bs-badge--success {
+    color: var(--color-success);
+    background: var(--color-primary-soft);
+}
+
+.bs-badge--warning {
+    color: var(--color-warning);
+    background: var(--color-surface-muted);
+}
+
+.bs-badge--danger {
+    color: var(--color-danger);
+    background: var(--color-surface-muted);
+}
+
+.bs-modal {
+    position: fixed;
+    z-index: var(--z-modal);
+    inset: 0;
+    display: grid;
+    place-items: center;
+    padding: var(--space-page);
+    background: var(--color-overlay);
+}
+
+.bs-modal[hidden] {
+    display: none;
+}
+
+.pagination {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: var(--space-2);
+    margin-block: var(--space-6);
+}
+
+input:not([type="checkbox"]):not([type="radio"]):not([type="hidden"]),
+select,
+textarea {
+    max-width: 100%;
+    min-height: 2.75rem;
+    padding: var(--space-2) var(--space-3);
+    color: var(--color-text);
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+}
+
+textarea {
+    min-height: 7rem;
+}
+
+progress {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    appearance: none;
+    border: 0;
+    border-radius: var(--radius-pill);
+    background: var(--color-primary-soft);
+}
+
+progress::-webkit-progress-bar {
+    border-radius: var(--radius-pill);
+    background: var(--color-primary-soft);
+}
+
+progress::-webkit-progress-value {
+    border-radius: var(--radius-pill);
+    background: var(--color-primary);
+}
+
+progress::-moz-progress-bar {
+    border-radius: var(--radius-pill);
+    background: var(--color-primary);
+}
+
+textarea {
+    resize: vertical;
+}
+
+.grafica-lienzo--compacto {
+    height: 11.875rem;
+}
+
+.grafica-lienzo--especialidad {
+    min-height: 15rem;
+    height: clamp(15rem, 32vw, 25rem);
+}
+
+.barra-relleno {
+    width: 100%;
+    height: 0.625rem;
+    appearance: none;
+    border: 0;
+    border-radius: var(--radius-pill);
+    background: var(--color-primary-soft);
+}
+
+.barra-relleno::-webkit-progress-bar {
+    border-radius: var(--radius-pill);
+    background: var(--color-primary-soft);
+}
+
+.barra-relleno::-webkit-progress-value {
+    border-radius: var(--radius-pill);
+    background: var(--color-primary);
+}
+
+.barra-relleno::-moz-progress-bar {
+    border-radius: var(--radius-pill);
+    background: var(--color-primary);
+}
+
+table {
+    max-width: 100%;
+}
+
+.table-responsive,
+.table-wrap,
+.table-container {
+    max-width: 100%;
+    overflow-x: auto;
+    overscroll-behavior-inline: contain;
+}
+
+.card,
+.panel,
+.surface-card {
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-sm);
+}
+
+.alert,
+.alerta,
+.message,
+.mensaje {
+    border-radius: var(--radius-sm);
+}
+
+.badge,
+.status-badge,
+.estado-badge {
+    border-radius: var(--radius-pill);
+}

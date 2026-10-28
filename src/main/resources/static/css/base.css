@@ -1,0 +1,74 @@
+@import url('oscuro/base.css');
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+html {
+    min-width: 20rem;
+    scroll-behavior: smooth;
+    text-size-adjust: 100%;
+}
+
+body {
+    min-width: 20rem;
+    margin: 0;
+    overflow-x: clip;
+    background: var(--color-background);
+    color: var(--color-text);
+    font-family: var(--font-body);
+    font-size: var(--font-size-base);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+}
+
+[hidden] {
+    display: none;
+}
+
+img,
+svg,
+video,
+canvas {
+    max-width: 100%;
+}
+
+img {
+    height: auto;
+}
+
+button,
+input,
+select,
+textarea {
+    font: inherit;
+}
+
+button,
+a,
+input,
+select,
+textarea {
+    touch-action: manipulation;
+}
+
+a {
+    color: var(--color-primary);
+}
+
+:focus-visible {
+    outline: 3px solid var(--color-accent);
+    outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    html:root *,
+    html:root *::before,
+    html:root *::after {
+        scroll-behavior: auto;
+        animation-duration: 0.01ms;
+        animation-iteration-count: 1;
+        transition-duration: 0.01ms;
+    }
+}

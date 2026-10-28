@@ -1,5 +1,7 @@
 # BeSalud
 
+Antes de crear o modificar cualquier vista o estilo, lee y sigue obligatoriamente [DESIGN_SYSTEM.md](./DESIGN_SYSTEM.md).
+
 ## Stack
 Java 17 + Spring Boot 3.2.0 | MongoDB localhost:27017/besalud | Thymeleaf + Spring Security | NO Maven wrapper → usar mvn
 

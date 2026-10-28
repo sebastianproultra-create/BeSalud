@@ -78,7 +78,7 @@
     padding: 9px 16px;
     border-radius: 8px;
     border: none;
-    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-family: var(--font-body);
     font-size: 14px;
     font-weight: 600;
     letter-spacing: 0.01em;
@@ -206,7 +206,7 @@
 @keyframes doc-pulse { 50% { opacity: 0.45; } }
 .doc-hero-title {
     margin: 0;
-    font-family: 'Newsreader', Georgia, serif;
+    font-family: var(--font-heading);
     font-size: 40px;
     line-height: 48px;
     font-weight: 400;
@@ -258,7 +258,7 @@
     text-transform: uppercase;
     color: var(--d-on-pc);
 }
-.doc-kpi-ico { color: var(--d-tfd); font-size: 20px !important; }
+.doc-kpi-ico { color: var(--d-tfd); font-size: 20px ; }
 .doc-kpi-ico--amber { color: var(--d-amber-c); }
 .doc-kpi-value {
     margin: 0;
@@ -266,7 +266,7 @@
     color: var(--d-on-pc);
 }
 .doc-kpi-value strong {
-    font-family: 'Newsreader', Georgia, serif;
+    font-family: var(--font-heading);
     font-size: 28px;
     line-height: 36px;
     font-weight: 600;
@@ -374,14 +374,14 @@
     border-radius: 8px;
     background: var(--d-high);
     color: var(--d-primary);
-    font-size: 20px !important;
+    font-size: 20px ;
 }
 .doc-card-ico--amber { background: var(--d-amber-f); color: var(--d-amber); }
 .doc-card-title h2 {
     margin: 0;
     padding: 0;
     border: none;
-    font-family: 'Newsreader', Georgia, serif;
+    font-family: var(--font-heading);
     font-size: 28px;
     line-height: 36px;
     font-weight: 500;
@@ -422,7 +422,7 @@
     border-radius: 999px;
     background: var(--d-pf);
     color: #002118;
-    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-family: var(--font-body);
     font-size: 12px;
     font-weight: 700;
     vertical-align: middle;
@@ -443,7 +443,7 @@
     font-size: 14px;
 }
 .empty-state p { margin: 0; }
-.empty-state-icon { font-size: 36px !important; color: var(--d-on-pc); }
+.empty-state-icon { font-size: 36px ; color: var(--d-on-pc); }
 
 /* ==============================================
    PERFIL
@@ -486,7 +486,7 @@
     border-radius: 50%;
     background: var(--d-primary);
     color: #fff;
-    font-size: 14px !important;
+    font-size: 14px ;
     box-shadow: 0 0 0 2px #fff;
 }
 .doc-perfil-datos h3 {
@@ -494,13 +494,13 @@
     align-items: center;
     gap: 4px;
     margin: 0;
-    font-family: 'Newsreader', Georgia, serif;
+    font-family: var(--font-heading);
     font-size: 22px;
     line-height: 30px;
     font-weight: 500;
     color: var(--d-on);
 }
-.doc-verificado { color: var(--d-primary); font-size: 16px !important; }
+.doc-verificado { color: var(--d-primary); font-size: 16px ; }
 .doc-perfil-esp {
     margin: 2px 0 8px;
     font-size: 14px;
@@ -518,17 +518,17 @@
 }
 .doc-perfil-linea .material-symbols-outlined { font-size: 16px; }
 .foto-upload-label {
-    display: inline-flex !important;
+    display: inline-flex ;
     align-items: center;
     gap: 6px;
     padding: 6px 14px;
     border-radius: 8px;
     background: #fff;
-    color: var(--d-primary) !important;
-    font-size: 13px !important;
-    font-weight: 600 !important;
-    letter-spacing: 0.01em !important;
-    text-transform: none !important;
+    color: var(--d-primary) ;
+    font-size: 13px ;
+    font-weight: 600 ;
+    letter-spacing: 0.01em ;
+    text-transform: none ;
     cursor: pointer;
     box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
 }
@@ -582,7 +582,7 @@
     text-align: center;
 }
 .doc-mini-stats strong {
-    font-family: 'Newsreader', Georgia, serif;
+    font-family: var(--font-heading);
     font-size: 22px;
     line-height: 30px;
     font-weight: 600;
@@ -616,14 +616,14 @@
     background: rgba(234, 247, 240, 0.7);
 }
 .duration-picker label {
-    display: flex !important;
+    display: flex ;
     align-items: center;
     gap: 6px;
-    font-size: 12px !important;
-    font-weight: 600 !important;
-    letter-spacing: 0.04em !important;
-    text-transform: none !important;
-    color: var(--d-on) !important;
+    font-size: 12px ;
+    font-weight: 600 ;
+    letter-spacing: 0.04em ;
+    text-transform: none ;
+    color: var(--d-on) ;
 }
 .duration-picker label .material-symbols-outlined { font-size: 16px; color: var(--d-primary); }
 .duration-picker .custom-select-wrapper,
@@ -671,7 +671,7 @@
 .day-card.active .day-hint { visibility: hidden; }
 .day-toggle {
     position: relative;
-    display: inline-block !important;
+    display: inline-block ;
     width: 40px;
     height: 22px;
     cursor: pointer;
@@ -724,7 +724,7 @@
     border: none;
     border-radius: 8px;
     background: #fff;
-    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-family: var(--font-body);
     font-size: 14px;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
 }
@@ -736,7 +736,7 @@
     border-radius: 8px;
     background: transparent;
     color: var(--d-primary);
-    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-family: var(--font-body);
     font-size: 12px;
     font-weight: 700;
     letter-spacing: 0.01em;
@@ -811,7 +811,7 @@
     color: var(--d-on);
 }
 .doc-ocupacion-head strong {
-    font-family: 'Newsreader', Georgia, serif;
+    font-family: var(--font-heading);
     font-size: 24px;
     color: var(--d-amber);
 }
@@ -861,7 +861,7 @@
 }
 .availability-tag.is-today { color: var(--d-primary); }
 .availability-number {
-    font-family: 'Newsreader', Georgia, serif;
+    font-family: var(--font-heading);
     font-size: 22px;
     line-height: 30px;
     font-weight: 600;
@@ -928,7 +928,7 @@
     color: var(--d-on-var);
 }
 .demanda-kpi-valor strong {
-    font-family: 'Newsreader', Georgia, serif;
+    font-family: var(--font-heading);
     font-size: 30px;
     line-height: 38px;
     font-weight: 600;
@@ -992,7 +992,7 @@
     border-radius: 6px;
     background: transparent;
     color: var(--d-on-var);
-    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-family: var(--font-body);
     font-size: 12px;
     font-weight: 600;
     letter-spacing: 0.01em;
@@ -1023,10 +1023,10 @@
     min-width: 0;
     margin: 0;
     padding: 10px 0;
-    border: none !important;
-    background: transparent !important;
-    box-shadow: none !important;
-    font-family: 'Plus Jakarta Sans', sans-serif;
+    border: none ;
+    background: transparent ;
+    box-shadow: none ;
+    font-family: var(--font-body);
     font-size: 14px;
     outline: none;
 }
@@ -1098,7 +1098,7 @@ a.doc-segmento {
 .cita-linea { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
 .paciente-cell {
     margin: 0;
-    font-family: 'Newsreader', Georgia, serif;
+    font-family: var(--font-heading);
     font-size: 20px;
     line-height: 26px;
     font-weight: 500;
@@ -1208,7 +1208,7 @@ a.doc-segmento {
 .paciente-meta li { display: flex; justify-content: space-between; gap: 8px; min-width: 0; }
 .paciente-meta li span:last-child { color: var(--d-on); font-weight: 600; }
 .paciente-meta li:has(.paciente-email) { flex-direction: column; gap: 0; }
-.paciente-email { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 500 !important; }
+.paciente-email { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 500 ; }
 .doc-page .pagination { margin-top: 20px; }
 
 /* ==============================================
@@ -1302,7 +1302,7 @@ a.doc-segmento {
     to   { opacity: 1; transform: translateY(0) scale(1); }
 }
 .modal-content h3 {
-    font-family: 'Newsreader', Georgia, serif;
+    font-family: var(--font-heading);
     font-size: 26px;
     font-weight: 400;
     margin: 0 0 22px 0;
@@ -1339,7 +1339,7 @@ a.doc-segmento {
     border-radius: 3px;
     padding: 12px 14px;
     font-size: 14px;
-    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-family: var(--font-body);
     font-weight: 300;
     color: var(--text-dark);
     resize: vertical;
@@ -1391,14 +1391,14 @@ a.doc-segmento {
     color: var(--danger-color);
 }
 /* El formulario va dentro del modal: sin la caja que global.css da a todo <form> */
-#dictamenForm {
+.dictamen-form {
     background: none;
     border: none;
     box-shadow: none;
     padding: 0;
     margin: 0;
 }
-#dictamenForm label {
+.dictamen-form label {
     margin-top: 0;
 }
 .dictamen-seccion {
@@ -1412,14 +1412,14 @@ a.doc-segmento {
     display: flex;
     align-items: center;
     gap: 10px;
-    font-family: 'Newsreader', Georgia, serif;
+    font-family: var(--font-heading);
     font-size: 22px;
     font-weight: 500;
     color: var(--primary-color);
     padding-right: 10px;
 }
 .dictamen-seccion legend small {
-    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-family: var(--font-body);
     font-size: 12px;
     font-weight: 400;
     color: var(--text-light);
@@ -1434,7 +1434,7 @@ a.doc-segmento {
     border-radius: 50%;
     background: var(--primary-color);
     color: var(--accent-light);
-    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-family: var(--font-body);
     font-size: 13px;
     font-weight: 600;
 }
@@ -1491,7 +1491,7 @@ a.doc-segmento {
     border-radius: 3px;
     padding: 10px 12px;
     font-size: 14px;
-    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-family: var(--font-body);
     color: var(--text-dark);
     background: var(--white);
     box-sizing: border-box;
@@ -1627,7 +1627,7 @@ a.doc-segmento {
     margin-top: 8px;
 }
 .dictamen-detail h4 {
-    font-family: 'Newsreader', Georgia, serif;
+    font-family: var(--font-heading);
     font-size: 18px;
     font-weight: 500;
     color: var(--primary-color);
@@ -1640,7 +1640,7 @@ a.doc-segmento {
     gap: 8px;
 }
 .dictamen-detail h4 small {
-    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-family: var(--font-body);
     font-size: 12px;
     color: var(--text-light);
 }
@@ -1754,7 +1754,7 @@ a.doc-segmento {
 .doc-bloque-titulo {
     margin: 0 0 4px;
     color: var(--d-primary);
-    font-family: 'Newsreader', Georgia, serif;
+    font-family: var(--font-heading);
     font-size: 21px;
     font-weight: 500;
 }

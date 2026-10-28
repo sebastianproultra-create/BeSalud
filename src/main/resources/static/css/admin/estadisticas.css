@@ -27,7 +27,7 @@
 }
 
 .kpi-valor {
-    font-family: 'Newsreader', Georgia, serif;
+    font-family: var(--font-heading);
     font-size: 2.4rem;
     line-height: 1.1;
     color: var(--primary-color);
@@ -130,7 +130,7 @@
 }
 
 .num {
-    text-align: right !important;
+    text-align: right ;
     font-variant-numeric: tabular-nums;
 }
 

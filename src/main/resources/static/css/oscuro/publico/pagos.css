@@ -138,7 +138,11 @@ html[data-tema="oscuro"] .pago-reloj.is-urgente .pago-reloj-tiempo {
     color: #EA8883;
 }
 
-html[data-tema="oscuro"] .pago-reloj.is-urgente .pago-reloj-barra span {
+html[data-tema="oscuro"] .pago-reloj.is-urgente .pago-reloj-barra::-webkit-progress-value {
+    background: #B3261E;
+}
+
+html[data-tema="oscuro"] .pago-reloj.is-urgente .pago-reloj-barra::-moz-progress-bar {
     background: #B3261E;
 }
 

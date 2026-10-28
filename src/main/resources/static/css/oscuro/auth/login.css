@@ -31,3 +31,50 @@ html[data-tema="oscuro"] .btn-google-login:hover {
 html[data-tema="oscuro"] .login-register-link {
     color: var(--text-light--t);
 }
+
+html[data-tema="oscuro"] .login-page .login-card-main .auth-input-wrap {
+    background: transparent;
+    border: 0;
+    border-bottom: 2px solid var(--portal-primary--b);
+    box-shadow: none;
+}
+
+html[data-tema="oscuro"] .login-page .login-card-main .auth-input-wrap:hover {
+    background: transparent;
+}
+
+html[data-tema="oscuro"] .login-page .login-card-main .auth-input-wrap:focus-within {
+    background: transparent;
+    border-bottom-color: var(--portal-primary-container--b);
+    box-shadow: none;
+}
+
+html[data-tema="oscuro"] .login-page .login-card-main .auth-input-wrap > .material-symbols-outlined {
+    color: var(--portal-primary--t);
+}
+
+html[data-tema="oscuro"] .login-page .login-card-main .auth-input-wrap input {
+    background: transparent;
+    border: 0;
+    outline: none;
+    box-shadow: none;
+}
+
+html[data-tema="oscuro"] .login-page .login-card-main .auth-input-wrap input:focus {
+    outline: none;
+    box-shadow: none;
+}
+
+html[data-tema="oscuro"] .login-page .login-card-main .password-toggle {
+    color: var(--portal-primary--t);
+    background: transparent;
+}
+
+html[data-tema="oscuro"] .login-page .login-card-main .password-toggle:hover {
+    color: var(--portal-primary-container--t);
+    background: transparent;
+}
+
+html[data-tema="oscuro"] .login-page .login-card-main .password-toggle:focus-visible {
+    outline: 2px solid var(--portal-primary--b);
+}

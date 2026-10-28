@@ -2,16 +2,16 @@
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title th:text="${pageTitle != null ? pageTitle : 'Agendar cita - BeSalud'}">Agendar cita - BeSalud</title>
     <link rel="stylesheet" th:href="@{/css/base/global.css}">
     <link rel="stylesheet" th:href="@{/css/citas/formulario-paciente.css}">
     <link rel="stylesheet" th:href="@{/vendor/fontawesome/css/all.min.css}"/>
+    <th:block th:replace="~{fragments/layout :: design-system}"></th:block>
     <link rel="stylesheet" th:href="@{/css/base/tema-oscuro.css}">
     <script th:src="@{/js/tema.js}"></script>
 </head>
 <body class="patient-catalog-page patient-booking-page">
-<header th:replace="~{fragments/layout :: shell-paciente('catalogo')}"></header>
+<header th:replace="~{fragments/navbar :: navbar}"></header>
 
 <main class="booking-container">
     <div class="booking-page-heading">
@@ -28,7 +28,7 @@
              th:src="${doctorSeleccionado.foto}"
              alt="Foto"
              class="doc-avatar"
-             onerror="this.style.display='none'"/>
+             onerror="this.hidden=true"/>
         <div class="doc-avatar-placeholder" th:unless="${doctorSeleccionado.foto}">
             <span th:text="${doctorSeleccionado.nombre != null and !doctorSeleccionado.nombre.isEmpty() ? doctorSeleccionado.nombre.substring(0,1) : '?'}"></span>
         </div>
@@ -79,13 +79,13 @@
         </div>
 
         <!-- Step 2: Time slots -->
-        <div class="step-section" id="slotsSection" style="display:none;">
+        <div class="step-section" id="slotsSection" hidden>
             <div class="step-label">Horario disponible</div>
             <div class="slots-grid" id="slotsGrid"></div>
         </div>
 
         <!-- Step 3: Confirm -->
-        <div class="step-section" id="confirmSection" style="display:none;">
+        <div class="step-section" id="confirmSection" hidden>
             <div class="step-label">Resumen de cita</div>
             <div class="confirm-card">
                 <div class="confirm-summary" id="confirmSummary"></div>
@@ -197,8 +197,8 @@ function selectDate(dateStr, cardEl) {
         grid.appendChild(btn);
     });
 
-    document.getElementById('slotsSection').style.display = 'block';
-    document.getElementById('confirmSection').style.display = 'none';
+    document.getElementById('slotsSection').hidden = false;
+    document.getElementById('confirmSection').hidden = true;
     document.getElementById('slotsSection').scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
@@ -221,14 +221,14 @@ function selectSlot(time, btnEl) {
         <div class="summary-item"><span><i class='fa-regular fa-clock'></i></span> ${timeLabel}</div>
     `;
 
-    document.getElementById('confirmSection').style.display = 'block';
+    document.getElementById('confirmSection').hidden = false;
     document.getElementById('confirmSection').scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
 function clearSlot() {
     selectedTime = null;
     document.querySelectorAll('.slot-btn').forEach(b => b.classList.remove('selected'));
-    document.getElementById('confirmSection').style.display = 'none';
+    document.getElementById('confirmSection').hidden = true;
 }
 
 buildDateStrip();
