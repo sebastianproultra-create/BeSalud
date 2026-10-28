@@ -2,7 +2,8 @@
    los ajustes van en base/tema-oscuro.css o en el generador. */
 
 html[data-tema="oscuro"] .pro-card {
-    background: var(--portal-surface--f);
+    background-color: var(--portal-surface--f);
+    background-image: none;
     border: 1px solid var(--portal-border--b);
     box-shadow: 0 12px 32px rgba(0, 0, 0, 0.108);
 }
@@ -12,7 +13,8 @@ html[data-tema="oscuro"] .pro-card h2 {
 }
 
 html[data-tema="oscuro"] .pro-foto {
-    background: var(--portal-container--f);
+    background-color: var(--portal-container--f);
+    background-image: none;
 }
 
 html[data-tema="oscuro"] .pro-eyebrow {
@@ -55,7 +57,8 @@ html[data-tema="oscuro"] .pro-aviso {
 }
 
 html[data-tema="oscuro"] .pro-aviso {
-    background: #3C2F1B;
+    background-color: #3C2F1B;
+    background-image: none;
     color: var(--portal-secondary--t);
 }
 
@@ -69,19 +72,22 @@ html[data-tema="oscuro"] .pro-dia h3 small {
 
 html[data-tema="oscuro"] .pro-slot {
     color: var(--portal-primary--t);
-    background: var(--portal-container--f);
+    background-color: var(--portal-container--f);
+    background-image: none;
     border: 1px solid var(--portal-border--b);
 }
 
 html[data-tema="oscuro"] a.pro-slot:hover,
 html[data-tema="oscuro"] a.pro-slot:focus-visible {
     color: #FFFFFF;
-    background: var(--portal-primary-container--f);
+    background-color: var(--portal-primary-container--f);
+    background-image: none;
 }
 
 html[data-tema="oscuro"] .pro-slot.is-inactivo {
     color: var(--portal-outline--t);
-    background: transparent;
+    background-color: transparent;
+    background-image: none;
 }
 
 html[data-tema="oscuro"] .pro-ver-todo {

@@ -11,7 +11,8 @@ html[data-tema="oscuro"] .register-card h2 {
 }
 
 html[data-tema="oscuro"] .card form {
-    background: none;
+    background-color: transparent;
+    background-image: none;
     border: none;
     box-shadow: none;
 }
@@ -58,18 +59,21 @@ html[data-tema="oscuro"] input.input-success {
 }
 
 html[data-tema="oscuro"] .register-page .register-card .auth-input-wrap {
-    background: transparent;
+    background-color: transparent;
+    background-image: none;
     border: 0;
     border-bottom: 2px solid var(--portal-primary--b);
     box-shadow: none;
 }
 
 html[data-tema="oscuro"] .register-page .register-card .auth-input-wrap:hover {
-    background: transparent;
+    background-color: transparent;
+    background-image: none;
 }
 
 html[data-tema="oscuro"] .register-page .register-card .auth-input-wrap:focus-within {
-    background: transparent;
+    background-color: transparent;
+    background-image: none;
     border-bottom-color: var(--portal-primary-container--b);
     box-shadow: none;
 }
@@ -80,7 +84,8 @@ html[data-tema="oscuro"] .register-page .register-card .auth-input-wrap > .mater
 
 html[data-tema="oscuro"] .register-page .register-card .auth-input-wrap input,
 html[data-tema="oscuro"] .register-page .register-card .auth-input-wrap select {
-    background: transparent;
+    background-color: transparent;
+    background-image: none;
     border: 0;
     box-shadow: none;
 }
@@ -110,7 +115,8 @@ html[data-tema="oscuro"] .register-page .register-card .doctor-fields .custom-se
 
 html[data-tema="oscuro"] .register-page .register-card .doctor-fields .auth-field > input[type="file"],
 html[data-tema="oscuro"] .register-page .register-card .doctor-fields .auth-field > textarea {
-    background: transparent;
+    background-color: transparent;
+    background-image: none;
     border: 0;
     border-bottom: 2px solid var(--portal-primary--b);
     box-shadow: none;
@@ -118,7 +124,8 @@ html[data-tema="oscuro"] .register-page .register-card .doctor-fields .auth-fiel
 
 html[data-tema="oscuro"] .register-page .register-card .doctor-fields .auth-field > input[type="file"]:focus,
 html[data-tema="oscuro"] .register-page .register-card .doctor-fields .auth-field > textarea:focus {
-    background: transparent;
+    background-color: transparent;
+    background-image: none;
     border-bottom-color: var(--portal-primary-container--b);
     outline: none;
     box-shadow: none;

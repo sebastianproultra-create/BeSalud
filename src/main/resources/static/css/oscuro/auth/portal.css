@@ -50,13 +50,15 @@ html[data-tema="oscuro"] {
 
 html[data-tema="oscuro"] body.auth-page {
     color: var(--portal-on-surface--t);
-    background: var(--portal-bg--f);
+    background-color: var(--portal-bg--f);
+    background-image: none;
     background-image: linear-gradient(rgba(19, 29, 25, 0.936), rgba(20, 31, 27, 0.952)), url('https://lh3.googleusercontent.com/aida-public/AB6AXuBfDRPwcNxUzV8jpZnD6qyRV3zwhXN4Cei3ItRME8iDL8E5wTOR34sch_HZfl_zbEk0eMLm4A0IZUU9-SXIsaJS6gr2X0zkQkHkTs_sP0TBHknnA3Qp6zMrsLpCwinZ-YxVJbf34E-3IcY0PC0nyWp9I_g-ewI0W8eqeSKRIe-MmhgFWu6Az72NTrTe9XYEs-KAsqlQj83JvLjW_kJKXt1cfkvnJDBcycvO8uSEfhjIDpfgT5x5z7s_');
 }
 
 html[data-tema="oscuro"] .auth-page .portal-header {
     color: var(--portal-on-surface--t);
-    background: rgba(19, 29, 25, 0.944);
+    background-color: rgba(19, 29, 25, 0.944);
+    background-image: none;
     border: 0;
     box-shadow: 0 1px 8px rgba(0, 0, 0, 0.072);
 }
@@ -71,7 +73,8 @@ html[data-tema="oscuro"] .portal-brand:hover {
 
 html[data-tema="oscuro"] .portal-brand-icon {
     color: #FFFFFF;
-    background: var(--portal-primary--f);
+    background-color: var(--portal-primary--f);
+    background-image: none;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.252);
 }
 
@@ -89,36 +92,43 @@ html[data-tema="oscuro"] .auth-nav-link {
 
 html[data-tema="oscuro"] .auth-nav-link:hover {
     color: var(--portal-on-surface--t);
-    background: rgba(23, 36, 31, 0.82);
+    background-color: rgba(23, 36, 31, 0.82);
+    background-image: none;
 }
 
 html[data-tema="oscuro"] .auth-nav-link.is-active {
     color: #FFFFFF;
-    background: var(--portal-primary-container--f);
+    background-color: var(--portal-primary-container--f);
+    background-image: none;
 }
 
 html[data-tema="oscuro"] .auth-nav-link.is-active:hover {
     color: #FFFFFF;
-    background: var(--portal-primary--f);
+    background-color: var(--portal-primary--f);
+    background-image: none;
 }
 
 html[data-tema="oscuro"] .secure-label {
     color: var(--portal-primary--t);
-    background: rgba(20, 31, 27, 0.96);
+    background-color: rgba(20, 31, 27, 0.96);
+    background-image: none;
 }
 
 html[data-tema="oscuro"] .portal-avatar {
     color: #FFFFFF;
-    background: var(--portal-primary--f);
+    background-color: var(--portal-primary--f);
+    background-image: none;
 }
 
 html[data-tema="oscuro"] .auth-eyebrow {
     color: var(--portal-primary--t);
-    background: rgba(23, 36, 31, 0.864);
+    background-color: rgba(23, 36, 31, 0.864);
+    background-image: none;
 }
 
 html[data-tema="oscuro"] .status-dot {
-    background: var(--portal-primary-container--f);
+    background-color: var(--portal-primary-container--f);
+    background-image: none;
 }
 
 html[data-tema="oscuro"] .auth-intro h1 {
@@ -130,7 +140,8 @@ html[data-tema="oscuro"] .auth-intro-copy > p {
 }
 
 html[data-tema="oscuro"] .reference-image {
-    background: var(--portal-border--f);
+    background-color: var(--portal-border--f);
+    background-image: none;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.216);
 }
 
@@ -144,7 +155,8 @@ html[data-tema="oscuro"] .reference-copy p {
 
 html[data-tema="oscuro"] .auth-page .auth-card {
     color: var(--portal-on-surface--t);
-    background: var(--portal-surface--f);
+    background-color: var(--portal-surface--f);
+    background-image: none;
     border: 1px solid rgba(168, 200, 188, 0.048);
     box-shadow: 0 12px 40px -12px rgba(0, 0, 0, 0.216);
 }
@@ -154,12 +166,14 @@ html[data-tema="oscuro"] .auth-page .auth-card:hover {
 }
 
 html[data-tema="oscuro"] .auth-card-accent {
-    background: linear-gradient(90deg, var(--portal-primary--f), var(--portal-primary-container--f) 62%, var(--portal-secondary-container--f));
+    background-color: transparent;
+    background-image: linear-gradient(90deg, var(--portal-primary--f), var(--portal-primary-container--f) 62%, var(--portal-secondary-container--f));
 }
 
 html[data-tema="oscuro"] .auth-key-icon {
     color: var(--portal-primary--t);
-    background: var(--portal-container--f);
+    background-color: var(--portal-container--f);
+    background-image: none;
 }
 
 html[data-tema="oscuro"] .auth-page .auth-card h2 {
@@ -168,7 +182,8 @@ html[data-tema="oscuro"] .auth-page .auth-card h2 {
 }
 
 html[data-tema="oscuro"] .heading-rule {
-    background: rgba(151, 216, 201, 0.26);
+    background-color: rgba(151, 216, 201, 0.26);
+    background-image: none;
 }
 
 html[data-tema="oscuro"] .auth-card-heading p {
@@ -177,25 +192,29 @@ html[data-tema="oscuro"] .auth-card-heading p {
 
 html[data-tema="oscuro"] .auth-page .alert-info {
     color: #E9DAB6;
-    background: #3C301B;
+    background-color: #3C301B;
+    background-image: none;
     border-left-color: #D99B4B;
 }
 
 html[data-tema="oscuro"] .auth-page .alert-success {
     color: var(--portal-primary--t);
-    background: var(--portal-container--f);
+    background-color: var(--portal-container--f);
+    background-image: none;
     border-left-color: var(--portal-primary-container--b);
 }
 
 html[data-tema="oscuro"] .auth-page .alert-error,
 html[data-tema="oscuro"] .auth-page .alert-danger {
     color: #E3A29F;
-    background: #3C1F1B;
+    background-color: #3C1F1B;
+    background-image: none;
     border-left-color: #BA1A1A;
 }
 
 html[data-tema="oscuro"] .auth-page .auth-card form {
-    background: transparent;
+    background-color: transparent;
+    background-image: none;
     border: 0;
     box-shadow: none;
 }
@@ -216,7 +235,8 @@ html[data-tema="oscuro"] .auth-input-wrap > .material-symbols-outlined {
 html[data-tema="oscuro"] .auth-page .auth-input-wrap input,
 html[data-tema="oscuro"] .auth-page .auth-input-wrap select {
     color: var(--portal-on-surface--t);
-    background: transparent;
+    background-color: transparent;
+    background-image: none;
     border: 0;
     box-shadow: none;
 }
@@ -255,25 +275,29 @@ html[data-tema="oscuro"] .auth-page .auth-input-wrap input::placeholder {
 
 html[data-tema="oscuro"] .password-toggle {
     color: var(--portal-muted--t);
-    background: transparent;
+    background-color: transparent;
+    background-image: none;
     border: 0;
 }
 
 html[data-tema="oscuro"] .password-toggle:hover {
     color: var(--portal-on-surface--t);
-    background: rgba(23, 36, 31, 0.82);
+    background-color: rgba(23, 36, 31, 0.82);
+    background-image: none;
 }
 
 html[data-tema="oscuro"] .auth-page .auth-card .auth-submit {
     color: #FFFFFF;
-    background: var(--portal-primary--f);
+    background-color: var(--portal-primary--f);
+    background-image: none;
     border: 1px solid var(--portal-primary--b);
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.18);
 }
 
 html[data-tema="oscuro"] .auth-page .auth-card .auth-submit:hover {
     color: #FFFFFF;
-    background: var(--portal-primary-container--f);
+    background-color: var(--portal-primary-container--f);
+    background-image: none;
     border-color: var(--portal-primary-container--b);
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.288);
 }
@@ -284,28 +308,33 @@ html[data-tema="oscuro"] .oauth-divider {
 
 html[data-tema="oscuro"] .oauth-divider::before,
 html[data-tema="oscuro"] .oauth-divider::after {
-    background: var(--portal-border--f);
+    background-color: var(--portal-border--f);
+    background-image: none;
 }
 
 html[data-tema="oscuro"] .oauth-divider span {
-    background: #1B2A24;
+    background-color: #1B2A24;
+    background-image: none;
 }
 
 html[data-tema="oscuro"] .btn-google-login {
     color: var(--portal-on-surface--t);
-    background: #1B2A24;
+    background-color: #1B2A24;
+    background-image: none;
     border: 1px solid var(--portal-border--b);
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.108);
 }
 
 html[data-tema="oscuro"] .btn-google-login:hover {
     color: var(--portal-on-surface--t);
-    background: var(--portal-container--f);
+    background-color: var(--portal-container--f);
+    background-image: none;
     border-color: var(--portal-border--b);
 }
 
 html[data-tema="oscuro"] .auth-card-footer {
-    background: rgba(20, 31, 27, 0.848);
+    background-color: rgba(20, 31, 27, 0.848);
+    background-image: none;
 }
 
 html[data-tema="oscuro"] .auth-card-footer p {
@@ -324,7 +353,8 @@ html[data-tema="oscuro"] .auth-card-footer a:hover {
 
 html[data-tema="oscuro"] .auth-page > .auth-footer {
     color: var(--portal-muted--t);
-    background: rgba(20, 31, 27, 0.88);
+    background-color: rgba(20, 31, 27, 0.88);
+    background-image: none;
     border: 0;
     box-shadow: none;
 }
@@ -352,7 +382,8 @@ html[data-tema="oscuro"] .auth-page .register-card .auth-input-wrap:has(input.in
 }
 
 html[data-tema="oscuro"] .doctor-fields {
-    background: rgba(20, 31, 27, 0.82);
+    background-color: rgba(20, 31, 27, 0.82);
+    background-image: none;
     border: 1px solid rgba(56, 75, 68, 0.55);
 }
 
@@ -370,7 +401,8 @@ html[data-tema="oscuro"] .auth-page .check-privacidad a {
 
 html[data-tema="oscuro"] .register-promise-panel {
     color: #D8F3E9;
-    background: linear-gradient(155deg, #0E5849 0%, #0E5849 55%, #0C5A4B 100%);
+    background-color: transparent;
+    background-image: linear-gradient(155deg, #0E5849 0%, #0E5849 55%, #0C5A4B 100%);
     border: 1px solid rgba(159, 209, 197, 0.216);
     box-shadow: 0 10px 22px rgba(0, 0, 0, 0.324);
 }
@@ -380,7 +412,8 @@ html[data-tema="oscuro"] .register-panel-topline {
 }
 
 html[data-tema="oscuro"] .register-certification {
-    background: rgba(183, 238, 217, 0.13);
+    background-color: rgba(183, 238, 217, 0.13);
+    background-image: none;
     border: 1px solid rgba(183, 238, 217, 0.08);
     color: #D6F5E8;
 }
@@ -414,13 +447,15 @@ html[data-tema="oscuro"] .register-metrics span {
 }
 
 html[data-tema="oscuro"] .register-benefits {
-    background: rgba(183, 238, 217, 0.1);
+    background-color: rgba(183, 238, 217, 0.1);
+    background-image: none;
     border: 1px solid rgba(183, 238, 217, 0.09);
 }
 
 html[data-tema="oscuro"] .benefit-number {
     color: #CBE3DD;
-    background: #215745;
+    background-color: #215745;
+    background-image: none;
 }
 
 html[data-tema="oscuro"] .register-benefits strong,
@@ -434,13 +469,15 @@ html[data-tema="oscuro"] .network-copy small {
 }
 
 html[data-tema="oscuro"] .register-network {
-    background: rgba(183, 238, 217, 0.11);
+    background-color: rgba(183, 238, 217, 0.11);
+    background-image: none;
     border: 1px solid rgba(183, 238, 217, 0.1);
 }
 
 html[data-tema="oscuro"] .network-icon {
     color: #B5F0DD;
-    background: rgba(183, 238, 217, 0.14);
+    background-color: rgba(183, 238, 217, 0.14);
+    background-image: none;
 }
 
 html[data-tema="oscuro"] .network-verified {
@@ -453,11 +490,13 @@ html[data-tema="oscuro"] .register-heading-meta {
 
 html[data-tema="oscuro"] .register-step {
     color: #F1D09B;
-    background: #3C2E1B;
+    background-color: #3C2E1B;
+    background-image: none;
 }
 
 html[data-tema="oscuro"] .register-step i {
-    background: #855403;
+    background-color: #855403;
+    background-image: none;
 }
 
 html[data-tema="oscuro"] .register-form-heading h2 {
@@ -469,11 +508,13 @@ html[data-tema="oscuro"] .register-form-heading > p {
 }
 
 html[data-tema="oscuro"] .register-progress {
-    background: var(--portal-container--f);
+    background-color: var(--portal-container--f);
+    background-image: none;
 }
 
 html[data-tema="oscuro"] .register-progress span {
-    background: linear-gradient(90deg, var(--portal-primary--f), var(--portal-primary-container--f));
+    background-color: transparent;
+    background-image: linear-gradient(90deg, var(--portal-primary--f), var(--portal-primary-container--f));
 }
 
 html[data-tema="oscuro"] .role-picker {
@@ -485,7 +526,8 @@ html[data-tema="oscuro"] .role-picker legend {
 }
 
 html[data-tema="oscuro"] .role-segmented {
-    background: var(--portal-container--f);
+    background-color: var(--portal-container--f);
+    background-image: none;
 }
 
 html[data-tema="oscuro"] .role-option {
@@ -498,7 +540,8 @@ html[data-tema="oscuro"] .role-option-content {
 
 html[data-tema="oscuro"] .role-option input:checked + .role-option-content {
     color: var(--portal-primary--t);
-    background: #1B2A24;
+    background-color: #1B2A24;
+    background-image: none;
     border-color: rgba(159, 209, 197, 0.072);
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.144);
 }
@@ -512,7 +555,8 @@ html[data-tema="oscuro"] .register-password-hint span {
 }
 
 html[data-tema="oscuro"] .register-card .auth-card-footer {
-    background: #1B2A24;
+    background-color: #1B2A24;
+    background-image: none;
 }
 
 html[data-tema="oscuro"] .register-trust-row {
@@ -529,13 +573,15 @@ html[data-tema="oscuro"] .register-trust-row > a:hover {
 }
 
 html[data-tema="oscuro"] .register-help-strip {
-    background: rgba(20, 31, 27, 0.94);
+    background-color: rgba(20, 31, 27, 0.94);
+    background-image: none;
     border: 1px solid rgba(50, 68, 61, 0.65);
 }
 
 html[data-tema="oscuro"] .help-icon {
     color: #F1D19D;
-    background: #3C2D1B;
+    background-color: #3C2D1B;
+    background-image: none;
 }
 
 html[data-tema="oscuro"] .help-copy strong {
@@ -548,16 +594,19 @@ html[data-tema="oscuro"] .help-copy small {
 
 html[data-tema="oscuro"] .register-help-strip > a {
     color: var(--portal-primary--t);
-    background: #1B2A24;
+    background-color: #1B2A24;
+    background-image: none;
     border: 1px solid var(--portal-border--b);
 }
 
 html[data-tema="oscuro"] .register-help-strip > a:hover {
-    background: var(--portal-container--f);
+    background-color: var(--portal-container--f);
+    background-image: none;
 }
 
 html[data-tema="oscuro"] .auth-page .auth-nav {
-    background: transparent;
+    background-color: transparent;
+    background-image: none;
     border: 0;
 }
 

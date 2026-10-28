@@ -3,7 +3,8 @@
 
 html[data-tema="oscuro"] .bs-navbar {
     color: var(--color-surface--t);
-    background: var(--color-primary--f);
+    background-color: var(--color-primary--f);
+    background-image: none;
     border-bottom: 1px solid var(--color-navbar-border--b);
     box-shadow: var(--shadow-md--s);
 }
@@ -18,19 +19,22 @@ html[data-tema="oscuro"] .bs-navbar__brand-mark {
 }
 
 html[data-tema="oscuro"] .bs-navbar__menu {
-    background: transparent;
+    background-color: transparent;
+    background-image: none;
 }
 
 html[data-tema="oscuro"] .bs-navbar__link,
 html[data-tema="oscuro"] .bs-navbar .bs-navbar__logout {
     color: var(--color-surface--t);
-    background: transparent;
+    background-color: transparent;
+    background-image: none;
     border: 1px solid transparent;
 }
 
 html[data-tema="oscuro"] .bs-navbar .bs-navbar__toggle {
     color: var(--color-surface--t);
-    background: transparent;
+    background-color: transparent;
+    background-image: none;
     border: 1px solid var(--color-navbar-divider--b);
 }
 
@@ -38,18 +42,21 @@ html[data-tema="oscuro"] .bs-navbar__link:hover,
 html[data-tema="oscuro"] .bs-navbar__link.is-active,
 html[data-tema="oscuro"] .bs-navbar .bs-navbar__logout:hover {
     color: var(--color-surface--t);
-    background: var(--color-navbar-hover--f);
+    background-color: var(--color-navbar-hover--f);
+    background-image: none;
     border-color: var(--color-navbar-outline--b);
 }
 
 html[data-tema="oscuro"] .bs-navbar__link--action {
     color: var(--color-primary--t);
-    background: var(--color-accent-soft--f);
+    background-color: var(--color-accent-soft--f);
+    background-image: none;
 }
 
 html[data-tema="oscuro"] .bs-navbar__link--action:hover {
     color: var(--color-primary--t);
-    background: var(--color-accent--f);
+    background-color: var(--color-accent--f);
+    background-image: none;
 }
 
 html[data-tema="oscuro"] .bs-navbar__account {
@@ -62,12 +69,14 @@ html[data-tema="oscuro"] .bs-navbar__username {
 
 html[data-tema="oscuro"] .bs-navbar__toggle {
     color: var(--color-surface--t);
-    background: transparent;
+    background-color: transparent;
+    background-image: none;
     border: 1px solid var(--color-navbar-divider--b);
 }
 
 html[data-tema="oscuro"] .bs-navbar__toggle-line {
-    background: currentColor;
+    background-color: currentColor;
+    background-image: none;
 }
 
 @media (max-width: 80rem) {

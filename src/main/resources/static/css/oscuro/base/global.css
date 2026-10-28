@@ -66,7 +66,8 @@ html[data-tema="oscuro"] body {
 }
 
 html[data-tema="oscuro"] header {
-    background: linear-gradient(110deg, #125442 0%, #125441 50%, #194D39 100%);
+    background-color: transparent;
+    background-image: linear-gradient(110deg, #125442 0%, #125441 50%, #194D39 100%);
     color: var(--white--t);
     box-shadow: 0 4px 24px rgba(0, 0, 0, 0.504);
     border-bottom: 1px solid rgba(209, 188, 159, 0.24);
@@ -91,22 +92,26 @@ html[data-tema="oscuro"] header > h1::before {
 }
 
 html[data-tema="oscuro"] header > nav {
-    background: transparent;
+    background-color: transparent;
+    background-image: none;
 }
 
 html[data-tema="oscuro"] header > nav button {
-    background: rgba(216, 190, 151, 0.195);
+    background-color: rgba(216, 190, 151, 0.195);
+    background-image: none;
     color: var(--accent-light--t);
     border: 1px solid rgba(209, 188, 159, 0.42);
 }
 
 html[data-tema="oscuro"] header > nav button:hover {
-    background: rgba(216, 190, 151, 0.364);
+    background-color: rgba(216, 190, 151, 0.364);
+    background-image: none;
     border-color: rgba(201, 138, 46, 0.6);
 }
 
 html[data-tema="oscuro"] nav form {
-    background: none;
+    background-color: transparent;
+    background-image: none;
     box-shadow: none;
 }
 
@@ -139,7 +144,8 @@ html[data-tema="oscuro"] .card h2 {
 }
 
 html[data-tema="oscuro"] .card h2::after {
-    background: linear-gradient(to right, var(--accent-color--f), transparent);
+    background-color: transparent;
+    background-image: linear-gradient(to right, var(--accent-color--f), transparent);
 }
 
 html[data-tema="oscuro"] form {
@@ -270,7 +276,8 @@ html[data-tema="oscuro"] .btn-secondary:hover {
 }
 
 html[data-tema="oscuro"] .btn-link {
-    background: none;
+    background-color: transparent;
+    background-image: none;
     color: var(--secondary-color--t);
     border-bottom: 1px solid transparent;
 }
@@ -373,7 +380,8 @@ html[data-tema="oscuro"] .custom-select-wrapper.open .custom-select-trigger {
 }
 
 html[data-tema="oscuro"] .custom-select-options {
-    background: var(--white--f);
+    background-color: var(--white--f);
+    background-image: none;
     border: 1px solid var(--border-mid--b);
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.216);
 }
@@ -388,28 +396,33 @@ html[data-tema="oscuro"] .custom-select-option:last-child {
 }
 
 html[data-tema="oscuro"] .custom-select-option:hover {
-    background: rgba(151, 216, 201, 0.078);
+    background-color: rgba(151, 216, 201, 0.078);
+    background-image: none;
     color: var(--primary-color--t);
 }
 
 html[data-tema="oscuro"] .custom-select-option.selected {
-    background: var(--primary-color--f);
+    background-color: var(--primary-color--f);
+    background-image: none;
     color: var(--white--t);
 }
 
 html[data-tema="oscuro"] .custom-select-option.selected:hover {
-    background: var(--secondary-color--f);
+    background-color: var(--secondary-color--f);
+    background-image: none;
     color: var(--white--t);
 }
 
 html[data-tema="oscuro"] .custom-select-group {
     color: var(--primary-color--t);
-    background: var(--light-bg--f);
+    background-color: var(--light-bg--f);
+    background-image: none;
     border-bottom: 1px solid var(--border-color--b);
 }
 
 html[data-tema="oscuro"] .custom-select-option.is-active:not(.selected) {
-    background: rgba(151, 216, 201, 0.078);
+    background-color: rgba(151, 216, 201, 0.078);
+    background-image: none;
     color: var(--primary-color--t);
 }
 
@@ -465,31 +478,36 @@ html[data-tema="oscuro"] .estado-badge {
 }
 
 html[data-tema="oscuro"] .estado-pendiente {
-    background: rgba(216, 190, 151, 0.195);
+    background-color: rgba(216, 190, 151, 0.195);
+    background-image: none;
     color: #F1D19D;
     border-color: rgba(201, 138, 46, 0.4);
 }
 
 html[data-tema="oscuro"] .estado-asistio {
-    background: rgba(151, 216, 199, 0.13);
+    background-color: rgba(151, 216, 199, 0.13);
+    background-image: none;
     color: var(--secondary-color--t);
     border-color: rgba(159, 209, 196, 0.36);
 }
 
 html[data-tema="oscuro"] .estado-completada {
-    background: rgba(151, 216, 201, 0.104);
+    background-color: rgba(151, 216, 201, 0.104);
+    background-image: none;
     color: var(--primary-color--t);
     border-color: rgba(159, 209, 197, 0.3);
 }
 
 html[data-tema="oscuro"] .estado-no-asistio {
-    background: rgba(216, 151, 151, 0.104);
+    background-color: rgba(216, 151, 151, 0.104);
+    background-image: none;
     color: #E6A0A0;
     border-color: rgba(209, 159, 159, 0.36);
 }
 
 html[data-tema="oscuro"] .estado-cancelada {
-    background: var(--off-white--f);
+    background-color: var(--off-white--f);
+    background-image: none;
     color: var(--text-light--t);
     border-color: var(--border-color--b);
 }
@@ -501,7 +519,8 @@ html[data-tema="oscuro"] h3 {
 }
 
 html[data-tema="oscuro"] .section-divider {
-    background: var(--accent-color--f);
+    background-color: var(--accent-color--f);
+    background-image: none;
 }
 
 html[data-tema="oscuro"] form.form-inline,
@@ -509,7 +528,8 @@ html[data-tema="oscuro"] td form,
 html[data-tema="oscuro"] header form,
 html[data-tema="oscuro"] nav form,
 html[data-tema="oscuro"] .pagination form {
-    background: none;
+    background-color: transparent;
+    background-image: none;
     border: none;
     box-shadow: none;
 }
@@ -527,7 +547,8 @@ html[data-tema="oscuro"] .app-brand:hover {
 }
 
 html[data-tema="oscuro"] .app-header .app-nav {
-    background: transparent;
+    background-color: transparent;
+    background-image: none;
     border: none;
 }
 
@@ -550,13 +571,15 @@ html[data-tema="oscuro"] .app-user-name {
 }
 
 html[data-tema="oscuro"] .app-logout {
-    background: rgba(216, 190, 151, 0.195);
+    background-color: rgba(216, 190, 151, 0.195);
+    background-image: none;
     color: var(--accent-light--t);
     border: 1px solid rgba(201, 138, 46, 0.4);
 }
 
 html[data-tema="oscuro"] .app-logout:hover {
-    background: rgba(216, 190, 151, 0.364);
+    background-color: rgba(216, 190, 151, 0.364);
+    background-image: none;
 }
 
 html[data-tema="oscuro"] .page-eyebrow {
@@ -568,19 +591,22 @@ html[data-tema="oscuro"] .page-subtitle {
 }
 
 html[data-tema="oscuro"] .toolbar {
-    background: var(--white--f);
+    background-color: var(--white--f);
+    background-image: none;
     border: 1px solid var(--border-color--b);
     box-shadow: var(--shadow-sm--s);
 }
 
 html[data-tema="oscuro"] .person-card {
-    background: var(--white--f);
+    background-color: var(--white--f);
+    background-image: none;
     border: 1px solid var(--border-color--b);
     box-shadow: var(--shadow-sm--s);
 }
 
 html[data-tema="oscuro"] .avatar {
-    background: var(--primary-color--f);
+    background-color: var(--primary-color--f);
+    background-image: none;
     color: var(--accent-light--t);
     border: 2px solid var(--accent-color--b);
 }
@@ -598,7 +624,8 @@ html[data-tema="oscuro"] .person-card-foot {
 }
 
 html[data-tema="oscuro"] .status-dot::before {
-    background: currentColor;
+    background-color: currentColor;
+    background-image: none;
 }
 
 html[data-tema="oscuro"] .status-dot.is-active {
@@ -619,13 +646,15 @@ html[data-tema="oscuro"] .empty-note {
 }
 
 html[data-tema="oscuro"] .pagination {
-    background: none;
+    background-color: transparent;
+    background-image: none;
     border-bottom: 0;
 }
 
 html[data-tema="oscuro"] .pagination a,
 html[data-tema="oscuro"] .pagination button {
-    background: none;
+    background-color: transparent;
+    background-image: none;
     border: 1px solid var(--border-color--b);
     color: var(--primary-color--t);
 }
@@ -635,7 +664,8 @@ html[data-tema="oscuro"] .pagination .pagination-step {
 }
 
 html[data-tema="oscuro"] .pagination .is-current {
-    background: var(--accent-color--f);
+    background-color: var(--accent-color--f);
+    background-image: none;
     border-color: var(--accent-color--b);
     color: var(--primary-color--t);
 }
@@ -643,7 +673,8 @@ html[data-tema="oscuro"] .pagination .is-current {
 html[data-tema="oscuro"] form.card-form {
     border: none;
     box-shadow: none;
-    background: none;
+    background-color: transparent;
+    background-image: none;
 }
 
 html[data-tema="oscuro"] .form-subtitle {
@@ -793,7 +824,8 @@ html[data-tema="oscuro"] table thead {
 
 html[data-tema="oscuro"] .app-header {
     color: var(--text-dark--t);
-    background: rgba(19, 29, 25, 0.944);
+    background-color: rgba(19, 29, 25, 0.944);
+    background-image: none;
     border: 0;
     box-shadow: 0 1px 8px rgba(0, 0, 0, 0.072);
 }
@@ -812,7 +844,8 @@ html[data-tema="oscuro"] .app-brand .app-brand-text {
 
 html[data-tema="oscuro"] .app-brand .app-brand-icon {
     color: var(--white--t);
-    background: var(--primary-color--f);
+    background-color: var(--primary-color--f);
+    background-image: none;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.252);
 }
 
@@ -827,13 +860,15 @@ html[data-tema="oscuro"] .app-nav a {
 
 html[data-tema="oscuro"] .app-nav a:hover {
     color: var(--text-dark--t);
-    background: rgba(23, 36, 31, 0.82);
+    background-color: rgba(23, 36, 31, 0.82);
+    background-image: none;
 }
 
 html[data-tema="oscuro"] .app-nav a.is-active,
 html[data-tema="oscuro"] .app-nav a.is-active:hover {
     color: var(--white--t);
-    background: var(--secondary-color--f);
+    background-color: var(--secondary-color--f);
+    background-image: none;
 }
 
 html[data-tema="oscuro"] .app-user-name {
@@ -842,20 +877,23 @@ html[data-tema="oscuro"] .app-user-name {
 
 html[data-tema="oscuro"] .app-header .app-logout {
     color: var(--primary-color--t);
-    background: var(--white--f);
+    background-color: var(--white--f);
+    background-image: none;
     border: 1px solid var(--border-color--b);
     box-shadow: none;
 }
 
 html[data-tema="oscuro"] .app-header .app-logout:hover {
     color: var(--primary-color--t);
-    background: var(--off-white--f);
+    background-color: var(--off-white--f);
+    background-image: none;
     border-color: var(--border-mid--b);
 }
 
 html[data-tema="oscuro"] footer {
     color: var(--text-light--t);
-    background: rgba(20, 31, 27, 0.88);
+    background-color: rgba(20, 31, 27, 0.88);
+    background-image: none;
     border-top: 0;
 }
 

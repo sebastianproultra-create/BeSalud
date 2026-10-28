@@ -70,7 +70,7 @@ html.tema-cambiando *::after {
 html[data-tema="oscuro"] .tema-boton {
     color: #FFD48A;
     background: #1B2A24;
-    border-color: #2E3F39;
+    border: 1px solid #2E3F39;
     box-shadow: 0 6px 20px -8px rgba(0, 0, 0, 0.6);
 }
 
@@ -106,6 +106,12 @@ html[data-tema="oscuro"] .tema-boton:focus-visible {
 }
 
 /* ── Ajustes que el generador no puede deducir ── */
+
+/* Velo detrás de las ventanas: sobre fondo oscuro necesita más contraste */
+html[data-tema="oscuro"] .verificacion,
+html[data-tema="oscuro"] .modal-overlay {
+    background-color: rgba(0, 0, 0, 0.66);
+}
 
 /* Imágenes y fotos: un poco menos de brillo para no deslumbrar */
 html[data-tema="oscuro"] img:not([src$=".svg"]) {

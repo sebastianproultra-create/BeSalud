@@ -2,7 +2,8 @@
    los ajustes van en base/tema-oscuro.css o en el generador. */
 
 html[data-tema="oscuro"] .header-section {
-    background: linear-gradient(135deg, var(--primary-color--f), var(--secondary-color--f));
+    background-color: transparent;
+    background-image: linear-gradient(135deg, var(--primary-color--f), var(--secondary-color--f));
     color: var(--white--t);
 }
 
@@ -16,7 +17,8 @@ html[data-tema="oscuro"] .filter-section h2 {
 }
 
 html[data-tema="oscuro"] .filter-section form {
-    background: none;
+    background-color: transparent;
+    background-image: none;
     border: none;
     box-shadow: none;
 }
@@ -31,7 +33,8 @@ html[data-tema="oscuro"] .filter-form input[type="text"] {
 }
 
 html[data-tema="oscuro"] .doctor-card {
-    background: #1B2A24;
+    background-color: #1B2A24;
+    background-image: none;
     box-shadow: 0 2px 15px rgba(0, 0, 0, 0.18);
 }
 
@@ -70,13 +73,15 @@ html[data-tema="oscuro"] .no-doctors p {
 }
 
 html[data-tema="oscuro"] .sidebar-inner {
-    background: var(--white--f);
+    background-color: var(--white--f);
+    background-image: none;
     border-left: 1px solid var(--border-color--b);
     box-shadow: -3px 0 20px rgba(0, 0, 0, 0.126);
 }
 
 html[data-tema="oscuro"] .sidebar-header {
-    background: linear-gradient(135deg, var(--primary-color--f), var(--secondary-color--f));
+    background-color: transparent;
+    background-image: linear-gradient(135deg, var(--primary-color--f), var(--secondary-color--f));
     color: var(--white--t);
 }
 
@@ -85,18 +90,21 @@ html[data-tema="oscuro"] .sidebar-title h3 {
 }
 
 html[data-tema="oscuro"] .sidebar-count {
-    background: rgba(255, 255, 255, 0.25);
+    background-color: rgba(255, 255, 255, 0.25);
+    background-image: none;
     color: var(--white--t);
 }
 
 html[data-tema="oscuro"] .sidebar-close {
-    background: rgba(255, 255, 255, 0.15);
+    background-color: rgba(255, 255, 255, 0.15);
+    background-image: none;
     border: none;
     color: var(--white--t);
 }
 
 html[data-tema="oscuro"] .sidebar-close:hover {
-    background: rgba(255, 255, 255, 0.3);
+    background-color: rgba(255, 255, 255, 0.3);
+    background-image: none;
 }
 
 html[data-tema="oscuro"] .sidebar-empty {
@@ -104,7 +112,8 @@ html[data-tema="oscuro"] .sidebar-empty {
 }
 
 html[data-tema="oscuro"] .cita-item {
-    background: var(--light-bg--f);
+    background-color: var(--light-bg--f);
+    background-image: none;
     border-left: 4px solid var(--secondary-color--b);
 }
 
@@ -130,17 +139,20 @@ html[data-tema="oscuro"] .btn-small {
 }
 
 html[data-tema="oscuro"] .btn-small.btn-secondary {
-    background: var(--light-bg--f);
+    background-color: var(--light-bg--f);
+    background-image: none;
     color: var(--primary-color--t);
     border: 1px solid var(--border-color--b);
 }
 
 html[data-tema="oscuro"] .btn-small.btn-secondary:hover {
-    background: var(--border-color--f);
+    background-color: var(--border-color--f);
+    background-image: none;
 }
 
 html[data-tema="oscuro"] .cita-dictamen {
-    background: rgba(151, 216, 201, 0.052);
+    background-color: rgba(151, 216, 201, 0.052);
+    background-image: none;
     border-left: 3px solid var(--accent-color--b);
 }
 
@@ -166,7 +178,8 @@ html[data-tema="oscuro"] .dictamen-firma {
 
 html[data-tema="oscuro"] .dictamen-alergia {
     border-left: 3px solid var(--danger-color--b);
-    background: #3C1B1B;
+    background-color: #3C1B1B;
+    background-image: none;
     color: #E89595;
 }
 
@@ -175,22 +188,26 @@ html[data-tema="oscuro"] .dictamen-completo summary {
 }
 
 html[data-tema="oscuro"] .sidebar-backdrop {
-    background: rgba(184, 184, 184, 0.455);
+    background-color: rgba(184, 184, 184, 0.455);
+    background-image: none;
 }
 
 html[data-tema="oscuro"] .sidebar-tab {
-    background: var(--secondary-color--f);
+    background-color: var(--secondary-color--f);
+    background-image: none;
     color: var(--white--t);
     border: none;
     box-shadow: -3px 0 12px rgba(0, 0, 0, 0.54);
 }
 
 html[data-tema="oscuro"] .sidebar-tab:hover {
-    background: var(--primary-color--f);
+    background-color: var(--primary-color--f);
+    background-image: none;
 }
 
 html[data-tema="oscuro"] .tab-badge {
-    background: var(--danger-color--f);
+    background-color: var(--danger-color--f);
+    background-image: none;
     color: var(--white--t);
 }
 
@@ -202,7 +219,8 @@ html[data-tema="oscuro"] .sidebar-inner {
 }
 
 html[data-tema="oscuro"] .triage-cta {
-    background: linear-gradient(120deg, var(--primary-color--f), var(--secondary-color--f));
+    background-color: transparent;
+    background-image: linear-gradient(120deg, var(--primary-color--f), var(--secondary-color--f));
     color: var(--white--t);
     box-shadow: var(--shadow-md--s);
 }
@@ -256,12 +274,14 @@ html[data-tema="oscuro"] {
 
 html[data-tema="oscuro"] body.patient-catalog-page {
     color: #C3CEE0;
-    background: var(--patient-sage--f);
+    background-color: var(--patient-sage--f);
+    background-image: none;
 }
 
 html[data-tema="oscuro"] .patient-catalog-page .patient-portal-header {
     color: #FFFFFF;
-    background: var(--patient-emerald--f);
+    background-color: var(--patient-emerald--f);
+    background-image: none;
     border: 0;
     border-bottom: 1px solid var(--patient-emerald-dark--b);
     box-shadow: 0 3px 14px rgba(0, 0, 0, 0.252);
@@ -277,7 +297,8 @@ html[data-tema="oscuro"] .patient-brand:hover {
 
 html[data-tema="oscuro"] .patient-brand-mark {
     color: #C6EFE0;
-    background: rgba(255, 255, 255, 0.1);
+    background-color: rgba(255, 255, 255, 0.1);
+    background-image: none;
     border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
@@ -290,7 +311,8 @@ html[data-tema="oscuro"] .patient-brand-copy small {
 }
 
 html[data-tema="oscuro"] .patient-catalog-page .patient-header-inner nav.patient-nav {
-    background: transparent;
+    background-color: transparent;
+    background-image: none;
     border: 0;
     border-left: 1px solid rgba(255, 255, 255, 0.14);
 }
@@ -302,12 +324,14 @@ html[data-tema="oscuro"] .patient-catalog-page .patient-nav a {
 
 html[data-tema="oscuro"] .patient-catalog-page .patient-nav a:hover {
     color: #FFFFFF;
-    background: rgba(255, 255, 255, 0.1);
+    background-color: rgba(255, 255, 255, 0.1);
+    background-image: none;
 }
 
 html[data-tema="oscuro"] .patient-catalog-page .patient-nav a.is-active {
     color: #FFFFFF;
-    background: rgba(255, 255, 255, 0.14);
+    background-color: rgba(255, 255, 255, 0.14);
+    background-image: none;
     border-color: rgba(255, 255, 255, 0.18);
 }
 
@@ -328,20 +352,23 @@ html[data-tema="oscuro"] .patient-account-copy small {
 }
 
 html[data-tema="oscuro"] .patient-logout-form {
-    background: transparent;
+    background-color: transparent;
+    background-image: none;
     border: 0;
     box-shadow: none;
 }
 
 html[data-tema="oscuro"] .patient-catalog-page .patient-logout {
     color: rgba(255, 255, 255, 0.94);
-    background: rgba(255, 255, 255, 0.1);
+    background-color: rgba(255, 255, 255, 0.1);
+    background-image: none;
     border: 1px solid rgba(255, 255, 255, 0.16);
 }
 
 html[data-tema="oscuro"] .patient-catalog-page .patient-logout:hover {
     color: #FFFFFF;
-    background: rgba(255, 255, 255, 0.18);
+    background-color: rgba(255, 255, 255, 0.18);
+    background-image: none;
 }
 
 html[data-tema="oscuro"] .patient-logout i {
@@ -350,19 +377,22 @@ html[data-tema="oscuro"] .patient-logout i {
 
 html[data-tema="oscuro"] .patient-welcome {
     color: #FFFFFF;
-    background: linear-gradient(112deg, #0E5843 0%, #105644 58%, #125946 100%);
+    background-color: transparent;
+    background-image: linear-gradient(112deg, #0E5843 0%, #105644 58%, #125946 100%);
     border: 1px solid rgba(159, 209, 195, 0.24);
     box-shadow: var(--patient-shadow--s);
 }
 
 html[data-tema="oscuro"] .patient-eyebrow {
     color: #D7F4E8;
-    background: rgba(120, 214, 174, 0.14);
+    background-color: rgba(120, 214, 174, 0.14);
+    background-image: none;
     border: 1px solid rgba(120, 214, 174, 0.25);
 }
 
 html[data-tema="oscuro"] .patient-eyebrow > span {
-    background: #1E4F36;
+    background-color: #1E4F36;
+    background-image: none;
     box-shadow: 0 0 0 3px rgba(103, 214, 157, 0.14);
 }
 
@@ -380,13 +410,15 @@ html[data-tema="oscuro"] .patient-welcome-copy > p {
 
 html[data-tema="oscuro"] .patient-welcome-action {
     color: #FFFFFF;
-    background: rgba(255, 255, 255, 0.1);
+    background-color: rgba(255, 255, 255, 0.1);
+    background-image: none;
     border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 html[data-tema="oscuro"] .patient-welcome-action:hover {
     color: #FFFFFF;
-    background: rgba(255, 255, 255, 0.18);
+    background-color: rgba(255, 255, 255, 0.18);
+    background-image: none;
     border-color: rgba(255, 255, 255, 0.32);
 }
 
@@ -398,7 +430,8 @@ html[data-tema="oscuro"] .doctor-filter-panel,
 html[data-tema="oscuro"] .patient-sidebar .sidebar-inner,
 html[data-tema="oscuro"] .doctor-card,
 html[data-tema="oscuro"] .patient-trust-card {
-    background: #1B2A24;
+    background-color: #1B2A24;
+    background-image: none;
     border: 1px solid var(--patient-border--b);
     box-shadow: var(--patient-shadow--s);
 }
@@ -419,12 +452,14 @@ html[data-tema="oscuro"] .doctor-directory-heading p {
 
 html[data-tema="oscuro"] .active-doctor-count {
     color: var(--patient-emerald--t);
-    background: var(--patient-mint--f);
+    background-color: var(--patient-mint--f);
+    background-image: none;
     border: 1px solid #32433D;
 }
 
 html[data-tema="oscuro"] .patient-catalog-page .doctor-filter-panel form.doctor-filter-form {
-    background: transparent;
+    background-color: transparent;
+    background-image: none;
     border: 0;
     box-shadow: none;
 }
@@ -440,7 +475,8 @@ html[data-tema="oscuro"] .patient-control > i {
 html[data-tema="oscuro"] .patient-catalog-page .patient-control input,
 html[data-tema="oscuro"] .patient-catalog-page .patient-control select {
     color: #CCDED6;
-    background: #121C19;
+    background-color: #121C19;
+    background-image: none;
     border: 1px solid #32433D;
     box-shadow: none;
 }
@@ -452,20 +488,23 @@ html[data-tema="oscuro"] .patient-catalog-page .patient-control input::placehold
 html[data-tema="oscuro"] .patient-catalog-page .patient-control input:focus,
 html[data-tema="oscuro"] .patient-catalog-page .patient-control select:focus {
     outline: none;
-    background: #1B2A24;
+    background-color: #1B2A24;
+    background-image: none;
     border-color: var(--patient-emerald--b);
     box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.216);
 }
 
 html[data-tema="oscuro"] .patient-catalog-page .patient-filter-submit {
     color: #FFFFFF;
-    background: var(--patient-emerald--f);
+    background-color: var(--patient-emerald--f);
+    background-image: none;
     border: 1px solid var(--patient-emerald--b);
 }
 
 html[data-tema="oscuro"] .patient-catalog-page .patient-filter-submit:hover {
     color: #FFFFFF;
-    background: var(--patient-emerald-hover--f);
+    background-color: var(--patient-emerald-hover--f);
+    background-image: none;
     border-color: var(--patient-emerald-hover--b);
 }
 
@@ -487,7 +526,8 @@ html[data-tema="oscuro"] .patient-catalog-page .doctor-card:hover {
 }
 
 html[data-tema="oscuro"] .patient-catalog-page .doctor-photo {
-    background: var(--patient-mint--f);
+    background-color: var(--patient-mint--f);
+    background-image: none;
     border: 2px solid #31423C;
 }
 
@@ -498,12 +538,14 @@ html[data-tema="oscuro"] .patient-catalog-page .doctor-photo img {
 
 html[data-tema="oscuro"] .doctor-active-badge {
     color: #C2DED3;
-    background: #141F1B;
+    background-color: #141F1B;
+    background-image: none;
     border: 1px solid #32433D;
 }
 
 html[data-tema="oscuro"] .doctor-active-badge > span {
-    background: #23A26D;
+    background-color: #23A26D;
+    background-image: none;
 }
 
 html[data-tema="oscuro"] .patient-catalog-page .doctor-info h3,
@@ -517,7 +559,8 @@ html[data-tema="oscuro"] .patient-catalog-page .doctor-card .specialty {
 
 html[data-tema="oscuro"] .patient-catalog-page .doctor-card .bio {
     color: #BCC8C2;
-    background: var(--patient-sage--f);
+    background-color: var(--patient-sage--f);
+    background-image: none;
     border: 1px solid #2F403A;
 }
 
@@ -535,23 +578,27 @@ html[data-tema="oscuro"] .doctor-card-footer > span i {
 
 html[data-tema="oscuro"] .doctor-book-link {
     color: #FFFFFF;
-    background: var(--patient-emerald--f);
+    background-color: var(--patient-emerald--f);
+    background-image: none;
 }
 
 html[data-tema="oscuro"] .doctor-book-link:hover {
     color: #FFFFFF;
-    background: var(--patient-emerald-hover--f);
+    background-color: var(--patient-emerald-hover--f);
+    background-image: none;
 }
 
 html[data-tema="oscuro"] .patient-catalog-page .no-doctors {
-    background: #1B2A24;
+    background-color: #1B2A24;
+    background-image: none;
     border: 1px dashed #344740;
     box-shadow: none;
 }
 
 html[data-tema="oscuro"] .empty-doctors-icon {
     color: var(--patient-emerald--t);
-    background: var(--patient-mint--f);
+    background-color: var(--patient-mint--f);
+    background-image: none;
 }
 
 html[data-tema="oscuro"] .patient-catalog-page .no-doctors p {
@@ -563,44 +610,52 @@ html[data-tema="oscuro"] .patient-catalog-page .no-doctors a {
 }
 
 html[data-tema="oscuro"] .patient-catalog-page nav.pagination {
-    background: transparent;
+    background-color: transparent;
+    background-image: none;
     border: 0;
 }
 
 html[data-tema="oscuro"] .patient-catalog-page .pagination a {
     color: var(--patient-emerald--t);
-    background: #1B2A24;
+    background-color: #1B2A24;
+    background-image: none;
     border: 1px solid var(--patient-border--b);
 }
 
 html[data-tema="oscuro"] .patient-catalog-page .pagination a.is-current {
     color: #FFFFFF;
-    background: var(--patient-emerald--f);
+    background-color: var(--patient-emerald--f);
+    background-image: none;
     border-color: var(--patient-emerald--b);
 }
 
 html[data-tema="oscuro"] .patient-catalog-page .pagination a:hover:not(.is-current) {
-    background: var(--patient-mint--f);
+    background-color: var(--patient-mint--f);
+    background-image: none;
 }
 
 html[data-tema="oscuro"] .patient-catalog-page .patient-sidebar .sidebar-inner {
-    background: #1B2A24;
+    background-color: #1B2A24;
+    background-image: none;
     border: 1px solid var(--patient-border--b);
     box-shadow: var(--patient-shadow--s);
 }
 
 html[data-tema="oscuro"] .patient-catalog-page .patient-sidebar .sidebar-header {
-    background: var(--patient-emerald--f);
+    background-color: var(--patient-emerald--f);
+    background-image: none;
 }
 
 html[data-tema="oscuro"] .patient-catalog-page .patient-sidebar .sidebar-title > span:first-child {
     color: #B7EED9;
-    background: rgba(255, 255, 255, 0.1);
+    background-color: rgba(255, 255, 255, 0.1);
+    background-image: none;
 }
 
 html[data-tema="oscuro"] .patient-catalog-page .patient-sidebar .sidebar-close {
     color: #FFFFFF;
-    background: rgba(255, 255, 255, 0.12);
+    background-color: rgba(255, 255, 255, 0.12);
+    background-image: none;
 }
 
 html[data-tema="oscuro"] .patient-catalog-page .patient-sidebar .sidebar-empty {
@@ -608,7 +663,8 @@ html[data-tema="oscuro"] .patient-catalog-page .patient-sidebar .sidebar-empty {
 }
 
 html[data-tema="oscuro"] .patient-catalog-page .patient-sidebar .cita-item {
-    background: var(--patient-sage--f);
+    background-color: var(--patient-sage--f);
+    background-image: none;
     border: 1px solid #30413B;
     border-left: 3px solid #19845B;
 }
@@ -627,7 +683,8 @@ html[data-tema="oscuro"] .patient-catalog-page .patient-sidebar .cita-motivo {
 
 html[data-tema="oscuro"] .patient-catalog-page footer {
     color: #D4EBDF;
-    background: var(--patient-emerald--f);
+    background-color: var(--patient-emerald--f);
+    background-image: none;
     border: 0;
     border-top: 1px solid var(--patient-emerald-dark--b);
     box-shadow: none;
@@ -640,7 +697,8 @@ html[data-tema="oscuro"] .patient-catalog-page footer p {
 @media (max-width: 760px) {
 html[data-tema="oscuro"] .patient-catalog-page .patient-sidebar.collapsed .sidebar-tab {
     color: #FFFFFF;
-    background: var(--patient-emerald--f);
+    background-color: var(--patient-emerald--f);
+    background-image: none;
     border: 0;
     box-shadow: var(--patient-shadow--s);
 }
@@ -660,18 +718,21 @@ html[data-tema="oscuro"] .doctor-profile-link {
 
 html[data-tema="oscuro"] .reserva-pendiente {
     color: #F3D9AD;
-    background: #3C2F1B;
+    background-color: #3C2F1B;
+    background-image: none;
     border: 1px solid #543D24;
 }
 
 html[data-tema="oscuro"] .reserva-pendiente a {
     color: #FFFFFF;
-    background: #855403;
+    background-color: #855403;
+    background-image: none;
 }
 
 html[data-tema="oscuro"] .confirmar-asistencia {
     color: #CCE3DD;
-    background: #141F1B;
+    background-color: #141F1B;
+    background-image: none;
     border: 1px solid #33453F;
 }
 
@@ -680,7 +741,8 @@ html[data-tema="oscuro"] .confirmar-asistencia small {
 }
 
 html[data-tema="oscuro"] .patient-main .confirmar-asistencia form {
-    background: none;
+    background-color: transparent;
+    background-image: none;
     border: 0;
     box-shadow: none;
 }
@@ -691,24 +753,28 @@ html[data-tema="oscuro"] .patient-main .confirmar-asistencia button {
 
 html[data-tema="oscuro"] .patient-main .confirmar-asistencia .confirmar-si {
     color: #FFFFFF;
-    background: #105644;
+    background-color: #105644;
+    background-image: none;
     border: 1px solid #105644;
 }
 
 html[data-tema="oscuro"] .patient-main .confirmar-asistencia .confirmar-no {
     color: #CCE3DD;
-    background: #1B2A24;
+    background-color: #1B2A24;
+    background-image: none;
     border: 1px solid #384C44;
 }
 
 html[data-tema="oscuro"] .patient-main .confirmar-asistencia .confirmar-si:hover {
     color: #FFFFFF;
-    background: #00664E;
+    background-color: #00664E;
+    background-image: none;
 }
 
 html[data-tema="oscuro"] .patient-main .confirmar-asistencia .confirmar-no:hover {
     color: #CCE3DD;
-    background: #131D19;
+    background-color: #131D19;
+    background-image: none;
 }
 
 html[data-tema="oscuro"] .cita-asistencia {

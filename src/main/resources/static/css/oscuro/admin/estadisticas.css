@@ -2,7 +2,8 @@
    los ajustes van en base/tema-oscuro.css o en el generador. */
 
 html[data-tema="oscuro"] .kpi {
-    background: var(--white--f);
+    background-color: var(--white--f);
+    background-image: none;
     border: 1px solid var(--border-color--b);
     box-shadow: var(--shadow-sm--s);
 }
@@ -47,11 +48,13 @@ html[data-tema="oscuro"] .ocupacion th {
 }
 
 html[data-tema="oscuro"] .barra {
-    background: var(--off-white--f);
+    background-color: var(--off-white--f);
+    background-image: none;
 }
 
 html[data-tema="oscuro"] .barra-relleno {
-    background: var(--secondary-color--f);
+    background-color: var(--secondary-color--f);
+    background-image: none;
 }
 
 html[data-tema="oscuro"] .barra-valor {

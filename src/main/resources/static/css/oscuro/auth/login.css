@@ -2,7 +2,8 @@
    los ajustes van en base/tema-oscuro.css o en el generador. */
 
 html[data-tema="oscuro"] .card form {
-    background: none;
+    background-color: transparent;
+    background-image: none;
     border: none;
     box-shadow: none;
 }
@@ -13,17 +14,20 @@ html[data-tema="oscuro"] .oauth-divider {
 
 html[data-tema="oscuro"] .oauth-divider::before,
 html[data-tema="oscuro"] .oauth-divider::after {
-    background: var(--border-color--f);
+    background-color: var(--border-color--f);
+    background-image: none;
 }
 
 html[data-tema="oscuro"] .btn-google-login {
-    background: var(--white--f);
+    background-color: var(--white--f);
+    background-image: none;
     border: 1px solid var(--border-mid--b);
     color: var(--text-dark--t);
 }
 
 html[data-tema="oscuro"] .btn-google-login:hover {
-    background: var(--off-white--f);
+    background-color: var(--off-white--f);
+    background-image: none;
     border-color: var(--border-mid--b);
     color: var(--text-dark--t);
 }
@@ -33,18 +37,21 @@ html[data-tema="oscuro"] .login-register-link {
 }
 
 html[data-tema="oscuro"] .login-page .login-card-main .auth-input-wrap {
-    background: transparent;
+    background-color: transparent;
+    background-image: none;
     border: 0;
     border-bottom: 2px solid var(--portal-primary--b);
     box-shadow: none;
 }
 
 html[data-tema="oscuro"] .login-page .login-card-main .auth-input-wrap:hover {
-    background: transparent;
+    background-color: transparent;
+    background-image: none;
 }
 
 html[data-tema="oscuro"] .login-page .login-card-main .auth-input-wrap:focus-within {
-    background: transparent;
+    background-color: transparent;
+    background-image: none;
     border-bottom-color: var(--portal-primary-container--b);
     box-shadow: none;
 }
@@ -54,7 +61,8 @@ html[data-tema="oscuro"] .login-page .login-card-main .auth-input-wrap > .materi
 }
 
 html[data-tema="oscuro"] .login-page .login-card-main .auth-input-wrap input {
-    background: transparent;
+    background-color: transparent;
+    background-image: none;
     border: 0;
     outline: none;
     box-shadow: none;
@@ -67,12 +75,14 @@ html[data-tema="oscuro"] .login-page .login-card-main .auth-input-wrap input:foc
 
 html[data-tema="oscuro"] .login-page .login-card-main .password-toggle {
     color: var(--portal-primary--t);
-    background: transparent;
+    background-color: transparent;
+    background-image: none;
 }
 
 html[data-tema="oscuro"] .login-page .login-card-main .password-toggle:hover {
     color: var(--portal-primary-container--t);
-    background: transparent;
+    background-color: transparent;
+    background-image: none;
 }
 
 html[data-tema="oscuro"] .login-page .login-card-main .password-toggle:focus-visible {

@@ -2,7 +2,8 @@
    los ajustes van en base/tema-oscuro.css o en el generador. */
 
 html[data-tema="oscuro"] .stat-card {
-    background: var(--white--f);
+    background-color: var(--white--f);
+    background-image: none;
     border: 1px solid var(--border-color--b);
     border-top: 3px solid var(--accent-color--b);
     box-shadow: var(--shadow-sm--s);
@@ -33,7 +34,8 @@ html[data-tema="oscuro"] .status-inactivo {
 }
 
 html[data-tema="oscuro"] .mensajes-contador {
-    background: var(--primary-color--f);
+    background-color: var(--primary-color--f);
+    background-image: none;
     color: var(--white--t);
 }
 
@@ -50,7 +52,8 @@ html[data-tema="oscuro"] .mensaje-ayuda-cabecera a {
 }
 
 html[data-tema="oscuro"] .mensaje-ayuda-tema {
-    background: var(--light-bg--f);
+    background-color: var(--light-bg--f);
+    background-image: none;
 }
 
 html[data-tema="oscuro"] .mensaje-ayuda-cabecera time {

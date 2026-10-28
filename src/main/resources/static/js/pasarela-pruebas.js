@@ -4,15 +4,18 @@
     const raiz = document.querySelector('[data-pasarela]');
     if (!raiz) return;
 
-    const TARJETAS = { '4242424242424242': 'APPROVED', '4111111111111111': 'DECLINED' };
-    const CELULARES = { '3991111111': 'APPROVED', '3992222222': 'DECLINED' };
-    const BANCOS = { '0': 'APPROVED', '1': 'DECLINED' };
+    // Tarjetas de prueba (las mismas de Wompi y de las marcas). Nunca se aceptan tarjetas reales en la demo.
+    const TARJETAS = {
+        '4242424242424242': 'APPROVED', '5555555555554444': 'APPROVED', '5105105105105100': 'APPROVED',
+        '378282246310005': 'APPROVED', '371449635398431': 'APPROVED', '30569309025904': 'APPROVED',
+        '4111111111111111': 'DECLINED', '4000000000000002': 'DECLINED'
+    };
     const TITULOS = { CARD: 'Tarjeta de crédito o débito', PSE: 'PSE', NEQUI: 'Nequi', BANCOLOMBIA_TRANSFER: 'Botón Bancolombia' };
     const ESPERA = {
         CARD: ['Procesando tu pago…', 'Estamos validando la tarjeta con tu banco.'],
         PSE: ['Conectando con tu banco…', 'Te llevamos al portal de PSE.'],
         NEQUI: ['Enviando la notificación…', 'Revisa tu celular y acepta el pago en la app Nequi.'],
-        BANCOLOMBIA_TRANSFER: ['Conectando con Bancolombia…', 'Autoriza la transferencia en la Sucursal Virtual.']
+        BANCOLOMBIA_TRANSFER: ['Conectando con Bancolombia…', 'Te llevamos a la Sucursal Virtual Personas.']
     };
     // Campos que se validan para cada medio, en el orden en que aparecen
     const CAMPOS = {
@@ -126,7 +129,7 @@
             if (!n) return 'Escribe el número de la tarjeta.';
             if (!marca) return 'Aceptamos Visa, Mastercard, American Express y Diners.';
             if (n.length !== largoDe(marca) || !luhn(n)) return 'El número de la tarjeta no es válido.';
-            if (!TARJETAS[n]) return 'Modo pruebas: usa una tarjeta de prueba, no una real.';
+            if (!TARJETAS[n]) return 'Modo pruebas: usa una de las tarjetas de "Datos de prueba", no una real.';
             return null;
         },
         vence: function () {
@@ -155,9 +158,7 @@
         },
         celular: function () {
             const cel = soloDigitos(campo('celular').value);
-            if (!/^3\d{9}$/.test(cel)) return 'Escribe un celular de 10 dígitos que empiece por 3.';
-            if (!CELULARES[cel]) return 'Modo pruebas: usa un celular de prueba.';
-            return null;
+            return /^3\d{9}$/.test(cel) ? null : 'Escribe un celular de 10 dígitos que empiece por 3.';
         }
     };
 
@@ -221,15 +222,6 @@
             botonPagar.focus();
         });
     });
-    raiz.querySelectorAll('[data-llenar-celular]').forEach(function (b) {
-        b.addEventListener('click', function () {
-            elegir('NEQUI');
-            escribir('celular', b.dataset.llenarCelular);
-            campo('terminos').checked = true;
-            limpiarErrores();
-            botonPagar.focus();
-        });
-    });
     function escribir(nombre, valor) {
         const c = campo(nombre);
         c.value = valor;
@@ -273,17 +265,13 @@
             poner('marca', marcaDe(n));
             poner('ultimos4', n.slice(-4));
         } else if (medio === 'PSE') {
-            poner('escenario', BANCOS[campo('banco').value]);
             poner('banco', campo('banco').value);
         } else if (medio === 'NEQUI') {
-            const cel = soloDigitos(campo('celular').value);
-            poner('escenario', CELULARES[cel]);
-            poner('ultimos4', cel.slice(-4));
-        } else {
-            poner('escenario', 'APPROVED');
+            poner('ultimos4', soloDigitos(campo('celular').value).slice(-4));
         }
+        // PSE, Nequi y Bancolombia: el resultado lo decide el paciente en el banco o en la app
+        if (medio !== 'CARD') poner('escenario', 'APPROVED');
 
-        if (medio === 'BANCOLOMBIA_TRANSFER') return procesar();
         // Antes de procesar, el paso del banco o de la app; el aviso de "procesando" cubre la espera
         mostrarProcesando(ESPERA[medio][0], ESPERA[medio][1]);
         setTimeout(function () { verificar(medio); }, 1200);
@@ -303,10 +291,32 @@
         setTimeout(function () { envio.submit(); }, 1500);
     }
 
-    // ── Verificación: 3D Secure, portal del banco (PSE) o notificación de Nequi ──
-    const CODIGO_PRUEBA = '123456';
+    // ── Verificación: 3D Secure, portal del banco (PSE, Bancolombia) o notificación de Nequi ──
     const capa = raiz.querySelector('[data-verificacion]');
-    let caja = null, cuenta = null, intentos = 0;
+    const sms = raiz.querySelector('[data-sms]');
+    let caja = null, cuenta = null, intentos = 0, codigoEnviado = null, esperaSms = null;
+
+    // El banco "envía" el código por SMS: aparece como notificación y al tocarla se llena
+    function enviarSms() {
+        codigoEnviado = String(Math.floor(100000 + Math.random() * 900000));
+        sms.hidden = true;
+        clearTimeout(esperaSms);
+        esperaSms = setTimeout(function () {
+            sms.querySelector('[data-sms-codigo]').textContent = codigoEnviado;
+            sms.hidden = false;
+        }, 900);
+    }
+    sms.addEventListener('click', function () {
+        const entrada = capa.querySelector('[data-ver-codigo]');
+        entrada.value = codigoEnviado;
+        entrada.dispatchEvent(new Event('input'));
+        sms.hidden = true;
+        entrada.focus();
+    });
+    capa.querySelector('[data-ver-reenviar]').addEventListener('click', function () {
+        enviarSms();
+        capa.querySelector('[data-ver-codigo]').focus();
+    });
 
     function verificar(m) {
         raiz.querySelector('[data-procesando]').hidden = true;
@@ -321,9 +331,13 @@
             caja.querySelector('[data-ver-codigo]').value = '';
             caja.querySelector('[data-ver-error]').hidden = true;
             intentos = 0;
+            enviarSms();
         } else if (m === 'PSE') {
             const banco = campo('banco');
             caja.querySelector('[data-ver-banco]').textContent = banco.options[banco.selectedIndex].text;
+            caja.querySelector('input[name="cuentaPse"]').checked = true;
+        } else if (m === 'BANCOLOMBIA_TRANSFER') {
+            caja.querySelector('input[name="cuentaBancolombia"]').checked = true;
         } else if (m === 'NEQUI') {
             const ahora = new Date();
             caja.querySelector('[data-ver-hora]').textContent = ahora.getHours() + ':' + String(ahora.getMinutes()).padStart(2, '0');
@@ -342,6 +356,8 @@
 
     function cerrarVerificacion(error) {
         clearInterval(cuenta);
+        clearTimeout(esperaSms);
+        sms.hidden = true;
         capa.hidden = true;
         document.body.classList.remove('sin-scroll');
         enviando = false;
@@ -352,6 +368,8 @@
 
     function finalizarVerificacion(escenario) {
         clearInterval(cuenta);
+        clearTimeout(esperaSms);
+        sms.hidden = true;
         capa.hidden = true;
         document.body.classList.remove('sin-scroll');
         procesar(escenario);
@@ -364,10 +382,14 @@
     capa.querySelector('[data-ver-rechazar]').addEventListener('click', function () { finalizarVerificacion('DECLINED'); });
     capa.querySelectorAll('[data-ver-confirmar]').forEach(function (b) {
         b.addEventListener('click', function () {
-            if (caja.dataset.ver !== 'CARD') return finalizarVerificacion();
+            if (caja.dataset.ver !== 'CARD') {
+                // En el portal del banco, la cuenta sin saldo hace que el banco rechace el débito
+                const cuentaElegida = caja.querySelector('input[type="radio"]:checked');
+                return finalizarVerificacion(cuentaElegida && cuentaElegida.dataset.sinSaldo !== undefined ? 'DECLINED' : null);
+            }
             const entrada = caja.querySelector('[data-ver-codigo]');
             const error = caja.querySelector('[data-ver-error]');
-            if (soloDigitos(entrada.value) === CODIGO_PRUEBA) return finalizarVerificacion();
+            if (soloDigitos(entrada.value) === codigoEnviado) return finalizarVerificacion();
             intentos++;
             // Tres intentos fallidos: el banco no autoriza el pago
             if (intentos >= 3) return finalizarVerificacion('DECLINED');

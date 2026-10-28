@@ -2037,3 +2037,107 @@ body.sin-scroll {
     color: #fff;
     background: rgba(0, 0, 0, 0.75);
 }
+
+/* Pasarela: SMS del banco con el código (simulado) */
+.pago-page .sms-banco {
+    position: fixed;
+    top: 16px;
+    left: 50%;
+    z-index: 1002;
+    display: grid;
+    gap: 2px;
+    width: min(360px, calc(100% - 32px));
+    margin: 0;
+    padding: 12px 14px;
+    color: #171B19;
+    background: rgba(255, 255, 255, 0.97);
+    border: 0;
+    border-radius: 16px;
+    box-shadow: 0 16px 40px -12px rgba(0, 0, 0, 0.45);
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: normal;
+    line-height: 1.4;
+    text-align: left;
+    text-transform: none;
+    cursor: pointer;
+    transform: translateX(-50%);
+    animation: sms-baja 0.3s ease-out;
+}
+
+.pago-page .sms-banco:hover {
+    background: #FFFFFF;
+    transform: translateX(-50%);
+}
+
+.sms-banco[hidden] {
+    display: none;
+}
+
+@keyframes sms-baja {
+    from { opacity: 0; transform: translate(-50%, -12px); }
+    to { opacity: 1; transform: translate(-50%, 0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .pago-page .sms-banco { animation: none; }
+}
+
+.sms-banco-app {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: #5F6662;
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.sms-banco-app .material-symbols-outlined {
+    padding: 2px;
+    color: #FFFFFF;
+    background: #34A853;
+    border-radius: 5px;
+    font-size: 13px;
+}
+
+.sms-banco b {
+    letter-spacing: 0.08em;
+}
+
+.sms-banco small {
+    color: #0D4738;
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.pago-page .verificacion-reenviar {
+    display: block;
+    margin: -4px 0 12px;
+    padding: 0;
+    color: var(--portal-primary-container);
+    background: none;
+    border: 0;
+    box-shadow: none;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: normal;
+    text-transform: none;
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+.pago-page .verificacion-reenviar:hover {
+    background: none;
+    transform: none;
+}
+
+/* Portal de Bancolombia (simulado) */
+.verificacion-caja.is-bancolombia .verificacion-cabecera {
+    background: #2C2A29;
+}
+
+.verificacion-caja.is-bancolombia .verificacion-cabecera .material-symbols-outlined {
+    color: #FDDA24;
+}

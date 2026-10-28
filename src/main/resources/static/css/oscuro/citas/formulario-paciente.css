@@ -2,7 +2,8 @@
    los ajustes van en base/tema-oscuro.css o en el generador. */
 
 html[data-tema="oscuro"] .doctor-card-header {
-    background: var(--white--f);
+    background-color: var(--white--f);
+    background-image: none;
     box-shadow: 0 2px 16px rgba(0, 0, 0, 0.144);
 }
 
@@ -11,7 +12,8 @@ html[data-tema="oscuro"] .doc-avatar {
 }
 
 html[data-tema="oscuro"] .doc-avatar-placeholder {
-    background: linear-gradient(135deg, var(--primary-color--f), var(--secondary-color--f));
+    background-color: transparent;
+    background-image: linear-gradient(135deg, var(--primary-color--f), var(--secondary-color--f));
     color: var(--white--t);
 }
 
@@ -20,7 +22,8 @@ html[data-tema="oscuro"] .doc-info h2 {
 }
 
 html[data-tema="oscuro"] .specialty-tag {
-    background: rgba(151, 216, 199, 0.104);
+    background-color: rgba(151, 216, 199, 0.104);
+    background-image: none;
     color: var(--secondary-color--t);
 }
 
@@ -29,7 +32,8 @@ html[data-tema="oscuro"] .doc-bio {
 }
 
 html[data-tema="oscuro"] .no-availability {
-    background: var(--white--f);
+    background-color: var(--white--f);
+    background-image: none;
     box-shadow: 0 2px 16px rgba(0, 0, 0, 0.144);
 }
 
@@ -42,7 +46,8 @@ html[data-tema="oscuro"] .no-availability p {
 }
 
 html[data-tema="oscuro"] .step-section {
-    background: var(--white--f);
+    background-color: var(--white--f);
+    background-image: none;
     box-shadow: 0 2px 16px rgba(0, 0, 0, 0.144);
 }
 
@@ -53,58 +58,68 @@ html[data-tema="oscuro"] .step-label {
 
 html[data-tema="oscuro"] .date-card {
     border: 2px solid var(--border-color--b);
-    background: var(--light-bg--f);
+    background-color: var(--light-bg--f);
+    background-image: none;
 }
 
 html[data-tema="oscuro"] .date-card:hover {
     border-color: var(--secondary-color--b);
-    background: rgba(151, 216, 199, 0.104);
+    background-color: rgba(151, 216, 199, 0.104);
+    background-image: none;
 }
 
 html[data-tema="oscuro"] .date-card.selected {
     border-color: var(--secondary-color--b);
-    background: var(--secondary-color--f);
+    background-color: var(--secondary-color--f);
+    background-image: none;
     color: var(--white--t);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.45);
 }
 
 html[data-tema="oscuro"] .date-slots {
-    background: rgba(255, 255, 255, 0.25);
+    background-color: rgba(255, 255, 255, 0.25);
+    background-image: none;
 }
 
 html[data-tema="oscuro"] .date-card:not(.selected) .date-slots {
-    background: rgba(151, 216, 199, 0.13);
+    background-color: rgba(151, 216, 199, 0.13);
+    background-image: none;
     color: var(--secondary-color--t);
 }
 
 html[data-tema="oscuro"] .slot-btn {
     border: 2px solid var(--border-color--b);
-    background: var(--light-bg--f);
+    background-color: var(--light-bg--f);
+    background-image: none;
     color: var(--text-dark--t);
 }
 
 html[data-tema="oscuro"] .slot-btn:hover {
     border-color: var(--secondary-color--b);
-    background: rgba(151, 216, 199, 0.104);
+    background-color: rgba(151, 216, 199, 0.104);
+    background-image: none;
     color: var(--primary-color--t);
 }
 
 html[data-tema="oscuro"] .slot-btn.selected {
     border-color: var(--secondary-color--b);
-    background: var(--secondary-color--f);
+    background-color: var(--secondary-color--f);
+    background-image: none;
     color: var(--white--t);
     box-shadow: 0 3px 10px rgba(0, 0, 0, 0.396);
 }
 
 html[data-tema="oscuro"] .confirm-card form,
 html[data-tema="oscuro"] .logout-form {
-    background: none;
+    background-color: transparent;
+    background-image: none;
     border: none;
     box-shadow: none;
 }
 
 html[data-tema="oscuro"] .confirm-summary {
-    background: var(--light-bg--f);
+    background-color: var(--light-bg--f);
+    background-image: none;
     border-left: 4px solid var(--secondary-color--b);
 }
 
@@ -131,18 +146,21 @@ html[data-tema="oscuro"] .btn-change:hover {
 }
 
 html[data-tema="oscuro"] .alert-error {
-    background: rgba(216, 151, 151, 0.104);
+    background-color: rgba(216, 151, 151, 0.104);
+    background-image: none;
     color: #E6A0A0;
 }
 
 html[data-tema="oscuro"] .patient-booking-page {
     color: #C3CEE0;
-    background: #121D19;
+    background-color: #121D19;
+    background-image: none;
 }
 
 html[data-tema="oscuro"] .patient-booking-page .app-header {
     color: #FFFFFF;
-    background: #105644;
+    background-color: #105644;
+    background-image: none;
     border: 0;
     border-bottom: 1px solid #0E5843;
     box-shadow: 0 3px 14px rgba(0, 0, 0, 0.252);
@@ -154,12 +172,14 @@ html[data-tema="oscuro"] .patient-booking-page .app-brand {
 
 html[data-tema="oscuro"] .patient-booking-page .app-brand .app-brand-icon {
     color: #C6EFE0;
-    background: rgba(255, 255, 255, 0.1);
+    background-color: rgba(255, 255, 255, 0.1);
+    background-image: none;
     border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 html[data-tema="oscuro"] .patient-booking-page .app-nav {
-    background: transparent;
+    background-color: transparent;
+    background-image: none;
     border: 0;
     border-left: 1px solid rgba(255, 255, 255, 0.14);
 }
@@ -171,12 +191,14 @@ html[data-tema="oscuro"] .patient-booking-page .app-nav a {
 
 html[data-tema="oscuro"] .patient-booking-page .app-nav a:hover {
     color: #FFFFFF;
-    background: rgba(255, 255, 255, 0.1);
+    background-color: rgba(255, 255, 255, 0.1);
+    background-image: none;
 }
 
 html[data-tema="oscuro"] .patient-booking-page .app-nav a.is-active {
     color: #FFFFFF;
-    background: rgba(255, 255, 255, 0.14);
+    background-color: rgba(255, 255, 255, 0.14);
+    background-image: none;
     border-color: rgba(255, 255, 255, 0.18);
 }
 
@@ -186,13 +208,15 @@ html[data-tema="oscuro"] .patient-booking-page .app-user-name {
 
 html[data-tema="oscuro"] .patient-booking-page .app-logout {
     color: #FFFFFF;
-    background: rgba(255, 255, 255, 0.1);
+    background-color: rgba(255, 255, 255, 0.1);
+    background-image: none;
     border: 1px solid rgba(255, 255, 255, 0.17);
 }
 
 html[data-tema="oscuro"] .patient-booking-page .app-logout:hover {
     color: #FFFFFF;
-    background: rgba(255, 255, 255, 0.18);
+    background-color: rgba(255, 255, 255, 0.18);
+    background-image: none;
 }
 
 html[data-tema="oscuro"] .booking-back-link {
@@ -219,7 +243,8 @@ html[data-tema="oscuro"] .booking-page-heading > p {
 html[data-tema="oscuro"] .patient-booking-page .doctor-card-header,
 html[data-tema="oscuro"] .patient-booking-page .step-section,
 html[data-tema="oscuro"] .patient-booking-page .no-availability {
-    background: #1B2A24;
+    background-color: #1B2A24;
+    background-image: none;
     border: 1px solid #31423B;
     box-shadow: 0 4px 24px -2px rgba(0, 0, 0, 0.108), 0 2px 8px -2px rgba(0, 0, 0, 0.072);
 }
@@ -231,7 +256,8 @@ html[data-tema="oscuro"] .patient-booking-page .doc-avatar-placeholder {
 }
 
 html[data-tema="oscuro"] .patient-booking-page .doc-avatar-placeholder {
-    background: linear-gradient(140deg, #105644, #197052);
+    background-color: transparent;
+    background-image: linear-gradient(140deg, #105644, #197052);
     color: #FFFFFF;
 }
 
@@ -241,7 +267,8 @@ html[data-tema="oscuro"] .patient-booking-page .doc-info h2 {
 
 html[data-tema="oscuro"] .patient-booking-page .specialty-tag {
     color: #C2DED3;
-    background: #141F1B;
+    background-color: #141F1B;
+    background-image: none;
     border: 1px solid #32433D;
 }
 
@@ -256,54 +283,63 @@ html[data-tema="oscuro"] .patient-booking-page .step-label {
 
 html[data-tema="oscuro"] .patient-booking-page .date-card {
     color: #C9D7D0;
-    background: #121C19;
+    background-color: #121C19;
+    background-image: none;
     border: 1px solid #32433D;
 }
 
 html[data-tema="oscuro"] .patient-booking-page .date-card:hover {
     color: #CCE3DD;
-    background: #141F1B;
+    background-color: #141F1B;
+    background-image: none;
     border-color: #394D46;
 }
 
 html[data-tema="oscuro"] .patient-booking-page .date-card.selected {
     color: #FFFFFF;
-    background: #105644;
+    background-color: #105644;
+    background-image: none;
     border-color: #105644;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.324);
 }
 
 html[data-tema="oscuro"] .patient-booking-page .date-slots {
     color: #C2DED3;
-    background: #141F1B;
+    background-color: #141F1B;
+    background-image: none;
 }
 
 html[data-tema="oscuro"] .patient-booking-page .date-card.selected .date-slots {
     color: #FFFFFF;
-    background: rgba(255, 255, 255, 0.18);
+    background-color: rgba(255, 255, 255, 0.18);
+    background-image: none;
 }
 
 html[data-tema="oscuro"] .patient-booking-page .slot-btn {
     color: #C9D7D0;
-    background: #121C19;
+    background-color: #121C19;
+    background-image: none;
     border: 1px solid #32433D;
 }
 
 html[data-tema="oscuro"] .patient-booking-page .slot-btn:hover {
     color: #CCE3DD;
-    background: #141F1B;
+    background-color: #141F1B;
+    background-image: none;
     border-color: #394D46;
 }
 
 html[data-tema="oscuro"] .patient-booking-page .slot-btn.selected {
     color: #FFFFFF;
-    background: #105644;
+    background-color: #105644;
+    background-image: none;
     border-color: #105644;
     box-shadow: 0 3px 9px rgba(0, 0, 0, 0.27);
 }
 
 html[data-tema="oscuro"] .patient-booking-page .confirm-summary {
-    background: #121D19;
+    background-color: #121D19;
+    background-image: none;
     border: 1px solid #31423B;
     border-left: 3px solid #105644;
 }
@@ -322,7 +358,8 @@ html[data-tema="oscuro"] .patient-booking-page .confirm-card .form-group label {
 
 html[data-tema="oscuro"] .patient-booking-page .confirm-card .form-group textarea {
     color: #CCDED6;
-    background: #121C19;
+    background-color: #121C19;
+    background-image: none;
     border: 1px solid #32433D;
 }
 
@@ -333,13 +370,15 @@ html[data-tema="oscuro"] .patient-booking-page .confirm-card .form-group textare
 
 html[data-tema="oscuro"] .patient-booking-page .btn-confirm {
     color: #FFFFFF;
-    background: #105644;
+    background-color: #105644;
+    background-image: none;
     border: 1px solid #105644;
 }
 
 html[data-tema="oscuro"] .patient-booking-page .btn-confirm:hover {
     color: #FFFFFF;
-    background: #0F5744;
+    background-color: #0F5744;
+    background-image: none;
     border-color: #0F5744;
 }
 
@@ -365,17 +404,20 @@ html[data-tema="oscuro"] .patient-booking-page .no-avail-icon {
 
 html[data-tema="oscuro"] .patient-booking-page .alert-error {
     color: #E3A5A1;
-    background: #3C1F1B;
+    background-color: #3C1F1B;
+    background-image: none;
     border: 1px solid #512923;
     border-left: 3px solid #BA1A1A;
 }
 
 html[data-tema="oscuro"] .abono-aviso {
     color: #F3D9AD;
-    background: #3C2F1B;
+    background-color: #3C2F1B;
+    background-image: none;
 }
 
 html[data-tema="oscuro"] .alert-info-reserva {
     color: #CCE3DD;
-    background: #141F1B;
+    background-color: #141F1B;
+    background-image: none;
 }

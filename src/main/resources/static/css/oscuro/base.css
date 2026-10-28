@@ -2,7 +2,8 @@
    los ajustes van en base/tema-oscuro.css o en el generador. */
 
 html[data-tema="oscuro"] body {
-    background: var(--color-background--f);
+    background-color: var(--color-background--f);
+    background-image: none;
     color: var(--color-text--t);
 }
 

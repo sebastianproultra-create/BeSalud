@@ -3,7 +3,8 @@
 
 html[data-tema="oscuro"] .ayuda-eyebrow {
     color: var(--portal-primary--t);
-    background: rgba(27, 42, 36, 0.888);
+    background-color: rgba(27, 42, 36, 0.888);
+    background-image: none;
     border: 1px solid var(--portal-border--b);
 }
 
@@ -20,29 +21,34 @@ html[data-tema="oscuro"] .ayuda-hero > p {
 }
 
 html[data-tema="oscuro"] .ayuda-page nav.ayuda-atajos {
-    background: none;
+    background-color: transparent;
+    background-image: none;
     border: 0;
 }
 
 html[data-tema="oscuro"] .ayuda-atajos a {
     color: var(--portal-primary--t);
-    background: var(--portal-surface--f);
+    background-color: var(--portal-surface--f);
+    background-image: none;
     border: 1px solid var(--portal-border--b);
 }
 
 html[data-tema="oscuro"] .ayuda-atajos a:hover {
-    background: var(--portal-container--f);
+    background-color: var(--portal-container--f);
+    background-image: none;
     border-color: rgba(159, 209, 197, 0.24);
 }
 
 html[data-tema="oscuro"] .ayuda-atajos a.is-destacado {
     color: #FFFFFF;
-    background: var(--portal-primary--f);
+    background-color: var(--portal-primary--f);
+    background-image: none;
     border-color: var(--portal-primary--b);
 }
 
 html[data-tema="oscuro"] .ayuda-atajos a.is-destacado:hover {
-    background: var(--portal-primary-container--f);
+    background-color: var(--portal-primary-container--f);
+    background-image: none;
 }
 
 html[data-tema="oscuro"] .ayuda-grupo h2 {
@@ -51,11 +57,13 @@ html[data-tema="oscuro"] .ayuda-grupo h2 {
 
 html[data-tema="oscuro"] .ayuda-grupo h2 .material-symbols-outlined {
     color: var(--portal-primary--t);
-    background: var(--portal-container--f);
+    background-color: var(--portal-container--f);
+    background-image: none;
 }
 
 html[data-tema="oscuro"] .ayuda-grupo details {
-    background: var(--portal-surface--f);
+    background-color: var(--portal-surface--f);
+    background-image: none;
     border: 1px solid var(--portal-border--b);
 }
 

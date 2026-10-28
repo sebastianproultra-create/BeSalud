@@ -97,7 +97,10 @@ public class PagoController {
     }
 
     /** Bancos de la lista de PSE en la pasarela de pruebas; los dos primeros son los de prueba de Wompi. */
-    static final List<String> BANCOS_PRUEBA = List.of("Banco que aprueba", "Banco que rechaza");
+    /** Bancos que muestra el simulador de PSE (solo la demostración: no se conecta con ninguno). */
+    static final List<String> BANCOS_PRUEBA = List.of("Bancolombia", "Banco de Bogotá", "Davivienda", "BBVA Colombia",
+            "Banco de Occidente", "Banco Popular", "Scotiabank Colpatria", "Banco AV Villas", "Banco Caja Social",
+            "Banco Itaú", "Banco Falabella", "Nequi", "Daviplata");
 
     /**
      * Recibe solo lo necesario para el comprobante (marca y últimos 4 dígitos, banco, últimos 4 del

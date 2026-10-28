@@ -6,12 +6,14 @@ html[data-tema="oscuro"] .pago-pasos li {
 }
 
 html[data-tema="oscuro"] .pago-pasos li + li::before {
-    background: var(--portal-border--f);
+    background-color: var(--portal-border--f);
+    background-image: none;
 }
 
 html[data-tema="oscuro"] .pago-pasos li > span {
     color: var(--portal-outline--t);
-    background: var(--portal-surface--f);
+    background-color: var(--portal-surface--f);
+    background-image: none;
     border: 2px solid var(--portal-border--b);
 }
 
@@ -22,7 +24,8 @@ html[data-tema="oscuro"] .pago-pasos li.is-actual {
 
 html[data-tema="oscuro"] .pago-pasos li.is-hecho > span {
     color: #FFFFFF;
-    background: var(--portal-primary-container--f);
+    background-color: var(--portal-primary-container--f);
+    background-image: none;
     border-color: var(--portal-primary-container--b);
 }
 
@@ -37,7 +40,8 @@ html[data-tema="oscuro"] .pago-pasos li.is-hecho.is-actual > span {
 
 html[data-tema="oscuro"] .pago-correo {
     color: var(--portal-muted--t);
-    background: var(--portal-container--f);
+    background-color: var(--portal-container--f);
+    background-image: none;
 }
 
 html[data-tema="oscuro"] .pago-correo .material-symbols-outlined {
@@ -45,7 +49,8 @@ html[data-tema="oscuro"] .pago-correo .material-symbols-outlined {
 }
 
 html[data-tema="oscuro"] .pago-tarjeta {
-    background: var(--portal-surface--f);
+    background-color: var(--portal-surface--f);
+    background-image: none;
     border: 1px solid var(--portal-border--b);
     box-shadow: 0 12px 32px rgba(0, 0, 0, 0.108);
 }
@@ -60,7 +65,8 @@ html[data-tema="oscuro"] .pago-sub {
 }
 
 html[data-tema="oscuro"] .pago-medico {
-    background: var(--portal-container--f);
+    background-color: var(--portal-container--f);
+    background-image: none;
 }
 
 html[data-tema="oscuro"] .pago-medico strong {
@@ -104,13 +110,15 @@ html[data-tema="oscuro"] .pago-cuentas .is-total dd {
 }
 
 html[data-tema="oscuro"] .pago-page form {
-    background: none;
+    background-color: transparent;
+    background-image: none;
     border: 0;
     box-shadow: none;
 }
 
 html[data-tema="oscuro"] .pago-reloj {
-    background: var(--portal-bg--f);
+    background-color: var(--portal-bg--f);
+    background-image: none;
     border: 1px solid var(--portal-border--b);
 }
 
@@ -127,11 +135,13 @@ html[data-tema="oscuro"] .pago-reloj-tiempo {
 }
 
 html[data-tema="oscuro"] .pago-reloj-barra {
-    background: var(--portal-border--f);
+    background-color: var(--portal-border--f);
+    background-image: none;
 }
 
 html[data-tema="oscuro"] .pago-reloj-barra span {
-    background: var(--portal-primary-container--f);
+    background-color: var(--portal-primary-container--f);
+    background-image: none;
 }
 
 html[data-tema="oscuro"] .pago-reloj.is-urgente .pago-reloj-tiempo {
@@ -139,16 +149,19 @@ html[data-tema="oscuro"] .pago-reloj.is-urgente .pago-reloj-tiempo {
 }
 
 html[data-tema="oscuro"] .pago-reloj.is-urgente .pago-reloj-barra::-webkit-progress-value {
-    background: #B3261E;
+    background-color: #B3261E;
+    background-image: none;
 }
 
 html[data-tema="oscuro"] .pago-reloj.is-urgente .pago-reloj-barra::-moz-progress-bar {
-    background: #B3261E;
+    background-color: #B3261E;
+    background-image: none;
 }
 
 html[data-tema="oscuro"] .pago-page .pago-boton {
     color: #FFFFFF;
-    background: var(--portal-primary--f);
+    background-color: var(--portal-primary--f);
+    background-image: none;
     border: 1px solid var(--portal-primary--b);
     box-shadow: 0 8px 20px rgba(0, 0, 0, 0.324);
 }
@@ -156,13 +169,15 @@ html[data-tema="oscuro"] .pago-page .pago-boton {
 html[data-tema="oscuro"] .pago-page .pago-boton:hover,
 html[data-tema="oscuro"] .pago-page .pago-boton:focus-visible {
     color: #FFFFFF;
-    background: var(--portal-primary-container--f);
+    background-color: var(--portal-primary-container--f);
+    background-image: none;
     border-color: var(--portal-primary-container--b);
 }
 
 html[data-tema="oscuro"] .pago-page .pago-boton.is-secundario {
     color: var(--portal-primary--t);
-    background: var(--portal-surface--f);
+    background-color: var(--portal-surface--f);
+    background-image: none;
     border-color: var(--portal-border--b);
     box-shadow: none;
 }
@@ -170,7 +185,8 @@ html[data-tema="oscuro"] .pago-page .pago-boton.is-secundario {
 html[data-tema="oscuro"] .pago-page .pago-boton.is-secundario:hover,
 html[data-tema="oscuro"] .pago-page .pago-boton.is-secundario:focus-visible {
     color: var(--portal-primary--t);
-    background: var(--portal-container--f);
+    background-color: var(--portal-container--f);
+    background-image: none;
     border-color: var(--portal-border--b);
 }
 
@@ -189,19 +205,22 @@ html[data-tema="oscuro"] .pago-politica {
 
 html[data-tema="oscuro"] .pago-page .pago-liberar button {
     color: var(--portal-muted--t);
-    background: none;
+    background-color: transparent;
+    background-image: none;
     border: 0;
     box-shadow: none;
 }
 
 html[data-tema="oscuro"] .pago-page .pago-liberar button:hover {
     color: var(--portal-primary--t);
-    background: none;
+    background-color: transparent;
+    background-image: none;
 }
 
 html[data-tema="oscuro"] .pasarela-aviso {
     color: #F3D9AD;
-    background: #3C2F1B;
+    background-color: #3C2F1B;
+    background-image: none;
     border: 1px dashed var(--portal-secondary-container--b);
 }
 
@@ -220,7 +239,8 @@ html[data-tema="oscuro"] .pasarela-subtitulo {
 
 html[data-tema="oscuro"] .pago-page .pasarela-medio {
     color: var(--portal-on-surface--t);
-    background: var(--portal-surface--f);
+    background-color: var(--portal-surface--f);
+    background-image: none;
     border: 1px solid var(--portal-border--b);
     box-shadow: none;
 }
@@ -228,13 +248,15 @@ html[data-tema="oscuro"] .pago-page .pasarela-medio {
 html[data-tema="oscuro"] .pago-page .pasarela-medio:hover,
 html[data-tema="oscuro"] .pago-page .pasarela-medio:focus-visible {
     color: var(--portal-on-surface--t);
-    background: var(--portal-bg--f);
+    background-color: var(--portal-bg--f);
+    background-image: none;
     border-color: var(--portal-primary-container--b);
 }
 
 html[data-tema="oscuro"] .pasarela-medio > .material-symbols-outlined:first-child {
     color: var(--portal-primary-container--t);
-    background: var(--portal-container--f);
+    background-color: var(--portal-container--f);
+    background-image: none;
 }
 
 html[data-tema="oscuro"] .pasarela-medio small {
@@ -247,40 +269,48 @@ html[data-tema="oscuro"] .pasarela-flecha {
 
 html[data-tema="oscuro"] .pago-page .pasarela-atras {
     color: var(--portal-primary--t);
-    background: none;
+    background-color: transparent;
+    background-image: none;
     border: 0;
     box-shadow: none;
 }
 
 html[data-tema="oscuro"] .pago-page .pasarela-atras:hover {
     color: var(--portal-primary-container--t);
-    background: none;
+    background-color: transparent;
+    background-image: none;
 }
 
 html[data-tema="oscuro"] .tarjeta-vista {
     color: #FFFFFF;
-    background: linear-gradient(135deg, #2D3B36, #105644);
+    background-color: transparent;
+    background-image: linear-gradient(135deg, #2D3B36, #105644);
     box-shadow: 0 14px 30px rgba(0, 0, 0, 0.45);
 }
 
 html[data-tema="oscuro"] .tarjeta-vista[data-marca="VISA"] {
-    background: linear-gradient(135deg, #1A1F71, #3949AB);
+    background-color: transparent;
+    background-image: linear-gradient(135deg, #1A1F71, #3949AB);
 }
 
 html[data-tema="oscuro"] .tarjeta-vista[data-marca="MASTERCARD"] {
-    background: linear-gradient(135deg, #3A2A1E, #C2410C);
+    background-color: transparent;
+    background-image: linear-gradient(135deg, #3A2A1E, #C2410C);
 }
 
 html[data-tema="oscuro"] .tarjeta-vista[data-marca="AMEX"] {
-    background: linear-gradient(135deg, #0E5A8A, #2E8BC0);
+    background-color: transparent;
+    background-image: linear-gradient(135deg, #0E5A8A, #2E8BC0);
 }
 
 html[data-tema="oscuro"] .tarjeta-vista[data-marca="DINERS"] {
-    background: linear-gradient(135deg, #2F3640, #636E72);
+    background-color: transparent;
+    background-image: linear-gradient(135deg, #2F3640, #636E72);
 }
 
 html[data-tema="oscuro"] .tarjeta-chip {
-    background: linear-gradient(135deg, #E9C46A, #B8860B);
+    background-color: transparent;
+    background-image: linear-gradient(135deg, #E9C46A, #B8860B);
 }
 
 html[data-tema="oscuro"] .pago-page .pasarela-campo {
@@ -312,7 +342,8 @@ html[data-tema="oscuro"] .pago-page .pasarela .is-invalido {
 
 html[data-tema="oscuro"] .pasarela-nota {
     color: var(--portal-muted--t);
-    background: var(--portal-bg--f);
+    background-color: var(--portal-bg--f);
+    background-image: none;
 }
 
 html[data-tema="oscuro"] .pasarela-campo-error {
@@ -321,7 +352,8 @@ html[data-tema="oscuro"] .pasarela-campo-error {
 
 html[data-tema="oscuro"] .pasarela-error {
     color: #ED9894;
-    background: #3C1E1B;
+    background-color: #3C1E1B;
+    background-image: none;
 }
 
 html[data-tema="oscuro"] .pago-page .pasarela-terminos {
@@ -337,7 +369,8 @@ html[data-tema="oscuro"] .pasarela-seguro {
 }
 
 html[data-tema="oscuro"] .pasarela-pruebas {
-    background: var(--portal-bg--f);
+    background-color: var(--portal-bg--f);
+    background-image: none;
     border: 1px dashed var(--portal-border--b);
 }
 
@@ -355,19 +388,22 @@ html[data-tema="oscuro"] .pasarela-pruebas dd {
 
 html[data-tema="oscuro"] .pago-page .pasarela-pruebas dd button {
     color: var(--portal-primary--t);
-    background: var(--portal-container--f);
+    background-color: var(--portal-container--f);
+    background-image: none;
     border: 0;
     box-shadow: none;
 }
 
 html[data-tema="oscuro"] .pago-page .pasarela-pruebas dd button:hover {
     color: #FFFFFF;
-    background: var(--portal-primary-container--f);
+    background-color: var(--portal-primary-container--f);
+    background-image: none;
 }
 
 html[data-tema="oscuro"] .pasarela-procesando {
     color: var(--portal-on-surface--t);
-    background: rgba(27, 42, 36, 0.984);
+    background-color: rgba(27, 42, 36, 0.984);
+    background-image: none;
 }
 
 html[data-tema="oscuro"] .pasarela-procesando .material-symbols-outlined {
@@ -384,26 +420,31 @@ html[data-tema="oscuro"] .pasarela-volver {
 
 html[data-tema="oscuro"] .resultado.is-exito .resultado-icono {
     color: #B8D9CC;
-    background: #1B3C2B;
+    background-color: #1B3C2B;
+    background-image: none;
 }
 
 html[data-tema="oscuro"] .resultado.is-error .resultado-icono {
     color: #DC9A93;
-    background: #3C201B;
+    background-color: #3C201B;
+    background-image: none;
 }
 
 html[data-tema="oscuro"] .resultado.is-alerta .resultado-icono {
     color: var(--portal-secondary--t);
-    background: #3C2E1B;
+    background-color: #3C2E1B;
+    background-image: none;
 }
 
 html[data-tema="oscuro"] .resultado.is-espera .resultado-icono {
     color: var(--portal-primary--t);
-    background: var(--portal-container--f);
+    background-color: var(--portal-container--f);
+    background-image: none;
 }
 
 html[data-tema="oscuro"] .resultado-causas {
-    background: var(--portal-bg--f);
+    background-color: var(--portal-bg--f);
+    background-image: none;
     border: 1px solid var(--portal-border--b);
 }
 
@@ -424,7 +465,8 @@ html[data-tema="oscuro"] .resultado-ref {
 }
 
 html[data-tema="oscuro"] .comprobante {
-    background: var(--portal-bg--f);
+    background-color: var(--portal-bg--f);
+    background-image: none;
     border: 1px dashed var(--portal-border--b);
 }
 
@@ -450,7 +492,8 @@ html[data-tema="oscuro"] .comprobante-fila.is-tenue strong {
 
 html[data-tema="oscuro"] .resultado-politica {
     color: var(--portal-muted--t);
-    background: var(--portal-container--f);
+    background-color: var(--portal-container--f);
+    background-image: none;
 }
 
 html[data-tema="oscuro"] .resultado-politica .material-symbols-outlined {
@@ -459,7 +502,8 @@ html[data-tema="oscuro"] .resultado-politica .material-symbols-outlined {
 
 @media (max-width: 960px) {
 html[data-tema="oscuro"] .pago-barra-movil {
-    background: rgba(27, 42, 36, 0.984);
+    background-color: rgba(27, 42, 36, 0.984);
+    background-image: none;
     border-top: 1px solid var(--portal-border--b);
     box-shadow: 0 -8px 24px rgba(0, 0, 0, 0.144);
 }
@@ -483,11 +527,13 @@ html[data-tema="oscuro"] .historial-volver {
 }
 
 html[data-tema="oscuro"] .historial-volver:hover {
-    background: var(--portal-bg--f);
+    background-color: var(--portal-bg--f);
+    background-image: none;
 }
 
 html[data-tema="oscuro"] .historial-totales > div {
-    background: var(--portal-bg--f);
+    background-color: var(--portal-bg--f);
+    background-image: none;
     border: 1px solid var(--portal-border--b);
 }
 
@@ -500,13 +546,15 @@ html[data-tema="oscuro"] .historial-totales strong {
 }
 
 html[data-tema="oscuro"] .historial-item {
-    background: var(--portal-surface--f);
+    background-color: var(--portal-surface--f);
+    background-image: none;
     border: 1px solid var(--portal-border--b);
 }
 
 html[data-tema="oscuro"] .historial-icono {
     color: var(--portal-primary-container--t);
-    background: var(--portal-container--f);
+    background-color: var(--portal-container--f);
+    background-image: none;
 }
 
 html[data-tema="oscuro"] .historial-detalle strong {
@@ -527,37 +575,44 @@ html[data-tema="oscuro"] .historial-monto strong {
 
 html[data-tema="oscuro"] .is-ok .historial-estado {
     color: #C1DED1;
-    background: #15201C;
+    background-color: #15201C;
+    background-image: none;
 }
 
 html[data-tema="oscuro"] .is-espera .historial-estado {
     color: #F2D3A2;
-    background: #3C2F1B;
+    background-color: #3C2F1B;
+    background-image: none;
 }
 
 html[data-tema="oscuro"] .is-error .historial-estado {
     color: #DC9A93;
-    background: #3C201B;
+    background-color: #3C201B;
+    background-image: none;
 }
 
 html[data-tema="oscuro"] .is-neutro .historial-estado {
     color: #C8CFCC;
-    background: #14201C;
+    background-color: #14201C;
+    background-image: none;
 }
 
 html[data-tema="oscuro"] .is-error .historial-icono {
     color: #DC9A93;
-    background: #3C201B;
+    background-color: #3C201B;
+    background-image: none;
 }
 
 html[data-tema="oscuro"] .is-espera .historial-icono {
     color: #F1D19D;
-    background: #3C2F1B;
+    background-color: #3C2F1B;
+    background-image: none;
 }
 
 html[data-tema="oscuro"] .is-neutro .historial-icono {
     color: #BCC1BE;
-    background: #14201C;
+    background-color: #14201C;
+    background-image: none;
 }
 
 html[data-tema="oscuro"] .historial-ver {
@@ -582,43 +637,50 @@ html[data-tema="oscuro"] .historial-nota .material-symbols-outlined {
 
 html[data-tema="oscuro"] .pago-page .resultado-imprimir {
     color: var(--portal-muted--t);
-    background: none;
+    background-color: transparent;
+    background-image: none;
     border: 0;
     box-shadow: none;
 }
 
 html[data-tema="oscuro"] .pago-page .resultado-imprimir:hover {
     color: var(--portal-primary--t);
-    background: var(--portal-bg--f);
+    background-color: var(--portal-bg--f);
+    background-image: none;
 }
 
 html[data-tema="oscuro"] .pago-page .historial-filtros button {
     color: var(--portal-muted--t);
-    background: var(--portal-surface--f);
+    background-color: var(--portal-surface--f);
+    background-image: none;
     border: 1px solid var(--portal-border--b);
     box-shadow: none;
 }
 
 html[data-tema="oscuro"] .pago-page .historial-filtros button span {
     color: var(--portal-primary--t);
-    background: var(--portal-container--f);
+    background-color: var(--portal-container--f);
+    background-image: none;
 }
 
 html[data-tema="oscuro"] .pago-page .historial-filtros button:hover:not(:disabled) {
     color: var(--portal-primary--t);
-    background: var(--portal-bg--f);
+    background-color: var(--portal-bg--f);
+    background-image: none;
     border-color: var(--portal-primary-container--b);
 }
 
 html[data-tema="oscuro"] .pago-page .historial-filtros button.is-activo {
     color: #FFFFFF;
-    background: var(--portal-primary-container--f);
+    background-color: var(--portal-primary-container--f);
+    background-image: none;
     border-color: var(--portal-primary-container--b);
 }
 
 html[data-tema="oscuro"] .pago-page .historial-filtros button.is-activo span {
     color: var(--portal-primary--t);
-    background: #1B2A24;
+    background-color: #1B2A24;
+    background-image: none;
 }
 
 html[data-tema="oscuro"] .historial-mes {
@@ -627,15 +689,18 @@ html[data-tema="oscuro"] .historial-mes {
 
 html[data-tema="oscuro"] .historial-sin-resultados {
     color: var(--portal-muted--t);
-    background: var(--portal-bg--f);
+    background-color: var(--portal-bg--f);
+    background-image: none;
 }
 
 html[data-tema="oscuro"] .pago-reparto-barra {
-    background: var(--portal-container--f);
+    background-color: var(--portal-container--f);
+    background-image: none;
 }
 
 html[data-tema="oscuro"] .pago-reparto-barra span {
-    background: var(--portal-primary-container--f);
+    background-color: var(--portal-primary-container--f);
+    background-image: none;
 }
 
 html[data-tema="oscuro"] .pago-reparto p {
@@ -643,34 +708,41 @@ html[data-tema="oscuro"] .pago-reparto p {
 }
 
 html[data-tema="oscuro"] .pago-reparto i {
-    background: var(--portal-container--f);
+    background-color: var(--portal-container--f);
+    background-image: none;
     border: 1px solid var(--portal-border--b);
 }
 
 html[data-tema="oscuro"] .pago-reparto i.is-ahora {
-    background: var(--portal-primary-container--f);
+    background-color: var(--portal-primary-container--f);
+    background-image: none;
     border-color: var(--portal-primary-container--b);
 }
 
 html[data-tema="oscuro"] .marca-chip {
     color: #FFFFFF;
-    background: var(--portal-outline--f);
+    background-color: var(--portal-outline--f);
+    background-image: none;
 }
 
 html[data-tema="oscuro"] .marca-chip.is-visa {
-    background: #1A1F71;
+    background-color: #1A1F71;
+    background-image: none;
 }
 
 html[data-tema="oscuro"] .marca-chip.is-mastercard {
-    background: #C2410C;
+    background-color: #C2410C;
+    background-image: none;
 }
 
 html[data-tema="oscuro"] .marca-chip.is-amex {
-    background: #0E5A8A;
+    background-color: #0E5A8A;
+    background-image: none;
 }
 
 html[data-tema="oscuro"] .marca-chip.is-diners {
-    background: #2F3640;
+    background-color: #2F3640;
+    background-image: none;
 }
 
 html[data-tema="oscuro"] .pago-page a:focus-visible,
@@ -689,24 +761,28 @@ html[data-tema="oscuro"] .recibo-transaccion dd {
 }
 
 html[data-tema="oscuro"] .verificacion {
-    background: rgba(0, 47, 36, 0.62);
+    background-color: rgba(0, 47, 36, 0.62);
+    background-image: none;
 }
 
 html[data-tema="oscuro"] .verificacion-caja {
     color: var(--portal-on-surface--t);
-    background: var(--portal-surface--f);
+    background-color: var(--portal-surface--f);
+    background-image: none;
     box-shadow: 0 24px 60px rgba(0, 0, 0, 0.45);
 }
 
 html[data-tema="oscuro"] .verificacion-cabecera {
     color: var(--portal-muted--t);
-    background: var(--portal-bg--f);
+    background-color: var(--portal-bg--f);
+    background-image: none;
     border-bottom: 1px solid var(--portal-border--b);
 }
 
 html[data-tema="oscuro"] .verificacion-caja.is-banco .verificacion-cabecera {
     color: #FFFFFF;
-    background: #24364D;
+    background-color: #24364D;
+    background-image: none;
     border-bottom: 0;
 }
 
@@ -719,7 +795,8 @@ html[data-tema="oscuro"] .verificacion-caja > p {
 }
 
 html[data-tema="oscuro"] .verificacion-resumen {
-    background: var(--portal-bg--f);
+    background-color: var(--portal-bg--f);
+    background-image: none;
 }
 
 html[data-tema="oscuro"] .verificacion-resumen div + div {
@@ -739,7 +816,8 @@ html[data-tema="oscuro"] .verificacion-cuentas label {
 }
 
 html[data-tema="oscuro"] .verificacion-cuentas label:has(input:checked) {
-    background: var(--portal-bg--f);
+    background-color: var(--portal-bg--f);
+    background-image: none;
     border-color: var(--portal-primary-container--b);
 }
 
@@ -753,23 +831,27 @@ html[data-tema="oscuro"] .verificacion-cuentas small {
 
 html[data-tema="oscuro"] .pago-page .verificacion-cancelar {
     color: var(--portal-muted--t);
-    background: none;
+    background-color: transparent;
+    background-image: none;
     border: 0;
     box-shadow: none;
 }
 
 html[data-tema="oscuro"] .pago-page .verificacion-cancelar:hover {
     color: var(--portal-on-surface--t);
-    background: none;
+    background-color: transparent;
+    background-image: none;
 }
 
 html[data-tema="oscuro"] .verificacion-caja.is-celular {
-    background: transparent;
+    background-color: transparent;
+    background-image: none;
     box-shadow: none;
 }
 
 html[data-tema="oscuro"] .celular {
-    background: linear-gradient(160deg, #2B1A4A, #1A1030);
+    background-color: transparent;
+    background-image: linear-gradient(160deg, #2B1A4A, #1A1030);
     border: 6px solid #111111;
     box-shadow: 0 24px 60px rgba(0, 0, 0, 0.6);
 }
@@ -780,7 +862,8 @@ html[data-tema="oscuro"] .celular-hora {
 
 html[data-tema="oscuro"] .celular-noti {
     color: #DDE2DF;
-    background: rgba(27, 42, 36, 0.98);
+    background-color: rgba(27, 42, 36, 0.98);
+    background-image: none;
 }
 
 html[data-tema="oscuro"] .celular-noti-app {
@@ -789,7 +872,8 @@ html[data-tema="oscuro"] .celular-noti-app {
 
 html[data-tema="oscuro"] .celular-logo {
     color: #FFFFFF;
-    background: #2B1A4A;
+    background-color: #2B1A4A;
+    background-image: none;
 }
 
 html[data-tema="oscuro"] .celular-noti > span {
@@ -798,14 +882,16 @@ html[data-tema="oscuro"] .celular-noti > span {
 
 html[data-tema="oscuro"] .pago-page .celular-acciones button {
     color: #C8B8E6;
-    background: #291B3C;
+    background-color: #291B3C;
+    background-image: none;
     border: 0;
     box-shadow: none;
 }
 
 html[data-tema="oscuro"] .pago-page .celular-acciones button.is-aceptar {
     color: #FFFFFF;
-    background: #DA0081;
+    background-color: #DA0081;
+    background-image: none;
 }
 
 html[data-tema="oscuro"] .pago-page .celular-acciones button:hover {
@@ -814,15 +900,67 @@ html[data-tema="oscuro"] .pago-page .celular-acciones button:hover {
 
 html[data-tema="oscuro"] .verificacion-caja > .celular-espera {
     color: #FFFFFF;
-    background: rgba(0, 0, 0, 0.6);
+    background-color: rgba(0, 0, 0, 0.6);
+    background-image: none;
 }
 
 html[data-tema="oscuro"] .pago-page .verificacion-caja.is-celular .verificacion-cancelar {
     color: #FFFFFF;
-    background: rgba(0, 0, 0, 0.6);
+    background-color: rgba(0, 0, 0, 0.6);
+    background-image: none;
 }
 
 html[data-tema="oscuro"] .pago-page .verificacion-caja.is-celular .verificacion-cancelar:hover {
     color: #FFFFFF;
-    background: rgba(0, 0, 0, 0.75);
+    background-color: rgba(0, 0, 0, 0.75);
+    background-image: none;
+}
+
+html[data-tema="oscuro"] .pago-page .sms-banco {
+    color: #DDE2DF;
+    background-color: rgba(27, 42, 36, 0.988);
+    background-image: none;
+    border: 0;
+    box-shadow: 0 16px 40px -12px rgba(0, 0, 0, 0.6);
+}
+
+html[data-tema="oscuro"] .pago-page .sms-banco:hover {
+    background-color: #1B2A24;
+    background-image: none;
+}
+
+html[data-tema="oscuro"] .sms-banco-app {
+    color: #BCC1BE;
+}
+
+html[data-tema="oscuro"] .sms-banco-app .material-symbols-outlined {
+    color: #FFFFFF;
+    background-color: #34A853;
+    background-image: none;
+}
+
+html[data-tema="oscuro"] .sms-banco small {
+    color: #CCE3DD;
+}
+
+html[data-tema="oscuro"] .pago-page .verificacion-reenviar {
+    color: var(--portal-primary-container--t);
+    background-color: transparent;
+    background-image: none;
+    border: 0;
+    box-shadow: none;
+}
+
+html[data-tema="oscuro"] .pago-page .verificacion-reenviar:hover {
+    background-color: transparent;
+    background-image: none;
+}
+
+html[data-tema="oscuro"] .verificacion-caja.is-bancolombia .verificacion-cabecera {
+    background-color: #2C2A29;
+    background-image: none;
+}
+
+html[data-tema="oscuro"] .verificacion-caja.is-bancolombia .verificacion-cabecera .material-symbols-outlined {
+    color: #FDDA24;
 }

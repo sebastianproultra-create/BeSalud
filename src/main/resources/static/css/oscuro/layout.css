@@ -3,6 +3,7 @@
 
 html[data-tema="oscuro"] .bs-footer {
     color: var(--color-text-muted--t);
-    background: var(--color-surface--f);
+    background-color: var(--color-surface--f);
+    background-image: none;
     border-top: 1px solid var(--color-border--b);
 }

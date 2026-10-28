@@ -70,7 +70,8 @@ html[data-tema="oscuro"] .nav-links a:hover {
 }
 
 html[data-tema="oscuro"] .nav-toggle {
-    background: none;
+    background-color: transparent;
+    background-image: none;
     border: none;
     color: var(--white--t);
 }
@@ -81,7 +82,8 @@ html[data-tema="oscuro"] .hero {
 }
 
 html[data-tema="oscuro"] .hero-overlay {
-    background: linear-gradient(
+    background-color: transparent;
+    background-image: linear-gradient(
         160deg,
         rgba(7, 34, 22, 0.82) 0%,
         rgba(13, 59, 46, 0.7) 45%,
@@ -107,7 +109,8 @@ html[data-tema="oscuro"] .hero-scroll-indicator {
 }
 
 html[data-tema="oscuro"] .scroll-line {
-    background: linear-gradient(to bottom, rgba(27, 42, 36, 0.78), transparent);
+    background-color: transparent;
+    background-image: linear-gradient(to bottom, rgba(27, 42, 36, 0.78), transparent);
 }
 
 html[data-tema="oscuro"] .btn-primary {
@@ -124,25 +127,29 @@ html[data-tema="oscuro"] #irLogin:hover {
 }
 
 html[data-tema="oscuro"] .btn-secondary {
-    background: transparent;
+    background-color: transparent;
+    background-image: none;
     color: rgba(255, 255, 255, 0.85);
     border: 1px solid rgba(255, 255, 255, 0.35);
 }
 
 html[data-tema="oscuro"] .btn-secondary:hover {
-    background: rgba(255, 255, 255, 0.1);
+    background-color: rgba(255, 255, 255, 0.1);
+    background-image: none;
     color: var(--white--t);
     border-color: rgba(43, 59, 53, 0.65);
 }
 
 html[data-tema="oscuro"] .btn-ghost {
-    background: transparent;
+    background-color: transparent;
+    background-image: none;
     color: rgba(255, 255, 255, 0.7);
     border: 1px solid rgba(255, 255, 255, 0.25);
 }
 
 html[data-tema="oscuro"] .btn-ghost:hover {
-    background: rgba(255, 255, 255, 0.08);
+    background-color: rgba(255, 255, 255, 0.08);
+    background-image: none;
     color: var(--white--t);
 }
 
@@ -175,11 +182,13 @@ html[data-tema="oscuro"] .stat-label {
 }
 
 html[data-tema="oscuro"] .stat-divider {
-    background: var(--border-mid--f);
+    background-color: var(--border-mid--f);
+    background-image: none;
 }
 
 html[data-tema="oscuro"] .section-image {
-    background: linear-gradient(160deg, var(--primary-mid--f), var(--primary--f));
+    background-color: transparent;
+    background-image: linear-gradient(160deg, var(--primary-mid--f), var(--primary--f));
 }
 
 html[data-tema="oscuro"] .section-image::before {
@@ -201,15 +210,18 @@ html[data-tema="oscuro"] .section-team {
 }
 
 html[data-tema="oscuro"] .cards {
-    background: var(--border--f);
+    background-color: var(--border--f);
+    background-image: none;
 }
 
 html[data-tema="oscuro"] .card {
-    background: var(--white--f);
+    background-color: var(--white--f);
+    background-image: none;
 }
 
 html[data-tema="oscuro"] .card:hover {
-    background: var(--off-white--f);
+    background-color: var(--off-white--f);
+    background-image: none;
 }
 
 html[data-tema="oscuro"] .card h3 {
@@ -271,7 +283,8 @@ html[data-tema="oscuro"] .footer-copy a:hover {
 
 @media (max-width: 900px) {
 html[data-tema="oscuro"] .navbar.open .nav-links {
-    background: var(--primary--f, #125441);
+    background-color: #125441;
+    background-image: none;
 }
 }
 
@@ -336,7 +349,8 @@ html[data-tema="oscuro"] body {
 }
 
 html[data-tema="oscuro"] .site-header {
-    background: rgba(8, 41, 33, 0.88);
+    background-color: rgba(8, 41, 33, 0.88);
+    background-image: none;
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
@@ -345,12 +359,14 @@ html[data-tema="oscuro"] .nav-brand a {
 }
 
 html[data-tema="oscuro"] .brand-icon {
-    background: rgba(255, 255, 255, 0.1);
+    background-color: rgba(255, 255, 255, 0.1);
+    background-image: none;
     color: #A9D5C3;
 }
 
 html[data-tema="oscuro"] .nav-brand a:hover .brand-icon {
-    background: rgba(255, 255, 255, 0.2);
+    background-color: rgba(255, 255, 255, 0.2);
+    background-image: none;
 }
 
 html[data-tema="oscuro"] .nav-links a {
@@ -363,13 +379,15 @@ html[data-tema="oscuro"] .nav-links a:hover {
 
 html[data-tema="oscuro"] .btn-secondary {
     color: #FFFFFF;
-    background: rgba(255, 255, 255, 0.08);
+    background-color: rgba(255, 255, 255, 0.08);
+    background-image: none;
     border: 1px solid rgba(255, 255, 255, 0.2);
     box-shadow: 0 1px 2px rgba(0, 0, 0, 0.144);
 }
 
 html[data-tema="oscuro"] .btn-secondary:hover {
-    background: var(--primary--f);
+    background-color: var(--primary--f);
+    background-image: none;
     border-color: #2B8064;
 }
 
@@ -378,11 +396,13 @@ html[data-tema="oscuro"] .nav-toggle {
 }
 
 html[data-tema="oscuro"] .nav-toggle span {
-    background: #1B2A24;
+    background-color: #1B2A24;
+    background-image: none;
 }
 
 html[data-tema="oscuro"] .hero {
-    background: var(--primary-dark--f);
+    background-color: var(--primary-dark--f);
+    background-image: none;
 }
 
 html[data-tema="oscuro"] .hero-image {
@@ -390,16 +410,19 @@ html[data-tema="oscuro"] .hero-image {
 }
 
 html[data-tema="oscuro"] .hero-overlay {
-    background: linear-gradient(180deg, rgba(13, 71, 56, 0.82) 0%, rgba(13, 71, 56, 0.76) 50%, rgba(8, 41, 33, 0.94) 100%);
+    background-color: transparent;
+    background-image: linear-gradient(180deg, rgba(13, 71, 56, 0.82) 0%, rgba(13, 71, 56, 0.76) 50%, rgba(8, 41, 33, 0.94) 100%);
 }
 
 html[data-tema="oscuro"] .hero-overlay::after {
-    background: radial-gradient(ellipse at center, transparent 0%, rgba(8, 41, 33, 0.38) 55%, rgba(8, 41, 33, 0.9) 100%);
+    background-color: transparent;
+    background-image: radial-gradient(ellipse at center, transparent 0%, rgba(8, 41, 33, 0.38) 55%, rgba(8, 41, 33, 0.9) 100%);
 }
 
 html[data-tema="oscuro"] .hero-eyebrow {
     color: #C4E5D7;
-    background: rgba(13, 71, 56, 0.4);
+    background-color: rgba(13, 71, 56, 0.4);
+    background-image: none;
     border: 1px solid rgba(169, 213, 195, 0.3);
 }
 
@@ -413,7 +436,8 @@ html[data-tema="oscuro"] .hero p {
 
 html[data-tema="oscuro"] .btn-primary {
     color: #DDE2DF;
-    background: var(--accent--f);
+    background-color: var(--accent--f);
+    background-image: none;
     border: 1px solid var(--accent--b);
     box-shadow: 0 8px 20px rgba(0, 0, 0, 0.36);
 }
@@ -421,19 +445,22 @@ html[data-tema="oscuro"] .btn-primary {
 html[data-tema="oscuro"] .btn-primary:hover,
 html[data-tema="oscuro"] #irLogin:hover {
     color: #DDE2DF;
-    background: var(--accent-hover--f);
+    background-color: var(--accent-hover--f);
+    background-image: none;
     border-color: var(--accent-hover--b);
 }
 
 html[data-tema="oscuro"] .btn-ghost {
     color: #FFFFFF;
-    background: rgba(255, 255, 255, 0.02);
+    background-color: rgba(255, 255, 255, 0.02);
+    background-image: none;
     border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 html[data-tema="oscuro"] .btn-ghost:hover {
     color: #FFFFFF;
-    background: rgba(255, 255, 255, 0.1);
+    background-color: rgba(255, 255, 255, 0.1);
+    background-image: none;
     border-color: rgba(43, 59, 53, 0.4);
 }
 
@@ -446,11 +473,13 @@ html[data-tema="oscuro"] .hero-scroll-indicator:hover {
 }
 
 html[data-tema="oscuro"] .scroll-line {
-    background: rgba(38, 79, 62, 0.8);
+    background-color: rgba(38, 79, 62, 0.8);
+    background-image: none;
 }
 
 html[data-tema="oscuro"] .main-content {
-    background: var(--white--f);
+    background-color: var(--white--f);
+    background-image: none;
 }
 
 html[data-tema="oscuro"] .section-label {
@@ -490,7 +519,8 @@ html[data-tema="oscuro"] .stat-label {
 }
 
 html[data-tema="oscuro"] .section-image {
-    background: #15201C;
+    background-color: #15201C;
+    background-image: none;
     box-shadow: 0 18px 40px rgba(0, 0, 0, 0.252);
 }
 
@@ -503,34 +533,40 @@ html[data-tema="oscuro"] .section-image img {
 }
 
 html[data-tema="oscuro"] .section-team {
-    background: #1B2A24;
+    background-color: #1B2A24;
+    background-image: none;
     border-top: 0;
     border-bottom: 1px solid rgba(47, 64, 58, 0.8);
 }
 
 html[data-tema="oscuro"] .cards {
-    background: transparent;
+    background-color: transparent;
+    background-image: none;
 }
 
 html[data-tema="oscuro"] .card {
-    background: #131D19;
+    background-color: #131D19;
+    background-image: none;
     border: 1px solid rgba(178, 189, 184, 0.096);
 }
 
 html[data-tema="oscuro"] .card:hover {
-    background: #131D19;
+    background-color: #131D19;
+    background-image: none;
     border-color: rgba(159, 209, 196, 0.24);
     box-shadow: 0 12px 28px rgba(0, 0, 0, 0.144);
 }
 
 html[data-tema="oscuro"] .card-icon {
     color: var(--primary--t);
-    background: rgba(151, 216, 199, 0.078);
+    background-color: rgba(151, 216, 199, 0.078);
+    background-image: none;
 }
 
 html[data-tema="oscuro"] .card:hover .card-icon {
     color: #FFFFFF;
-    background: var(--primary--f);
+    background-color: var(--primary--f);
+    background-image: none;
 }
 
 html[data-tema="oscuro"] .card h3 {
@@ -542,7 +578,8 @@ html[data-tema="oscuro"] .card p {
 }
 
 html[data-tema="oscuro"] .section-contact {
-    background: var(--white--f);
+    background-color: var(--white--f);
+    background-image: none;
     border-top: 0;
 }
 
@@ -555,12 +592,14 @@ html[data-tema="oscuro"] .contact-item {
 }
 
 html[data-tema="oscuro"] .contact-item:hover {
-    background: rgba(27, 42, 36, 0.82);
+    background-color: rgba(27, 42, 36, 0.82);
+    background-image: none;
 }
 
 html[data-tema="oscuro"] .contact-icon {
     color: var(--primary--t);
-    background: rgba(151, 216, 199, 0.078);
+    background-color: rgba(151, 216, 199, 0.078);
+    background-image: none;
 }
 
 html[data-tema="oscuro"] .contact-type {
@@ -577,7 +616,8 @@ html[data-tema="oscuro"] .contact-item a:hover {
 }
 
 html[data-tema="oscuro"] footer {
-    background: var(--primary-dark--f);
+    background-color: var(--primary-dark--f);
+    background-image: none;
     border-top: 1px solid rgba(13, 71, 56, 0.4);
 }
 
@@ -587,7 +627,8 @@ html[data-tema="oscuro"] .footer-brand {
 
 html[data-tema="oscuro"] .footer-brand .brand-icon {
     color: #69B493;
-    background: transparent;
+    background-color: transparent;
+    background-image: none;
 }
 
 html[data-tema="oscuro"] .footer-copy {
@@ -604,7 +645,8 @@ html[data-tema="oscuro"] .footer-copy a:hover {
 
 @media (max-width: 900px) {
 html[data-tema="oscuro"] .navbar.open .nav-links {
-    background: var(--primary-dark--f);
+    background-color: var(--primary-dark--f);
+    background-image: none;
     border-bottom: 1px solid rgba(255, 255, 255, 0.12);
 }
 }

@@ -269,6 +269,40 @@ def prefijar(selector):
 
 # ── Generación ────────────────────────────────────────────────────────────
 
+RE_IMAGEN = re.compile(r'(?:repeating-)?(?:linear|radial|conic)-gradient\(|url\(')
+
+
+def partir_fondo(valor):
+    """Separa el atajo `background` en (color, imágenes). Repetir el atajo en el modo oscuro reiniciaría
+    background-size/position/repeat que otra regla haya puesto (la foto del login saldría en mosaico)."""
+    importante = ' !important' if valor.rstrip().endswith('!important') else ''
+    valor = re.sub(r'\s*!important\s*$', '', valor)
+    if valor.strip().lower() in ('inherit', 'initial', 'unset', 'revert'):
+        return None
+    imagenes, resto, i = [], '', 0
+    while i < len(valor):
+        m = RE_IMAGEN.match(valor, i)
+        if not m:
+            resto += valor[i]
+            i += 1
+            continue
+        nivel, j = 0, i
+        while j < len(valor):
+            if valor[j] == '(':
+                nivel += 1
+            elif valor[j] == ')':
+                nivel -= 1
+                if nivel == 0:
+                    break
+            j += 1
+        imagenes.append(valor[i:j + 1])
+        resto += ' '
+        i = j + 1
+    color = RE_COLOR.search(resto) or re.search(r'var\([^)]*\)|\btransparent\b|\bcurrentColor\b', resto)
+    return (color.group(0) if color else 'transparent') + importante, \
+        (', '.join(imagenes) if imagenes else 'none') + importante
+
+
 def regla_oscura(prelude, cuerpo):
     lineas = []
     for prop, val in declaraciones(cuerpo):
@@ -277,6 +311,10 @@ def regla_oscura(prelude, cuerpo):
             if tiene_color(val):
                 for papel in 'ftbs':
                     lineas.append('    {}--{}: {};'.format(prop, papel, traducir(val, papel)))
+        elif p == 'background' and partir_fondo(val):
+            color, imagenes = partir_fondo(val)
+            lineas.append('    background-color: {};'.format(traducir(color, 'f')))
+            lineas.append('    background-image: {};'.format(traducir(imagenes, 'f')))
         elif p in PAPEL:
             # Todas se repiten (aunque no lleven color) para conservar el orden de la cascada
             lineas.append('    {}: {};'.format(prop, traducir(val, PAPEL[p])))
