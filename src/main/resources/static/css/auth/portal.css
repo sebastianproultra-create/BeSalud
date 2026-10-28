@@ -480,25 +480,47 @@ body.auth-page {
     min-width: 0;
     display: flex;
     align-items: center;
+    background-color: rgba(234, 247, 240, 0.52);
+    border: 1px solid transparent;
+    border-radius: 8px;
+    transition: background-color 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
 }
 
 .auth-input-wrap > .material-symbols-outlined {
-    position: absolute;
-    z-index: 1;
-    left: 13px;
+    flex: 0 0 43px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     color: var(--portal-muted);
     font-size: 20px;
     pointer-events: none;
 }
 
 .auth-page .auth-input-wrap input,
-.auth-page .auth-input-wrap select,
+.auth-page .auth-input-wrap select {
+    flex: 1 1 auto;
+    width: auto;
+    min-width: 0;
+    min-height: 46px;
+    padding: 11px 14px 11px 0;
+    margin: 0;
+    color: var(--portal-on-surface);
+    background: transparent;
+    border: 0;
+    border-radius: 0;
+    font-family: var(--font-body);
+    font-size: 13px;
+    font-weight: 400;
+    line-height: 1.5;
+    box-shadow: none;
+}
+
 .auth-page .auth-field > input[type="file"],
 .auth-page .auth-field > textarea {
     width: 100%;
     min-width: 0;
     min-height: 46px;
-    padding: 11px 14px 11px 43px;
+    padding: 11px 14px;
     margin: 0;
     color: var(--portal-on-surface);
     background-color: rgba(234, 247, 240, 0.52);
@@ -512,21 +534,24 @@ body.auth-page {
     transition: background-color 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
 }
 
-.auth-page .auth-input-wrap input:hover,
-.auth-page .auth-input-wrap select:hover,
+.auth-page .auth-input-wrap:hover,
 .auth-page .auth-field > input[type="file"]:hover,
 .auth-page .auth-field > textarea:hover {
     background-color: var(--portal-container);
 }
 
-.auth-page .auth-input-wrap input:focus,
-.auth-page .auth-input-wrap select:focus,
+.auth-page .auth-input-wrap:focus-within,
 .auth-page .auth-field > input[type="file"]:focus,
 .auth-page .auth-field > textarea:focus {
-    outline: none;
     background-color: #fff;
     border-color: rgba(0, 47, 36, 0.14);
     box-shadow: 0 0 0 2px rgba(0, 47, 36, 0.12);
+}
+
+.auth-page .auth-input-wrap input:focus,
+.auth-page .auth-input-wrap select:focus {
+    outline: none;
+    box-shadow: none;
 }
 
 .auth-page .auth-input-wrap input::placeholder {
@@ -540,14 +565,15 @@ body.auth-page {
 }
 
 .password-toggle {
-    position: absolute;
-    right: 11px;
+    position: static;
+    flex: 0 0 32px;
     width: 32px;
     height: 32px;
     display: inline-flex;
     align-items: center;
     justify-content: center;
     padding: 0;
+    margin-right: 5px;
     color: var(--portal-muted);
     background: transparent;
     border: 0;
@@ -747,13 +773,13 @@ body.auth-page {
     color: #BA1A1A;
 }
 
-.auth-page .register-card input.input-error {
-    border-color: #BA1A1A ;
+.auth-page .register-card .auth-input-wrap:has(input.input-error) {
+    border-color: #BA1A1A;
     box-shadow: 0 0 0 1px rgba(186, 26, 26, 0.12);
 }
 
-.auth-page .register-card input.input-success {
-    border-color: #27805B ;
+.auth-page .register-card .auth-input-wrap:has(input.input-success) {
+    border-color: #27805B;
 }
 
 .doctor-fields {
@@ -767,8 +793,8 @@ body.auth-page {
     border-radius: 8px;
 }
 
-.doctor-fields[style*="display: none"] {
-    display: none ;
+.doctor-fields[hidden] {
+    display: none;
 }
 
 .auth-page .auth-field > input[type="file"] {
@@ -1461,14 +1487,14 @@ html[data-auth-entry="from-left"] .auth-shell {
 }
 
 .auth-page .register-card .auth-input-wrap > .material-symbols-outlined {
-    left: 9px;
+    flex-basis: 37px;
     font-size: 14px;
 }
 
 .auth-page .register-card .auth-input-wrap input,
 .auth-page .register-card .auth-input-wrap select {
     min-height: 29px;
-    padding: 5px 9px 5px 31px;
+    padding: 5px 9px 5px 0;
     border-radius: 5px;
     font-size: 9px;
     line-height: 1.35;
@@ -1980,14 +2006,14 @@ html[data-auth-entry="from-left"] .auth-shell {
 }
 
 .auth-page .register-card .auth-input-wrap > .material-symbols-outlined {
-    left: 11px;
+    flex-basis: 42px;
     font-size: 17px;
 }
 
 .auth-page .register-card .auth-input-wrap input,
 .auth-page .register-card .auth-input-wrap select {
     min-height: 38px;
-    padding: 8px 11px 8px 36px;
+    padding: 8px 11px 8px 0;
     border-radius: 6px;
     font-size: 11px;
 }
@@ -2132,9 +2158,10 @@ html[data-auth-entry="from-left"] .auth-shell {
 }
 
 .auth-page .register-card .doctor-fields .auth-input-wrap > .custom-select-wrapper {
-    width: 100%;
+    width: auto;
+    flex: 1 1 auto;
     min-width: 0;
-    padding-left: 36px;
+    padding-left: 0;
 }
 
 .auth-page .register-card .doctor-fields .custom-select-trigger {
