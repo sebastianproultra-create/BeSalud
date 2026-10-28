@@ -3,6 +3,7 @@
    ============================================== */
 
 /* Card principal: llena el container */
+@import url('../oscuro/auth/login.css');
 .login-card-main {
     max-width: 900px;
     margin: 50px auto;

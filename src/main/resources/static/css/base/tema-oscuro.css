@@ -1,0 +1,113 @@
+/* ==============================================
+   MODO OSCURO - BeSalud
+   Los colores de cada página salen de css/oscuro/ (generado por scripts/generar_tema_oscuro.py).
+   Aquí van el botón para cambiar de tema y los ajustes que el generador no puede deducir.
+   Se carga al final del <head>, después de las hojas de la página.
+   ============================================== */
+
+html[data-tema="oscuro"] {
+    color-scheme: dark;
+}
+
+/* Cambio de tema suave (solo mientras se cambia) */
+html.tema-cambiando,
+html.tema-cambiando *,
+html.tema-cambiando *::before,
+html.tema-cambiando *::after {
+    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease, fill 0.3s ease !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    html.tema-cambiando,
+    html.tema-cambiando *,
+    html.tema-cambiando *::before,
+    html.tema-cambiando *::after {
+        transition: none !important;
+    }
+}
+
+/* ── Botón para cambiar de tema ── */
+.tema-boton {
+    position: fixed;
+    bottom: 24px;
+    left: 24px;
+    z-index: 90;
+    display: grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    margin: 0;
+    padding: 0;
+    color: #0D4738;
+    background: #FFFFFF;
+    border: 1px solid #D9E5DF;
+    border-radius: 50%;
+    box-shadow: 0 6px 20px -8px rgba(0, 47, 36, 0.35);
+    cursor: pointer;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.tema-boton:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 10px 24px -10px rgba(0, 47, 36, 0.45);
+}
+
+.tema-boton:focus-visible {
+    outline: 3px solid rgba(13, 71, 56, 0.35);
+    outline-offset: 2px;
+}
+
+.tema-boton svg {
+    width: 20px;
+    height: 20px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.8;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+html[data-tema="oscuro"] .tema-boton {
+    color: #FFD48A;
+    background: #1B2A24;
+    border-color: #2E3F39;
+    box-shadow: 0 6px 20px -8px rgba(0, 0, 0, 0.6);
+}
+
+html[data-tema="oscuro"] .tema-boton:focus-visible {
+    outline-color: rgba(159, 216, 197, 0.5);
+}
+
+@media (max-width: 600px) {
+    .tema-boton {
+        bottom: 16px;
+        left: 16px;
+        width: 38px;
+        height: 38px;
+    }
+
+    .tema-boton svg {
+        width: 18px;
+        height: 18px;
+    }
+}
+
+/* En el celular, sobre la barra fija de pago */
+@media (max-width: 960px) {
+    body:has(.pago-barra-movil:not(.is-oculta)) .tema-boton {
+        bottom: 96px;
+    }
+}
+
+@media print {
+    .tema-boton {
+        display: none;
+    }
+}
+
+/* ── Ajustes que el generador no puede deducir ── */
+
+/* Imágenes y fotos: un poco menos de brillo para no deslumbrar */
+html[data-tema="oscuro"] img:not([src$=".svg"]) {
+    filter: brightness(0.92);
+}

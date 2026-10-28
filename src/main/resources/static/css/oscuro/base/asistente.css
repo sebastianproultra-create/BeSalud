@@ -1,0 +1,153 @@
+/* Generado por scripts/generar_tema_oscuro.py a partir de base/asistente.css. No editar a mano:
+   los ajustes van en base/tema-oscuro.css o en el generador. */
+
+html[data-tema="oscuro"] [data-asistente] {
+    --chat-bg--f: #131D19;
+    --chat-bg--t: #F0FCF5;
+    --chat-bg--b: #2D3D37;
+    --chat-bg--s: #F0FCF5;
+    --chat-primary--f: #00664E;
+    --chat-primary--t: #D7E9E5;
+    --chat-primary--b: #00664E;
+    --chat-primary--s: rgba(0, 0, 0, 0.6);
+    --chat-primary-c--f: #105644;
+    --chat-primary-c--t: #CCE3DD;
+    --chat-primary-c--b: #105644;
+    --chat-primary-c--s: rgba(0, 0, 0, 0.6);
+    --chat-texto--f: #283E36;
+    --chat-texto--t: #D9E7E1;
+    --chat-texto--b: #283E36;
+    --chat-texto--s: rgba(0, 0, 0, 0.6);
+    --chat-muted--f: #404945;
+    --chat-muted--t: #C8CFCC;
+    --chat-muted--b: #404945;
+    --chat-muted--s: rgba(0, 0, 0, 0.6);
+    --chat-outline--f: #707975;
+    --chat-outline--t: #B3B9B6;
+    --chat-outline--b: #707975;
+    --chat-outline--s: rgba(0, 0, 0, 0.6);
+    --chat-borde--f: #17241F;
+    --chat-borde--t: #D9E5DF;
+    --chat-borde--b: #32443D;
+    --chat-borde--s: #D9E5DF;
+    --chat-suave--f: #141F1B;
+    --chat-suave--t: #EAF7F0;
+    --chat-suave--b: #2E3F39;
+    --chat-suave--s: #EAF7F0;
+    --chat-superficie--f: #1B2A24;
+    --chat-superficie--t: #FFFFFF;
+    --chat-superficie--b: #2B3B35;
+    --chat-superficie--s: #FFFFFF;
+}
+
+html[data-tema="oscuro"] .chat-mensajes {
+    background: var(--chat-bg--f);
+}
+
+html[data-tema="oscuro"] .chat-msg.is-bot {
+    color: var(--chat-texto--t);
+    background: var(--chat-superficie--f);
+    border: 1px solid var(--chat-borde--b);
+}
+
+html[data-tema="oscuro"] .chat-msg.is-usuario {
+    color: #FFFFFF;
+    background: var(--chat-primary-c--f);
+}
+
+html[data-tema="oscuro"] .chat-msg.is-espera {
+    color: var(--chat-outline--t);
+}
+
+html[data-tema="oscuro"] .chat-msg.is-emergencia {
+    color: #F0A49C;
+    background: #3C1E1B;
+    border-color: #552924;
+}
+
+html[data-tema="oscuro"] .chat-slot {
+    color: var(--chat-primary--t);
+    background: var(--chat-suave--f);
+    border: 1px solid var(--chat-borde--b);
+}
+
+html[data-tema="oscuro"] a.chat-slot:hover,
+html[data-tema="oscuro"] a.chat-slot:focus-visible {
+    color: #FFFFFF;
+    background: var(--chat-primary-c--f);
+}
+
+html[data-tema="oscuro"] .chat-slot.is-inactivo {
+    color: var(--chat-outline--t);
+    background: transparent;
+}
+
+html[data-tema="oscuro"] .chat-sugerencias button {
+    color: var(--chat-primary--t);
+    background: var(--chat-superficie--f);
+    border: 1px solid var(--chat-borde--b);
+    box-shadow: none;
+}
+
+html[data-tema="oscuro"] .chat-sugerencias button:hover {
+    background: var(--chat-suave--f);
+}
+
+html[data-tema="oscuro"] [data-asistente] .chat-form {
+    background: none;
+    border: 0;
+    box-shadow: none;
+}
+
+html[data-tema="oscuro"] .chat-form input {
+    border: 1px solid var(--chat-borde--b);
+}
+
+html[data-tema="oscuro"] [data-asistente] .chat-form button {
+    color: #FFFFFF;
+    background: var(--chat-primary--f);
+    border: 0;
+}
+
+html[data-tema="oscuro"] [data-asistente] .chat-form button:hover,
+html[data-tema="oscuro"] [data-asistente] .chat-form button:focus-visible {
+    color: #FFFFFF;
+    background: var(--chat-primary-c--f);
+    border: 0;
+}
+
+html[data-tema="oscuro"] .sr-only {
+    border: 0;
+}
+
+html[data-tema="oscuro"] .asistente-lanzador {
+    color: #FFFFFF;
+    background: #105644;
+    border: 0;
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.504);
+}
+
+html[data-tema="oscuro"] .asistente-lanzador:hover {
+    background: #00664E;
+}
+
+html[data-tema="oscuro"] .asistente-panel {
+    background: #1B2A24;
+    border: 1px solid #32443D;
+    box-shadow: 0 24px 48px rgba(0, 0, 0, 0.396);
+}
+
+html[data-tema="oscuro"] .asistente-panel-cabecera h2 {
+    color: #D7E9E5;
+}
+
+html[data-tema="oscuro"] .asistente-panel-cabecera p {
+    color: #C8CFCC;
+}
+
+html[data-tema="oscuro"] .asistente-cerrar {
+    color: #C8CFCC;
+    background: #141F1B;
+    border: 0;
+    box-shadow: none;
+}

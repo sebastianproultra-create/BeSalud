@@ -6,14 +6,17 @@
 
     const $ = id => document.getElementById(id);
     const css = getComputedStyle(seccion);
-    const color = (nombre, respaldo) => css.getPropertyValue(nombre).trim() || respaldo;
+    // En modo oscuro cada variable tiene su versión para texto (--t) y para relleno (--f): ver css/oscuro/
+    const oscuro = document.documentElement.getAttribute('data-tema') === 'oscuro';
+    const color = (nombre, respaldo, papel) =>
+        (oscuro && css.getPropertyValue(nombre + '--' + (papel || 't')).trim()) || css.getPropertyValue(nombre).trim() || respaldo;
     const VERDE = color('--d-primary-c', '#0D4738');
-    const MENTA = color('--d-pf', '#B7EED9');
+    const MENTA = color('--d-pf', '#B7EED9', 'f');
     const AMBAR = color('--d-amber', '#855403');
-    const AMBAR_C = color('--d-amber-c', '#FFBD6A');
+    const AMBAR_C = color('--d-amber-c', '#FFBD6A', 'f');
     const TINTA = color('--d-on', '#131E1A');
     const TINTA_SUAVE = color('--d-on-var', '#404945');
-    const REJILLA = 'rgba(0, 47, 36, 0.08)';
+    const REJILLA = oscuro ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 47, 36, 0.08)';
 
     const DIAS_JAVA = { SUNDAY: 0, MONDAY: 1, TUESDAY: 2, WEDNESDAY: 3, THURSDAY: 4, FRIDAY: 5, SATURDAY: 6 };
     const fmtCorto = new Intl.DateTimeFormat('es-CO', { weekday: 'short', day: 'numeric' });
@@ -128,8 +131,8 @@
                 plugins: {
                     legend: { display: false },
                     tooltip: {
-                        backgroundColor: '#FFFFFF', titleColor: TINTA, bodyColor: TINTA,
-                        borderColor: 'rgba(0, 47, 36, 0.2)', borderWidth: 1, padding: 10, displayColors: false,
+                        backgroundColor: oscuro ? '#1B2A24' : '#FFFFFF', titleColor: TINTA, bodyColor: TINTA,
+                        borderColor: oscuro ? 'rgba(255, 255, 255, 0.14)' : 'rgba(0, 47, 36, 0.2)', borderWidth: 1, padding: 10, displayColors: false,
                         callbacks: {
                             title: items => fmtLargo.format(tramo[items[0].dataIndex].fecha),
                             label: item => {

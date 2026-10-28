@@ -1,3 +1,6 @@
+
+@import url('../oscuro/auth/portal.css');
+
 :root {
     --portal-bg: #F0FCF5;
     --portal-primary: #002F24;

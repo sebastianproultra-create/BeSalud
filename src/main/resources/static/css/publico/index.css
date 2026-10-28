@@ -3,6 +3,7 @@
    Estilo: Clínica de lujo / Médico elegante
    Tipografía: Cormorant Garamond + DM Sans
    ============================================ */
+@import url('../oscuro/publico/index.css');
 
 :root {
     --primary:      #0D3B2E;   /* Verde bosque profundo */

@@ -1,0 +1,720 @@
+/* Generado por scripts/generar_tema_oscuro.py a partir de pacientes/catalogo.css. No editar a mano:
+   los ajustes van en base/tema-oscuro.css o en el generador. */
+
+html[data-tema="oscuro"] .header-section {
+    background: linear-gradient(135deg, var(--primary-color--f), var(--secondary-color--f));
+    color: var(--white--t);
+}
+
+html[data-tema="oscuro"] .filter-section {
+    background-color: var(--white--f);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.09);
+}
+
+html[data-tema="oscuro"] .filter-section h2 {
+    color: var(--primary-color--t);
+}
+
+html[data-tema="oscuro"] .filter-section form {
+    background: none;
+    border: none;
+    box-shadow: none;
+}
+
+html[data-tema="oscuro"] .filter-form label {
+    color: var(--text-dark--t);
+}
+
+html[data-tema="oscuro"] .filter-form select,
+html[data-tema="oscuro"] .filter-form input[type="text"] {
+    border: 1px solid var(--border-color--b);
+}
+
+html[data-tema="oscuro"] .doctor-card {
+    background: #1B2A24;
+    box-shadow: 0 2px 15px rgba(0, 0, 0, 0.18);
+}
+
+html[data-tema="oscuro"] .doctor-card:hover {
+    box-shadow: 0 5px 25px rgba(0, 0, 0, 0.27);
+}
+
+html[data-tema="oscuro"] .doctor-photo-section {
+    background-color: var(--light-bg--f);
+}
+
+html[data-tema="oscuro"] .doctor-photo img {
+    border: 3px solid var(--accent-color--b);
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.27);
+}
+
+html[data-tema="oscuro"] .doctor-info h3 {
+    color: var(--primary-color--t);
+}
+
+html[data-tema="oscuro"] .doctor-info .specialty {
+    color: var(--accent-color--t);
+}
+
+html[data-tema="oscuro"] .doctor-info .bio {
+    color: var(--text-light--t);
+}
+
+html[data-tema="oscuro"] .no-doctors {
+    background-color: var(--white--f);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.09);
+}
+
+html[data-tema="oscuro"] .no-doctors p {
+    color: var(--text-light--t);
+}
+
+html[data-tema="oscuro"] .sidebar-inner {
+    background: var(--white--f);
+    border-left: 1px solid var(--border-color--b);
+    box-shadow: -3px 0 20px rgba(0, 0, 0, 0.126);
+}
+
+html[data-tema="oscuro"] .sidebar-header {
+    background: linear-gradient(135deg, var(--primary-color--f), var(--secondary-color--f));
+    color: var(--white--t);
+}
+
+html[data-tema="oscuro"] .sidebar-title h3 {
+    color: var(--white--t);
+}
+
+html[data-tema="oscuro"] .sidebar-count {
+    background: rgba(255, 255, 255, 0.25);
+    color: var(--white--t);
+}
+
+html[data-tema="oscuro"] .sidebar-close {
+    background: rgba(255, 255, 255, 0.15);
+    border: none;
+    color: var(--white--t);
+}
+
+html[data-tema="oscuro"] .sidebar-close:hover {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+html[data-tema="oscuro"] .sidebar-empty {
+    color: var(--text-light--t);
+}
+
+html[data-tema="oscuro"] .cita-item {
+    background: var(--light-bg--f);
+    border-left: 4px solid var(--secondary-color--b);
+}
+
+html[data-tema="oscuro"] .cita-item:hover {
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.18);
+}
+
+html[data-tema="oscuro"] .cita-doctor {
+    color: var(--primary-color--t);
+}
+
+html[data-tema="oscuro"] .cita-meta {
+    color: var(--text-dark--t);
+}
+
+html[data-tema="oscuro"] .cita-motivo {
+    color: var(--text-dark--t);
+    border-top: 1px solid var(--border-color--b);
+}
+
+html[data-tema="oscuro"] .btn-small {
+    border: none;
+}
+
+html[data-tema="oscuro"] .btn-small.btn-secondary {
+    background: var(--light-bg--f);
+    color: var(--primary-color--t);
+    border: 1px solid var(--border-color--b);
+}
+
+html[data-tema="oscuro"] .btn-small.btn-secondary:hover {
+    background: var(--border-color--f);
+}
+
+html[data-tema="oscuro"] .cita-dictamen {
+    background: rgba(151, 216, 201, 0.052);
+    border-left: 3px solid var(--accent-color--b);
+}
+
+html[data-tema="oscuro"] .dictamen-header {
+    color: var(--primary-color--t);
+}
+
+html[data-tema="oscuro"] .dictamen-header i {
+    color: var(--accent-color--t);
+}
+
+html[data-tema="oscuro"] .dictamen-field {
+    color: var(--text-dark--t);
+}
+
+html[data-tema="oscuro"] .dictamen-field strong {
+    color: var(--primary-color--t);
+}
+
+html[data-tema="oscuro"] .dictamen-firma {
+    color: var(--text-dark--t);
+}
+
+html[data-tema="oscuro"] .dictamen-alergia {
+    border-left: 3px solid var(--danger-color--b);
+    background: #3C1B1B;
+    color: #E89595;
+}
+
+html[data-tema="oscuro"] .dictamen-completo summary {
+    color: var(--primary-color--t);
+}
+
+html[data-tema="oscuro"] .sidebar-backdrop {
+    background: rgba(184, 184, 184, 0.455);
+}
+
+html[data-tema="oscuro"] .sidebar-tab {
+    background: var(--secondary-color--f);
+    color: var(--white--t);
+    border: none;
+    box-shadow: -3px 0 12px rgba(0, 0, 0, 0.54);
+}
+
+html[data-tema="oscuro"] .sidebar-tab:hover {
+    background: var(--primary-color--f);
+}
+
+html[data-tema="oscuro"] .tab-badge {
+    background: var(--danger-color--f);
+    color: var(--white--t);
+}
+
+@media (max-width: 900px) {
+html[data-tema="oscuro"] .sidebar-inner {
+    border-left: 1px solid var(--border-color--b);
+    box-shadow: -4px 0 24px rgba(0, 0, 0, 0.27);
+}
+}
+
+html[data-tema="oscuro"] .triage-cta {
+    background: linear-gradient(120deg, var(--primary-color--f), var(--secondary-color--f));
+    color: var(--white--t);
+    box-shadow: var(--shadow-md--s);
+}
+
+html[data-tema="oscuro"] .triage-cta strong {
+    color: var(--accent-light--t);
+}
+
+html[data-tema="oscuro"] .triage-cta > i:first-child {
+    color: var(--accent-color--t);
+}
+
+html[data-tema="oscuro"] {
+    --patient-emerald--f: #105644;
+    --patient-emerald--t: #CCE3DD;
+    --patient-emerald--b: #105644;
+    --patient-emerald--s: rgba(0, 0, 0, 0.6);
+    --patient-emerald-hover--f: #0F5744;
+    --patient-emerald-hover--t: #D2E7E1;
+    --patient-emerald-hover--b: #0F5744;
+    --patient-emerald-hover--s: rgba(0, 0, 0, 0.6);
+    --patient-emerald-dark--f: #0E5843;
+    --patient-emerald-dark--t: #D8EAE5;
+    --patient-emerald-dark--b: #0E5843;
+    --patient-emerald-dark--s: rgba(0, 0, 0, 0.6);
+    --patient-gold--f: #C59A4D;
+    --patient-gold--t: #D4B47C;
+    --patient-gold--b: #C59A4D;
+    --patient-gold--s: #C59A4D;
+    --patient-sage--f: #121D19;
+    --patient-sage--t: #F4FAF6;
+    --patient-sage--b: #2D3D37;
+    --patient-sage--s: #F4FAF6;
+    --patient-mint--f: #141F1B;
+    --patient-mint--t: #EBF6F1;
+    --patient-mint--b: #2E3F39;
+    --patient-mint--s: #EBF6F1;
+    --patient-border--f: #16221D;
+    --patient-border--t: #E2EBE5;
+    --patient-border--b: #31423B;
+    --patient-border--s: #E2EBE5;
+    --patient-subtle--f: #627D72;
+    --patient-subtle--t: #B0C1BA;
+    --patient-subtle--b: #627D72;
+    --patient-subtle--s: rgba(0, 0, 0, 0.6);
+    --patient-shadow--f: 0 4px 24px -2px rgba(151, 216, 199, 0.078), 0 2px 8px -2px rgba(151, 216, 199, 0.052);
+    --patient-shadow--t: 0 4px 24px -2px rgba(204, 227, 221, 0.06), 0 2px 8px -2px rgba(204, 227, 221, 0.04);
+    --patient-shadow--b: 0 4px 24px -2px rgba(159, 209, 196, 0.072), 0 2px 8px -2px rgba(159, 209, 196, 0.048);
+    --patient-shadow--s: 0 4px 24px -2px rgba(0, 0, 0, 0.108), 0 2px 8px -2px rgba(0, 0, 0, 0.072);
+}
+
+html[data-tema="oscuro"] body.patient-catalog-page {
+    color: #C3CEE0;
+    background: var(--patient-sage--f);
+}
+
+html[data-tema="oscuro"] .patient-catalog-page .patient-portal-header {
+    color: #FFFFFF;
+    background: var(--patient-emerald--f);
+    border: 0;
+    border-bottom: 1px solid var(--patient-emerald-dark--b);
+    box-shadow: 0 3px 14px rgba(0, 0, 0, 0.252);
+}
+
+html[data-tema="oscuro"] .patient-brand {
+    color: #FFFFFF;
+}
+
+html[data-tema="oscuro"] .patient-brand:hover {
+    color: #FFFFFF;
+}
+
+html[data-tema="oscuro"] .patient-brand-mark {
+    color: #C6EFE0;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+html[data-tema="oscuro"] .patient-brand-copy strong {
+    color: #FFFFFF;
+}
+
+html[data-tema="oscuro"] .patient-brand-copy small {
+    color: rgba(167, 226, 204, 0.85);
+}
+
+html[data-tema="oscuro"] .patient-catalog-page .patient-header-inner nav.patient-nav {
+    background: transparent;
+    border: 0;
+    border-left: 1px solid rgba(255, 255, 255, 0.14);
+}
+
+html[data-tema="oscuro"] .patient-catalog-page .patient-nav a {
+    color: rgba(226, 244, 236, 0.82);
+    border: 1px solid transparent;
+}
+
+html[data-tema="oscuro"] .patient-catalog-page .patient-nav a:hover {
+    color: #FFFFFF;
+    background: rgba(255, 255, 255, 0.1);
+}
+
+html[data-tema="oscuro"] .patient-catalog-page .patient-nav a.is-active {
+    color: #FFFFFF;
+    background: rgba(255, 255, 255, 0.14);
+    border-color: rgba(255, 255, 255, 0.18);
+}
+
+html[data-tema="oscuro"] .patient-nav i {
+    color: #C6EFE0;
+}
+
+html[data-tema="oscuro"] .patient-avatar {
+    border: 1px solid rgba(56, 75, 68, 0.5);
+}
+
+html[data-tema="oscuro"] .patient-account-copy strong {
+    color: #FFFFFF;
+}
+
+html[data-tema="oscuro"] .patient-account-copy small {
+    color: rgba(167, 226, 204, 0.84);
+}
+
+html[data-tema="oscuro"] .patient-logout-form {
+    background: transparent;
+    border: 0;
+    box-shadow: none;
+}
+
+html[data-tema="oscuro"] .patient-catalog-page .patient-logout {
+    color: rgba(255, 255, 255, 0.94);
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.16);
+}
+
+html[data-tema="oscuro"] .patient-catalog-page .patient-logout:hover {
+    color: #FFFFFF;
+    background: rgba(255, 255, 255, 0.18);
+}
+
+html[data-tema="oscuro"] .patient-logout i {
+    color: #C6EFE0;
+}
+
+html[data-tema="oscuro"] .patient-welcome {
+    color: #FFFFFF;
+    background: linear-gradient(112deg, #0E5843 0%, #105644 58%, #125946 100%);
+    border: 1px solid rgba(159, 209, 195, 0.24);
+    box-shadow: var(--patient-shadow--s);
+}
+
+html[data-tema="oscuro"] .patient-eyebrow {
+    color: #D7F4E8;
+    background: rgba(120, 214, 174, 0.14);
+    border: 1px solid rgba(120, 214, 174, 0.25);
+}
+
+html[data-tema="oscuro"] .patient-eyebrow > span {
+    background: #1E4F36;
+    box-shadow: 0 0 0 3px rgba(103, 214, 157, 0.14);
+}
+
+html[data-tema="oscuro"] .patient-welcome h1 {
+    color: #FFFFFF;
+}
+
+html[data-tema="oscuro"] .patient-welcome h1 em {
+    color: #B7EED9;
+}
+
+html[data-tema="oscuro"] .patient-welcome-copy > p {
+    color: rgba(235, 246, 241, 0.82);
+}
+
+html[data-tema="oscuro"] .patient-welcome-action {
+    color: #FFFFFF;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+html[data-tema="oscuro"] .patient-welcome-action:hover {
+    color: #FFFFFF;
+    background: rgba(255, 255, 255, 0.18);
+    border-color: rgba(255, 255, 255, 0.32);
+}
+
+html[data-tema="oscuro"] .patient-welcome-action i:first-child {
+    color: #B7EED9;
+}
+
+html[data-tema="oscuro"] .doctor-filter-panel,
+html[data-tema="oscuro"] .patient-sidebar .sidebar-inner,
+html[data-tema="oscuro"] .doctor-card,
+html[data-tema="oscuro"] .patient-trust-card {
+    background: #1B2A24;
+    border: 1px solid var(--patient-border--b);
+    box-shadow: var(--patient-shadow--s);
+}
+
+html[data-tema="oscuro"] .doctor-filter-heading {
+    border-bottom: 1px solid #2F3F39;
+}
+
+html[data-tema="oscuro"] .doctor-filter-heading h2,
+html[data-tema="oscuro"] .doctor-directory-heading h2 {
+    color: #C3CEE0;
+}
+
+html[data-tema="oscuro"] .doctor-filter-heading p,
+html[data-tema="oscuro"] .doctor-directory-heading p {
+    color: #A3ADBD;
+}
+
+html[data-tema="oscuro"] .active-doctor-count {
+    color: var(--patient-emerald--t);
+    background: var(--patient-mint--f);
+    border: 1px solid #32433D;
+}
+
+html[data-tema="oscuro"] .patient-catalog-page .doctor-filter-panel form.doctor-filter-form {
+    background: transparent;
+    border: 0;
+    box-shadow: none;
+}
+
+html[data-tema="oscuro"] .patient-catalog-page .doctor-filter-field > label {
+    color: #A3ADBD;
+}
+
+html[data-tema="oscuro"] .patient-control > i {
+    color: #A5B3AC;
+}
+
+html[data-tema="oscuro"] .patient-catalog-page .patient-control input,
+html[data-tema="oscuro"] .patient-catalog-page .patient-control select {
+    color: #CCDED6;
+    background: #121C19;
+    border: 1px solid #32433D;
+    box-shadow: none;
+}
+
+html[data-tema="oscuro"] .patient-catalog-page .patient-control input::placeholder {
+    color: #97A59F;
+}
+
+html[data-tema="oscuro"] .patient-catalog-page .patient-control input:focus,
+html[data-tema="oscuro"] .patient-catalog-page .patient-control select:focus {
+    outline: none;
+    background: #1B2A24;
+    border-color: var(--patient-emerald--b);
+    box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.216);
+}
+
+html[data-tema="oscuro"] .patient-catalog-page .patient-filter-submit {
+    color: #FFFFFF;
+    background: var(--patient-emerald--f);
+    border: 1px solid var(--patient-emerald--b);
+}
+
+html[data-tema="oscuro"] .patient-catalog-page .patient-filter-submit:hover {
+    color: #FFFFFF;
+    background: var(--patient-emerald-hover--f);
+    border-color: var(--patient-emerald-hover--b);
+}
+
+html[data-tema="oscuro"] .patient-filter-clear {
+    color: var(--patient-subtle--t);
+}
+
+html[data-tema="oscuro"] .patient-filter-clear:hover {
+    color: var(--patient-emerald--t);
+}
+
+html[data-tema="oscuro"] .doctor-directory-heading > span {
+    color: #A3ADBD;
+}
+
+html[data-tema="oscuro"] .patient-catalog-page .doctor-card:hover {
+    border-color: #34463F;
+    box-shadow: 0 7px 26px rgba(0, 0, 0, 0.18);
+}
+
+html[data-tema="oscuro"] .patient-catalog-page .doctor-photo {
+    background: var(--patient-mint--f);
+    border: 2px solid #31423C;
+}
+
+html[data-tema="oscuro"] .patient-catalog-page .doctor-photo img {
+    border: 0;
+    box-shadow: none;
+}
+
+html[data-tema="oscuro"] .doctor-active-badge {
+    color: #C2DED3;
+    background: #141F1B;
+    border: 1px solid #32433D;
+}
+
+html[data-tema="oscuro"] .doctor-active-badge > span {
+    background: #23A26D;
+}
+
+html[data-tema="oscuro"] .patient-catalog-page .doctor-info h3,
+html[data-tema="oscuro"] .doctor-card-identity h3 {
+    color: #D1E6DD;
+}
+
+html[data-tema="oscuro"] .patient-catalog-page .doctor-card .specialty {
+    color: var(--patient-gold--t);
+}
+
+html[data-tema="oscuro"] .patient-catalog-page .doctor-card .bio {
+    color: #BCC8C2;
+    background: var(--patient-sage--f);
+    border: 1px solid #2F403A;
+}
+
+html[data-tema="oscuro"] .doctor-card-footer {
+    border-top: 1px solid #2F3F39;
+}
+
+html[data-tema="oscuro"] .doctor-card-footer > span {
+    color: #ADB7B2;
+}
+
+html[data-tema="oscuro"] .doctor-card-footer > span i {
+    color: #B5D7C9;
+}
+
+html[data-tema="oscuro"] .doctor-book-link {
+    color: #FFFFFF;
+    background: var(--patient-emerald--f);
+}
+
+html[data-tema="oscuro"] .doctor-book-link:hover {
+    color: #FFFFFF;
+    background: var(--patient-emerald-hover--f);
+}
+
+html[data-tema="oscuro"] .patient-catalog-page .no-doctors {
+    background: #1B2A24;
+    border: 1px dashed #344740;
+    box-shadow: none;
+}
+
+html[data-tema="oscuro"] .empty-doctors-icon {
+    color: var(--patient-emerald--t);
+    background: var(--patient-mint--f);
+}
+
+html[data-tema="oscuro"] .patient-catalog-page .no-doctors p {
+    color: #BCC8C2;
+}
+
+html[data-tema="oscuro"] .patient-catalog-page .no-doctors a {
+    color: var(--patient-emerald--t);
+}
+
+html[data-tema="oscuro"] .patient-catalog-page nav.pagination {
+    background: transparent;
+    border: 0;
+}
+
+html[data-tema="oscuro"] .patient-catalog-page .pagination a {
+    color: var(--patient-emerald--t);
+    background: #1B2A24;
+    border: 1px solid var(--patient-border--b);
+}
+
+html[data-tema="oscuro"] .patient-catalog-page .pagination a.is-current {
+    color: #FFFFFF;
+    background: var(--patient-emerald--f);
+    border-color: var(--patient-emerald--b);
+}
+
+html[data-tema="oscuro"] .patient-catalog-page .pagination a:hover:not(.is-current) {
+    background: var(--patient-mint--f);
+}
+
+html[data-tema="oscuro"] .patient-catalog-page .patient-sidebar .sidebar-inner {
+    background: #1B2A24;
+    border: 1px solid var(--patient-border--b);
+    box-shadow: var(--patient-shadow--s);
+}
+
+html[data-tema="oscuro"] .patient-catalog-page .patient-sidebar .sidebar-header {
+    background: var(--patient-emerald--f);
+}
+
+html[data-tema="oscuro"] .patient-catalog-page .patient-sidebar .sidebar-title > span:first-child {
+    color: #B7EED9;
+    background: rgba(255, 255, 255, 0.1);
+}
+
+html[data-tema="oscuro"] .patient-catalog-page .patient-sidebar .sidebar-close {
+    color: #FFFFFF;
+    background: rgba(255, 255, 255, 0.12);
+}
+
+html[data-tema="oscuro"] .patient-catalog-page .patient-sidebar .sidebar-empty {
+    color: #ABB5B0;
+}
+
+html[data-tema="oscuro"] .patient-catalog-page .patient-sidebar .cita-item {
+    background: var(--patient-sage--f);
+    border: 1px solid #30413B;
+    border-left: 3px solid #19845B;
+}
+
+html[data-tema="oscuro"] .patient-catalog-page .patient-sidebar .cita-doctor {
+    color: #CCDED6;
+}
+
+html[data-tema="oscuro"] .patient-catalog-page .patient-sidebar .cita-meta {
+    color: #BCC8C2;
+}
+
+html[data-tema="oscuro"] .patient-catalog-page .patient-sidebar .cita-motivo {
+    color: #BCC8C2;
+}
+
+html[data-tema="oscuro"] .patient-catalog-page footer {
+    color: #D4EBDF;
+    background: var(--patient-emerald--f);
+    border: 0;
+    border-top: 1px solid var(--patient-emerald-dark--b);
+    box-shadow: none;
+}
+
+html[data-tema="oscuro"] .patient-catalog-page footer p {
+    color: inherit;
+}
+
+@media (max-width: 760px) {
+html[data-tema="oscuro"] .patient-catalog-page .patient-sidebar.collapsed .sidebar-tab {
+    color: #FFFFFF;
+    background: var(--patient-emerald--f);
+    border: 0;
+    box-shadow: var(--patient-shadow--s);
+}
+}
+
+html[data-tema="oscuro"] .patient-catalog-page .patient-sidebar .cita-motivo {
+    color: #C4D1CB;
+}
+
+html[data-tema="oscuro"] .cita-abono {
+    color: #F1D19D;
+}
+
+html[data-tema="oscuro"] .doctor-profile-link {
+    color: inherit;
+}
+
+html[data-tema="oscuro"] .reserva-pendiente {
+    color: #F3D9AD;
+    background: #3C2F1B;
+    border: 1px solid #543D24;
+}
+
+html[data-tema="oscuro"] .reserva-pendiente a {
+    color: #FFFFFF;
+    background: #855403;
+}
+
+html[data-tema="oscuro"] .confirmar-asistencia {
+    color: #CCE3DD;
+    background: #141F1B;
+    border: 1px solid #33453F;
+}
+
+html[data-tema="oscuro"] .confirmar-asistencia small {
+    color: #C8CFCC;
+}
+
+html[data-tema="oscuro"] .patient-main .confirmar-asistencia form {
+    background: none;
+    border: 0;
+    box-shadow: none;
+}
+
+html[data-tema="oscuro"] .patient-main .confirmar-asistencia button {
+    box-shadow: none;
+}
+
+html[data-tema="oscuro"] .patient-main .confirmar-asistencia .confirmar-si {
+    color: #FFFFFF;
+    background: #105644;
+    border: 1px solid #105644;
+}
+
+html[data-tema="oscuro"] .patient-main .confirmar-asistencia .confirmar-no {
+    color: #CCE3DD;
+    background: #1B2A24;
+    border: 1px solid #384C44;
+}
+
+html[data-tema="oscuro"] .patient-main .confirmar-asistencia .confirmar-si:hover {
+    color: #FFFFFF;
+    background: #00664E;
+}
+
+html[data-tema="oscuro"] .patient-main .confirmar-asistencia .confirmar-no:hover {
+    color: #CCE3DD;
+    background: #131D19;
+}
+
+html[data-tema="oscuro"] .cita-asistencia {
+    color: #C1DED1;
+}
+
+html[data-tema="oscuro"] .alert-success a {
+    color: inherit;
+}

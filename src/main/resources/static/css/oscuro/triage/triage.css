@@ -1,0 +1,478 @@
+/* Generado por scripts/generar_tema_oscuro.py a partir de triage/triage.css. No editar a mano:
+   los ajustes van en base/tema-oscuro.css o en el generador. */
+
+html[data-tema="oscuro"] .triage-form label {
+    color: var(--primary-color--t);
+}
+
+html[data-tema="oscuro"] .triage-contador {
+    color: var(--text-light--t);
+}
+
+html[data-tema="oscuro"] .triage-aviso {
+    color: var(--text-light--t);
+}
+
+html[data-tema="oscuro"] .triage-emergencia {
+    background: #3C1B1B;
+    border: 1px solid var(--danger-color--b);
+    color: var(--danger-color--t);
+}
+
+html[data-tema="oscuro"] .triage-emergencia p {
+    color: var(--text-dark--t);
+}
+
+html[data-tema="oscuro"] .triage-resultado {
+    border-left: 4px solid var(--accent-color--b);
+}
+
+html[data-tema="oscuro"] .triage-resultado-cabecera h2 {
+    color: var(--primary-color--t);
+}
+
+html[data-tema="oscuro"] .triage-prioridad-baja {
+    background: #15211C;
+    color: var(--secondary-color--t);
+}
+
+html[data-tema="oscuro"] .triage-prioridad-media {
+    background: var(--accent-light--f);
+    color: #E5D1A8;
+}
+
+html[data-tema="oscuro"] .triage-prioridad-alta {
+    background: #3C1B1B;
+    color: var(--danger-color--t);
+}
+
+html[data-tema="oscuro"] .triage-resumen {
+    background: var(--light-bg--f);
+}
+
+html[data-tema="oscuro"] .triage-resumen span {
+    color: var(--text-light--t);
+}
+
+html[data-tema="oscuro"] .triage-fuente {
+    color: var(--text-light--t);
+}
+
+html[data-tema="oscuro"] .triage-subtitulo {
+    color: var(--primary-color--t);
+}
+
+html[data-tema="oscuro"] .triage-doctor-esp {
+    color: var(--text-light--t);
+}
+
+html[data-tema="oscuro"] .triage-hora {
+    background: var(--light-bg--f);
+    border: 1px solid var(--border-color--b);
+}
+
+html[data-tema="oscuro"] .triage-page {
+    color: #C3CEE0;
+    background-color: #121D19;
+    background-image: radial-gradient(rgba(151, 216, 198, 0.058) 1px, transparent 1px);
+}
+
+html[data-tema="oscuro"] .triage-page .app-header {
+    color: #FFFFFF;
+    background: #115541;
+    border: 0;
+    border-bottom: 1px solid #16503F;
+    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.27);
+}
+
+html[data-tema="oscuro"] .triage-page .app-brand {
+    color: #FFFFFF;
+}
+
+html[data-tema="oscuro"] .triage-page .app-brand > span:first-child {
+    color: #E1C772;
+}
+
+html[data-tema="oscuro"] .triage-page .app-nav {
+    background: transparent;
+    border: 0;
+    border-left: 1px solid rgba(255, 255, 255, 0.14);
+}
+
+html[data-tema="oscuro"] .triage-page .app-nav a {
+    color: #C7D5CE;
+    background: transparent;
+    border: 0;
+}
+
+html[data-tema="oscuro"] .triage-page .app-nav a:hover {
+    color: #FFFFFF;
+    background: rgba(255, 255, 255, 0.08);
+}
+
+html[data-tema="oscuro"] .triage-page .app-nav a.is-active {
+    color: #FFFFFF;
+    background: transparent;
+}
+
+html[data-tema="oscuro"] .triage-page .app-nav a.is-active::after {
+    background: #D4AF37;
+}
+
+html[data-tema="oscuro"] .triage-page .app-user-name {
+    color: #E1EBE5;
+}
+
+html[data-tema="oscuro"] .triage-page .app-logout {
+    color: #D4DED9;
+    background: transparent;
+    border: 1px solid transparent;
+}
+
+html[data-tema="oscuro"] .triage-page .app-logout:hover {
+    color: #FFFFFF;
+    background: #174F3F;
+}
+
+html[data-tema="oscuro"] .triage-page .page-eyebrow {
+    color: #C2DED3;
+}
+
+html[data-tema="oscuro"] .triage-hero .page-eyebrow {
+    background: #15201C;
+    border: 1px solid #34463F;
+}
+
+html[data-tema="oscuro"] .triage-hero .page-eyebrow span {
+    color: #E1C772;
+}
+
+html[data-tema="oscuro"] .triage-page .page-title {
+    color: #D3E7E2;
+    border: 0;
+}
+
+html[data-tema="oscuro"] .triage-page .page-subtitle {
+    color: #B4C3BD;
+}
+
+html[data-tema="oscuro"] .triage-page .triage-analysis-card,
+html[data-tema="oscuro"] .triage-page .triage-resultado,
+html[data-tema="oscuro"] .triage-page .triage-doctor {
+    background: #1B2A24;
+    border: 1px solid #30423B;
+    box-shadow: 0 8px 30px -4px rgba(0, 0, 0, 0.108), 0 2px 10px -2px rgba(0, 0, 0, 0.072);
+}
+
+html[data-tema="oscuro"] .triage-page .triage-form {
+    background: transparent;
+    border: 0;
+    box-shadow: none;
+}
+
+html[data-tema="oscuro"] .triage-page .triage-form label {
+    color: #D3E7E2;
+}
+
+html[data-tema="oscuro"] .triage-clear {
+    color: #AFB9B5;
+    background: transparent;
+    border: 0;
+}
+
+html[data-tema="oscuro"] .triage-clear:hover {
+    color: #CCDED6;
+}
+
+html[data-tema="oscuro"] .triage-page .triage-form textarea {
+    color: #CCDED7;
+    background: #1B2A24;
+    border: 1px solid #33443E;
+    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.045);
+}
+
+html[data-tema="oscuro"] .triage-page .triage-form textarea::placeholder {
+    color: #8A9992;
+}
+
+html[data-tema="oscuro"] .triage-page .triage-form textarea:focus {
+    outline: none;
+    border-color: #165E49;
+    box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.27);
+}
+
+html[data-tema="oscuro"] .triage-examples > p {
+    color: #B4C3BD;
+}
+
+html[data-tema="oscuro"] .triage-page .triage-chip {
+    color: #BCC8C2;
+    background: #121C19;
+    border: 1px solid #31433C;
+}
+
+html[data-tema="oscuro"] .patient-catalog-page .triage-chip:hover,
+html[data-tema="oscuro"] .triage-page .triage-chip:hover {
+    color: #D3E7E2;
+    background: #15201C;
+    border-color: #34463F;
+}
+
+html[data-tema="oscuro"] .triage-page .triage-actions {
+    border-top: 1px solid #2F3F39;
+}
+
+html[data-tema="oscuro"] .triage-page .triage-contador {
+    color: #B4BFBA;
+}
+
+html[data-tema="oscuro"] .triage-progress {
+    background: #15201C;
+}
+
+html[data-tema="oscuro"] .triage-progress > span {
+    background: #165E49;
+}
+
+html[data-tema="oscuro"] .triage-page .triage-submit {
+    color: #FFFFFF;
+    background: #105644;
+    border: 1px solid #105644;
+}
+
+html[data-tema="oscuro"] .triage-page .triage-submit:hover {
+    color: #FFFFFF;
+    background: #0D5946;
+    border-color: #0D5946;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.288);
+}
+
+html[data-tema="oscuro"] .triage-page .triage-submit i {
+    color: #A8E4CD;
+}
+
+html[data-tema="oscuro"] .triage-page .triage-loading {
+    background: #121C19;
+    border: 1px solid #30423B;
+}
+
+html[data-tema="oscuro"] .triage-spinner {
+    color: #C3DED6;
+    background: #15201C;
+}
+
+html[data-tema="oscuro"] .triage-loading strong {
+    color: #D3E7E2;
+}
+
+html[data-tema="oscuro"] .triage-loading p {
+    color: #B4C0BB;
+}
+
+html[data-tema="oscuro"] .triage-page .triage-aviso {
+    color: #B2BDB8;
+    border-top: 1px solid #2F3F39;
+}
+
+html[data-tema="oscuro"] .triage-page .triage-aviso > i {
+    color: #A6B2AD;
+}
+
+html[data-tema="oscuro"] .triage-page .triage-aviso strong {
+    color: #C0CEC7;
+}
+
+html[data-tema="oscuro"] .triage-page .triage-aviso a {
+    color: #C2DED3;
+}
+
+html[data-tema="oscuro"] .triage-page .alert-error {
+    color: #E3A5A1;
+    background: #3C1F1B;
+    border: 1px solid #512923;
+    border-left: 3px solid #BA1A1A;
+}
+
+html[data-tema="oscuro"] .triage-page .triage-emergencia {
+    color: #E19C97;
+    background: #3C1F1B;
+    border: 1px solid #522A23;
+}
+
+html[data-tema="oscuro"] .triage-page .triage-emergencia > i {
+    color: #DA8984;
+}
+
+html[data-tema="oscuro"] .triage-page .triage-emergencia p {
+    color: #D3B0AC;
+}
+
+html[data-tema="oscuro"] .triage-page .triage-resultado {
+    background: #131D1A;
+    border: 1px solid #34463F;
+    border-left: 4px solid #165E49;
+    box-shadow: 0 8px 30px -4px rgba(0, 0, 0, 0.108);
+}
+
+html[data-tema="oscuro"] .triage-page .triage-resultado-cabecera h2 {
+    color: #D3E7E2;
+}
+
+html[data-tema="oscuro"] .triage-page .triage-resultado > p:not(.triage-resumen):not(.triage-fuente) {
+    color: #BCC8C2;
+}
+
+html[data-tema="oscuro"] .triage-page .triage-prioridad-baja {
+    background: #15201C;
+    color: #C2DED3;
+}
+
+html[data-tema="oscuro"] .triage-page .triage-prioridad-media {
+    background: #3C331B;
+    color: #E8D1A1;
+}
+
+html[data-tema="oscuro"] .triage-page .triage-prioridad-alta {
+    background: #3C1F1B;
+    color: #DB948F;
+}
+
+html[data-tema="oscuro"] .triage-page .triage-resumen {
+    color: #C7D6CF;
+    background: #1B2A24;
+    border: 1px solid #30423B;
+}
+
+html[data-tema="oscuro"] .triage-page .triage-resumen span {
+    color: #B4C0BB;
+}
+
+html[data-tema="oscuro"] .triage-page .triage-fuente {
+    color: #AFB9B4;
+}
+
+html[data-tema="oscuro"] .triage-page .triage-subtitulo {
+    color: #D3E7E2;
+}
+
+html[data-tema="oscuro"] .triage-doctores-heading > span {
+    color: #AFB9B4;
+}
+
+html[data-tema="oscuro"] .triage-page .triage-doctor {
+    box-shadow: 0 4px 24px -2px rgba(0, 0, 0, 0.108);
+}
+
+html[data-tema="oscuro"] .triage-page .triage-avatar {
+    border: 2px solid #31423C;
+}
+
+html[data-tema="oscuro"] .triage-page .triage-doctor-info h3 {
+    color: #D1E6DD;
+}
+
+html[data-tema="oscuro"] .triage-page .triage-doctor-esp {
+    color: #DBC28D;
+}
+
+html[data-tema="oscuro"] .triage-page .triage-turno {
+    color: #B8C5BF;
+}
+
+html[data-tema="oscuro"] .triage-page .triage-hora {
+    color: #C2DED3;
+    background: #141F1B;
+    border: 1px solid #32433D;
+}
+
+html[data-tema="oscuro"] .triage-page .triage-book-form {
+    background: transparent;
+    border: 0;
+    border-top: 1px solid #2F3F39;
+    box-shadow: none;
+}
+
+html[data-tema="oscuro"] .triage-page .triage-book-form .btn {
+    color: #FFFFFF;
+    background: #105644;
+    border: 1px solid #105644;
+}
+
+html[data-tema="oscuro"] .triage-page .triage-book-form .btn:hover {
+    color: #FFFFFF;
+    background: #0D5946;
+    border-color: #0D5946;
+}
+
+html[data-tema="oscuro"] .triage-page .empty-note {
+    color: #B7C5BF;
+    background: #1B2A24;
+    border: 1px dashed #344740;
+}
+
+html[data-tema="oscuro"] .triage-guidance article {
+    background: rgba(27, 42, 36, 0.952);
+    border: 1px solid #30423B;
+}
+
+html[data-tema="oscuro"] .triage-guidance article > span {
+    color: #CCE3DD;
+    background: #15201C;
+}
+
+html[data-tema="oscuro"] .triage-guidance h3 {
+    color: #D3E7E2;
+}
+
+html[data-tema="oscuro"] .triage-guidance p {
+    color: #B2BEB9;
+}
+
+html[data-tema="oscuro"] .triage-emergency-banner {
+    color: #E1A7A3;
+    background: #3C201B;
+    border: 1px solid #512923;
+}
+
+html[data-tema="oscuro"] .triage-emergency-icon {
+    color: #DB928B;
+    background: #3C201B;
+}
+
+html[data-tema="oscuro"] .triage-emergency-banner p {
+    color: #D1ADA9;
+}
+
+html[data-tema="oscuro"] .triage-emergency-banner strong {
+    color: #E0B3AE;
+}
+
+html[data-tema="oscuro"] .triage-emergency-banner > a {
+    color: #FFFFFF;
+    background: #B83D35;
+}
+
+html[data-tema="oscuro"] .triage-page > footer {
+    color: #B9D3C7;
+    background: #115541;
+    border: 0;
+    border-top: 1px solid #16503F;
+    box-shadow: none;
+}
+
+html[data-tema="oscuro"] .triage-page > footer p {
+    color: inherit;
+}
+
+html[data-tema="oscuro"] .triage-page > footer a {
+    color: #E1C772;
+}
+
+@media (max-width: 760px) {
+html[data-tema="oscuro"] .triage-page .app-nav a > i {
+    color: #E1C772;
+}
+html[data-tema="oscuro"] .triage-page .app-logout > i {
+    color: #E1C772;
+}
+}

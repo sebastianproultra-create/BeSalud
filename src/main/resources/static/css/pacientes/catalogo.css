@@ -1,6 +1,7 @@
 /* ============================================== 
    PATIENT LANDING PAGE STYLES 
    ============================================== */
+@import url('../oscuro/pacientes/catalogo.css');
 
 .header-section {
     background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));

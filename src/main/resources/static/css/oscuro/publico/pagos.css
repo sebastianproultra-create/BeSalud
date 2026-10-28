@@ -1,0 +1,824 @@
+/* Generado por scripts/generar_tema_oscuro.py a partir de publico/pagos.css. No editar a mano:
+   los ajustes van en base/tema-oscuro.css o en el generador. */
+
+html[data-tema="oscuro"] .pago-pasos li {
+    color: var(--portal-outline--t);
+}
+
+html[data-tema="oscuro"] .pago-pasos li + li::before {
+    background: var(--portal-border--f);
+}
+
+html[data-tema="oscuro"] .pago-pasos li > span {
+    color: var(--portal-outline--t);
+    background: var(--portal-surface--f);
+    border: 2px solid var(--portal-border--b);
+}
+
+html[data-tema="oscuro"] .pago-pasos li.is-hecho,
+html[data-tema="oscuro"] .pago-pasos li.is-actual {
+    color: var(--portal-primary--t);
+}
+
+html[data-tema="oscuro"] .pago-pasos li.is-hecho > span {
+    color: #FFFFFF;
+    background: var(--portal-primary-container--f);
+    border-color: var(--portal-primary-container--b);
+}
+
+html[data-tema="oscuro"] .pago-pasos li.is-actual > span {
+    color: var(--portal-primary--t);
+    border-color: var(--portal-primary-container--b);
+}
+
+html[data-tema="oscuro"] .pago-pasos li.is-hecho.is-actual > span {
+    color: #FFFFFF;
+}
+
+html[data-tema="oscuro"] .pago-correo {
+    color: var(--portal-muted--t);
+    background: var(--portal-container--f);
+}
+
+html[data-tema="oscuro"] .pago-correo .material-symbols-outlined {
+    color: var(--portal-primary-container--t);
+}
+
+html[data-tema="oscuro"] .pago-tarjeta {
+    background: var(--portal-surface--f);
+    border: 1px solid var(--portal-border--b);
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.108);
+}
+
+html[data-tema="oscuro"] .pago-tarjeta h1,
+html[data-tema="oscuro"] .pago-tarjeta h2 {
+    color: var(--portal-primary--t);
+}
+
+html[data-tema="oscuro"] .pago-sub {
+    color: var(--portal-muted--t);
+}
+
+html[data-tema="oscuro"] .pago-medico {
+    background: var(--portal-container--f);
+}
+
+html[data-tema="oscuro"] .pago-medico strong {
+    color: var(--portal-on-surface--t);
+}
+
+html[data-tema="oscuro"] .pago-medico span {
+    color: var(--portal-muted--t);
+}
+
+html[data-tema="oscuro"] .pago-datos > div,
+html[data-tema="oscuro"] .pago-cuentas > div {
+    border-bottom: 1px solid var(--portal-border--b);
+}
+
+html[data-tema="oscuro"] .pago-datos > div:last-child,
+html[data-tema="oscuro"] .pago-cuentas > div:last-child {
+    border-bottom: 0;
+}
+
+html[data-tema="oscuro"] .pago-datos dt {
+    color: var(--portal-muted--t);
+}
+
+html[data-tema="oscuro"] .pago-datos dt .material-symbols-outlined {
+    color: var(--portal-primary-container--t);
+}
+
+html[data-tema="oscuro"] .pago-datos dd,
+html[data-tema="oscuro"] .pago-cuentas dd {
+    color: var(--portal-on-surface--t);
+}
+
+html[data-tema="oscuro"] .pago-cuentas dt {
+    color: var(--portal-muted--t);
+}
+
+html[data-tema="oscuro"] .pago-cuentas .is-total dt,
+html[data-tema="oscuro"] .pago-cuentas .is-total dd {
+    color: var(--portal-primary--t);
+}
+
+html[data-tema="oscuro"] .pago-page form {
+    background: none;
+    border: 0;
+    box-shadow: none;
+}
+
+html[data-tema="oscuro"] .pago-reloj {
+    background: var(--portal-bg--f);
+    border: 1px solid var(--portal-border--b);
+}
+
+html[data-tema="oscuro"] .pago-reloj-fila {
+    color: var(--portal-muted--t);
+}
+
+html[data-tema="oscuro"] .pago-reloj-fila .material-symbols-outlined {
+    color: var(--portal-primary-container--t);
+}
+
+html[data-tema="oscuro"] .pago-reloj-tiempo {
+    color: var(--portal-primary--t);
+}
+
+html[data-tema="oscuro"] .pago-reloj-barra {
+    background: var(--portal-border--f);
+}
+
+html[data-tema="oscuro"] .pago-reloj-barra span {
+    background: var(--portal-primary-container--f);
+}
+
+html[data-tema="oscuro"] .pago-reloj.is-urgente .pago-reloj-tiempo {
+    color: #EA8883;
+}
+
+html[data-tema="oscuro"] .pago-reloj.is-urgente .pago-reloj-barra span {
+    background: #B3261E;
+}
+
+html[data-tema="oscuro"] .pago-page .pago-boton {
+    color: #FFFFFF;
+    background: var(--portal-primary--f);
+    border: 1px solid var(--portal-primary--b);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.324);
+}
+
+html[data-tema="oscuro"] .pago-page .pago-boton:hover,
+html[data-tema="oscuro"] .pago-page .pago-boton:focus-visible {
+    color: #FFFFFF;
+    background: var(--portal-primary-container--f);
+    border-color: var(--portal-primary-container--b);
+}
+
+html[data-tema="oscuro"] .pago-page .pago-boton.is-secundario {
+    color: var(--portal-primary--t);
+    background: var(--portal-surface--f);
+    border-color: var(--portal-border--b);
+    box-shadow: none;
+}
+
+html[data-tema="oscuro"] .pago-page .pago-boton.is-secundario:hover,
+html[data-tema="oscuro"] .pago-page .pago-boton.is-secundario:focus-visible {
+    color: var(--portal-primary--t);
+    background: var(--portal-container--f);
+    border-color: var(--portal-border--b);
+}
+
+html[data-tema="oscuro"] .pago-medios {
+    color: var(--portal-outline--t);
+}
+
+html[data-tema="oscuro"] .pago-demo-nota {
+    color: var(--portal-muted--t);
+}
+
+html[data-tema="oscuro"] .pago-politica {
+    color: var(--portal-muted--t);
+    border-top: 1px solid var(--portal-border--b);
+}
+
+html[data-tema="oscuro"] .pago-page .pago-liberar button {
+    color: var(--portal-muted--t);
+    background: none;
+    border: 0;
+    box-shadow: none;
+}
+
+html[data-tema="oscuro"] .pago-page .pago-liberar button:hover {
+    color: var(--portal-primary--t);
+    background: none;
+}
+
+html[data-tema="oscuro"] .pasarela-aviso {
+    color: #F3D9AD;
+    background: #3C2F1B;
+    border: 1px dashed var(--portal-secondary-container--b);
+}
+
+html[data-tema="oscuro"] .pasarela-cabecera {
+    border-bottom: 1px solid var(--portal-border--b);
+}
+
+html[data-tema="oscuro"] .pasarela-comercio,
+html[data-tema="oscuro"] .pasarela-ref {
+    color: var(--portal-muted--t);
+}
+
+html[data-tema="oscuro"] .pasarela-subtitulo {
+    color: var(--portal-on-surface--t);
+}
+
+html[data-tema="oscuro"] .pago-page .pasarela-medio {
+    color: var(--portal-on-surface--t);
+    background: var(--portal-surface--f);
+    border: 1px solid var(--portal-border--b);
+    box-shadow: none;
+}
+
+html[data-tema="oscuro"] .pago-page .pasarela-medio:hover,
+html[data-tema="oscuro"] .pago-page .pasarela-medio:focus-visible {
+    color: var(--portal-on-surface--t);
+    background: var(--portal-bg--f);
+    border-color: var(--portal-primary-container--b);
+}
+
+html[data-tema="oscuro"] .pasarela-medio > .material-symbols-outlined:first-child {
+    color: var(--portal-primary-container--t);
+    background: var(--portal-container--f);
+}
+
+html[data-tema="oscuro"] .pasarela-medio small {
+    color: var(--portal-muted--t);
+}
+
+html[data-tema="oscuro"] .pasarela-flecha {
+    color: var(--portal-outline--t);
+}
+
+html[data-tema="oscuro"] .pago-page .pasarela-atras {
+    color: var(--portal-primary--t);
+    background: none;
+    border: 0;
+    box-shadow: none;
+}
+
+html[data-tema="oscuro"] .pago-page .pasarela-atras:hover {
+    color: var(--portal-primary-container--t);
+    background: none;
+}
+
+html[data-tema="oscuro"] .tarjeta-vista {
+    color: #FFFFFF;
+    background: linear-gradient(135deg, #2D3B36, #105644);
+    box-shadow: 0 14px 30px rgba(0, 0, 0, 0.45);
+}
+
+html[data-tema="oscuro"] .tarjeta-vista[data-marca="VISA"] {
+    background: linear-gradient(135deg, #1A1F71, #3949AB);
+}
+
+html[data-tema="oscuro"] .tarjeta-vista[data-marca="MASTERCARD"] {
+    background: linear-gradient(135deg, #3A2A1E, #C2410C);
+}
+
+html[data-tema="oscuro"] .tarjeta-vista[data-marca="AMEX"] {
+    background: linear-gradient(135deg, #0E5A8A, #2E8BC0);
+}
+
+html[data-tema="oscuro"] .tarjeta-vista[data-marca="DINERS"] {
+    background: linear-gradient(135deg, #2F3640, #636E72);
+}
+
+html[data-tema="oscuro"] .tarjeta-chip {
+    background: linear-gradient(135deg, #E9C46A, #B8860B);
+}
+
+html[data-tema="oscuro"] .pago-page .pasarela-campo {
+    color: var(--portal-muted--t);
+}
+
+html[data-tema="oscuro"] .pago-page .pasarela-campo input,
+html[data-tema="oscuro"] .pago-page .pasarela-campo select {
+    color: var(--portal-on-surface--t);
+    background-color: var(--portal-surface--f);
+    border: 1px solid var(--portal-border--b);
+}
+
+html[data-tema="oscuro"] .pago-page .pasarela-campo input:focus,
+html[data-tema="oscuro"] .pago-page .pasarela-campo select:focus {
+    border-color: var(--portal-primary-container--b);
+    outline: 2px solid rgba(159, 209, 196, 0.18);
+}
+
+html[data-tema="oscuro"] .pago-page .pasarela-campo input[readonly] {
+    color: var(--portal-muted--t);
+    background-color: var(--portal-bg--f);
+}
+
+html[data-tema="oscuro"] .pago-page .pasarela .is-invalido {
+    border-color: #B3261E;
+    outline: 2px solid rgba(209, 161, 159, 0.144);
+}
+
+html[data-tema="oscuro"] .pasarela-nota {
+    color: var(--portal-muted--t);
+    background: var(--portal-bg--f);
+}
+
+html[data-tema="oscuro"] .pasarela-campo-error {
+    color: #EA8883;
+}
+
+html[data-tema="oscuro"] .pasarela-error {
+    color: #ED9894;
+    background: #3C1E1B;
+}
+
+html[data-tema="oscuro"] .pago-page .pasarela-terminos {
+    color: var(--portal-muted--t);
+}
+
+html[data-tema="oscuro"] .pasarela-terminos input {
+    accent-color: var(--portal-primary-container);
+}
+
+html[data-tema="oscuro"] .pasarela-seguro {
+    color: var(--portal-outline--t);
+}
+
+html[data-tema="oscuro"] .pasarela-pruebas {
+    background: var(--portal-bg--f);
+    border: 1px dashed var(--portal-border--b);
+}
+
+html[data-tema="oscuro"] .pasarela-pruebas summary {
+    color: var(--portal-primary--t);
+}
+
+html[data-tema="oscuro"] .pasarela-pruebas dt {
+    color: var(--portal-muted--t);
+}
+
+html[data-tema="oscuro"] .pasarela-pruebas dd {
+    color: var(--portal-on-surface--t);
+}
+
+html[data-tema="oscuro"] .pago-page .pasarela-pruebas dd button {
+    color: var(--portal-primary--t);
+    background: var(--portal-container--f);
+    border: 0;
+    box-shadow: none;
+}
+
+html[data-tema="oscuro"] .pago-page .pasarela-pruebas dd button:hover {
+    color: #FFFFFF;
+    background: var(--portal-primary-container--f);
+}
+
+html[data-tema="oscuro"] .pasarela-procesando {
+    color: var(--portal-on-surface--t);
+    background: rgba(27, 42, 36, 0.984);
+}
+
+html[data-tema="oscuro"] .pasarela-procesando .material-symbols-outlined {
+    color: var(--portal-primary-container--t);
+}
+
+html[data-tema="oscuro"] .pasarela-procesando span:last-child {
+    color: var(--portal-muted--t);
+}
+
+html[data-tema="oscuro"] .pasarela-volver {
+    color: var(--portal-muted--t);
+}
+
+html[data-tema="oscuro"] .resultado.is-exito .resultado-icono {
+    color: #B8D9CC;
+    background: #1B3C2B;
+}
+
+html[data-tema="oscuro"] .resultado.is-error .resultado-icono {
+    color: #DC9A93;
+    background: #3C201B;
+}
+
+html[data-tema="oscuro"] .resultado.is-alerta .resultado-icono {
+    color: var(--portal-secondary--t);
+    background: #3C2E1B;
+}
+
+html[data-tema="oscuro"] .resultado.is-espera .resultado-icono {
+    color: var(--portal-primary--t);
+    background: var(--portal-container--f);
+}
+
+html[data-tema="oscuro"] .resultado-causas {
+    background: var(--portal-bg--f);
+    border: 1px solid var(--portal-border--b);
+}
+
+html[data-tema="oscuro"] .resultado-causas h2 {
+    color: var(--portal-primary--t);
+}
+
+html[data-tema="oscuro"] .resultado-causas ul {
+    color: var(--portal-muted--t);
+}
+
+html[data-tema="oscuro"] .resultado-texto {
+    color: var(--portal-muted--t);
+}
+
+html[data-tema="oscuro"] .resultado-ref {
+    color: var(--portal-outline--t);
+}
+
+html[data-tema="oscuro"] .comprobante {
+    background: var(--portal-bg--f);
+    border: 1px dashed var(--portal-border--b);
+}
+
+html[data-tema="oscuro"] .comprobante-fila {
+    border-bottom: 1px solid var(--portal-border--b);
+}
+
+html[data-tema="oscuro"] .comprobante-fila:last-child {
+    border-bottom: 0;
+}
+
+html[data-tema="oscuro"] .comprobante-fila span {
+    color: var(--portal-muted--t);
+}
+
+html[data-tema="oscuro"] .comprobante-fila strong {
+    color: var(--portal-on-surface--t);
+}
+
+html[data-tema="oscuro"] .comprobante-fila.is-tenue strong {
+    color: var(--portal-outline--t);
+}
+
+html[data-tema="oscuro"] .resultado-politica {
+    color: var(--portal-muted--t);
+    background: var(--portal-container--f);
+}
+
+html[data-tema="oscuro"] .resultado-politica .material-symbols-outlined {
+    color: var(--portal-primary-container--t);
+}
+
+@media (max-width: 960px) {
+html[data-tema="oscuro"] .pago-barra-movil {
+    background: rgba(27, 42, 36, 0.984);
+    border-top: 1px solid var(--portal-border--b);
+    box-shadow: 0 -8px 24px rgba(0, 0, 0, 0.144);
+}
+html[data-tema="oscuro"] .pago-barra-movil span {
+    color: var(--portal-muted--t);
+}
+html[data-tema="oscuro"] .pago-barra-movil strong {
+    color: var(--portal-primary--t);
+}
+html[data-tema="oscuro"] .pago-page .pago-barra-movil .pago-boton {
+    box-shadow: none;
+}
+html[data-tema="oscuro"] .pago-page .pago-barra-movil .pago-boton span {
+    color: inherit;
+}
+}
+
+html[data-tema="oscuro"] .historial-volver {
+    color: var(--portal-primary--t);
+    border: 1px solid var(--portal-border--b);
+}
+
+html[data-tema="oscuro"] .historial-volver:hover {
+    background: var(--portal-bg--f);
+}
+
+html[data-tema="oscuro"] .historial-totales > div {
+    background: var(--portal-bg--f);
+    border: 1px solid var(--portal-border--b);
+}
+
+html[data-tema="oscuro"] .historial-totales span {
+    color: var(--portal-muted--t);
+}
+
+html[data-tema="oscuro"] .historial-totales strong {
+    color: var(--portal-primary--t);
+}
+
+html[data-tema="oscuro"] .historial-item {
+    background: var(--portal-surface--f);
+    border: 1px solid var(--portal-border--b);
+}
+
+html[data-tema="oscuro"] .historial-icono {
+    color: var(--portal-primary-container--t);
+    background: var(--portal-container--f);
+}
+
+html[data-tema="oscuro"] .historial-detalle strong {
+    color: var(--portal-on-surface--t);
+}
+
+html[data-tema="oscuro"] .historial-detalle span {
+    color: var(--portal-muted--t);
+}
+
+html[data-tema="oscuro"] .historial-detalle small {
+    color: var(--portal-outline--t);
+}
+
+html[data-tema="oscuro"] .historial-monto strong {
+    color: var(--portal-on-surface--t);
+}
+
+html[data-tema="oscuro"] .is-ok .historial-estado {
+    color: #C1DED1;
+    background: #15201C;
+}
+
+html[data-tema="oscuro"] .is-espera .historial-estado {
+    color: #F2D3A2;
+    background: #3C2F1B;
+}
+
+html[data-tema="oscuro"] .is-error .historial-estado {
+    color: #DC9A93;
+    background: #3C201B;
+}
+
+html[data-tema="oscuro"] .is-neutro .historial-estado {
+    color: #C8CFCC;
+    background: #14201C;
+}
+
+html[data-tema="oscuro"] .is-error .historial-icono {
+    color: #DC9A93;
+    background: #3C201B;
+}
+
+html[data-tema="oscuro"] .is-espera .historial-icono {
+    color: #F1D19D;
+    background: #3C2F1B;
+}
+
+html[data-tema="oscuro"] .is-neutro .historial-icono {
+    color: #BCC1BE;
+    background: #14201C;
+}
+
+html[data-tema="oscuro"] .historial-ver {
+    color: var(--portal-primary--t);
+}
+
+html[data-tema="oscuro"] .historial-vacio > .material-symbols-outlined {
+    color: var(--portal-outline--t);
+}
+
+html[data-tema="oscuro"] .historial-vacio p {
+    color: var(--portal-muted--t);
+}
+
+html[data-tema="oscuro"] .historial-nota {
+    color: var(--portal-muted--t);
+}
+
+html[data-tema="oscuro"] .historial-nota .material-symbols-outlined {
+    color: var(--portal-outline--t);
+}
+
+html[data-tema="oscuro"] .pago-page .resultado-imprimir {
+    color: var(--portal-muted--t);
+    background: none;
+    border: 0;
+    box-shadow: none;
+}
+
+html[data-tema="oscuro"] .pago-page .resultado-imprimir:hover {
+    color: var(--portal-primary--t);
+    background: var(--portal-bg--f);
+}
+
+html[data-tema="oscuro"] .pago-page .historial-filtros button {
+    color: var(--portal-muted--t);
+    background: var(--portal-surface--f);
+    border: 1px solid var(--portal-border--b);
+    box-shadow: none;
+}
+
+html[data-tema="oscuro"] .pago-page .historial-filtros button span {
+    color: var(--portal-primary--t);
+    background: var(--portal-container--f);
+}
+
+html[data-tema="oscuro"] .pago-page .historial-filtros button:hover:not(:disabled) {
+    color: var(--portal-primary--t);
+    background: var(--portal-bg--f);
+    border-color: var(--portal-primary-container--b);
+}
+
+html[data-tema="oscuro"] .pago-page .historial-filtros button.is-activo {
+    color: #FFFFFF;
+    background: var(--portal-primary-container--f);
+    border-color: var(--portal-primary-container--b);
+}
+
+html[data-tema="oscuro"] .pago-page .historial-filtros button.is-activo span {
+    color: var(--portal-primary--t);
+    background: #1B2A24;
+}
+
+html[data-tema="oscuro"] .historial-mes {
+    color: var(--portal-outline--t);
+}
+
+html[data-tema="oscuro"] .historial-sin-resultados {
+    color: var(--portal-muted--t);
+    background: var(--portal-bg--f);
+}
+
+html[data-tema="oscuro"] .pago-reparto-barra {
+    background: var(--portal-container--f);
+}
+
+html[data-tema="oscuro"] .pago-reparto-barra span {
+    background: var(--portal-primary-container--f);
+}
+
+html[data-tema="oscuro"] .pago-reparto p {
+    color: var(--portal-muted--t);
+}
+
+html[data-tema="oscuro"] .pago-reparto i {
+    background: var(--portal-container--f);
+    border: 1px solid var(--portal-border--b);
+}
+
+html[data-tema="oscuro"] .pago-reparto i.is-ahora {
+    background: var(--portal-primary-container--f);
+    border-color: var(--portal-primary-container--b);
+}
+
+html[data-tema="oscuro"] .marca-chip {
+    color: #FFFFFF;
+    background: var(--portal-outline--f);
+}
+
+html[data-tema="oscuro"] .marca-chip.is-visa {
+    background: #1A1F71;
+}
+
+html[data-tema="oscuro"] .marca-chip.is-mastercard {
+    background: #C2410C;
+}
+
+html[data-tema="oscuro"] .marca-chip.is-amex {
+    background: #0E5A8A;
+}
+
+html[data-tema="oscuro"] .marca-chip.is-diners {
+    background: #2F3640;
+}
+
+html[data-tema="oscuro"] .pago-page a:focus-visible,
+html[data-tema="oscuro"] .pago-page button:focus-visible,
+html[data-tema="oscuro"] .pago-page summary:focus-visible,
+html[data-tema="oscuro"] .pago-page input[type="checkbox"]:focus-visible {
+    outline: 3px solid rgba(159, 209, 196, 0.42);
+}
+
+html[data-tema="oscuro"] .recibo-transaccion dt {
+    color: var(--portal-outline--t);
+}
+
+html[data-tema="oscuro"] .recibo-transaccion dd {
+    color: var(--portal-on-surface--t);
+}
+
+html[data-tema="oscuro"] .verificacion {
+    background: rgba(0, 47, 36, 0.62);
+}
+
+html[data-tema="oscuro"] .verificacion-caja {
+    color: var(--portal-on-surface--t);
+    background: var(--portal-surface--f);
+    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.45);
+}
+
+html[data-tema="oscuro"] .verificacion-cabecera {
+    color: var(--portal-muted--t);
+    background: var(--portal-bg--f);
+    border-bottom: 1px solid var(--portal-border--b);
+}
+
+html[data-tema="oscuro"] .verificacion-caja.is-banco .verificacion-cabecera {
+    color: #FFFFFF;
+    background: #24364D;
+    border-bottom: 0;
+}
+
+html[data-tema="oscuro"] .verificacion-caja.is-banco .verificacion-cabecera small {
+    color: rgba(255, 255, 255, 0.75);
+}
+
+html[data-tema="oscuro"] .verificacion-caja > p {
+    color: var(--portal-muted--t);
+}
+
+html[data-tema="oscuro"] .verificacion-resumen {
+    background: var(--portal-bg--f);
+}
+
+html[data-tema="oscuro"] .verificacion-resumen div + div {
+    border-top: 1px solid var(--portal-border--b);
+}
+
+html[data-tema="oscuro"] .verificacion-resumen dt {
+    color: var(--portal-muted--t);
+}
+
+html[data-tema="oscuro"] .verificacion-cuentas {
+    border: 0;
+}
+
+html[data-tema="oscuro"] .verificacion-cuentas label {
+    border: 1px solid var(--portal-border--b);
+}
+
+html[data-tema="oscuro"] .verificacion-cuentas label:has(input:checked) {
+    background: var(--portal-bg--f);
+    border-color: var(--portal-primary-container--b);
+}
+
+html[data-tema="oscuro"] .verificacion-cuentas input {
+    accent-color: var(--portal-primary-container);
+}
+
+html[data-tema="oscuro"] .verificacion-cuentas small {
+    color: var(--portal-muted--t);
+}
+
+html[data-tema="oscuro"] .pago-page .verificacion-cancelar {
+    color: var(--portal-muted--t);
+    background: none;
+    border: 0;
+    box-shadow: none;
+}
+
+html[data-tema="oscuro"] .pago-page .verificacion-cancelar:hover {
+    color: var(--portal-on-surface--t);
+    background: none;
+}
+
+html[data-tema="oscuro"] .verificacion-caja.is-celular {
+    background: transparent;
+    box-shadow: none;
+}
+
+html[data-tema="oscuro"] .celular {
+    background: linear-gradient(160deg, #2B1A4A, #1A1030);
+    border: 6px solid #111111;
+    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.6);
+}
+
+html[data-tema="oscuro"] .celular-hora {
+    color: #FFFFFF;
+}
+
+html[data-tema="oscuro"] .celular-noti {
+    color: #DDE2DF;
+    background: rgba(27, 42, 36, 0.98);
+}
+
+html[data-tema="oscuro"] .celular-noti-app {
+    color: #BCC1BE;
+}
+
+html[data-tema="oscuro"] .celular-logo {
+    color: #FFFFFF;
+    background: #2B1A4A;
+}
+
+html[data-tema="oscuro"] .celular-noti > span {
+    color: #CACFCD;
+}
+
+html[data-tema="oscuro"] .pago-page .celular-acciones button {
+    color: #C8B8E6;
+    background: #291B3C;
+    border: 0;
+    box-shadow: none;
+}
+
+html[data-tema="oscuro"] .pago-page .celular-acciones button.is-aceptar {
+    color: #FFFFFF;
+    background: #DA0081;
+}
+
+html[data-tema="oscuro"] .pago-page .celular-acciones button:hover {
+    filter: brightness(0.95);
+}
+
+html[data-tema="oscuro"] .verificacion-caja > .celular-espera {
+    color: #FFFFFF;
+    background: rgba(0, 0, 0, 0.6);
+}
+
+html[data-tema="oscuro"] .pago-page .verificacion-caja.is-celular .verificacion-cancelar {
+    color: #FFFFFF;
+    background: rgba(0, 0, 0, 0.6);
+}
+
+html[data-tema="oscuro"] .pago-page .verificacion-caja.is-celular .verificacion-cancelar:hover {
+    color: #FFFFFF;
+    background: rgba(0, 0, 0, 0.75);
+}

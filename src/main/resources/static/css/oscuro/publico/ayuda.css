@@ -1,0 +1,92 @@
+/* Generado por scripts/generar_tema_oscuro.py a partir de publico/ayuda.css. No editar a mano:
+   los ajustes van en base/tema-oscuro.css o en el generador. */
+
+html[data-tema="oscuro"] .ayuda-eyebrow {
+    color: var(--portal-primary--t);
+    background: rgba(27, 42, 36, 0.888);
+    border: 1px solid var(--portal-border--b);
+}
+
+html[data-tema="oscuro"] .ayuda-hero h1 {
+    color: var(--portal-primary--t);
+}
+
+html[data-tema="oscuro"] .ayuda-hero h1 em {
+    color: var(--portal-secondary--t);
+}
+
+html[data-tema="oscuro"] .ayuda-hero > p {
+    color: var(--portal-muted--t);
+}
+
+html[data-tema="oscuro"] .ayuda-page nav.ayuda-atajos {
+    background: none;
+    border: 0;
+}
+
+html[data-tema="oscuro"] .ayuda-atajos a {
+    color: var(--portal-primary--t);
+    background: var(--portal-surface--f);
+    border: 1px solid var(--portal-border--b);
+}
+
+html[data-tema="oscuro"] .ayuda-atajos a:hover {
+    background: var(--portal-container--f);
+    border-color: rgba(159, 209, 197, 0.24);
+}
+
+html[data-tema="oscuro"] .ayuda-atajos a.is-destacado {
+    color: #FFFFFF;
+    background: var(--portal-primary--f);
+    border-color: var(--portal-primary--b);
+}
+
+html[data-tema="oscuro"] .ayuda-atajos a.is-destacado:hover {
+    background: var(--portal-primary-container--f);
+}
+
+html[data-tema="oscuro"] .ayuda-grupo h2 {
+    color: var(--portal-primary--t);
+}
+
+html[data-tema="oscuro"] .ayuda-grupo h2 .material-symbols-outlined {
+    color: var(--portal-primary--t);
+    background: var(--portal-container--f);
+}
+
+html[data-tema="oscuro"] .ayuda-grupo details {
+    background: var(--portal-surface--f);
+    border: 1px solid var(--portal-border--b);
+}
+
+html[data-tema="oscuro"] .ayuda-grupo details[open] {
+    box-shadow: 0 8px 24px -14px rgba(0, 0, 0, 0.45);
+}
+
+html[data-tema="oscuro"] .ayuda-grupo summary {
+    color: var(--portal-on-surface--t);
+}
+
+html[data-tema="oscuro"] .ayuda-grupo summary::after {
+    color: var(--portal-primary--t);
+}
+
+html[data-tema="oscuro"] .ayuda-grupo summary:focus-visible {
+    outline: 2px solid var(--portal-primary--b);
+}
+
+html[data-tema="oscuro"] .ayuda-grupo details p {
+    color: var(--portal-muted--t);
+}
+
+html[data-tema="oscuro"] .ayuda-grupo details a {
+    color: var(--portal-primary--t);
+}
+
+html[data-tema="oscuro"] .ayuda-contacto h2 {
+    color: var(--portal-primary--t);
+}
+
+html[data-tema="oscuro"] .ayuda-contacto-intro {
+    color: var(--portal-muted--t);
+}

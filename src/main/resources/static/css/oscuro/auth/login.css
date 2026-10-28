@@ -1,0 +1,33 @@
+/* Generado por scripts/generar_tema_oscuro.py a partir de auth/login.css. No editar a mano:
+   los ajustes van en base/tema-oscuro.css o en el generador. */
+
+html[data-tema="oscuro"] .card form {
+    background: none;
+    border: none;
+    box-shadow: none;
+}
+
+html[data-tema="oscuro"] .oauth-divider {
+    color: var(--text-light--t);
+}
+
+html[data-tema="oscuro"] .oauth-divider::before,
+html[data-tema="oscuro"] .oauth-divider::after {
+    background: var(--border-color--f);
+}
+
+html[data-tema="oscuro"] .btn-google-login {
+    background: var(--white--f);
+    border: 1px solid var(--border-mid--b);
+    color: var(--text-dark--t);
+}
+
+html[data-tema="oscuro"] .btn-google-login:hover {
+    background: var(--off-white--f);
+    border-color: var(--border-mid--b);
+    color: var(--text-dark--t);
+}
+
+html[data-tema="oscuro"] .login-register-link {
+    color: var(--text-light--t);
+}

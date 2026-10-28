@@ -1,6 +1,7 @@
 /* ==============================================
    PANEL DEL MÉDICO — BeSalud (estilo "Clinical Serenity" de Stitch)
    ============================================== */
+@import url('../oscuro/doctores/dashboard.css');
 .doc-page {
     --d-primary:      #002F24;
     --d-primary-c:    #0D4738;

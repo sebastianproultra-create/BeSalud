@@ -1,4 +1,5 @@
 /* Centro de ayuda: usa los tokens y componentes de auth/portal.css */
+@import url('../oscuro/publico/ayuda.css');
 
 .ayuda-page .ayuda-main {
     display: block;

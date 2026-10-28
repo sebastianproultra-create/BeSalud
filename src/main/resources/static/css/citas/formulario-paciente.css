@@ -3,6 +3,7 @@
    ============================================== */
 
 /* Main layout */
+@import url('../oscuro/citas/formulario-paciente.css');
 .booking-container {
     max-width: 860px;
     margin: 32px auto;

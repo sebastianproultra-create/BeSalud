@@ -1,6 +1,7 @@
 /* ==============================================
    PANEL DE ADMINISTRACIÓN
    ============================================== */
+@import url('../oscuro/admin/dashboard.css');
 
 .stats-grid {
     display: grid;

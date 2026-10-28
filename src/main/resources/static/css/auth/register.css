@@ -1,6 +1,7 @@
 /* ============================================== 
    REGISTER PAGE STYLES 
    ============================================== */
+@import url('../oscuro/auth/register.css');
 
 .register-container {
     max-width: 600px;

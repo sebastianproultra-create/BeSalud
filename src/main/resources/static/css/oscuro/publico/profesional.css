@@ -1,0 +1,89 @@
+/* Generado por scripts/generar_tema_oscuro.py a partir de publico/profesional.css. No editar a mano:
+   los ajustes van en base/tema-oscuro.css o en el generador. */
+
+html[data-tema="oscuro"] .pro-card {
+    background: var(--portal-surface--f);
+    border: 1px solid var(--portal-border--b);
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.108);
+}
+
+html[data-tema="oscuro"] .pro-card h2 {
+    color: var(--portal-primary--t);
+}
+
+html[data-tema="oscuro"] .pro-foto {
+    background: var(--portal-container--f);
+}
+
+html[data-tema="oscuro"] .pro-eyebrow {
+    color: var(--portal-secondary--t);
+}
+
+html[data-tema="oscuro"] .pro-identidad h1 {
+    color: var(--portal-primary--t);
+}
+
+html[data-tema="oscuro"] .pro-especialidad {
+    color: var(--portal-primary-container--t);
+}
+
+html[data-tema="oscuro"] .pro-bio {
+    color: var(--portal-muted--t);
+}
+
+html[data-tema="oscuro"] .pro-consulta dl > div {
+    border-bottom: 1px solid var(--portal-border--b);
+}
+
+html[data-tema="oscuro"] .pro-consulta dt {
+    color: var(--portal-muted--t);
+}
+
+html[data-tema="oscuro"] .pro-consulta dt .material-symbols-outlined {
+    color: var(--portal-primary-container--t);
+}
+
+html[data-tema="oscuro"] .pro-consulta dd {
+    color: var(--portal-on-surface--t);
+}
+
+html[data-tema="oscuro"] .pro-politica,
+html[data-tema="oscuro"] .pro-asistente-nota,
+html[data-tema="oscuro"] .pro-vacio,
+html[data-tema="oscuro"] .pro-aviso {
+    color: var(--portal-muted--t);
+}
+
+html[data-tema="oscuro"] .pro-aviso {
+    background: #3C2F1B;
+    color: var(--portal-secondary--t);
+}
+
+html[data-tema="oscuro"] .pro-dia h3 {
+    color: var(--portal-on-surface--t);
+}
+
+html[data-tema="oscuro"] .pro-dia h3 small {
+    color: var(--portal-outline--t);
+}
+
+html[data-tema="oscuro"] .pro-slot {
+    color: var(--portal-primary--t);
+    background: var(--portal-container--f);
+    border: 1px solid var(--portal-border--b);
+}
+
+html[data-tema="oscuro"] a.pro-slot:hover,
+html[data-tema="oscuro"] a.pro-slot:focus-visible {
+    color: #FFFFFF;
+    background: var(--portal-primary-container--f);
+}
+
+html[data-tema="oscuro"] .pro-slot.is-inactivo {
+    color: var(--portal-outline--t);
+    background: transparent;
+}
+
+html[data-tema="oscuro"] .pro-ver-todo {
+    color: var(--portal-primary-container--t);
+}

@@ -1,4 +1,5 @@
 /* Resumen, pasarela simulada y resultado del pago: usa los tokens de auth/portal.css */
+@import url('../oscuro/publico/pagos.css');
 
 .pago-page .pago-main {
     display: block;

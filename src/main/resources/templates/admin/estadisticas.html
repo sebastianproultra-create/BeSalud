@@ -6,6 +6,8 @@
     <title>Estadísticas - BeSalud</title>
     <link rel="stylesheet" th:href="@{/css/base/global.css}">
     <link rel="stylesheet" th:href="@{/css/admin/estadisticas.css}">
+    <link rel="stylesheet" th:href="@{/css/base/tema-oscuro.css}">
+    <script th:src="@{/js/tema.js}"></script>
 </head>
 <body>
 <header th:replace="~{fragments/layout :: shell-admin('estadisticas')}"></header>
@@ -142,21 +144,25 @@
 
     // Un solo tono de la marca: cada gráfica mide una magnitud, las etiquetas del eje dan la identidad.
     const css = getComputedStyle(document.documentElement);
-    const COLOR = css.getPropertyValue('--secondary-color').trim() || '#0D4738';
-    const COLOR_SUAVE = 'rgba(26, 92, 69, 0.12)';
-    const COLOR_FUTURO = 'rgba(26, 92, 69, 0.45)';
-    const TINTA = css.getPropertyValue('--text-dark').trim() || '#1C1C1A';
-    const TINTA_SUAVE = css.getPropertyValue('--text-light').trim() || '#6B6B65';
-    const REJILLA = 'rgba(13, 59, 46, 0.08)';
+    // En modo oscuro se usa la versión para texto de cada variable (ver css/oscuro/)
+    const oscuro = document.documentElement.getAttribute('data-tema') === 'oscuro';
+    const variable = nombre => (oscuro && css.getPropertyValue(nombre + '--t').trim()) || css.getPropertyValue(nombre).trim();
+    const COLOR = variable('--secondary-color') || '#0D4738';
+    const COLOR_SUAVE = oscuro ? 'rgba(159, 216, 197, 0.14)' : 'rgba(26, 92, 69, 0.12)';
+    const COLOR_FUTURO = oscuro ? 'rgba(159, 216, 197, 0.45)' : 'rgba(26, 92, 69, 0.45)';
+    const COLOR_ACTIVO = oscuro ? '#E3F3EC' : '#002F24';
+    const TINTA = variable('--text-dark') || '#1C1C1A';
+    const TINTA_SUAVE = variable('--text-light') || '#6B6B65';
+    const REJILLA = oscuro ? 'rgba(255, 255, 255, 0.08)' : 'rgba(13, 59, 46, 0.08)';
 
     Chart.defaults.font.family = "'Plus Jakarta Sans', 'Segoe UI', sans-serif";
     Chart.defaults.font.size = 12;
     Chart.defaults.color = TINTA_SUAVE;
     Chart.defaults.plugins.legend.display = false;
-    Chart.defaults.plugins.tooltip.backgroundColor = '#FDFCF9';
+    Chart.defaults.plugins.tooltip.backgroundColor = oscuro ? '#1B2A24' : '#FDFCF9';
     Chart.defaults.plugins.tooltip.titleColor = TINTA;
     Chart.defaults.plugins.tooltip.bodyColor = TINTA;
-    Chart.defaults.plugins.tooltip.borderColor = 'rgba(13, 59, 46, 0.24)';
+    Chart.defaults.plugins.tooltip.borderColor = oscuro ? 'rgba(255, 255, 255, 0.14)' : 'rgba(13, 59, 46, 0.24)';
     Chart.defaults.plugins.tooltip.borderWidth = 1;
     Chart.defaults.plugins.tooltip.padding = 10;
     Chart.defaults.plugins.tooltip.displayColors = false;
@@ -182,7 +188,7 @@
                 data: valores(est.porDia),
                 borderColor: COLOR, borderWidth: 2, backgroundColor: COLOR_SUAVE, fill: true, cubicInterpolationMode: 'monotone',
                 pointRadius: 0, pointHoverRadius: 5, pointHoverBackgroundColor: COLOR,
-                pointHoverBorderColor: '#FDFCF9', pointHoverBorderWidth: 2,
+                pointHoverBorderColor: oscuro ? '#1B2A24' : '#FDFCF9', pointHoverBorderWidth: 2,
                 segment: { borderColor: c => c.p0DataIndex >= hoy ? COLOR_FUTURO : COLOR, borderDash: c => c.p0DataIndex >= hoy ? [5, 4] : undefined },
             }],
         },
@@ -202,7 +208,7 @@
             afterDatasetsDraw(chart) {
                 const x = chart.scales.x.getPixelForValue(hoy), { top, bottom } = chart.chartArea, ctx = chart.ctx;
                 ctx.save();
-                ctx.strokeStyle = 'rgba(13, 59, 46, 0.35)'; ctx.lineWidth = 1; ctx.setLineDash([3, 3]);
+                ctx.strokeStyle = oscuro ? 'rgba(255, 255, 255, 0.3)' : 'rgba(13, 59, 46, 0.35)'; ctx.lineWidth = 1; ctx.setLineDash([3, 3]);
                 ctx.beginPath(); ctx.moveTo(x, top); ctx.lineTo(x, bottom); ctx.stroke();
                 ctx.setLineDash([]); ctx.fillStyle = TINTA_SUAVE; ctx.font = "11px 'Plus Jakarta Sans', sans-serif"; ctx.textAlign = 'center';
                 ctx.fillText('hoy', x, top - 4);
@@ -214,7 +220,7 @@
     // Barras horizontales: especialidades y estados (ordenadas de mayor a menor).
     const barrasHorizontales = (id, lista) => new Chart(document.getElementById(id), {
         type: 'bar',
-        data: { labels: etiquetas(lista), datasets: [{ data: valores(lista), backgroundColor: COLOR, hoverBackgroundColor: '#002F24', ...barras }] },
+        data: { labels: etiquetas(lista), datasets: [{ data: valores(lista), backgroundColor: COLOR, hoverBackgroundColor: COLOR_ACTIVO, ...barras }] },
         options: {
             indexAxis: 'y',
             scales: { x: ejeValor, y: { ...ejeCategoria, ticks: { color: TINTA, autoSkip: false,
@@ -228,7 +234,7 @@
 
     new Chart(document.getElementById('gHora'), {
         type: 'bar',
-        data: { labels: etiquetas(est.porHora), datasets: [{ data: valores(est.porHora), backgroundColor: COLOR, hoverBackgroundColor: '#002F24', ...barras }] },
+        data: { labels: etiquetas(est.porHora), datasets: [{ data: valores(est.porHora), backgroundColor: COLOR, hoverBackgroundColor: COLOR_ACTIVO, ...barras }] },
         options: {
             scales: { y: ejeValor, x: { ...ejeCategoria, ticks: { maxRotation: 0 } } },
             plugins: { tooltip: { callbacks: { label: item => plural(item.parsed.y) } } },
