@@ -8,6 +8,8 @@ GET /salud
 Local:   uvicorn api_predictiva:app --port 8000
 Railway: ver Procfile.
 """
+import hashlib
+import inspect
 import logging
 import unicodedata
 from functools import lru_cache
@@ -74,6 +76,18 @@ def modelos_candidatos():
         'RandomForest': RandomForestRegressor(n_estimators=300, min_samples_leaf=2, random_state=42, n_jobs=-1),
         'HistGradientBoosting': HistGradientBoostingRegressor(max_iter=300, learning_rate=0.05, max_depth=6, random_state=42),
     }
+
+
+def huella_codigo():
+    """Huella de todo lo que define el modelo: si cambia cualquiera, el .joblib quedó viejo."""
+    partes = [sklearn.__version__, inspect.getsource(caracteristicas), inspect.getsource(factor_lluvias),
+              repr(modelos_candidatos()), str(DIAS_TEST), str(Z_80)]
+    return hashlib.sha256('|'.join(partes).encode('utf-8')).hexdigest()
+
+
+def huella_datos(serie):
+    """Huella de la serie completa: detecta cambios en cualquier fila del CSV, no solo en la última fecha."""
+    return hashlib.sha256(pd.util.hash_pandas_object(serie, index=False).to_numpy().tobytes()).hexdigest()
 
 
 def serie_de(especialidad, medico_id):
@@ -150,21 +164,31 @@ def entrenar(serie, etiqueta):
         'sigma_laborable': sigmas['laborable'],
         'sigma_no_laborable': sigmas['no_laborable'],
         'ultima_fecha': serie['ds'].iloc[-1],
+        'huella_codigo': huella_codigo(),
+        'huella_datos': huella_datos(serie),
         'dias_train': len(y_train),
         'dias_test': len(y_test),
     }
 
 
+ESTADO_MODELOS = 'sin archivo: se entrena al vuelo'
+
+
 def cargar_modelos():
     """Modelos entrenados con entrenar_modelos.py; si el archivo no sirve, se entrena al vuelo."""
+    global ESTADO_MODELOS
     if not ARCHIVO_MODELOS.exists():
         return {}
     try:
         guardado = joblib.load(ARCHIVO_MODELOS)
         if guardado.get('sklearn') != sklearn.__version__:
             raise ValueError(f"entrenado con scikit-learn {guardado.get('sklearn')}, hay {sklearn.__version__}")
+        if guardado.get('huella_codigo') != huella_codigo():
+            raise ValueError('cambiaron las features, los hiperparámetros o el código del modelo')
+        ESTADO_MODELOS = 'vigentes'
         return guardado['modelos']
-    except Exception as error:  # archivo dañado o de otra versión: no bloquea la API
+    except Exception as error:  # archivo dañado o viejo: no bloquea la API
+        ESTADO_MODELOS = f'obsoletos ({error}): se entrena al vuelo; ejecuta entrenar_modelos.py'
         logger.warning('No se pudo usar %s (%s); se entrena al vuelo.', ARCHIVO_MODELOS.name, error)
         return {}
 
@@ -178,8 +202,8 @@ def pronosticar(especialidad, medico_id):
     serie = serie_de(especialidad, medico_id)
     clave = clave_de(especialidad, medico_id)
     artefacto = MODELOS_GUARDADOS.get(clave)
-    # Si el CSV tiene datos más nuevos que los del entrenamiento guardado, se reentrena.
-    if artefacto is None or artefacto['ultima_fecha'] != serie['ds'].iloc[-1]:
+    # Si el CSV cambió respecto al entrenamiento guardado, se reentrena.
+    if artefacto is None or artefacto.get('huella_datos') != huella_datos(serie):
         artefacto = entrenar(serie, clave)
 
     fechas_fut = pd.date_range(artefacto['ultima_fecha'] + pd.Timedelta(days=1), periods=MAX_DIAS)
@@ -195,7 +219,7 @@ def pronosticar(especialidad, medico_id):
 
 @app.get('/salud')
 def salud():
-    return {'estado': 'ok', 'especialidades': sorted(ESPECIALIDADES.values())}
+    return {'estado': 'ok', 'modelos': ESTADO_MODELOS, 'especialidades': sorted(ESPECIALIDADES.values())}
 
 
 @app.get('/medicos')

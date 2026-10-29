@@ -2,7 +2,8 @@
 
 Uso (desde esta carpeta):  python entrenar_modelos.py
 Genera modelos_entrenados.joblib, que api_predictiva.py carga al arrancar.
-Hay que repetirlo y commitear el archivo si cambian los CSV o el código del modelo.
+Hay que repetirlo y commitear el archivo si cambian los CSV o el código del modelo;
+si se te olvida, la API lo detecta (huellas), avisa en el log y en /salud, y entrena al vuelo.
 """
 import joblib
 import sklearn
@@ -17,7 +18,7 @@ def main():
     for medico_id in sorted(api.df_medicos['medico_id'].unique()):
         modelos[api.clave_de(None, medico_id)] = api.entrenar(api.serie_de(None, medico_id), f'medico {medico_id}')
 
-    joblib.dump({'sklearn': sklearn.__version__, 'modelos': modelos}, api.ARCHIVO_MODELOS, compress=3)
+    joblib.dump({'sklearn': sklearn.__version__, 'huella_codigo': api.huella_codigo(), 'modelos': modelos}, api.ARCHIVO_MODELOS, compress=3)
 
     print(f'\n{len(modelos)} modelos guardados en {api.ARCHIVO_MODELOS.name} '
           f'({api.ARCHIVO_MODELOS.stat().st_size / 1e6:.1f} MB)')
