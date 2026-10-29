@@ -189,7 +189,7 @@ Archivo: `api_predictiva.py`. Producción: `https://besalud-prediccion-productio
 
 | Ruta | Qué devuelve |
 |---|---|
-| `GET /salud` | Si la API está viva y qué especialidades conoce |
+| `GET /salud` | Si la API está viva, el estado del archivo de modelos (`modelos`: `vigentes` u `obsoletos (motivo)`) y qué especialidades conoce |
 | `GET /medicos?especialidad=pediatria` | Los médicos con historial (id, nombre y especialidad) |
 | `GET /prediccion/{especialidad}?dias=30` | Pronóstico de toda la especialidad |
 | `GET /prediccion/{especialidad}?dias=30&medico_id=...` | Pronóstico de un médico |
@@ -284,8 +284,11 @@ python entrenar_modelos.py    # entrena todo, imprime el MAE de cada serie y esc
 ```
 
 - La API carga el archivo al arrancar, así la primera consulta ya no espera al entrenamiento.
-- Si el archivo falta, está dañado o se entrenó con otra versión de scikit-learn, la API entrena al vuelo como
-  antes. Lo mismo si el CSV tiene días más nuevos que los del archivo.
+- El archivo guarda dos huellas (hash). La del código cubre la versión de scikit-learn, `caracteristicas()`,
+  `factor_lluvias`, los hiperparámetros, `DIAS_TEST` y `Z_80`; la de los datos cubre toda la serie de cada modelo.
+- Si el archivo falta, está dañado o la huella del código no coincide (cambiaron las features, los hiperparámetros o
+  la versión de scikit-learn), la API deja un `WARNING` en el log, marca `modelos: obsoletos (...)` en `/salud` y
+  entrena al vuelo. Si cambió cualquier fila del CSV, reentrena solo ese modelo.
 - Para inspeccionarlo: `joblib.load('modelos_entrenados.joblib')['modelos']['especialidad:Pediatría']`.
 
 Si se regeneran los CSV o se cambia el código del modelo, hay que correr `entrenar_modelos.py` y hacer commit del
