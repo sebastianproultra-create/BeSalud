@@ -11,8 +11,9 @@ import org.springframework.web.client.RestClient;
 import java.util.List;
 import java.util.Map;
 
-// Envía por la WhatsApp Cloud API de Meta. Las respuestas a los botones llegan al bot (servicio besalud-whatsapp),
-// que las reenvía a /whatsapp/asistencia para que confirmar o cancelar use la misma lógica que el portal.
+// Envía por la WhatsApp Cloud API de Meta o, si hay app.whatsapp.web-url, por el bot de WhatsApp Web (número normal,
+// sin plantillas ni límite de destinatarios). En ambos casos la respuesta del paciente llega al bot, que la reenvía a
+// /whatsapp/asistencia para que confirmar o cancelar use la misma lógica que el portal.
 @Service
 public class WhatsappService {
 
@@ -26,17 +27,23 @@ public class WhatsappService {
     private final String plantillaAviso;
     private final String plantillaAsistencia;
     private final String graph;
+    private final String webUrl;
+    private final String secreto;
 
     public WhatsappService(@Value("${app.whatsapp.token:}") String token,
             @Value("${app.whatsapp.phone-number-id:}") String numeroId,
             @Value("${app.whatsapp.plantilla-aviso:aviso_cita_besalud}") String plantillaAviso,
             @Value("${app.whatsapp.plantilla-asistencia:asistencia_cita_besalud}") String plantillaAsistencia,
-            @Value("${app.whatsapp.graph-version:v25.0}") String version) {
+            @Value("${app.whatsapp.graph-version:v25.0}") String version,
+            @Value("${app.whatsapp.web-url:}") String webUrl,
+            @Value("${app.whatsapp.bot-secret:}") String secreto) {
         this.token = token == null ? "" : token.trim();
         this.numeroId = numeroId == null ? "" : numeroId.trim();
         this.plantillaAviso = plantillaAviso;
         this.plantillaAsistencia = plantillaAsistencia;
         this.graph = "https://graph.facebook.com/" + version;
+        this.webUrl = webUrl == null ? "" : webUrl.trim().replaceAll("/+$", "");
+        this.secreto = secreto == null ? "" : secreto.trim();
         SimpleClientHttpRequestFactory timeouts = new SimpleClientHttpRequestFactory();
         timeouts.setConnectTimeout(5_000);
         timeouts.setReadTimeout(10_000);
@@ -44,7 +51,11 @@ public class WhatsappService {
     }
 
     public boolean configurado() {
-        return !token.isBlank() && !numeroId.isBlank();
+        return porWeb() || (!token.isBlank() && !numeroId.isBlank());
+    }
+
+    private boolean porWeb() {
+        return !webUrl.isBlank() && !secreto.isBlank();
     }
 
     /** Celular colombiano en formato internacional (57 + 10 dígitos), o null si no es un celular válido. */
@@ -65,6 +76,11 @@ public class WhatsappService {
         if (para == null) return;
         if (!configurado()) {
             log.info("WhatsApp no enviado (falta WHATSAPP_TOKEN o WHATSAPP_PHONE_NUMBER_ID) a ...{}", para.substring(8));
+            return;
+        }
+        if (porWeb()) {
+            if (publicarWeb(para, texto, botones))
+                log.info("WhatsApp (web) enviado a ...{}", para.substring(8));
             return;
         }
         if (publicar(plantilla(para, parametros, botones)) || publicar(mensajeLibre(para, texto, botones)))
@@ -93,6 +109,22 @@ public class WhatsappService {
                         "action", Map.of("buttons", botones.stream()
                                 .map(b -> Map.of("type", "reply", "reply", Map.of("id", b.id(), "title", b.titulo())))
                                 .toList())));
+    }
+
+    private boolean publicarWeb(String para, String texto, List<Boton> botones) {
+        try {
+            http.post().uri(webUrl + "/enviar")
+                    .header("X-Bot-Secret", secreto)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(Map.of("telefono", para, "texto", texto, "opciones",
+                            botones.stream().map(b -> Map.of("id", b.id(), "titulo", b.titulo())).toList()))
+                    .retrieve()
+                    .toBodilessEntity();
+            return true;
+        } catch (Exception e) {
+            log.warn("WhatsApp (web) rechazado: {}", e.getMessage());
+            return false;
+        }
     }
 
     private boolean publicar(Map<String, Object> cuerpo) {
