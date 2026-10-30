@@ -131,4 +131,70 @@ class CitaServiceTest {
 
         assertThat(service.pacienteTieneConflicto("pac1", "docB", fecha, LocalTime.of(10, 0), "c2")).isFalse();
     }
+
+    // ── Confirmación de asistencia ──────────────────────────────────────────
+
+    private static Cita citaEl(java.time.LocalDateTime inicio) {
+        Cita c = new Cita();
+        c.setId("c1");
+        c.setPacienteId("p1");
+        c.setDoctorId("d1");
+        c.setFecha(inicio.toLocalDate());
+        c.setHora(inicio.toLocalTime());
+        return c;
+    }
+
+    private static com.gestion.proyectos.modelo.Doctor doctorCon(int horasCancelacion) {
+        com.gestion.proyectos.modelo.Doctor d = new com.gestion.proyectos.modelo.Doctor();
+        d.setHorasCancelacion(horasCancelacion);
+        return d;
+    }
+
+    @Test
+    void esperaConfirmacion_soloDesdeUnDiaAntesDelPlazoHastaLaCita() {
+        var inicio = java.time.LocalDateTime.of(2026, 11, 10, 10, 0);
+        var doctor = doctorCon(24); // ventana: desde 48 h antes
+        Cita cita = citaEl(inicio);
+
+        assertThat(CitaService.esperaConfirmacion(cita, doctor, inicio.minusHours(49))).isFalse();
+        assertThat(CitaService.esperaConfirmacion(cita, doctor, inicio.minusHours(48))).isTrue();
+        assertThat(CitaService.esperaConfirmacion(cita, doctor, inicio.minusHours(2))).isTrue();
+        assertThat(CitaService.esperaConfirmacion(cita, doctor, inicio)).isFalse();
+
+        cita.setAsistenciaConfirmada(true);
+        assertThat(CitaService.esperaConfirmacion(cita, doctor, inicio.minusHours(10))).isFalse();
+    }
+
+    @Test
+    void responderAsistencia_siLaDejaConfirmada() {
+        Cita cita = citaEl(java.time.LocalDateTime.now().plusDays(2));
+        when(citaRepo.save(any())).thenReturn(cita);
+
+        assertThat(service.responderAsistencia(cita, true)).isTrue();
+        assertThat(cita.getAsistenciaConfirmada()).isTrue();
+        assertThat(cita.getEstado()).isEqualTo(EstadoCita.PENDIENTE);
+    }
+
+    @Test
+    void responderAsistencia_noATiempo_cancelaYDevuelveElAbono() {
+        Cita cita = citaEl(java.time.LocalDateTime.now().plusDays(2));
+        cita.setAbonoCentavos(2_000_000L);
+        when(personaRepo.findById("d1")).thenReturn(java.util.Optional.of(doctorCon(24)));
+        when(citaRepo.save(any())).thenReturn(cita);
+
+        assertThat(service.responderAsistencia(cita, false)).isTrue();
+        assertThat(cita.getEstado()).isEqualTo(EstadoCita.CANCELADA);
+        assertThat(cita.getEstadoAbono()).isEqualTo(com.gestion.proyectos.modelo.EstadoAbono.A_REEMBOLSAR);
+    }
+
+    @Test
+    void responderAsistencia_noFueraDelPlazo_elProfesionalConservaElAbono() {
+        Cita cita = citaEl(java.time.LocalDateTime.now().plusHours(5));
+        cita.setAbonoCentavos(2_000_000L);
+        when(personaRepo.findById("d1")).thenReturn(java.util.Optional.of(doctorCon(24)));
+        when(citaRepo.save(any())).thenReturn(cita);
+
+        assertThat(service.responderAsistencia(cita, false)).isTrue();
+        assertThat(cita.getEstadoAbono()).isEqualTo(com.gestion.proyectos.modelo.EstadoAbono.RETENIDO);
+    }
 }

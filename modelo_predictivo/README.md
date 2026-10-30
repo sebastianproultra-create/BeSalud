@@ -4,11 +4,12 @@ Pronostica **cuántas citas va a tener cada especialidad y cada médico** en los
 pueda organizar su agenda antes de que se llene. Es la parte de Minería de Datos del proyecto.
 
 - **Variable objetivo:** `volumen_citas_total` (citas por día).
-- **Algoritmo:** [Prophet](https://facebook.github.io/prophet/) (Meta), un modelo de series de tiempo.
+- **Algoritmo:** HistGradientBoosting de scikit-learn (ensemble de árboles), con pérdida cuadrática o Poisson
+  según cuál tenga menor MAE en una validación de 6 cortes.
 - **Dónde corre:** una API en Python (FastAPI) desplegada en Railway, que Spring Boot consulta.
 
 ```
-Médico abre su panel ──► Spring Boot ──► API Python (Prophet) ──► CSV con el historial
+Médico abre su panel ──► Spring Boot ──► API Python (scikit-learn) ──► CSV con el historial
    (gráfica)            /api/predicciones/mia    /prediccion/{especialidad}?medico_id=
 ```
 
@@ -71,104 +72,101 @@ qué pasa los festivos) y **repite ese comportamiento hacia el futuro**, con un 
 | ¿Tarea predictiva o descriptiva? | **Predictiva**: estima un valor futuro. Las descriptivas, como el clustering o las reglas de asociación, agrupan o encuentran patrones sin predecir. |
 | ¿Aprendizaje supervisado o no supervisado? | **Supervisado**: aprende de ejemplos donde la respuesta es conocida (cuántas citas hubo cada día). |
 | ¿Clasificación o regresión? | **Regresión**: la salida es un número (cantidad de citas), no una categoría. |
-| ¿Qué tipo de regresión? | **Regresión sobre series de tiempo** con un **modelo aditivo generalizado (GAM)**: Prophet, de Meta. |
+| ¿Qué tipo de regresión? | **Regresión sobre series de tiempo** con **ensembles de árboles** (HistGradientBoosting de scikit-learn, pérdida cuadrática o Poisson). |
 | ¿Variable objetivo? | `volumen_citas_total`: citas por día, de una especialidad o de un médico. |
-| ¿Variables explicativas? | La fecha (de ella salen la tendencia y los patrones semanal y anual), si el día es hábil y el factor de lluvias. |
+| ¿Variables explicativas? | Cuatro características derivadas solo del calendario: mes, día de la semana, si es festivo y si es laborable. |
 
 ### Paso a paso
 
 1. **Se toma la historia.** Para una especialidad es la columna `volumen_citas_total` del CSV; para un médico, sus
    citas diarias en `citas_por_medico.csv`. Son unos 1.000 días, desde enero de 2024.
-2. **Se le agregan dos datos que se conocen de antemano:** si cada día es hábil (no es fin de semana ni festivo
-   colombiano) y el factor de lluvia de ese mes en Cartagena.
-3. **Prophet aprende.** Busca la combinación de "piezas" (ver la tabla de abajo) que mejor reproduce la historia.
-   Por ejemplo, descubre solo que en octubre Neumología recibe muchas más citas que en febrero, sin que nadie se lo diga.
-4. **Se proyecta.** Con lo aprendido calcula los próximos días (hasta 180), sumando las piezas para cada fecha futura.
-5. **Se calcula el margen.** Prophet simula muchos futuros posibles y se queda con el rango donde cae el 80 % de ellos.
-6. **Se entrega.** La API devuelve, por cada día, el valor proyectado y el margen, y el panel del médico lo dibuja.
+2. **Se convierten las fechas en características.** De cada fecha se calculan 4 variables numéricas (mes, día de la
+   semana, festivo y laborable). Así el modelo "ve" números y puede aplicarlos igual al pasado que al futuro.
+3. **Se valida con varios cortes temporales (rolling-origin).** Se hacen 6 cortes de 60 días que cubren el último año.
+   En cada corte se entrena con todo lo anterior y se evalúa en los 60 días siguientes (nunca aleatorio: en series de
+   tiempo el pasado predice el futuro, y mezclar días filtraría información del futuro al entrenamiento).
+4. **Se comparan dos candidatos y se elige el mejor.** HistGradientBoosting con pérdida cuadrática y con pérdida
+   Poisson; gana el de menor **MAE medio en los 6 cortes**, y se reporta junto con su desviación.
+5. **Se reentrena el ganador con todo el historial** y se proyectan los días desde mañana (hasta 180).
+6. **Se calcula el rango probable.** Con los errores fuera de muestra de los 6 cortes se toman cuantiles del error
+   relativo, por separado para días laborables y no laborables. Cada serie usa el rango más angosto que, en un
+   backtest, cubre al menos el 80 % de los días hábiles. El rango crece con la demanda.
+7. **Se entrega.** La API devuelve, por cada día, el valor proyectado y el rango, y el panel del médico lo dibuja.
 
-### Las piezas que suma el modelo
+### Las características (feature engineering)
 
-Prophet descompone la serie de citas en partes que se suman:
+Todas salen de la fecha, así que se conocen de antemano para cualquier día futuro:
 
-```
-citas(día) = tendencia + patrón semanal + patrón anual + efecto de días hábiles + efecto de lluvia en días hábiles
-```
-
-| Componente | Qué aprende |
+| Característica | Qué captura |
 |---|---|
-| Tendencia | Si la demanda va subiendo o bajando con los meses |
-| Estacionalidad semanal | Que los lunes y martes se llenan más que el sábado |
-| Estacionalidad anual | Los picos de mayo–junio y de agosto–noviembre |
-| Regresor `laborable` | 1 si es día hábil y no festivo colombiano. Hace que fines de semana y festivos caigan casi a cero |
-| Regresor `lluvias_laborable` | El factor de lluvia del mes, solo en días hábiles (en fines de semana casi no hay citas, llueva o no) |
+| `mes` | La estacionalidad anual (picos de lluvias de agosto–noviembre) |
+| `dia_semana`, `laborable`, `es_festivo` | El patrón semanal y la caída de fines de semana y festivos |
 
-Los dos regresores se conocen de antemano para cualquier fecha futura, porque el calendario y la temporada de lluvias son fijos. Por eso Prophet puede usarlos para proyectar.
+**Selección de características.** Antes había 8. En la validación de 6 cortes se compararon cuatro conjuntos (MAE medio
+de las 19 series, mejor candidato):
 
-### Cómo funciona Prophet por dentro
+| Conjunto | MAE medio |
+|---|---|
+| 8 características (+ `dia_mes`, `semana_anio`, `dia_anio`, `lluvias_laborable`) | 1,217 |
+| Sin `semana_anio` ni `dia_anio` | 1,220 |
+| Sin las anteriores ni `dia_mes` | 1,171 |
+| **Solo las 4 de calendario (la elegida)** | **1,169** |
 
-Prophet es una regresión en la que el tiempo se convierte en varias variables. La fórmula es:
+- `semana_anio` y `dia_anio` le permitían al árbol **memorizar fechas**: con menos de 3 años de datos, aprendía cuándo
+  cayeron los brotes aleatorios de 2024 y 2025 y los repetía en 2026.
+- `lluvias_laborable` salía de la misma función con la que se simularon los datos. Quitarla no empeora el error, porque
+  `mes` ya captura la temporada; así el modelo no recibe ninguna regla de la simulación.
 
-```
-y(t) = g(t) + s(t) + β · x(t) + ε(t)
-```
+### Cómo funciona el modelo por dentro
 
-| Término | Qué es | Cómo lo calcula |
-|---|---|---|
-| `y(t)` | Citas del día `t` | Es la variable objetivo |
-| `g(t)` | **Tendencia** | Una recta **por tramos**: Prophet coloca 25 posibles "puntos de cambio" en el primer 80 % del historial y en cada uno la pendiente puede cambiar. Una penalización (regularización) evita que cambie de más y se sobreajuste al ruido |
-| `s(t)` | **Estacionalidad** | Ondas de senos y cosenos (**series de Fourier**) que se repiten: 3 pares para la semana (periodo de 7 días) y 10 pares para el año (periodo de 365,25 días). Combinando ondas de distinta frecuencia arma la "forma" del patrón, por ejemplo el pico de octubre |
-| `β · x(t)` | **Regresores** | Igual que en una regresión lineal múltiple: un coeficiente `β` por cada variable extra. `laborable` vale 0 o 1; `lluvias_laborable` se estandariza (media 0, desviación 1) antes de ajustarla |
-| `ε(t)` | **Error** | Lo que el modelo no explica. Se supone ruido normal |
+**HistGradientBoosting** es un **ensemble de árboles de decisión**: entrena árboles en secuencia (hasta 300
+iteraciones) y cada árbol nuevo corrige el error de los anteriores. Internamente agrupa las características en
+histogramas, por eso entrena rápido.
 
-**Entrenamiento.** Prophet usa estadística **bayesiana**: le pone a cada coeficiente una distribución "previa" que lo
-mantiene pequeño salvo que los datos digan lo contrario (esto también funciona como regularización). Luego busca los
-valores más probables dados los datos, lo que se llama **estimación MAP (máximo a posteriori)**. El cálculo lo hace
-**Stan**, una librería de estadística, con el optimizador L-BFGS. Con unos 1.000 días tarda uno o dos segundos.
+Se prueban **dos funciones de pérdida** y gana la de menor MAE medio en cada serie:
 
-**Margen de error.** Para cada día futuro simula **1.000 escenarios** posibles: con cambios de tendencia aleatorios
-parecidos a los que vio en la historia, más el ruido. Se queda con el percentil 10 y el 90 de esos escenarios: ese
-es el intervalo del **80 %** que la API entrega como `margenMinimo` y `margenMaximo`.
+| Candidato | Qué optimiza |
+|---|---|
+| **Pérdida cuadrática** | El error al cuadrado: la opción por defecto de una regresión |
+| **Pérdida Poisson** | La verosimilitud de un conteo: la natural cuando se predice "cuántas citas", que nunca son negativas y varían más cuando la media es alta |
 
-**Ajustes finales en la API.** Los valores se redondean a citas enteras y los negativos se llevan a 0 (no existen
-"−1 citas"). Se entrena **un modelo por serie** (uno por especialidad y uno por médico) y se guarda en memoria, así
-que solo la primera consulta de cada serie espera el entrenamiento.
+La pérdida Poisson gana en 17 de las 19 series. También se probó **RandomForest** en la validación de 6 cortes, y
+nunca ganó con las 4 características (MAE medio 1,193 contra 1,169); se descartó para entrenar más rápido.
+
+**Rango probable.** Con los errores fuera de muestra de los 6 cortes se calcula el error relativo
+(real − proyectado) / (proyectado + 1) y se toman sus cuantiles p y 1 − p, por separado para días laborables y no
+laborables. El cuantil p se elige **por serie**: el más alto (rango más angosto) de 20 %, 17,5 %, 15 %, 12,5 %, 10 %,
+7,5 % y 5 % cuya cobertura en el backtest llega al 80 %. Hace falta porque las citas son enteras y el rango se
+redondea: un mismo cuantil cubre más en un médico (pocas citas, un rango de 0 a 2 cubre casi todo) que en una
+especialidad con 20 citas al día. Con un p fijo de 15 % las especialidades quedaban en 74–79 %. Al dividir entre lo proyectado, **el rango crece con la demanda**: con conteos la variación sube con la
+media, así que octubre necesita un margen más ancho que febrero. Los valores se redondean a citas enteras y los
+negativos se llevan a 0 (no existen "−1 citas").
 
 Configuración usada en `api_predictiva.py`:
 
 ```python
-modelo = Prophet(yearly_seasonality=True, weekly_seasonality=True, daily_seasonality=False)
-modelo.add_regressor('laborable')
-modelo.add_regressor('lluvias_laborable')
-modelo.fit(historial)   # columnas: ds (fecha), y (citas), laborable, lluvias_laborable
+def modelos_candidatos():
+    return {
+        'HistGradientBoosting': HistGradientBoostingRegressor(max_iter=300, learning_rate=0.05, max_depth=6, random_state=42),
+        'HistGradientBoosting Poisson': HistGradientBoostingRegressor(loss='poisson', max_iter=300, learning_rate=0.05,
+                                                                      max_depth=6, random_state=42),
+    }
 ```
 
 ### Ejemplo con números reales (Neumología)
 
-Valores que sacó el modelo entrenado. Las piezas **se leen juntas**: el modelo ajusta todas a la vez, así que una
-puede salir negativa porque otra la compensa (por ejemplo, la de día hábil sale −1,2 y la de lluvia en día hábil
-sale muy positiva). Lo que importa es la suma, que es la proyección.
+Con las características de calendario, el modelo aprende el efecto de las reglas de Cartagena: un miércoles de octubre
+(hábil, lluvia fuerte) se proyecta en unas **12 citas (rango 7–18)**, un sábado cae a **1 (0–2)** y un miércoles de
+febrero (temporada seca) queda en unas **4 (2–6)**. El mismo día de la semana cambia según la temporada, y el rango es
+más ancho cuando se esperan más citas.
 
-| Pieza | Miércoles 21 oct 2026 (hábil, lluvia fuerte) | Sábado 24 oct 2026 | Miércoles 17 feb 2027 (hábil, seco) |
-|---|---|---|---|
-| Tendencia (nivel base) | 5,5 | 5,5 | 5,6 |
-| Patrón semanal | 0,0 | +0,1 | 0,0 |
-| Patrón anual | +0,8 | +0,9 | −0,1 |
-| Día hábil + lluvia | **+7,7** | **−4,3** | −1,1 |
-| **Proyección** | **≈ 14 citas** (margen 11–17) | **≈ 2 citas** (margen 0–5) | **≈ 4 citas** (margen 2–7) |
-| Lo que pasó el año anterior, mismo mes | miércoles de oct 2025: 9 a 15 | sábados: 0 a 2 | miércoles de feb 2026: 1 a 7 |
+### ¿Por qué estos modelos y no otra técnica?
 
-Así se ve el efecto de las reglas de Cartagena: el mismo día de la semana pasa de unas 4 citas en temporada seca a
-unas 14 en el pico de lluvias, y el sábado cae casi a cero llueva o no.
-
-### ¿Por qué Prophet y no otra técnica?
-
-- Está hecho para datos **diarios con patrones semanales y anuales**, que es justo el caso de las citas.
-- Acepta **variables extra** (día hábil con festivos colombianos y lluvia) como una regresión normal.
-- Da el **margen de error** sin trabajo adicional.
-- Entrena en segundos con unos pocos años de datos, así que se puede entrenar un modelo **por médico** cuando se pide.
-- Sus piezas se pueden **interpretar** (ver el ejemplo de arriba), cosa importante para explicarle a un médico por qué
-  se espera más demanda.
+- Los **árboles de decisión** manejan bien los datos diarios con patrones semanales y anuales codificados como
+  características, que es justo el caso de las citas.
+- La **pérdida Poisson** está hecha para conteos.
+- Permiten **elegir el mejor candidato** midiendo el MAE en una validación temporal, sin caja negra.
+- Entrenan en segundos con unos pocos años de datos, así que se puede entrenar un modelo **por médico** cuando se pide.
 
 | Alternativa | Por qué no se usó |
 |---|---|
@@ -180,21 +178,42 @@ unas 14 en el pico de lluvias, y el sábado cae casi a cero llueva o no.
 
 ### Qué tan bien predice
 
-**Método de evaluación (validación por retención, *holdout*):** se entrenó con todo el historial menos los últimos
-60 días; esos 60 días se escondieron y luego se compararon con lo que el modelo predijo. La métrica es el **MAE
-(error absoluto medio)**: en promedio, de cuántas citas fue la diferencia por día.
+**Método de evaluación (rolling-origin):** 6 cortes de 60 días que cubren el último año del historial. En cada corte
+se entrena con todo lo anterior y se predicen los 60 días siguientes. Un solo corte no basta: según dónde caiga (seca o
+lluvias) el MAE de una misma especialidad puede variar más de un 50 %. La métrica es el **MAE (error absoluto medio)**:
+en promedio, de cuántas citas fue la diferencia por día. Se reporta la media ± la desviación entre cortes, y se compara
+contra un **baseline ingenuo** (el promedio del train por día de la semana).
 
-| Serie | Versión anterior (festivos + lluvia) | Versión actual (día hábil + lluvia en día hábil) |
-|---|---|---|
-| Medicina General | 5,52 citas/día | **4,20** (−24 %) |
-| Neumología | 2,53 | **1,85** (−27 %) |
-| Dra. Daniela Ramos (Pediatría) | 1,08 | **1,00** |
+| Serie | Modelo | Baseline por día de la semana | Baseline por mes × día × laborable |
+|---|---|---|---|
+| Medicina General | 3,10 ± 0,72 | 4,52 ± 0,82 | 3,49 |
+| Pediatría | 1,88 ± 0,30 | 3,23 ± 0,95 | 2,00 |
+| Neumología | 1,66 ± 0,30 | 2,54 ± 0,69 | 1,79 |
+| Dermatología | 1,74 ± 0,06 | 1,95 ± 0,12 | 1,85 |
+| Cardiología | 1,66 ± 0,23 | 1,90 ± 0,15 | 1,76 |
+| Promedio de las 19 series (5 especialidades + 14 médicos) | **1,17** | 1,58 | 1,26 |
 
-En fines de semana el error bajó a ~0,6 citas. También se probó el modo **multiplicativo** de Prophet (las piezas se
-multiplican en vez de sumarse) y no mejoró, así que se dejó el aditivo.
+El modelo le gana al baseline simple en **las 19 series** (en un médico, por muy poco: 0,84 contra 0,85).
 
-Para ponerlo en contexto: en esos 60 días (temporada de lluvias) Medicina General recibió unas 28 citas por día hábil,
-así que equivocarse en ~4 citas es un error de alrededor del 15 %, suficiente para planear la agenda.
+**Baseline fuerte.** Con 4 características de calendario cabe la pregunta: "¿el modelo hace algo más que promediar
+por mes y día de la semana?". Por eso se comparó también contra una tabla de promedios por mes × día de la semana ×
+laborable. El modelo gana en **las 19 series**, pero por poco: **un 7 %** en promedio (1,17 contra 1,26). La ganancia
+viene de que cada casilla de la tabla tiene apenas unos 10 días de historia y su promedio es ruidoso, mientras que los
+árboles comparten información entre meses y días parecidos. A eso se suman lo que la tabla no da: la pérdida Poisson,
+el rango probable calibrado y un modelo que se reentrena solo. El ganador se
+elige con estos mismos cortes, así que la cifra es levemente optimista; con 6 cortes y solo dos candidatos el efecto
+es pequeño.
+
+Para ponerlo en contexto: Medicina General recibe unas 20 a 28 citas por día hábil según la temporada, así que
+equivocarse en ~3 citas es un error de alrededor del 12 %, suficiente para planear la agenda.
+
+**Cobertura del rango probable (backtest).** Para cada corte se calibran los cuantiles con los otros 5 cortes y se
+cuenta en cuántos días hábiles la demanda real cayó dentro del rango. Resultado: **82,3 %** en promedio y **todas las
+series llegan al 80 %** (81–83 % en las especialidades, 80–85 % en los médicos). Medido sobre todos los días hábiles de
+la validación: 81 % en temporada de lluvias y 83 % en temporada seca. Ojo: un corte de 60 días suelto puede quedar
+lejos (entre 55 % y 98 %), porque cada temporada tiene sus brotes; el 80 % se cumple en el conjunto del año. Como el
+cuantil se elige mirando esta misma cobertura, la cifra es levemente optimista. En fines de semana y festivos la cobertura es mayor (≈95 %), porque casi siempre
+hay 0, 1 o 2 citas y un rango entero de 0 a 2 las cubre casi todas.
 
 ### Metodología (fases de CRISP-DM)
 
@@ -202,14 +221,15 @@ así que equivocarse en ~4 citas es un error de alrededor del 15 %, suficiente p
 |---|---|
 | 1. Comprensión del negocio | Los médicos no saben con anticipación qué días se les va a llenar la agenda; se busca pronosticar la demanda por especialidad y por médico |
 | 2. Comprensión de los datos | Variables del dataset: fecha, día de la semana, especialidad, festivos, temporada de lluvias, alertas de salud pública y volumen de citas |
-| 3. Preparación de los datos | Agregación de las citas por día; creación de `laborable` y `lluvias_laborable`; serie por médico en `citas_por_medico.csv`; días sin citas completados con 0 |
-| 4. Modelado | Prophet con estacionalidad semanal y anual y dos regresores; un modelo por especialidad y por médico |
-| 5. Evaluación | Holdout de 60 días con MAE; comparación entre versiones (aditivo vs. multiplicativo, con y sin regresores de día hábil) |
+| 3. Preparación de los datos | Agregación de las citas por día; serie por médico en `citas_por_medico.csv`; días sin citas completados con 0; características de calendario. Columnas descartadas: `alertas_salud_publica` (no se conoce de antemano para los días futuros), `volumen_citas_pasadas` (exige pronosticar día a día usando predicciones como entrada) y `motivo_consulta` (es un detalle de cada cita, no del total diario) |
+| 4. Modelado | HistGradientBoosting con pérdida cuadrática o Poisson; selección de características comparando cuatro conjuntos; un modelo por especialidad y por médico |
+| 5. Evaluación | Validación rolling-origin de 6 cortes con MAE (media ± desviación) contra un baseline ingenuo; cobertura del rango medida en un backtest |
 | 6. Despliegue | API en FastAPI publicada en Railway, consumida por Spring Boot y mostrada en el panel del médico |
 
-### El margen
+### El rango probable
 
-Además del valor proyectado, Prophet da un **rango probable** (`margenMinimo` – `margenMaximo`): la demanda real debería caer dentro de ese rango **8 de cada 10 veces**.
+Además del valor proyectado, el modelo da un **rango probable** (`margenMinimo` – `margenMaximo`): en la validación,
+la demanda real de los días hábiles cayó dentro de ese rango **8 de cada 10 veces** (82,3 %; ninguna serie por debajo del 80 %).
 
 ---
 
@@ -219,14 +239,17 @@ Archivo: `api_predictiva.py`. Producción: `https://besalud-prediccion-productio
 
 | Ruta | Qué devuelve |
 |---|---|
-| `GET /salud` | Si la API está viva y qué especialidades conoce |
+| `GET /salud` | Si la API está viva, el estado del archivo de modelos (`modelos`: `vigentes` u `obsoletos (motivo)`) y qué especialidades conoce |
 | `GET /medicos?especialidad=pediatria` | Los médicos con historial (id, nombre y especialidad) |
 | `GET /prediccion/{especialidad}?dias=30` | Pronóstico de toda la especialidad |
 | `GET /prediccion/{especialidad}?dias=30&medico_id=...` | Pronóstico de un médico |
 
 - `dias` va de 1 a 180.
 - La especialidad acepta mayúsculas o minúsculas, con o sin tilde (`pediatria` = `Pediatría`).
-- La primera consulta de cada especialidad o médico entrena el modelo (unos segundos). Las siguientes salen de memoria.
+- Las fechas arrancan **mañana** (hora de Colombia), aunque el historial termine antes: las características son solo de
+  calendario, así que sirven para cualquier día futuro.
+- Los modelos salen de `modelos_entrenados.joblib`. Si falta o quedó viejo, la primera consulta de cada especialidad o
+  médico entrena el modelo (unos 10 segundos) y las siguientes salen de memoria.
 
 Ejemplo de respuesta:
 
@@ -264,12 +287,13 @@ En el panel del médico hay una sección **"Demanda proyectada"**, entre "Dispon
 | Elemento | Qué muestra |
 |---|---|
 | Botones **7 / 14 / 30 días** | Cuántos días hacia adelante ver |
-| **Mañana** | Citas esperadas para mañana y su rango |
-| **Día más cargado** | La fecha con más demanda del periodo y cuántas citas |
+| **Próximo día de consulta** | Citas esperadas y su rango para el próximo día en que atiende (dice "Mañana" si es mañana); se salta fines de semana y festivos sin citas |
+| **Día(s) más cargado(s)** | Cuántas citas tendría el día más lleno. Si varios empatan los dice todos (por ejemplo, "Los jueves: 5, 12, 19 y 26 nov") |
 | **Próximos N días** | El total del periodo y el promedio por día de consulta |
-| **Días sin cupo suficiente** | Los días en que la demanda proyectada supera los cupos de su horario. Si hay alguno, la tarjeta se pone **ámbar** y le sugiere abrir más franjas |
-| **Gráfica** | Barras verdes con las citas proyectadas por día (**ámbar** si superan los cupos), franja menta con el margen probable y línea punteada con los cupos de su horario |
-| Resumen | Una frase con el total, el día más cargado y qué significa el margen |
+| **Ocupación de tu agenda** | Qué porcentaje de sus cupos llenarían las citas esperadas. Si algún día la **demanda** (pacientes que pedirían cita) supera sus cupos, la tarjeta se pone **ámbar** y le sugiere abrir más franjas. El sistema nunca agenda más citas que cupos: el aviso significa que algunos pacientes no alcanzarían cita, algo que pasa sobre todo si el médico recorta su horario |
+| **Gráfica** | Por cada día, una columna gris con los cupos del horario y, adentro, una barra verde con las citas esperadas (**ámbar** si superan los cupos), como un vaso que se llena. Un bigote con topes marca el rango probable; los días sin citas esperadas no muestran nada |
+| **¿Cómo leer esta gráfica?** | Bloque plegable que explica la columna, la barra, el bigote y el color ámbar |
+| Resumen | Total del periodo, ocupación de la agenda, días más llenos y, si hace falta, la sugerencia de abrir más franjas |
 
 Los **cupos** se calculan en el navegador con el horario que el médico tiene configurado (franja ÷ duración de la cita), igual que los cupos de la agenda. Si cambia su horario, la comparación cambia sola.
 
@@ -302,7 +326,30 @@ python importar_atlas.py --confirmar --borrar-mock-anterior   # 4. reemplaza los
 (`uvicorn api_predictiva:app --host 0.0.0.0 --port $PORT`). El servicio de Spring necesita la variable
 `API_PYTHON_URL` con el dominio de la API, sin `/` al final.
 
-Si se regeneran los CSV, hay que hacer commit para que Railway entrene con los datos nuevos.
+### El archivo del modelo entrenado
+
+`modelos_entrenados.joblib` (~3,5 MB) guarda los 19 modelos ya entrenados (5 especialidades y 14 médicos): el
+modelo ganador de cada serie, el MAE medio y la desviación de cada candidato y del baseline, los cuantiles del rango y
+su cobertura medida. Lo genera `entrenar_modelos.py`, que es el entrenamiento explícito (validación de 6 cortes,
+comparación de los candidatos, MAE y cobertura):
+
+```bash
+cd modelo_predictivo
+python entrenar_modelos.py    # entrena todo, imprime MAE ± desviación y cobertura de cada serie (~3-4 min)
+```
+
+- La API carga el archivo al arrancar, así la primera consulta ya no espera al entrenamiento.
+- El archivo guarda dos huellas (hash). La del código cubre la versión de scikit-learn, `caracteristicas()`,
+  `entrenar()`, el cálculo del rango (`cuantiles_por_grupo()`, `rango()`, `cobertura_por_cortes()`), los
+  hiperparámetros, `CORTES`, `DIAS_TEST`, `COBERTURA_OBJETIVO` y `P_CANDIDATOS`; la de los datos cubre toda la serie de
+  cada modelo.
+- Si el archivo falta, está dañado o la huella del código no coincide (cambiaron las features, los hiperparámetros o
+  la versión de scikit-learn), la API deja un `WARNING` en el log, marca `modelos: obsoletos (...)` en `/salud` y
+  entrena al vuelo. Si cambió cualquier fila del CSV, reentrena solo ese modelo.
+- Para inspeccionarlo: `joblib.load('modelos_entrenados.joblib')['modelos']['especialidad:Pediatría']`.
+
+Si se regeneran los CSV o se cambia el código del modelo, hay que correr `entrenar_modelos.py` y hacer commit del
+CSV y del `.joblib` juntos para que Railway use los datos y modelos nuevos.
 
 ---
 
@@ -342,16 +389,16 @@ Los pacientes simulados también pueden entrar con la misma contraseña. Sus cor
 ### Resumen en 30 segundos
 
 > "BESalud pronostica cuántas citas va a tener cada médico en los próximos días. Es una tarea **predictiva y
-> supervisada**: hacemos **regresión sobre series de tiempo** con **Prophet**, un modelo aditivo que descompone la
-> demanda en tendencia, patrón semanal, patrón anual, días hábiles con festivos colombianos y el efecto de la lluvia
-> en Cartagena. Lo evaluamos escondiendo los últimos 60 días y el error medio quedó en unas 4 citas por día en
-> Medicina General. El médico ve el pronóstico de 7, 14 o 30 días en su panel, comparado con los cupos de su
-> horario, para saber qué días abrir más franjas."
+> supervisada**: hacemos **regresión sobre series de tiempo** con un **ensemble de árboles** (HistGradientBoosting,
+> con pérdida cuadrática o Poisson) que aprende de características de calendario. Lo validamos con 6 cortes
+> temporales: se equivoca en 1,2 citas por día en promedio, contra 1,6 de un baseline ingenuo, y su rango probable
+> acierta 8 de cada 10 días hábiles. El médico ve el pronóstico de 7, 14 o 30 días en su panel, comparado con los
+> cupos de su horario, para saber qué días abrir más franjas."
 
 ### Orden sugerido para la demo
 
 1. Mostrar el CSV y explicar las reglas de la simulación (sección 1).
-2. Explicar el tipo de técnica y la fórmula de Prophet (sección 2).
+2. Explicar el tipo de técnica, las características y la selección por MAE (sección 2).
 3. Mostrar el ejemplo con números (octubre vs. febrero vs. sábado).
 4. Mostrar la tabla de evaluación (MAE).
 5. Entrar como un médico de **Pediatría o Neumología** (el efecto de la lluvia se ve más) y recorrer "Demanda
@@ -366,14 +413,21 @@ históricos con la respuesta conocida; el clustering agrupa sin predecir.
 **¿Por qué los datos son simulados?** No se tiene acceso a datos reales de una clínica, por privacidad. Se simularon
 con reglas realistas de Cartagena (lluvias, festivos, fines de semana) para que el modelo tuviera patrones que aprender.
 
-**¿El modelo "hace trampa" porque las reglas las pusimos nosotros?** El modelo **no conoce** las reglas: solo ve fechas y
-cantidades de citas, y tiene que descubrir por su cuenta que octubre se llena y que el sábado no. Además, el ruido
-aleatorio (Poisson) hace que nunca acierte exacto, como se ve en el MAE.
+**¿El modelo "hace trampa" porque las reglas las pusimos nosotros?** Antes sí recibía una pista: una variable de lluvia
+que salía de la misma función de la simulación. La quitamos, y el error no empeoró. Hoy el modelo solo ve mes, día de
+la semana, festivo y laborable, y tiene que descubrir por su cuenta que octubre se llena y que el sábado no. Los
+festivos salen de la librería `holidays`, que es el calendario oficial de Colombia, igual que en la vida real. Además,
+el ruido aleatorio (Poisson) y los brotes aleatorios hacen que nunca acierte exacto, como se ve en el MAE.
 
-**¿Qué significa el margen?** Es el intervalo del 80 %: de cada 10 días, en unos 8 la demanda real debería quedar dentro
-de ese rango.
+**¿Cómo comprobaron que el rango es del 80 %?** Con un backtest: en cada uno de los 6 cortes se calibró el rango con
+los otros 5 y se contó en cuántos días hábiles la demanda real cayó dentro. Dio 82,3 % (81 % en lluvias, 83 % en seca),
+y cada serie usa el rango más angosto que llega al 80 %.
 
-**¿Cómo saben que funciona?** Por la validación *holdout*: se escondieron 60 días, se predijeron y se midió el error con MAE.
+**¿Su MAE de un solo corte es representativo?** No lo usamos: validamos con 6 cortes que cubren un año entero y
+reportamos la media ± la desviación.
+
+**¿Cómo saben que funciona?** Por la validación rolling-origin: en 6 cortes de 60 días el modelo predijo días que no
+había visto y le ganó al baseline en las 19 series.
 
 **¿Qué pasa si un médico nuevo no tiene historial?** Ve el mensaje "Aún no hay suficiente historial". Se podría usar el
 pronóstico de su especialidad dividido entre los médicos mientras acumula citas.
@@ -386,6 +440,8 @@ día libre de cada médico como variable; y usando datos reales de lluvia del ID
 ## 9. Limitaciones
 
 - Los datos son **simulados**: el modelo aprende las reglas con que se generaron, no el comportamiento real de una clínica.
-- El historial termina el 15 de octubre de 2026 y **no se actualiza solo** con las citas nuevas de la app. Para incorporarlas habría que exportar las citas de MongoDB al CSV y volver a desplegar.
+- El historial termina el 15 de octubre de 2026 y **no se actualiza solo** con las citas nuevas de la app. El pronóstico sí arranca siempre mañana, pero lo que pasó después de esa fecha no se aprende. Para incorporarlo habría que exportar las citas de MongoDB al CSV y volver a desplegar.
+- Los modelos por médico y por especialidad son independientes: la suma de los médicos no da exactamente el total de la especialidad (diferencias de pocas citas al mes).
+- En los datos simulados ningún médico supera los cupos de su horario, así que la alerta de "días sin cupo suficiente" casi nunca se activa en la demo.
 - Solo los 14 médicos simulados tienen pronóstico propio; los demás ven el mensaje de "sin historial".
 - El pronóstico de un médico todavía puede marcar 1 o 2 citas en su día libre, porque el modelo no sabe cuál es. Se podría afinar agregando ese día como regresor.

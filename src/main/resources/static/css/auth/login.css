@@ -3,6 +3,7 @@
    ============================================== */
 
 /* Card principal: llena el container */
+@import url('../oscuro/auth/login.css');
 .login-card-main {
     max-width: 900px;
     margin: 50px auto;
@@ -58,7 +59,7 @@
     background: var(--white);
     border: 1px solid var(--border-mid);
     border-radius: 2px;
-    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-family: var(--font-body);
     font-size: 13px;
     font-weight: 400;
     color: var(--text-dark);
@@ -87,4 +88,57 @@
         margin: 20px !important;
         padding: 24px !important;
     }
+}
+
+.login-page .login-card-main .auth-input-wrap {
+    background: transparent;
+    border: 0;
+    border-bottom: 2px solid var(--portal-primary);
+    border-radius: 0;
+    box-shadow: none;
+}
+
+.login-page .login-card-main .auth-input-wrap:hover {
+    background: transparent;
+}
+
+.login-page .login-card-main .auth-input-wrap:focus-within {
+    background: transparent;
+    border-bottom-color: var(--portal-primary-container);
+    box-shadow: none;
+}
+
+.login-page .login-card-main .auth-input-wrap > .material-symbols-outlined {
+    flex-basis: 42px;
+    color: var(--portal-primary);
+}
+
+.login-page .login-card-main .auth-input-wrap input {
+    min-height: 48px;
+    padding: 5px 14px 5px 0;
+    background: transparent;
+    border: 0;
+    border-radius: 0;
+    outline: none;
+    box-shadow: none;
+}
+
+.login-page .login-card-main .auth-input-wrap input:focus {
+    outline: none;
+    box-shadow: none;
+}
+
+.login-page .login-card-main .password-toggle {
+    color: var(--portal-primary);
+    background: transparent;
+}
+
+.login-page .login-card-main .password-toggle:hover {
+    color: var(--portal-primary-container);
+    background: transparent;
+}
+
+.login-page .login-card-main .password-toggle:focus-visible {
+    outline: 2px solid var(--portal-primary);
+    outline-offset: 2px;
 }

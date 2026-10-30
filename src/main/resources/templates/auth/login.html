@@ -4,19 +4,17 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BeSalud · Portal Clínico</title>
     <link rel="stylesheet" th:href="@{/css/base/global.css}">
-    <link rel="stylesheet" th:href="@{/css/auth/login.css(v=2)}">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400&amp;family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@100..700&amp;display=block" rel="stylesheet">
-    <link rel="stylesheet" th:href="@{/css/auth/portal.css}">
     <script th:src="@{/js/auth-transition.js}"></script>
+    <th:block th:replace="~{fragments/layout :: design-system}"></th:block>
+    <link rel="stylesheet" th:href="@{/css/auth/portal.css(v=3)}">
+    <link rel="stylesheet" th:href="@{/css/auth/login.css(v=3)}">
+    <link rel="stylesheet" th:href="@{/css/base/tema-oscuro.css}">
+    <script th:src="@{/js/tema.js}"></script>
 </head>
 <body class="auth-page login-page">
-<header th:replace="~{fragments/layout :: auth-header('login')}"></header>
+<header th:replace="~{fragments/navbar :: navbar}"></header>
 
 <main class="auth-main auth-shell">
     <div class="auth-layout">
@@ -28,7 +26,7 @@
             </div>
             <div class="auth-reference">
                 <div class="reference-image">
-                    <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuCBQU3pNW9Lrs0ZXOvRuMuzH3YXYlGM4lJDGZJrtj69CAim0meh0TqRElW9edTF3hpIV5PqxBlTz5tknJ_F1_LaMsVPjbxRGR6sguMkj_cgkX1qs7rTSErobWCltMKIIxQYsO0hUwNOf2wpuChsd6e9LVcqiMxlc_C7UiUgQz8Lze8ywOH1ba3TRw9Q1MIrn94bgquACPDOH8WyUCFMefiQ1Z0ZA882AjYiL9_3k-RV1k0Fa7i5L0sTACwo_7KHGoJBNw" alt="Vista de referencia del portal BeSalud" loading="lazy">
+                    <img th:src="@{https://lh3.googleusercontent.com/aida-public/AB6AXuCBQU3pNW9Lrs0ZXOvRuMuzH3YXYlGM4lJDGZJrtj69CAim0meh0TqRElW9edTF3hpIV5PqxBlTz5tknJ_F1_LaMsVPjbxRGR6sguMkj_cgkX1qs7rTSErobWCltMKIIxQYsO0hUwNOf2wpuChsd6e9LVcqiMxlc_C7UiUgQz8Lze8ywOH1ba3TRw9Q1MIrn94bgquACPDOH8WyUCFMefiQ1Z0ZA882AjYiL9_3k-RV1k0Fa7i5L0sTACwo_7KHGoJBNw}" alt="Vista de referencia del portal BeSalud" loading="lazy">
                 </div>
                 <div class="reference-copy">
                     <span>Sistema Unificado</span>
@@ -106,5 +104,6 @@
 
 <footer th:replace="~{fragments/layout :: auth-footer}"></footer>
 <script th:src="@{/js/form-submit.js}"></script>
+<script th:src="@{/js/login-password-toggle.js(v=1)}"></script>
 </body>
 </html>

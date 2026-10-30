@@ -63,7 +63,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 /** Comprueba que las plantillas con mensajes de error y botones nuevos renderizan sin fallar. */
 @WebMvcTest({DoctorController.class, PacienteController.class, CitaController.class, LoginController.class,
-        RolSelectionController.class, TriageController.class})
+        RolSelectionController.class, TriageController.class, PerfilPublicoController.class})
 @Import(SecurityConfig.class)
 class VistasRenderTest {
 
@@ -78,6 +78,7 @@ class VistasRenderTest {
     @MockBean private RateLimiter rateLimiter;
     @MockBean private com.gestion.proyectos.servicio.RegistroService registroService;
     @MockBean private com.gestion.proyectos.servicio.TriageService triageService;
+    @MockBean private com.gestion.proyectos.servicio.AsistenteService asistenteService;
     @MockBean private org.springframework.security.authentication.AuthenticationManager authenticationManager;
     @MockBean private CustomUserDetailsService customUserDetailsService;
     @MockBean private PersonaRepositorio personaRepositorio;
@@ -272,7 +273,10 @@ class VistasRenderTest {
                 .andExpect(content().string(containsString("Acetaminofén 500 mg (Oral)")))
                 .andExpect(content().string(containsString("2 días — Fiebre")))
                 .andExpect(content().string(containsString("120/80 mmHg")))
-                .andExpect(content().string(containsString("Reposo y líquidos")));
+                .andExpect(content().string(containsString("Reposo y líquidos")))
+                .andExpect(content().string(containsString("Navegación del paciente")))
+                .andExpect(content().string(containsString("data-route=\"/triage\"")))
+                .andExpect(content().string(not(containsString("data-route=\"/admin/estadisticas\""))));
     }
 
     @Test
@@ -352,6 +356,24 @@ class VistasRenderTest {
                 .andExpect(status().isOk())
                 .andExpect(content().string(containsString("ya pasaron")))
                 .andExpect(content().string(not(containsString("id=\"motivo\""))));
+    }
+
+    @Test
+    void perfilPublico_muestraHorariosYPermiteReservarConPrecioBase() throws Exception {
+        Doctor d = new Doctor();
+        d.setId("d1");
+        d.setNombre("Ana");
+        d.setApellido("Ruiz");
+        when(perfilPublicoService.buscarActivoPorSlug("ana-ruiz")).thenReturn(Optional.of(d));
+        Map<String, List<String>> slots = new LinkedHashMap<>();
+        slots.put(LocalDate.now().plusDays(1).toString(), List.of("09:00"));
+        when(citaService.slotsDisponibles("d1", null, null, null)).thenReturn(new LinkedHashMap<>(slots));
+
+        mockMvc.perform(get("/p/ana-ruiz").with(user("pac@test.com").roles("PACIENTE")))
+                .andExpect(status().isOk())
+                .andExpect(content().string(containsString("09:00")))
+                .andExpect(content().string(containsString("$50.000")))
+                .andExpect(content().string(containsString("href=\"/citas/nueva?doctorId=d1")));
     }
 
     @Test
@@ -442,5 +464,36 @@ class VistasRenderTest {
         mockMvc.perform(put("/citas/nueva").param("doctorId", "x").with(csrf()).with(user("p@test.com").roles("PACIENTE")))
                 .andExpect(status().isMethodNotAllowed())
                 .andExpect(header().exists("Allow"));
+    }
+
+    @Test
+    void misPagos_listaLosAbonosConSuEstadoYComprobante() throws Exception {
+        Paciente p = new Paciente();
+        p.setId("p1");
+        when(pacienteService.buscarPorEmail("pac@test.com")).thenReturn(Optional.of(p));
+        var pago = new com.gestion.proyectos.servicio.ReservaService.MovimientoPago("BS-1",
+                java.time.LocalDateTime.of(2026, 10, 20, 9, 0), "Dr(a). Ana Ruiz", "Psicología",
+                java.time.LocalDate.of(2026, 11, 4), java.time.LocalTime.of(8, 0), 12_000, "Visa •••• 4242",
+                com.gestion.proyectos.servicio.ReservaService.EstadoPago.PAGADO);
+        var rechazado = new com.gestion.proyectos.servicio.ReservaService.MovimientoPago("BS-2",
+                java.time.LocalDateTime.of(2026, 10, 19, 9, 0), "Dr(a). Ana Ruiz", "Psicología",
+                java.time.LocalDate.of(2026, 11, 4), java.time.LocalTime.of(8, 0), 12_000, null,
+                com.gestion.proyectos.servicio.ReservaService.EstadoPago.RECHAZADO);
+        when(reservaService.historialDe("p1")).thenReturn(
+                new com.gestion.proyectos.servicio.ReservaService.HistorialPagos(List.of(pago, rechazado), 12_000, 0));
+
+        mockMvc.perform(get("/pacientes/pagos").with(user("pac@test.com").roles("PACIENTE")))
+                .andExpect(status().isOk())
+                .andExpect(content().string(containsString("Mis pagos")))
+                .andExpect(content().string(containsString("Visa •••• 4242")))
+                .andExpect(content().string(containsString("/pagos/BS-1/resultado")))
+                .andExpect(content().string(containsString("Rechazado")))
+                .andExpect(content().string(containsString("$12.000")));
+    }
+
+    @Test
+    void misPagos_soloParaPacientes() throws Exception {
+        mockMvc.perform(get("/pacientes/pagos").with(user("doc@test.com").roles("DOCTOR")))
+                .andExpect(status().isForbidden());
     }
 }

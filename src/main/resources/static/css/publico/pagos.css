@@ -1,4 +1,5 @@
 /* Resumen, pasarela simulada y resultado del pago: usa los tokens de auth/portal.css */
+@import url('../oscuro/publico/pagos.css');
 
 .pago-page .pago-main {
     display: block;
@@ -71,7 +72,39 @@
     display: grid;
     grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
     gap: 24px;
-    align-items: start;
+    align-items: stretch;
+}
+
+/* La tarjeta de la cita ocupa el mismo alto que la del pago; la nota del correo queda al fondo */
+.pago-grid > .pago-tarjeta:first-child {
+    display: flex;
+    flex-direction: column;
+}
+
+.pago-correo {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    margin: auto 0 0;
+    padding: 14px 16px;
+    color: var(--portal-muted);
+    background: var(--portal-container);
+    border-radius: 14px;
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+.pago-correo .material-symbols-outlined {
+    color: var(--portal-primary-container);
+    font-size: 20px;
+}
+
+.pago-datos {
+    margin-bottom: 20px;
+}
+
+.pago-datos dd {
+    max-width: 65%;
 }
 
 .pago-tarjeta {
@@ -87,7 +120,7 @@
 .pago-tarjeta h2 {
     margin: 0 0 6px;
     color: var(--portal-primary);
-    font-family: 'Newsreader', Georgia, serif;
+    font-family: var(--font-heading);
     font-weight: 500;
     line-height: 1.15;
 }
@@ -245,7 +278,11 @@
     color: #B3261E;
 }
 
-.pago-reloj.is-urgente .pago-reloj-barra span {
+.pago-reloj.is-urgente .pago-reloj-barra::-webkit-progress-value {
+    background: #B3261E;
+}
+
+.pago-reloj.is-urgente .pago-reloj-barra::-moz-progress-bar {
     background: #B3261E;
 }
 
@@ -268,7 +305,7 @@
     border: 1px solid var(--portal-primary);
     border-radius: 12px;
     box-shadow: 0 8px 20px rgba(0, 47, 36, 0.18);
-    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-family: var(--font-body);
     font-size: 16px;
     font-weight: 700;
     letter-spacing: normal;
@@ -349,7 +386,7 @@
     background: none;
     border: 0;
     box-shadow: none;
-    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-family: var(--font-body);
     font-size: 13px;
     font-weight: 500;
     letter-spacing: normal;
@@ -364,8 +401,9 @@
     transform: none;
 }
 
-/* Pasarela simulada */
+/* Pasarela de pruebas (imita el checkout de Wompi) */
 .pasarela {
+    position: relative;
     max-width: 480px;
     margin: 0 auto;
 }
@@ -389,6 +427,8 @@
     justify-content: space-between;
     gap: 12px;
     margin-bottom: 20px;
+    padding-bottom: 18px;
+    border-bottom: 1px solid var(--portal-border);
 }
 
 .pasarela-comercio,
@@ -404,68 +444,403 @@
     font-size: 40px;
 }
 
-.pasarela-medios {
+.pasarela-subtitulo {
+    margin: 0 0 12px;
+    color: var(--portal-on-surface);
+    font-family: var(--font-body);
+    font-size: 15px;
+    font-weight: 700;
+}
+
+.pasarela-lista-medios {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+}
+
+.pago-page .pasarela-medio {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    width: 100%;
+    margin: 0;
+    padding: 14px 16px;
+    color: var(--portal-on-surface);
+    background: var(--portal-surface);
+    border: 1px solid var(--portal-border);
+    border-radius: 14px;
+    box-shadow: none;
+    font-family: var(--font-body);
+    font-size: 14px;
+    letter-spacing: normal;
+    text-align: left;
+    text-transform: none;
+    cursor: pointer;
+    transition: border-color 0.15s, background-color 0.15s;
+}
+
+.pago-page .pasarela-medio:hover,
+.pago-page .pasarela-medio:focus-visible {
+    color: var(--portal-on-surface);
+    background: var(--portal-bg);
+    border-color: var(--portal-primary-container);
+    transform: none;
+}
+
+.pasarela-medio > .material-symbols-outlined:first-child {
+    display: grid;
+    place-items: center;
+    flex: 0 0 auto;
+    width: 40px;
+    height: 40px;
+    color: var(--portal-primary-container);
+    background: var(--portal-container);
+    border-radius: 10px;
+    font-size: 22px;
+}
+
+.pasarela-medio > span:nth-child(2) {
+    flex: 1;
+    min-width: 0;
+}
+
+.pasarela-medio strong,
+.pasarela-medio small {
+    display: block;
+}
+
+.pasarela-medio small {
+    margin-top: 2px;
+    color: var(--portal-muted);
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.pasarela-flecha {
+    color: var(--portal-outline);
+}
+
+.pago-page .pasarela-atras {
+    display: inline-flex;
+    align-items: center;
     gap: 8px;
     margin: 0 0 16px;
-    padding: 0;
+    padding: 4px 0;
+    color: var(--portal-primary);
+    background: none;
     border: 0;
-}
-
-.pasarela-medios legend {
-    margin-bottom: 8px;
-    color: var(--portal-muted);
-    font-size: 13px;
-    font-weight: 600;
-}
-
-.pago-page .pasarela-medios label {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 4px;
-    margin: 0;
-    padding: 12px 6px;
-    color: var(--portal-on-surface);
-    border: 1px solid var(--portal-border);
-    border-radius: 12px;
-    font-size: 13px;
-    font-weight: 600;
+    box-shadow: none;
+    font-family: var(--font-body);
+    font-size: 15px;
+    font-weight: 700;
     letter-spacing: normal;
     text-transform: none;
     cursor: pointer;
 }
 
-.pasarela-medios input {
-    position: absolute;
-    opacity: 0;
+.pago-page .pasarela-atras:hover {
+    color: var(--portal-primary-container);
+    background: none;
+    transform: none;
 }
 
-.pasarela-medios label:has(input:checked) {
-    background: var(--portal-container);
-    border-color: var(--portal-primary-container);
+/* Vista previa de la tarjeta */
+.tarjeta-vista {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    aspect-ratio: 1.586;
+    max-width: 320px;
+    width: 100%;
+    margin: 0 auto 20px;
+    padding: 18px 20px;
+    color: #fff;
+    background: linear-gradient(135deg, #2D3B36, #0D4738);
+    border-radius: 16px;
+    box-shadow: 0 14px 30px rgba(0, 47, 36, 0.25);
+    font-family: var(--font-body);
 }
 
-.pasarela-explica {
+.tarjeta-vista[data-marca="VISA"] { background: linear-gradient(135deg, #1A1F71, #3949AB); }
+.tarjeta-vista[data-marca="MASTERCARD"] { background: linear-gradient(135deg, #3A2A1E, #C2410C); }
+.tarjeta-vista[data-marca="AMEX"] { background: linear-gradient(135deg, #0E5A8A, #2E8BC0); }
+.tarjeta-vista[data-marca="DINERS"] { background: linear-gradient(135deg, #2F3640, #636E72); }
+
+.tarjeta-vista-arriba,
+.tarjeta-vista-abajo {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.tarjeta-chip {
+    width: 38px;
+    height: 28px;
+    background: linear-gradient(135deg, #E9C46A, #B8860B);
+    border-radius: 6px;
+}
+
+.tarjeta-marca {
+    font-size: 16px;
+    font-style: italic;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+}
+
+.tarjeta-numero {
+    font-size: 19px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    white-space: nowrap;
+}
+
+.tarjeta-vista-abajo {
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    opacity: 0.9;
+}
+
+.tarjeta-vista-abajo span:first-child {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* Campos */
+.pasarela-form {
+    display: grid;
+    gap: 12px;
+}
+
+.pasarela-form[hidden] {
+    display: none;
+}
+
+.pago-page .pasarela-campo {
+    display: grid;
+    gap: 6px;
+    min-width: 0;
     margin: 0;
     color: var(--portal-muted);
-    font-size: 14px;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: normal;
+    text-transform: none;
 }
 
-.pasarela-acciones {
+.pago-page .pasarela-campo input,
+.pago-page .pasarela-campo select {
+    width: 100%;
+    margin: 0;
+    padding: 12px 14px;
+    color: var(--portal-on-surface);
+    background-color: var(--portal-surface);
+    border: 1px solid var(--portal-border);
+    border-radius: 10px;
+    font-family: var(--font-body);
+    font-size: 15px;
+    font-weight: 500;
+}
+
+.pago-page .pasarela-campo input:focus,
+.pago-page .pasarela-campo select:focus {
+    border-color: var(--portal-primary-container);
+    outline: 2px solid rgba(13, 71, 56, 0.15);
+}
+
+.pago-page .pasarela-campo input[readonly] {
+    color: var(--portal-muted);
+    background-color: var(--portal-bg);
+}
+
+.pago-page .pasarela .is-invalido {
+    border-color: #B3261E;
+    outline: 2px solid rgba(179, 38, 30, 0.12);
+}
+
+.pasarela-fila {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 10px;
+    align-items: start;
+    gap: 12px;
 }
 
-.pasarela-acciones form {
+.pasarela-fila:has(.is-ancho) {
+    grid-template-columns: 110px minmax(0, 1fr);
+}
+
+.pasarela-nota {
     margin: 0;
+    padding: 12px 14px;
+    color: var(--portal-muted);
+    background: var(--portal-bg);
+    border-radius: 10px;
+    font-size: 13px;
+    line-height: 1.55;
 }
 
-.pago-page .pasarela-acciones .pago-boton {
-    margin-top: 12px;
-    font-size: 15px;
+.pasarela-campo-error {
+    color: #B3261E;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.pasarela-campo-error[hidden] {
+    display: none;
+}
+
+.pago-page .pago-boton:disabled {
+    opacity: 0.7;
+    cursor: progress;
+    transform: none;
+}
+
+.pasarela-error {
+    margin: 14px 0 0;
+    padding: 10px 12px;
+    color: #8C1D18;
+    background: #FBEAE8;
+    border-radius: 10px;
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+.pasarela-error[hidden] {
+    display: none;
+}
+
+.pago-page .pasarela-terminos {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    margin: 18px 0 0;
+    color: var(--portal-muted);
+    font-size: 12px;
+    font-weight: 500;
+    line-height: 1.5;
+    letter-spacing: normal;
+    text-transform: none;
+    cursor: pointer;
+}
+
+.pasarela-terminos input {
+    flex: 0 0 auto;
+    width: 16px;
+    height: 16px;
+    margin: 1px 0 0;
+    accent-color: var(--portal-primary-container);
+}
+
+.pasarela-seguro {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    margin: 12px 0 0;
+    color: var(--portal-outline);
+    font-size: 12px;
+}
+
+.pasarela-seguro .material-symbols-outlined {
+    font-size: 16px;
+}
+
+/* Datos de prueba */
+.pasarela-pruebas {
+    margin-top: 22px;
+    padding: 12px 14px;
+    background: var(--portal-bg);
+    border: 1px dashed var(--portal-border);
+    border-radius: 12px;
+    font-size: 13px;
+}
+
+.pasarela-pruebas summary {
+    color: var(--portal-primary);
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.pasarela-pruebas dl {
+    display: grid;
+    gap: 8px;
+    margin: 12px 0 0;
+}
+
+.pasarela-pruebas dl > div {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 4px 12px;
+}
+
+.pasarela-pruebas dt {
+    color: var(--portal-muted);
+}
+
+.pasarela-pruebas dd {
+    margin: 0;
+    color: var(--portal-on-surface);
+    font-weight: 600;
+    text-align: right;
+}
+
+.pago-page .pasarela-pruebas dd button {
+    margin: 0;
+    padding: 2px 8px;
+    color: var(--portal-primary);
+    background: var(--portal-container);
+    border: 0;
+    border-radius: 6px;
+    box-shadow: none;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    font-weight: 600;
+    white-space: nowrap;
+    letter-spacing: normal;
+    text-transform: none;
+    cursor: pointer;
+}
+
+.pago-page .pasarela-pruebas dd button:hover {
+    color: #fff;
+    background: var(--portal-primary-container);
+    transform: none;
+}
+
+/* Capa mientras "responde el banco" */
+.pasarela-procesando {
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 24px;
+    color: var(--portal-on-surface);
+    background: rgba(255, 255, 255, 0.96);
+    text-align: center;
+}
+
+.pasarela-procesando[hidden] {
+    display: none;
+}
+
+.pasarela-procesando .material-symbols-outlined {
+    color: var(--portal-primary-container);
+    font-size: 44px;
+}
+
+.pasarela-procesando strong {
+    font-size: 17px;
+}
+
+.pasarela-procesando span:last-child {
+    max-width: 280px;
+    color: var(--portal-muted);
+    font-size: 14px;
 }
 
 .pasarela-volver {
@@ -529,7 +904,7 @@
 .resultado-causas h2 {
     margin: 0 0 8px;
     color: var(--portal-primary);
-    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-family: var(--font-body);
     font-size: 14px;
     font-weight: 700;
 }
@@ -631,6 +1006,10 @@
     margin-top: 24px;
 }
 
+.resultado-acciones > :only-child {
+    grid-column: 1 / -1;
+}
+
 .pago-page .resultado-acciones .pago-boton {
     margin-top: 0;
     font-size: 15px;
@@ -640,9 +1019,11 @@
     display: none;
 }
 
-@media (max-width: 860px) {
+@media (max-width: 960px) {
     .pago-grid {
         grid-template-columns: minmax(0, 1fr);
+        max-width: 620px;
+        margin: 0 auto;
     }
 
     .pago-page .pago-main:has(.pago-barra-movil) {
@@ -664,6 +1045,11 @@
         border-top: 1px solid var(--portal-border);
         box-shadow: 0 -8px 24px rgba(0, 47, 36, 0.08);
         backdrop-filter: blur(8px);
+        transition: transform 0.2s ease;
+    }
+
+    .pago-barra-movil.is-oculta {
+        transform: translateY(110%);
     }
 
     .pago-barra-movil span {
@@ -709,18 +1095,30 @@
         font-size: 12px;
     }
 
-    .resultado-acciones,
-    .pasarela-acciones {
+    .resultado-acciones {
         grid-template-columns: minmax(0, 1fr);
     }
 
+    /* Monto y reloj siguen lado a lado; si no caben, el reloj baja */
     .pasarela-cabecera {
-        flex-direction: column;
-        align-items: stretch;
+        flex-wrap: wrap;
+    }
+
+    .pasarela .pasarela-cabecera h1 {
+        font-size: 34px;
     }
 
     .pago-reloj.is-compacto {
         min-width: 0;
+    }
+
+    .pasarela-pruebas dl > div {
+        flex-direction: column;
+        gap: 2px;
+    }
+
+    .pasarela-pruebas dd {
+        text-align: left;
     }
 
     .comprobante {
@@ -735,4 +1133,1011 @@
     .comprobante-fila strong {
         margin-left: auto;
     }
+}
+
+/* Historial de pagos del paciente */
+.historial {
+    max-width: 760px;
+    margin: 0 auto;
+}
+
+.historial-cabecera {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 20px;
+}
+
+.historial-cabecera h1 {
+    margin: 0;
+}
+
+.historial-volver {
+    display: inline-flex;
+    flex: 0 0 auto;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 12px;
+    color: var(--portal-primary);
+    border: 1px solid var(--portal-border);
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 700;
+    text-decoration: none;
+}
+
+.historial-volver:hover {
+    background: var(--portal-bg);
+}
+
+.historial-volver .material-symbols-outlined {
+    font-size: 18px;
+}
+
+.historial-totales {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+.historial-totales > div {
+    display: grid;
+    gap: 4px;
+    padding: 14px 16px;
+    background: var(--portal-bg);
+    border: 1px solid var(--portal-border);
+    border-radius: 14px;
+}
+
+.historial-totales span {
+    color: var(--portal-muted);
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.historial-totales strong {
+    color: var(--portal-primary);
+    font-size: 22px;
+}
+
+.historial-lista {
+    display: grid;
+    gap: 10px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.historial-item {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto auto;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 16px;
+    background: var(--portal-surface);
+    border: 1px solid var(--portal-border);
+    border-radius: 14px;
+}
+
+.historial-icono {
+    display: grid;
+    place-items: center;
+    width: 40px;
+    height: 40px;
+    color: var(--portal-primary-container);
+    background: var(--portal-container);
+    border-radius: 10px;
+}
+
+.historial-detalle {
+    display: grid;
+    gap: 2px;
+    min-width: 0;
+}
+
+.historial-detalle strong {
+    overflow: hidden;
+    color: var(--portal-on-surface);
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.historial-detalle span {
+    color: var(--portal-muted);
+    font-size: 13px;
+}
+
+.historial-detalle small {
+    color: var(--portal-outline);
+    font-size: 12px;
+    overflow-wrap: anywhere;
+}
+
+.historial-monto {
+    display: grid;
+    justify-items: end;
+    gap: 4px;
+}
+
+.historial-monto strong {
+    color: var(--portal-on-surface);
+    font-size: 16px;
+    white-space: nowrap;
+}
+
+.historial-estado {
+    padding: 2px 10px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.is-ok .historial-estado { color: #0D6B3F; background: #E3F4EA; }
+.is-espera .historial-estado { color: #7A4B00; background: #FFF1DC; }
+.is-error .historial-estado { color: #9A3B32; background: #F8E9E6; }
+.is-neutro .historial-estado { color: #404945; background: #ECEFED; }
+.is-error .historial-icono { color: #9A3B32; background: #F8E9E6; }
+.is-espera .historial-icono { color: #855403; background: #FFF1DC; }
+.is-neutro .historial-icono { color: #5F6662; background: #ECEFED; }
+
+.historial-ver {
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+    color: var(--portal-primary);
+    font-size: 13px;
+    font-weight: 700;
+    text-decoration: none;
+    white-space: nowrap;
+}
+
+.historial-ver:hover {
+    text-decoration: underline;
+}
+
+.historial-ver .material-symbols-outlined {
+    font-size: 18px;
+}
+
+.historial-vacio {
+    display: grid;
+    justify-items: center;
+    gap: 8px;
+    padding: 32px 16px;
+    text-align: center;
+}
+
+.historial-vacio > .material-symbols-outlined {
+    color: var(--portal-outline);
+    font-size: 40px;
+}
+
+.historial-vacio p {
+    max-width: 340px;
+    margin: 0;
+    color: var(--portal-muted);
+    font-size: 14px;
+}
+
+.pago-page .historial-vacio .pago-boton {
+    width: auto;
+    margin-top: 8px;
+}
+
+.historial-nota {
+    display: flex;
+    gap: 8px;
+    margin: 18px 0 0;
+    color: var(--portal-muted);
+    font-size: 13px;
+    line-height: 1.55;
+}
+
+.historial-nota .material-symbols-outlined {
+    color: var(--portal-outline);
+    font-size: 18px;
+}
+
+@media (max-width: 560px) {
+    .historial-totales > div {
+        padding: 12px 14px;
+    }
+
+    .historial-totales strong {
+        font-size: 19px;
+    }
+
+    /* En el celular: icono y datos arriba; monto con su estado y el enlace en la fila de abajo */
+    .historial-item {
+        grid-template-columns: auto minmax(0, 1fr) auto;
+        grid-template-areas: "icono detalle detalle" "monto monto ver";
+        row-gap: 10px;
+    }
+
+    .historial-icono { grid-area: icono; }
+    .historial-detalle { grid-area: detalle; }
+    .historial-ver { grid-area: ver; }
+
+    .historial-monto {
+        grid-area: monto;
+        grid-auto-flow: column;
+        justify-content: start;
+        align-items: center;
+        gap: 10px;
+    }
+}
+
+/* Confirmación: el check aparece con un leve rebote */
+.resultado.is-exito .resultado-icono {
+    animation: resultado-aparece 0.45s cubic-bezier(0.2, 0.9, 0.3, 1.3) both;
+}
+
+.resultado.is-exito .resultado-icono .material-symbols-outlined {
+    animation: resultado-aparece 0.35s 0.15s ease-out both;
+}
+
+@keyframes resultado-aparece {
+    from { opacity: 0; transform: scale(0.6); }
+    to { opacity: 1; transform: scale(1); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .resultado.is-exito .resultado-icono,
+    .resultado.is-exito .resultado-icono .material-symbols-outlined {
+        animation: none;
+    }
+}
+
+/* Imprimir o guardar el comprobante en PDF */
+.pago-page .resultado-imprimir {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin: 14px auto 0;
+    padding: 6px 10px;
+    color: var(--portal-muted);
+    background: none;
+    border: 0;
+    border-radius: 8px;
+    box-shadow: none;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: normal;
+    text-transform: none;
+    cursor: pointer;
+}
+
+.pago-page .resultado-imprimir:hover {
+    color: var(--portal-primary);
+    background: var(--portal-bg);
+    transform: none;
+}
+
+.pago-page .resultado-imprimir .material-symbols-outlined {
+    font-size: 18px;
+}
+
+.impreso-cabecera {
+    display: none;
+}
+
+@media print {
+    @page {
+        margin: 16mm;
+    }
+
+    body.pago-page,
+    .pago-page .pago-main {
+        background: #fff !important;
+        background-image: none !important;
+    }
+
+    .pago-page::before,
+    .pago-page::after,
+    .pago-page header,
+    .pago-page .auth-footer,
+    .pago-pasos,
+    .resultado-acciones,
+    .resultado-imprimir,
+    .resultado-politica .material-symbols-outlined,
+    .pago-barra-movil {
+        display: none !important;
+    }
+
+    .pago-page .pago-main {
+        padding: 0 !important;
+    }
+
+    .pago-tarjeta {
+        max-width: none;
+        padding: 0;
+        border: 0;
+        box-shadow: none;
+    }
+
+    .impreso-cabecera {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        margin-bottom: 18px;
+        padding-bottom: 10px;
+        border-bottom: 2px solid #002F24;
+        color: #404945;
+        font-size: 12px;
+        text-align: left;
+    }
+
+    .impreso-cabecera strong {
+        color: #002F24;
+        font-family: 'Newsreader', Georgia, serif;
+        font-size: 22px;
+    }
+
+    .resultado.is-exito .resultado-icono,
+    .resultado.is-exito .resultado-icono .material-symbols-outlined {
+        animation: none;
+    }
+
+    .comprobante {
+        break-inside: avoid;
+        background: #fff;
+        border: 1px solid #C0C9C3;
+    }
+}
+
+/* Mis pagos: filtros y meses */
+.historial-filtros {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 14px;
+}
+
+.pago-page .historial-filtros button {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    width: auto;
+    margin: 0;
+    padding: 7px 14px;
+    color: var(--portal-muted);
+    background: var(--portal-surface);
+    border: 1px solid var(--portal-border);
+    border-radius: 999px;
+    box-shadow: none;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: normal;
+    text-transform: none;
+    cursor: pointer;
+    transition: background-color 0.15s, color 0.15s, border-color 0.15s;
+}
+
+.pago-page .historial-filtros button span {
+    min-width: 20px;
+    padding: 0 6px;
+    color: var(--portal-primary);
+    background: var(--portal-container);
+    border-radius: 999px;
+    font-size: 11px;
+    text-align: center;
+}
+
+.pago-page .historial-filtros button:hover:not(:disabled) {
+    color: var(--portal-primary);
+    background: var(--portal-bg);
+    border-color: var(--portal-primary-container);
+    transform: none;
+}
+
+.pago-page .historial-filtros button.is-activo {
+    color: #fff;
+    background: var(--portal-primary-container);
+    border-color: var(--portal-primary-container);
+}
+
+.pago-page .historial-filtros button.is-activo span {
+    color: var(--portal-primary);
+    background: #fff;
+}
+
+.pago-page .historial-filtros button:disabled {
+    opacity: 0.5;
+    cursor: default;
+}
+
+.historial-mes {
+    margin: 8px 0 -2px;
+    color: var(--portal-outline);
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+}
+
+.historial-mes:first-child {
+    margin-top: 0;
+}
+
+.historial-mes[hidden],
+.historial-item[hidden] {
+    display: none;
+}
+
+.historial-sin-resultados {
+    margin: 8px 0 0;
+    padding: 24px;
+    color: var(--portal-muted);
+    background: var(--portal-bg);
+    border-radius: 14px;
+    font-size: 14px;
+    text-align: center;
+}
+
+/* Resumen: parte que se paga ahora y parte en el consultorio */
+.pago-reparto {
+    margin: -4px 0 18px;
+}
+
+.pago-reparto-barra {
+    height: 8px;
+    overflow: hidden;
+    background: var(--portal-container);
+    border-radius: 999px;
+}
+
+.pago-reparto-barra span {
+    display: block;
+    height: 100%;
+    background: var(--portal-primary-container);
+    border-radius: 999px;
+}
+
+.pago-reparto p {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    margin: 8px 0 0;
+    color: var(--portal-muted);
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.pago-reparto p > span {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.pago-reparto i {
+    width: 8px;
+    height: 8px;
+    background: var(--portal-container);
+    border: 1px solid var(--portal-border);
+    border-radius: 50%;
+}
+
+.pago-reparto i.is-ahora {
+    background: var(--portal-primary-container);
+    border-color: var(--portal-primary-container);
+}
+
+/* Pasarela: marcas aceptadas y marca detectada en el número */
+.pasarela-medio small.pasarela-marcas {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    margin-top: 6px;
+}
+
+.marca-chip {
+    display: inline-block;
+    padding: 2px 6px;
+    color: #fff;
+    background: var(--portal-outline);
+    border-radius: 4px;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.02em;
+    line-height: 1.4;
+}
+
+.marca-chip.is-visa { background: #1A1F71; }
+.marca-chip.is-mastercard { background: #C2410C; }
+.marca-chip.is-amex { background: #0E5A8A; }
+.marca-chip.is-diners { background: #2F3640; }
+
+.pasarela-numero {
+    position: relative;
+    display: block;
+}
+
+.pago-page .pasarela-numero input {
+    padding-right: 96px;
+}
+
+.pasarela-numero .marca-chip {
+    position: absolute;
+    top: 50%;
+    right: 12px;
+    transform: translateY(-50%);
+    pointer-events: none;
+}
+
+.pasarela-numero .marca-chip[hidden] {
+    display: none;
+}
+
+/* Cambio suave entre "medio de pago" y "datos" */
+.pasarela-paso:not([hidden]) {
+    animation: pasarela-entra 0.22s ease-out;
+}
+
+@keyframes pasarela-entra {
+    from { opacity: 0; transform: translateX(10px); }
+    to { opacity: 1; transform: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .pasarela-paso:not([hidden]) { animation: none; }
+}
+
+/* Foco visible y uniforme al navegar con teclado */
+.pago-page a:focus-visible,
+.pago-page button:focus-visible,
+.pago-page summary:focus-visible,
+.pago-page input[type="checkbox"]:focus-visible {
+    outline: 3px solid rgba(13, 71, 56, 0.35);
+    outline-offset: 2px;
+}
+
+/* Comprobante: datos de la transacción */
+.recibo-transaccion {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 10px 16px;
+    margin: 14px 0 0;
+    padding: 0 4px;
+    text-align: left;
+}
+
+.recibo-transaccion div {
+    min-width: 0;
+}
+
+.recibo-transaccion dt {
+    color: var(--portal-outline);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+}
+
+.recibo-transaccion dd {
+    margin: 2px 0 0;
+    color: var(--portal-on-surface);
+    font-size: 13px;
+    font-variant-numeric: tabular-nums;
+    overflow-wrap: anywhere;
+}
+
+/* Pasarela: verificación del banco o de la app antes de procesar */
+body.sin-scroll {
+    overflow: hidden;
+}
+
+.verificacion {
+    position: fixed;
+    inset: 0;
+    z-index: 1001;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+    overflow-y: auto;
+    background: rgba(0, 47, 36, 0.62);
+}
+
+.verificacion[hidden],
+.verificacion-caja[hidden] {
+    display: none;
+}
+
+.verificacion-caja {
+    width: 100%;
+    max-width: 380px;
+    margin: auto;
+    padding: 22px;
+    color: var(--portal-on-surface);
+    background: var(--portal-surface);
+    border-radius: 18px;
+    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.25);
+    animation: pasarela-entra 0.22s ease-out;
+}
+
+.verificacion-cabecera {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: -22px -22px 18px;
+    padding: 12px 22px;
+    color: var(--portal-muted);
+    background: var(--portal-bg);
+    border-bottom: 1px solid var(--portal-border);
+    border-radius: 18px 18px 0 0;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.verificacion-cabecera small {
+    margin-left: auto;
+    font-weight: 500;
+}
+
+.verificacion-caja.is-banco .verificacion-cabecera {
+    color: #fff;
+    background: #24364D;
+    border-bottom: 0;
+}
+
+.verificacion-caja.is-banco .verificacion-cabecera small {
+    color: rgba(255, 255, 255, 0.75);
+}
+
+.pago-page .verificacion-caja h2 {
+    margin: 0 0 6px;
+    font-family: 'Newsreader', serif;
+    font-size: 24px;
+    font-weight: 500;
+}
+
+.verificacion-caja > p {
+    margin: 0 0 14px;
+    color: var(--portal-muted);
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+.verificacion-resumen {
+    margin: 0 0 16px;
+    padding: 4px 14px;
+    background: var(--portal-bg);
+    border-radius: 12px;
+}
+
+.verificacion-resumen div {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 8px 0;
+    font-size: 13px;
+}
+
+.verificacion-resumen div + div {
+    border-top: 1px solid var(--portal-border);
+}
+
+.verificacion-resumen dt {
+    color: var(--portal-muted);
+}
+
+.verificacion-resumen dd {
+    margin: 0;
+    font-weight: 700;
+    text-align: right;
+}
+
+.pago-page .verificacion-caja [data-ver-codigo] {
+    font-size: 22px;
+    letter-spacing: 0.35em;
+    text-align: center;
+}
+
+.verificacion-cuentas {
+    margin: 0 0 16px;
+    padding: 0;
+    border: 0;
+}
+
+.verificacion-cuentas legend {
+    margin-bottom: 8px;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.verificacion-cuentas label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    border: 1px solid var(--portal-border);
+    border-radius: 10px;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.verificacion-cuentas label + label {
+    margin-top: 8px;
+}
+
+.verificacion-cuentas label:has(input:checked) {
+    background: var(--portal-bg);
+    border-color: var(--portal-primary-container);
+}
+
+.verificacion-cuentas input {
+    width: auto;
+    margin: 0;
+    accent-color: var(--portal-primary-container);
+}
+
+.verificacion-cuentas small {
+    color: var(--portal-muted);
+}
+
+.pago-page .verificacion-cancelar {
+    display: block;
+    width: 100%;
+    margin: 10px 0 0;
+    padding: 8px;
+    color: var(--portal-muted);
+    background: none;
+    border: 0;
+    box-shadow: none;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: normal;
+    text-transform: none;
+    cursor: pointer;
+}
+
+.pago-page .verificacion-cancelar:hover {
+    color: var(--portal-on-surface);
+    background: none;
+    transform: none;
+}
+
+/* Nequi: el celular con la notificación */
+.verificacion-caja.is-celular {
+    max-width: 320px;
+    background: transparent;
+    box-shadow: none;
+    padding: 0;
+    text-align: center;
+}
+
+.celular {
+    padding: 16px 12px 120px;
+    background: linear-gradient(160deg, #2B1A4A, #1A1030);
+    border: 6px solid #111;
+    border-radius: 36px;
+    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.35);
+}
+
+.celular-hora {
+    margin: 14px 0 22px;
+    color: #fff;
+    font-size: 44px;
+    font-weight: 300;
+}
+
+.celular-noti {
+    padding: 14px;
+    color: #171B19;
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 18px;
+    text-align: left;
+    animation: celular-noti-baja 0.35s ease-out;
+}
+
+@keyframes celular-noti-baja {
+    from { opacity: 0; transform: translateY(-14px); }
+    to { opacity: 1; transform: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .verificacion-caja,
+    .celular-noti { animation: none; }
+}
+
+.celular-noti-app {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 6px;
+    color: #5F6662;
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.celular-logo {
+    display: inline-grid;
+    place-items: center;
+    width: 18px;
+    height: 18px;
+    color: #fff;
+    background: #2B1A4A;
+    border-radius: 5px;
+    font-size: 11px;
+    font-weight: 800;
+}
+
+.celular-noti strong {
+    display: block;
+    font-size: 14px;
+}
+
+.celular-noti > span {
+    display: block;
+    margin-top: 2px;
+    color: #3F4643;
+    font-size: 13px;
+    line-height: 1.4;
+}
+
+.celular-acciones {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-top: 12px;
+}
+
+.pago-page .celular-acciones button {
+    margin: 0;
+    padding: 9px;
+    color: #2B1A4A;
+    background: #EEE9F5;
+    border: 0;
+    border-radius: 10px;
+    box-shadow: none;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: normal;
+    text-transform: none;
+    cursor: pointer;
+}
+
+.pago-page .celular-acciones button.is-aceptar {
+    color: #fff;
+    background: #DA0081;
+}
+
+.pago-page .celular-acciones button:hover {
+    transform: none;
+    filter: brightness(0.95);
+}
+
+.verificacion-caja > .celular-espera {
+    display: inline-block;
+    margin: 14px 0 0;
+    padding: 6px 14px;
+    color: #fff;
+    background: rgba(0, 0, 0, 0.6);
+    border-radius: 999px;
+    font-size: 13px;
+}
+
+.pago-page .verificacion-caja.is-celular .verificacion-cancelar {
+    width: fit-content;
+    margin: 10px auto 0;
+    padding: 6px 14px;
+    color: #fff;
+    background: rgba(0, 0, 0, 0.6);
+    border-radius: 999px;
+}
+
+.pago-page .verificacion-caja.is-celular .verificacion-cancelar:hover {
+    color: #fff;
+    background: rgba(0, 0, 0, 0.75);
+}
+
+/* Pasarela: SMS del banco con el código (simulado) */
+.pago-page .sms-banco {
+    position: fixed;
+    top: 16px;
+    left: 50%;
+    z-index: 1002;
+    display: grid;
+    gap: 2px;
+    width: min(360px, calc(100% - 32px));
+    margin: 0;
+    padding: 12px 14px;
+    color: #171B19;
+    background: rgba(255, 255, 255, 0.97);
+    border: 0;
+    border-radius: 16px;
+    box-shadow: 0 16px 40px -12px rgba(0, 0, 0, 0.45);
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: normal;
+    line-height: 1.4;
+    text-align: left;
+    text-transform: none;
+    cursor: pointer;
+    transform: translateX(-50%);
+    animation: sms-baja 0.3s ease-out;
+}
+
+.pago-page .sms-banco:hover {
+    background: #FFFFFF;
+    transform: translateX(-50%);
+}
+
+.sms-banco[hidden] {
+    display: none;
+}
+
+@keyframes sms-baja {
+    from { opacity: 0; transform: translate(-50%, -12px); }
+    to { opacity: 1; transform: translate(-50%, 0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .pago-page .sms-banco { animation: none; }
+}
+
+.sms-banco-app {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: #5F6662;
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.sms-banco-app .material-symbols-outlined {
+    padding: 2px;
+    color: #FFFFFF;
+    background: #34A853;
+    border-radius: 5px;
+    font-size: 13px;
+}
+
+.sms-banco b {
+    letter-spacing: 0.08em;
+}
+
+.sms-banco small {
+    color: #0D4738;
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.pago-page .verificacion-reenviar {
+    display: block;
+    margin: -4px 0 12px;
+    padding: 0;
+    color: var(--portal-primary-container);
+    background: none;
+    border: 0;
+    box-shadow: none;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: normal;
+    text-transform: none;
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+.pago-page .verificacion-reenviar:hover {
+    background: none;
+    transform: none;
+}
+
+/* Portal de Bancolombia (simulado) */
+.verificacion-caja.is-bancolombia .verificacion-cabecera {
+    background: #2C2A29;
+}
+
+.verificacion-caja.is-bancolombia .verificacion-cabecera .material-symbols-outlined {
+    color: #FDDA24;
 }

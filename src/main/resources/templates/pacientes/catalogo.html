@@ -2,39 +2,17 @@
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BeSalud · Portal del Paciente</title>
     <link rel="stylesheet" th:href="@{/css/base/global.css}">
     <link rel="stylesheet" th:href="@{/css/pacientes/catalogo.css}">
     <link rel="stylesheet" th:href="@{/css/base/asistente.css}">
     <link rel="stylesheet" th:href="@{/vendor/fontawesome/css/all.min.css}"/>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400&amp;family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+    <th:block th:replace="~{fragments/layout :: design-system}"></th:block>
+    <link rel="stylesheet" th:href="@{/css/base/tema-oscuro.css}">
+    <script th:src="@{/js/tema.js}"></script>
 </head>
 <body class="patient-catalog-page">
-<header class="patient-portal-header">
-    <div class="patient-header-inner">
-        <a class="patient-brand" th:href="@{/pacientes/landing}" title="Inicio BeSalud">
-            <span class="patient-brand-mark" aria-hidden="true"><i class="fa-solid fa-plus"></i></span>
-            <span class="patient-brand-copy">
-                <strong>BeSalud</strong>
-                <small>Encuentra tu doctor ideal</small>
-            </span>
-        </a>
-        <nav class="patient-nav" aria-label="Navegación del paciente">
-            <a class="is-active" th:href="@{/pacientes/landing}" aria-current="page"><i class="fa-solid fa-user-doctor" aria-hidden="true"></i>Doctores</a>
-            <a th:href="@{/triage}"><i class="fa-solid fa-stethoscope" aria-hidden="true"></i>Asistente</a>
-        </nav>
-        <div class="patient-account">
-            <img th:src="@{/images/default-avatar.jpg}" alt="" class="patient-avatar">
-            <span class="patient-account-copy"><strong th:text="${pacienteNombre}">Paciente</strong><small>Paciente</small></span>
-            <form th:action="@{/logout}" method="post" class="patient-logout-form">
-                <button type="submit" class="patient-logout"><span>Cerrar sesión</span><i class="fa-solid fa-arrow-right-from-bracket" aria-hidden="true"></i></button>
-            </form>
-        </div>
-    </div>
-</header>
+<header th:replace="~{fragments/navbar :: navbar}"></header>
 
 <main class="patient-main">
     <div class="page-layout" id="pageLayout">
@@ -60,6 +38,33 @@
             </div>
             <a th:href="@{/pagos/{ref}(ref=${r.referencia})}">Completar pago</a>
         </div>
+        <div th:each="c : ${citasPorConfirmar}" class="confirmar-asistencia" role="status">
+            <i class="fa-regular fa-calendar-check" aria-hidden="true"></i>
+            <div>
+                <strong>¿Vas a ir a tu cita?</strong>
+                <span th:text="${(doctoresMap != null and doctoresMap[c.doctorId] != null ? doctoresMap[c.doctorId] + ' · ' : '')
+                        + #strings.capitalize(#temporals.format(c.fecha, 'EEEE d ''de'' MMMM', T(java.util.Locale).forLanguageTag('es-CO'))) + ', ' + #temporals.format(c.hora, 'h:mm a', T(java.util.Locale).forLanguageTag('es-CO'))}">Detalle</span>
+                <small th:if="${c.abonoCentavos != null}">Si no puedes ir, avísanos con tiempo y te devolvemos el abono.</small>
+            </div>
+            <div class="confirmar-asistencia-botones">
+                <form th:action="@{/citas/{id}/asistencia(id=${c.id})}" method="post">
+                    <input type="hidden" name="asistira" value="true">
+                    <button type="submit" class="confirmar-si">Sí, asistiré</button>
+                </form>
+                <form th:action="@{/citas/{id}/asistencia(id=${c.id})}" method="post"
+                      onsubmit="return confirm('Vamos a cancelar esta cita. ¿Continuar?');">
+                    <input type="hidden" name="asistira" value="false">
+                    <button type="submit" class="confirmar-no">No podré ir</button>
+                </form>
+            </div>
+        </div>
+        <div th:if="${param.success != null and param.success[0] == 'asistencia_confirmada'}" class="alert alert-success" role="status">
+            ¡Listo! Le avisamos a tu médico que asistirás.
+            <a th:if="${param.cita != null}" th:href="@{/citas/{id}/google-calendar(id=${param.cita[0]})}" target="_blank" rel="noopener">Agregar a Google Calendar</a>
+        </div>
+        <div th:if="${param.success != null and param.success[0] == 'cita_cancelada_devolucion'}" class="alert alert-success" role="status">
+            Cancelamos tu cita. Como avisaste a tiempo, te devolveremos el abono.
+        </div>
         <div th:if="${param.success != null and param.success[0] == 'pago_pendiente'}" class="alert alert-success" role="status">
             Tu pago está en proceso. Apenas la pasarela lo apruebe, la cita aparecerá en tu lista.
         </div>
@@ -69,7 +74,7 @@
             <span th:case="'doctor_requerido'">Selecciona un doctor para agendar.</span>
             <span th:case="'paciente_no_encontrado'">No encontramos tu perfil de paciente.</span>
             <span th:case="'no_autorizado'">No tienes permiso para realizar esa acción.</span>
-            <span th:case="'sin_reservas_en_linea'">Ese profesional aún no recibe reservas en línea. Elige otro de la lista.</span>
+            <span th:case="'pagos_no_disponibles'">Las reservas en línea están pausadas por un momento. Intenta más tarde.</span>
             <span th:case="'pago_rechazado'">El pago del abono no fue aprobado. Puedes intentarlo de nuevo.</span>
             <span th:case="'pago_conflicto'">Recibimos tu pago, pero no pudimos confirmar la cita (el horario ya no estaba disponible o el monto no coincide). Tu abono queda para devolución; escríbenos desde el Centro de Ayuda.</span>
             <span th:case="'pago_sin_confirmar'">No pudimos confirmar el pago. Si se te cobró, la cita aparecerá en unos minutos; si no, intenta de nuevo.</span>
@@ -137,7 +142,7 @@
                             <div class="doctor-photo">
                                 <img th:src="${doctor.foto != null ? doctor.foto : '/images/default-avatar.jpg'}"
                                      th:alt="${'Foto de ' + doctor.nombre + ' ' + doctor.apellido}"
-                                     onerror="this.src='/images/default-avatar.jpg'">
+                                     onerror="this.hidden=true">
                             </div>
                             <div class="doctor-card-identity">
                                 <span class="doctor-active-badge"><span aria-hidden="true"></span>Activo</span>
@@ -149,8 +154,7 @@
                         <div class="doctor-card-footer">
                             <a th:if="${doctor.slug != null}" th:href="@{/p/{slug}(slug=${doctor.slug})}" class="doctor-profile-link"><i class="fa-solid fa-shield-heart" aria-hidden="true"></i>Ver perfil</a>
                             <span th:if="${doctor.slug == null}"><i class="fa-solid fa-shield-heart" aria-hidden="true"></i>Perfil profesional</span>
-                            <a th:if="${doctor.recibeReservas()}" th:href="@{/citas/nueva(doctorId=${doctor.id})}" class="doctor-book-link">Agendar cita<i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a>
-                            <span th:unless="${doctor.recibeReservas()}" class="doctor-sin-reservas">Sin reservas en línea</span>
+                            <a th:href="@{/citas/nueva(doctorId=${doctor.id})}" class="doctor-book-link">Agendar cita<i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a>
                         </div>
                     </article>
                 </div>
@@ -195,6 +199,9 @@
                         <div class="cita-item-bottom">
                             <span class="cita-meta"><i class="fa-regular fa-calendar"></i> <span th:text="${#temporals.format(cita.fecha, 'dd/MM/yyyy')}"></span></span>
                             <span class="cita-meta"><i class="fa-regular fa-clock"></i> <span th:text="${#temporals.format(cita.hora, 'HH:mm')}"></span></span>
+                        </div>
+                        <div class="cita-asistencia" th:if="${cita.estado.name() == 'PENDIENTE' and cita.asistenciaConfirmada != null and cita.asistenciaConfirmada}">
+                            <i class="fa-solid fa-check" aria-hidden="true"></i> Confirmaste tu asistencia
                         </div>
                         <div class="cita-abono" th:if="${cita.abonoPesos != null}">
                             <span th:text="${'Abono $' + #numbers.formatInteger(cita.abonoPesos, 1, 'POINT')}">Abono $20.000</span>

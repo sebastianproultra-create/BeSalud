@@ -1,0 +1,61 @@
+/* Generado por scripts/generar_tema_oscuro.py a partir de admin/dashboard.css. No editar a mano:
+   los ajustes van en base/tema-oscuro.css o en el generador. */
+
+html[data-tema="oscuro"] .stat-card {
+    background-color: var(--white--f);
+    background-image: none;
+    border: 1px solid var(--border-color--b);
+    border-top: 3px solid var(--accent-color--b);
+    box-shadow: var(--shadow-sm--s);
+}
+
+html[data-tema="oscuro"] .stat-card h2 {
+    color: var(--text-light--t);
+}
+
+html[data-tema="oscuro"] .stat-number {
+    color: var(--primary-color--t);
+}
+
+html[data-tema="oscuro"] .status-badge {
+    border: 1px solid transparent;
+}
+
+html[data-tema="oscuro"] .status-activo {
+    background-color: rgba(151, 216, 199, 0.13);
+    color: var(--primary-color--t);
+    border-color: rgba(159, 209, 196, 0.36);
+}
+
+html[data-tema="oscuro"] .status-inactivo {
+    background-color: rgba(216, 151, 151, 0.104);
+    color: #E6A0A0;
+    border-color: rgba(209, 159, 159, 0.36);
+}
+
+html[data-tema="oscuro"] .mensajes-contador {
+    background-color: var(--primary-color--f);
+    background-image: none;
+    color: var(--white--t);
+}
+
+html[data-tema="oscuro"] .mensaje-ayuda {
+    border-top: 1px solid var(--border-color--b);
+}
+
+html[data-tema="oscuro"] .mensaje-ayuda:first-child {
+    border-top: none;
+}
+
+html[data-tema="oscuro"] .mensaje-ayuda-cabecera a {
+    color: var(--primary-color--t);
+}
+
+html[data-tema="oscuro"] .mensaje-ayuda-tema {
+    background-color: var(--light-bg--f);
+    background-image: none;
+}
+
+html[data-tema="oscuro"] .mensaje-ayuda-cabecera time {
+    color: var(--text-light--t);
+}

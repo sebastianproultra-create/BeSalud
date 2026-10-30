@@ -2,17 +2,16 @@
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BeSalud · Asistente de Síntomas</title>
     <link rel="stylesheet" th:href="@{/css/base/global.css}">
     <link rel="stylesheet" th:href="@{/css/triage/triage.css}">
     <link rel="stylesheet" th:href="@{/vendor/fontawesome/css/all.min.css}"/>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400&amp;family=Plus+Jakarta+Sans:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet">
+    <th:block th:replace="~{fragments/layout :: design-system}"></th:block>
+    <link rel="stylesheet" th:href="@{/css/base/tema-oscuro.css}">
+    <script th:src="@{/js/tema.js}"></script>
 </head>
 <body class="triage-page">
-<header th:replace="~{fragments/layout :: shell-paciente('triage')}"></header>
+<header th:replace="~{fragments/navbar :: navbar}"></header>
 
 <main class="triage-main">
     <section class="page-header triage-hero">
@@ -45,7 +44,7 @@
             <div class="triage-actions">
                 <div class="triage-counter-group">
                     <span class="triage-contador"><span id="contador">0</span>/1000 caracteres</span>
-                    <span class="triage-progress" aria-hidden="true"><span id="progresoSintomas"></span></span>
+                    <progress class="triage-progress" id="progresoSintomas" value="0" max="100" aria-label="Texto ingresado"></progress>
                 </div>
                 <button type="submit" class="btn btn-primary triage-submit" id="btnEvaluar">
                     <i class="fa-solid fa-wand-magic-sparkles" aria-hidden="true"></i> <span id="textoBoton">Orientarme</span>
@@ -59,10 +58,10 @@
         </div>
         <p class="triage-aviso" id="textoAyuda">
             <i class="fa-solid fa-circle-info" aria-hidden="true"></i>
-            Esta orientación es automática y <strong>no reemplaza una consulta médica</strong>.
+            <span>Esta orientación es automática y <strong>no reemplaza una consulta médica</strong>.
             Si es una emergencia, llama al <strong>123</strong> o acude a urgencias.
             Al pulsar Orientarme, el texto se envía a Google Gemini para analizarlo
-            (<a th:href="@{/privacidad}">más información</a>); no incluyas nombres ni datos de identificación.
+            (<a th:href="@{/privacidad}">más información</a>); no incluyas nombres ni datos de identificación.</span>
         </p>
     </section>
 
@@ -154,7 +153,7 @@
     const limpiar = document.getElementById('limpiarSintomas');
     const actualizar = () => {
         contador.textContent = area.value.length;
-        progreso.style.width = `${Math.min(area.value.length / 1000 * 100, 100)}%`;
+        progreso.value = Math.min(area.value.length / 1000 * 100, 100);
         limpiar.hidden = area.value.length === 0;
     };
 

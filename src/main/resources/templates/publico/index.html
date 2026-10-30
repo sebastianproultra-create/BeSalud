@@ -2,40 +2,21 @@
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>BeSalud — Plataforma Médica Digital</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;1,6..72,400;1,6..72,500&amp;family=Plus+Jakarta+Sans:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet">
-    <link rel="stylesheet" th:href="@{/css/base/scrollbar.css}" href="/css/base/scrollbar.css" />
-    <link rel="stylesheet" th:href="@{/css/publico/index.css}" href="/css/publico/index.css" />
-    <link rel="stylesheet" th:href="@{/css/publico/chatbot-landing.css}" href="/css/publico/chatbot-landing.css" />
+    <link rel="stylesheet" th:href="@{/css/base/scrollbar.css}"  />
+    <link rel="stylesheet" th:href="@{/css/publico/index.css}"  />
+    <link rel="stylesheet" th:href="@{/css/publico/chatbot-landing.css}" />
+    <th:block th:replace="~{fragments/layout :: design-system}"></th:block>
+    <link rel="stylesheet" th:href="@{/css/base/tema-oscuro.css}">
+    <script th:src="@{/js/tema.js}"></script>
 </head>
 <body>
 
-<header class="site-header">
-    <nav class="navbar" aria-label="Navegación principal">
-        <div class="nav-brand">
-            <a th:href="@{/}" href="#">
-                <span class="brand-icon" aria-hidden="true">+</span>
-                BeSalud
-            </a>
-        </div>
-        <ul class="nav-links">
-            <li><a th:href="@{/#about}" href="#about">Sobre</a></li>
-            <li><a th:href="@{/#team}" href="#team">Equipo</a></li>
-            <li><a th:href="@{/#contact}" href="#contact">Contacto</a></li>
-            <li><a class="btn btn-secondary" th:href="@{/login}" href="#">Iniciar Sesión</a></li>
-        </ul>
-        <button class="nav-toggle" type="button" aria-label="Menú" aria-expanded="false">
-            <span></span><span></span><span></span>
-        </button>
-    </nav>
-</header>
+<header th:replace="~{fragments/navbar :: navbar}"></header>
 
 <main>
     <section class="hero" aria-labelledby="hero-title">
-        <img class="hero-image" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAtRn_H2ZkrJdNtu8ZTGt51PRojaeysO-CcYmnVVh7Li6tw5UbIhjdNlUndFmFLFhxWo9JCDftFTKqTgc4kD8e9P0IeJGM4vmJK2shm8i8_wFeSsJ_6TBdp3QxQ30dCn_nohTXZGNTnI90pHf9HgBSjfRzYUtfJcuah4lHIs72Cr2aThMvDzItfS4mTAJMJhOaiMfljOqKUKkHYZ4AzeNcdOFSWxo9YOUHI2POa4LBDow-mcfO966LW" alt="Médicos colaborando en una clínica" fetchpriority="high" />
+        <img class="hero-image" th:src="@{https://lh3.googleusercontent.com/aida-public/AB6AXuAtRn_H2ZkrJdNtu8ZTGt51PRojaeysO-CcYmnVVh7Li6tw5UbIhjdNlUndFmFLFhxWo9JCDftFTKqTgc4kD8e9P0IeJGM4vmJK2shm8i8_wFeSsJ_6TBdp3QxQ30dCn_nohTXZGNTnI90pHf9HgBSjfRzYUtfJcuah4lHIs72Cr2aThMvDzItfS4mTAJMJhOaiMfljOqKUKkHYZ4AzeNcdOFSWxo9YOUHI2POa4LBDow-mcfO966LW}" alt="Médicos colaborando en una clínica" fetchpriority="high" />
         <div class="hero-overlay"></div>
 
         <div class="hero-content">
@@ -43,7 +24,7 @@
             <h1 id="hero-title">BeSalud</h1>
             <p>Gestión inteligente de citas médicas para pacientes y doctores.</p>
             <div class="hero-actions">
-                <a class="btn btn-primary" th:href="@{/login}" href="#" id="irLogin">Ir a Login</a>
+                <a class="btn btn-primary" th:href="@{/login}"  id="irLogin">Ir a Login</a>
                 <a class="btn btn-ghost" th:href="@{/#about}" href="#about">Conoce Más</a>
             </div>
         </div>
@@ -66,7 +47,7 @@
             </div>
         </div>
         <div class="section-image">
-            <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuBfDRPwcNxUzV8jpZnD6qyRV3zwhXN4Cei3ItRME8iDL8E5wTOR34sch_HZfl_zbEk0eMLm4A0IZUU9-SXIsaJS6gr2X0zkQkHkTs_sP0TBHknnA3Qp6zMrsLpCwinZ-YxVJbf34E-3IcY0PC0nyWp9I_g-ewI0W8eqeSKRIe-MmhgFWu6Az72NTrTe9XYEs-KAsqlQj83JvLjW_kJKXt1cfkvnJDBcycvO8uSEfhjIDpfgT5x5z7s_" alt="Doctor especialista BeSalud" loading="lazy" />
+            <img th:src="@{https://lh3.googleusercontent.com/aida-public/AB6AXuBfDRPwcNxUzV8jpZnD6qyRV3zwhXN4Cei3ItRME8iDL8E5wTOR34sch_HZfl_zbEk0eMLm4A0IZUU9-SXIsaJS6gr2X0zkQkHkTs_sP0TBHknnA3Qp6zMrsLpCwinZ-YxVJbf34E-3IcY0PC0nyWp9I_g-ewI0W8eqeSKRIe-MmhgFWu6Az72NTrTe9XYEs-KAsqlQj83JvLjW_kJKXt1cfkvnJDBcycvO8uSEfhjIDpfgT5x5z7s_}" alt="Doctor especialista BeSalud" loading="lazy" />
         </div>
     </section>
 
@@ -102,21 +83,21 @@
                 <span class="contact-icon"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg></span>
                 <div>
                     <span class="contact-type">Centro de ayuda</span>
-                    <a th:href="@{/ayuda}" href="/ayuda">Preguntas frecuentes</a>
+                    <a th:href="@{/ayuda}">Preguntas frecuentes</a>
                 </div>
             </div>
             <div class="contact-item">
                 <span class="contact-icon"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/></svg></span>
                 <div>
                     <span class="contact-type">Escríbenos</span>
-                    <a th:href="@{/ayuda} + '#contacto'" href="/ayuda#contacto">Formulario de contacto</a>
+                    <a th:href="@{/ayuda} + '#contacto'">Formulario de contacto</a>
                 </div>
             </div>
             <div class="contact-item">
                 <span class="contact-icon"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg></span>
                 <div>
                     <span class="contact-type">Tus datos</span>
-                    <a th:href="@{/privacidad}" href="/privacidad">Política de privacidad</a>
+                    <a th:href="@{/privacidad}">Política de privacidad</a>
                 </div>
             </div>
         </div>
@@ -124,14 +105,7 @@
 
 </main>
 
-<footer>
-    <div class="footer-inner">
-        <div class="footer-brand">
-            <span class="brand-icon" aria-hidden="true">+</span> BeSalud
-        </div>
-        <p class="footer-copy">&copy; 2026 BeSalud. Todos los derechos reservados. · <a th:href="@{/privacidad}">Política de privacidad</a></p>
-    </div>
-</footer>
+<footer th:replace="~{fragments/layout :: app-footer}"></footer>
 
 <button type="button" class="cb-lanzador" data-chatbot-abrir aria-controls="cb-panel" aria-expanded="false">
     <span class="cb-lanzador-punto" aria-hidden="true"></span> ¿Le ayudo?
@@ -153,22 +127,5 @@
     </form>
 </section>
 <script th:src="@{/js/chatbot-landing.js}" src="/js/chatbot-landing.js" defer></script>
-
-<script>
-(function () {
-    const nav = document.querySelector('.navbar');
-    const toggle = nav.querySelector('.nav-toggle');
-    toggle.addEventListener('click', function () {
-        const open = nav.classList.toggle('open');
-        toggle.setAttribute('aria-expanded', open);
-    });
-    nav.querySelectorAll('.nav-links a').forEach(function (a) {
-        a.addEventListener('click', function () {
-            nav.classList.remove('open');
-            toggle.setAttribute('aria-expanded', 'false');
-        });
-    });
-})();
-</script>
 </body>
 </html>

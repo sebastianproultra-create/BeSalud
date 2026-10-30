@@ -1,5 +1,6 @@
 /* Barra de desplazamiento única para toda la app (admin, médico, paciente y portada).
    Cualquier zona con scroll —la página, paneles laterales, listas y desplegables— usa esta misma barra. */
+@import url('../oscuro/base/scrollbar.css');
 ::-webkit-scrollbar {
     width: 10px;
     height: 10px;

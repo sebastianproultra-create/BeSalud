@@ -3,18 +3,16 @@
       th:with="loc=${T(java.util.Locale).forLanguageTag('es-CO')}">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Confirma tu cita · BeSalud</title>
     <link rel="stylesheet" th:href="@{/css/base/global.css}">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400&amp;family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@100..700&amp;display=block" rel="stylesheet">
     <link rel="stylesheet" th:href="@{/css/auth/portal.css}">
     <link rel="stylesheet" th:href="@{/css/publico/pagos.css}">
+    <th:block th:replace="~{fragments/layout :: design-system}"></th:block>
+    <link rel="stylesheet" th:href="@{/css/base/tema-oscuro.css}">
+    <script th:src="@{/js/tema.js}"></script>
 </head>
 <body class="auth-page pago-page">
-<header th:replace="~{fragments/layout :: pago-header}"></header>
+<header th:replace="~{fragments/navbar :: navbar}"></header>
 
 <main class="auth-main pago-main">
     <ol class="pago-pasos" aria-label="Pasos de la reserva">
@@ -54,6 +52,11 @@
                     <dd th:text="${reserva.motivo}">Motivo</dd>
                 </div>
             </dl>
+
+            <p class="pago-correo">
+                <span class="material-symbols-outlined" aria-hidden="true">mail</span>
+                <span>Cuando pagues te enviamos el comprobante y la cita a tu correo para que la agregues a tu calendario.</span>
+            </p>
         </section>
 
         <aside class="pago-tarjeta pago-cobro" aria-labelledby="cobro-titulo">
@@ -63,14 +66,14 @@
                     <span>Te guardamos este horario</span>
                     <strong class="pago-reloj-tiempo">15:00</strong>
                 </div>
-                <div class="pago-reloj-barra" aria-hidden="true"><span></span></div>
+                <progress class="pago-reloj-barra" value="100" max="100" aria-label="Tiempo restante para pagar"></progress>
             </div>
 
             <h2 id="cobro-titulo">Pago del abono</h2>
             <dl class="pago-cuentas">
-                <div th:if="${doctor.precioConsulta != null}">
+                <div>
                     <dt>Valor de la consulta</dt>
-                    <dd th:text="${'$' + #numbers.formatInteger(doctor.precioConsulta, 1, 'POINT')}">$80.000</dd>
+                    <dd th:text="${'$' + #numbers.formatInteger(doctor.precioEfectivo, 1, 'POINT')}">$80.000</dd>
                 </div>
                 <div class="is-total">
                     <dt>Pagas ahora (abono)</dt>
@@ -81,6 +84,17 @@
                     <dd th:text="${'$' + #numbers.formatInteger(saldo, 1, 'POINT')}">$60.000</dd>
                 </div>
             </dl>
+
+            <div class="pago-reparto" th:if="${saldo != null and saldo > 0}"
+                 th:with="pct=${reserva.montoPesos * 100 / doctor.precioEfectivo}">
+                <div class="pago-reparto-barra" aria-hidden="true">
+                    <span th:style="${'width:' + pct + '%'}"></span>
+                </div>
+                <p>
+                    <span><i class="is-ahora"></i><span th:text="${pct + ' % ahora'}">20 % ahora</span></span>
+                    <span><i></i><span th:text="${(100 - pct) + ' % en el consultorio'}">80 % en el consultorio</span></span>
+                </p>
+            </div>
 
             <a class="pago-boton" th:href="${urlPago}">
                 <span class="material-symbols-outlined" aria-hidden="true">lock</span>

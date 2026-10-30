@@ -111,9 +111,6 @@ public class AsistenteService {
         String texto = mensaje == null ? "" : mensaje.trim();
         if (texto.length() > MAX_MENSAJE)
             texto = texto.substring(0, MAX_MENSAJE);
-        if (!doctor.recibeReservas() && !triageService.pareceEmergencia(texto))
-            return new Respuesta(nombre(doctor) + " aún no recibe reservas en línea. Puedes buscar otro profesional "
-                    + "disponible en BeSalud.", List.of(), false);
         if (texto.isEmpty())
             return saludo(doctor);
         if (triageService.pareceEmergencia(texto))
@@ -448,16 +445,12 @@ public class AsistenteService {
     }
 
     String textoPrecio(Doctor d) {
-        if (!d.recibeReservas())
-            return nombre(d) + " aún no recibe reservas en línea.";
-        return "La consulta con " + nombre(d) + " vale " + pesos(d.getPrecioConsulta()) + ". Para reservar pagas en "
+        return "La consulta con " + nombre(d) + " vale " + pesos(d.getPrecioEfectivo()) + ". Para reservar pagas en "
                 + "línea un abono del " + d.porcentajeAbonoEfectivo() + " % (" + pesos(d.getAbono())
                 + ") y el resto en el consultorio.";
     }
 
     String textoAbono(Doctor d) {
-        if (!d.recibeReservas())
-            return nombre(d) + " aún no recibe reservas en línea.";
         return "Para confirmar la cita pagas en línea un abono del " + d.porcentajeAbonoEfectivo() + " % del valor ("
                 + pesos(d.getAbono()) + ") con tarjeta, PSE o Nequi. "
                 + "Si cancelas con al menos " + d.horasCancelacionEfectivas() + " horas de anticipación, el abono se te "

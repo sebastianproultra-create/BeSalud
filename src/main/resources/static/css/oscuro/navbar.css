@@ -1,0 +1,99 @@
+/* Generado por scripts/generar_tema_oscuro.py a partir de navbar.css. No editar a mano:
+   los ajustes van en base/tema-oscuro.css o en el generador. */
+
+html[data-tema="oscuro"] .bs-navbar {
+    color: var(--color-surface--t);
+    background-color: var(--color-primary--f);
+    background-image: none;
+    border-bottom: 1px solid var(--color-navbar-border--b);
+    box-shadow: var(--shadow-md--s);
+}
+
+html[data-tema="oscuro"] .bs-navbar__brand {
+    color: var(--color-surface--t);
+}
+
+html[data-tema="oscuro"] .bs-navbar__brand-mark {
+    color: var(--color-surface--t);
+    background-color: rgba(255, 255, 255, 0.1);
+    background-image: none;
+    border: 1px solid rgba(255, 255, 255, 0.28);
+}
+
+html[data-tema="oscuro"] .bs-navbar__menu {
+    background-color: transparent;
+    background-image: none;
+}
+
+html[data-tema="oscuro"] .bs-navbar__link,
+html[data-tema="oscuro"] .bs-navbar .bs-navbar__logout {
+    color: var(--color-surface--t);
+    background-color: transparent;
+    background-image: none;
+    border: 1px solid transparent;
+    text-decoration-color: transparent;
+}
+
+html[data-tema="oscuro"] .bs-navbar .bs-navbar__toggle {
+    color: var(--color-surface--t);
+    background-color: transparent;
+    background-image: none;
+    border: 1px solid var(--color-navbar-divider--b);
+}
+
+html[data-tema="oscuro"] .bs-navbar__link:hover,
+html[data-tema="oscuro"] .bs-navbar__link.is-active,
+html[data-tema="oscuro"] .bs-navbar .bs-navbar__logout:hover {
+    color: var(--color-surface--t);
+    background-color: transparent;
+    background-image: none;
+    border-color: transparent;
+    text-decoration-color: rgba(255, 255, 255, 0.55);
+}
+
+html[data-tema="oscuro"] .bs-navbar__link.is-active {
+    text-decoration-color: var(--color-surface--t);
+}
+
+html[data-tema="oscuro"] .bs-navbar__link--action {
+    color: var(--color-primary--t);
+    background-color: var(--color-primary-soft--f);
+    background-image: none;
+}
+
+html[data-tema="oscuro"] .bs-navbar__link--action:hover {
+    color: var(--color-primary--t);
+    background-color: var(--color-surface--f);
+    background-image: none;
+}
+
+html[data-tema="oscuro"] .bs-navbar :focus-visible {
+    outline-color: rgba(43, 59, 53, 0.7);
+}
+
+html[data-tema="oscuro"] .bs-navbar__account {
+    border-left: 1px solid var(--color-navbar-divider--b);
+}
+
+html[data-tema="oscuro"] .bs-navbar__username {
+    color: var(--color-surface--t);
+}
+
+html[data-tema="oscuro"] .bs-navbar__toggle {
+    color: var(--color-surface--t);
+    background-color: transparent;
+    background-image: none;
+    border: 1px solid var(--color-navbar-divider--b);
+}
+
+html[data-tema="oscuro"] .bs-navbar__toggle-line {
+    background-color: currentColor;
+    background-image: none;
+}
+
+@media (max-width: 80rem) {
+html[data-tema="oscuro"] .bs-navbar__account {
+    border-top: 1px solid var(--color-navbar-divider--b);
+    border-left: 0;
+}
+}

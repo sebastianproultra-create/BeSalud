@@ -2,6 +2,7 @@ package com.gestion.proyectos.controlador;
 
 import com.gestion.proyectos.modelo.Paciente;
 import com.gestion.proyectos.servicio.PacienteService;
+import com.gestion.proyectos.servicio.CitaService;
 import com.gestion.proyectos.servicio.ReservaService;
 
 import org.springframework.security.core.Authentication;
@@ -17,10 +18,12 @@ public class PacienteController {
 
     private final PacienteService pacienteService;
     private final ReservaService reservaService;
+    private final CitaService citaService;
 
-    public PacienteController(PacienteService pacienteService, ReservaService reservaService) {
+    public PacienteController(PacienteService pacienteService, ReservaService reservaService, CitaService citaService) {
         this.pacienteService = pacienteService;
         this.reservaService = reservaService;
+        this.citaService = citaService;
     }
 
     @GetMapping
@@ -78,10 +81,21 @@ public class PacienteController {
                 model.addAttribute("misCitas", pacienteService.citasDelPaciente(paciente.getId()));
                 // Turnos apartados que aún esperan el pago del abono
                 model.addAttribute("reservasPendientes", reservaService.pendientesDe(paciente.getId()));
+                // Citas a las que debe responder si asistirá
+                model.addAttribute("citasPorConfirmar", citaService.porConfirmarDe(paciente.getId()));
                 model.addAttribute("doctoresMap", pacienteService.mapDoctores());
             });
         }
 
         return "pacientes/catalogo";
+    }
+
+    /** Historial de pagos del paciente: abonos pagados, rechazados, devueltos y en proceso. */
+    @GetMapping("/pagos")
+    public String pagos(Model model) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        var paciente = pacienteService.buscarPorEmail(auth.getName()).orElseThrow();
+        model.addAttribute("historial", reservaService.historialDe(paciente.getId()));
+        return "pacientes/pagos";
     }
 }

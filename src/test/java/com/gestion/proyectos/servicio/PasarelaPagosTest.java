@@ -28,16 +28,25 @@ class PasarelaPagosTest {
 
     @Test
     void sinLlaves_usaPasarelaSimulada() {
-        PasarelaPagos p = new PasarelaPagos("", "", "", "", mapper);
+        PasarelaPagos p = new PasarelaPagos("", "", "", "", true, mapper);
         assertThat(p.wompiConfigurado()).isFalse();
         assertThat(p.urlPago(reserva(), "a@b.co", "Ana", "http://localhost/pagos/retorno"))
                 .isEqualTo("/pagos/simulado/BS-abc123");
         assertThat(p.consultar("123-abc")).isEmpty();
+        assertThat(p.usaSimulada()).isTrue();
+        assertThat(p.pagosDisponibles()).isTrue();
+    }
+
+    @Test
+    void sinLlavesYConLaPruebaApagada_noHayPagos() {
+        PasarelaPagos p = new PasarelaPagos("", "", "", "", false, mapper);
+        assertThat(p.usaSimulada()).isFalse();
+        assertThat(p.pagosDisponibles()).isFalse();
     }
 
     @Test
     void conLlaves_armaCheckoutFirmado() throws Exception {
-        PasarelaPagos p = new PasarelaPagos("pub_test_X", "test_integrity_Y", "", "", mapper);
+        PasarelaPagos p = new PasarelaPagos("pub_test_X", "test_integrity_Y", "", "", true, mapper);
         String url = p.urlPago(reserva(), "a@b.co", "Ana Ruiz", "http://localhost:8080/pagos/retorno");
 
         assertThat(p.esSandbox()).isTrue();
@@ -51,7 +60,7 @@ class PasarelaPagosTest {
 
     @Test
     void idDeTransaccionRaro_noSeConsulta() {
-        PasarelaPagos p = new PasarelaPagos("pub_test_X", "s", "", "", mapper);
+        PasarelaPagos p = new PasarelaPagos("pub_test_X", "s", "", "", true, mapper);
         assertThat(p.consultar("../../admin")).isEmpty();
         assertThat(p.consultar(null)).isEmpty();
     }
@@ -69,7 +78,7 @@ class PasarelaPagosTest {
 
     @Test
     void eventoConFirmaValida_seAcepta() throws Exception {
-        PasarelaPagos p = new PasarelaPagos("pub_test_X", "s", "test_events_Z", "", mapper);
+        PasarelaPagos p = new PasarelaPagos("pub_test_X", "s", "test_events_Z", "", true, mapper);
         String checksum = sha256("1234-1610641025-49201APPROVED20000001530291411test_events_Z");
 
         var t = p.eventoValido(evento(checksum, 2_000_000));
@@ -82,7 +91,7 @@ class PasarelaPagosTest {
 
     @Test
     void eventoAlterado_seIgnora() throws Exception {
-        PasarelaPagos p = new PasarelaPagos("pub_test_X", "s", "test_events_Z", "", mapper);
+        PasarelaPagos p = new PasarelaPagos("pub_test_X", "s", "test_events_Z", "", true, mapper);
         String checksum = sha256("1234-1610641025-49201APPROVED20000001530291411test_events_Z");
 
         // Alguien cambia el monto pero conserva la firma original
@@ -92,7 +101,7 @@ class PasarelaPagosTest {
 
     @Test
     void sinSecretoDeEventos_ningunEventoEsValido() throws Exception {
-        PasarelaPagos p = new PasarelaPagos("pub_test_X", "s", "", "", mapper);
+        PasarelaPagos p = new PasarelaPagos("pub_test_X", "s", "", "", true, mapper);
         assertThat(p.eventoValido(evento(sha256("1234-1610641025-49201APPROVED20000001530291411"), 2_000_000))).isEmpty();
     }
 }

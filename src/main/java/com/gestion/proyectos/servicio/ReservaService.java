@@ -8,6 +8,10 @@ import com.gestion.proyectos.util.Reloj;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import org.slf4j.Logger;
@@ -31,6 +35,93 @@ public class ReservaService {
     private static final Logger log = LoggerFactory.getLogger(ReservaService.class);
 
     public enum Resultado { APROBADA, RECHAZADA, PENDIENTE, EXPIRADA, CONFLICTO, NO_EXISTE }
+
+    /** Cómo se ve un pago en el historial del paciente. */
+    public enum EstadoPago {
+        PAGADO("Pagado", "ok", "pagados"),
+        EN_PROCESO("En proceso", "espera", "pagados"),
+        RECHAZADO("Rechazado", "error", "rechazados"),
+        POR_DEVOLVER("Devolución en proceso", "espera", "devoluciones"),
+        DEVUELTO("Devuelto", "neutro", "devoluciones"),
+        CONSERVADO("No reembolsable", "neutro", "pagados");
+
+        private final String texto;
+        private final String tono;
+        /** Filtro de "Mis pagos" en el que aparece. */
+        private final String grupo;
+
+        EstadoPago(String texto, String tono, String grupo) {
+            this.texto = texto;
+            this.tono = tono;
+            this.grupo = grupo;
+        }
+
+        public String getGrupo() {
+            return grupo;
+        }
+
+        public String getTexto() {
+            return texto;
+        }
+
+        public String getTono() {
+            return tono;
+        }
+    }
+
+    /** Una fila del historial: el intento de pago con su cita y lo que pasó con el dinero. */
+    public record MovimientoPago(String referencia, LocalDateTime fechaPago, String profesional, String especialidad,
+            LocalDate fechaCita, LocalTime horaCita, long montoPesos, String medioPago, EstadoPago estado) {
+    }
+
+    /** Resumen del historial: lo pagado (sin lo devuelto) y lo devuelto o por devolver. */
+    public record HistorialPagos(List<MovimientoPago> movimientos, long totalPagado, long totalDevuelto) {
+    }
+
+    /**
+     * Pagos del paciente, del más reciente al más antiguo. No incluye los horarios apartados que nunca
+     * se intentaron pagar: esos se muestran como pendientes en el portal mientras siguen vigentes.
+     */
+    public HistorialPagos historialDe(String pacienteId) {
+        List<MovimientoPago> movimientos = new ArrayList<>();
+        Map<String, Doctor> doctores = new HashMap<>();
+        for (Reserva r : reservaRepo.findByPacienteIdOrderByCreadaEnDesc(pacienteId)) {
+            EstadoPago estado = estadoPagoDe(r);
+            if (estado == null)
+                continue;
+            Doctor d = doctores.computeIfAbsent(r.getDoctorId(), id -> citaService.buscarDoctorPorId(id).orElse(null));
+            movimientos.add(new MovimientoPago(r.getReferencia(), r.getCreadaEn(),
+                    d == null ? "Profesional" : "Dr(a). " + d.getNombre() + " " + d.getApellido(),
+                    d == null ? null : d.getEspecialidad(), r.getFecha(), r.getHora(), r.getMontoPesos(),
+                    r.getMedioPago(), estado));
+        }
+        long pagado = movimientos.stream().filter(m -> m.estado() == EstadoPago.PAGADO || m.estado() == EstadoPago.CONSERVADO)
+                .mapToLong(MovimientoPago::montoPesos).sum();
+        long devuelto = movimientos.stream().filter(m -> m.estado() == EstadoPago.DEVUELTO || m.estado() == EstadoPago.POR_DEVOLVER)
+                .mapToLong(MovimientoPago::montoPesos).sum();
+        return new HistorialPagos(movimientos, pagado, devuelto);
+    }
+
+    EstadoPago estadoPagoDe(Reserva r) {
+        return switch (r.getEstado()) {
+            case RECHAZADA -> EstadoPago.RECHAZADO;
+            case CONFLICTO -> EstadoPago.POR_DEVOLVER; // pagó pero el turno ya no estaba
+            case PROCESANDO -> EstadoPago.EN_PROCESO;
+            case ESPERANDO_PAGO, EXPIRADA -> r.getTransaccionId() != null ? EstadoPago.EN_PROCESO : null;
+            case APROBADA -> {
+                Cita cita = r.getCitaId() == null ? null : citaService.buscarPorId(r.getCitaId()).orElse(null);
+                if (cita == null || cita.getEstadoAbono() == null)
+                    yield EstadoPago.PAGADO;
+                yield switch (cita.getEstadoAbono()) {
+                    case PAGADO -> EstadoPago.PAGADO;
+                    case A_REEMBOLSAR -> EstadoPago.POR_DEVOLVER;
+                    case DEVUELTO -> EstadoPago.DEVUELTO;
+                    case RETENIDO -> EstadoPago.CONSERVADO;
+                };
+            }
+        };
+    }
+
 
     private final ReservaRepositorio reservaRepo;
     private final CitaService citaService;
@@ -166,14 +257,59 @@ public class ReservaService {
 
     /** Pago simulado (solo cuando Wompi no está configurado): mismo camino que un pago real. */
     public Resultado pagoSimulado(String referencia, boolean aprobar) {
+        return pagoSimulado(referencia, "CARD", null, aprobar ? "APPROVED" : "DECLINED");
+    }
+
+    /** Segundos que tarda en resolverse un pago de prueba por PSE, Nequi o Bancolombia. */
+    public static final int SEGUNDOS_SIMULACION = 8;
+
+    /**
+     * Pasarela de pruebas que imita a Wompi: la tarjeta responde de inmediato; PSE, Nequi y Bancolombia
+     * quedan en proceso unos segundos (como cuando el banco o la app del paciente confirman) y luego se
+     * resuelven por el mismo camino que un pago real.
+     */
+    public Resultado pagoSimulado(String referencia, String tipoMedio, String medioPago, String estadoFinal) {
         Reserva r = reservaRepo.findByReferencia(referencia).orElse(null);
         if (r == null)
             return Resultado.NO_EXISTE;
-        return confirmarPago(referencia, "SIM-" + referencia, aprobar ? "APPROVED" : "DECLINED",
-                r.getMontoCentavos(), "COP");
+        if (r.getEstado() != Reserva.Estado.ESPERANDO_PAGO || r.getTransaccionId() != null)
+            return Resultado.PENDIENTE; // ya se envió un pago para esta reserva
+        String transaccion = idTransaccionDePrueba();
+        r.setTipoMedio(tipoMedio);
+        r.setMedioPago(medioPago);
+        if ("APPROVED".equals(estadoFinal))
+            r.setCodigoAutorizacion(String.valueOf(java.util.concurrent.ThreadLocalRandom.current().nextInt(100000, 1000000)));
+        if ("CARD".equals(tipoMedio)) {
+            reservaRepo.save(r);
+            return confirmarPago(referencia, transaccion, estadoFinal, r.getMontoCentavos(), "COP");
+        }
+        r.setTransaccionId(transaccion);
+        r.setSimulacionEstado(estadoFinal);
+        r.setSimulacionListaEn(Reloj.ahora().plusSeconds(SEGUNDOS_SIMULACION));
+        reservaRepo.save(r);
+        log.info("Pago de prueba en proceso: referencia={} medio={}", referencia, tipoMedio);
+        return Resultado.PENDIENTE;
+    }
+
+    /** Termina un pago de prueba en proceso cuando ya pasó su tiempo de espera. */
+    public Reserva resolverSimulacion(Reserva r) {
+        boolean enProceso = r.getSimulacionEstado() != null && r.getTransaccionId() != null
+                && (r.getEstado() == Reserva.Estado.ESPERANDO_PAGO || r.getEstado() == Reserva.Estado.EXPIRADA);
+        if (!enProceso || r.getSimulacionListaEn() == null || Reloj.ahora().isBefore(r.getSimulacionListaEn()))
+            return r;
+        confirmarPago(r.getReferencia(), r.getTransaccionId(), r.getSimulacionEstado(), r.getMontoCentavos(), "COP");
+        return reservaRepo.findByReferencia(r.getReferencia()).orElse(r);
+    }
+
+    /** Mismo formato que los ids de Wompi: comercio-epoch-consecutivo. */
+    private static String idTransaccionDePrueba() {
+        var azar = java.util.concurrent.ThreadLocalRandom.current();
+        return "1" + azar.nextInt(1000, 9999) + "-" + (System.currentTimeMillis() / 1000) + "-" + azar.nextInt(10000, 99999);
     }
 
     private void terminar(Reserva r, Reserva.Estado estado, String citaId) {
+        if (estado == Reserva.Estado.APROBADA && r.getPagadaEn() == null)
+            r.setPagadaEn(Reloj.ahora());
         r.setEstado(estado);
         r.setCitaId(citaId);
         reservaRepo.save(r);

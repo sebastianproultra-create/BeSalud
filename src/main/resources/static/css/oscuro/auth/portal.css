@@ -1,0 +1,633 @@
+/* Generado por scripts/generar_tema_oscuro.py a partir de auth/portal.css. No editar a mano:
+   los ajustes van en base/tema-oscuro.css o en el generador. */
+
+html[data-tema="oscuro"] {
+    --portal-bg--f: #131D19;
+    --portal-bg--t: #F0FCF5;
+    --portal-bg--b: #2D3D37;
+    --portal-bg--s: #131D19;
+    --portal-primary--f: #00664E;
+    --portal-primary--t: #D7E9E5;
+    --portal-primary--b: #00664E;
+    --portal-primary--s: rgba(0, 0, 0, 0.6);
+    --portal-primary-container--f: #105644;
+    --portal-primary-container--t: #CCE3DD;
+    --portal-primary-container--b: #105644;
+    --portal-primary-container--s: rgba(0, 0, 0, 0.6);
+    --portal-on-surface--f: #283E36;
+    --portal-on-surface--t: #D9E7E1;
+    --portal-on-surface--b: #283E36;
+    --portal-on-surface--s: rgba(0, 0, 0, 0.6);
+    --portal-muted--f: #404945;
+    --portal-muted--t: #C8CFCC;
+    --portal-muted--b: #404945;
+    --portal-muted--s: rgba(0, 0, 0, 0.6);
+    --portal-outline--f: #707975;
+    --portal-outline--t: #B3B9B6;
+    --portal-outline--b: #707975;
+    --portal-outline--s: rgba(0, 0, 0, 0.6);
+    --portal-border--f: #17241F;
+    --portal-border--t: #D9E5DF;
+    --portal-border--b: #32443D;
+    --portal-border--s: #17241F;
+    --portal-container--f: #141F1B;
+    --portal-container--t: #EAF7F0;
+    --portal-container--b: #2E3F39;
+    --portal-container--s: #141F1B;
+    --portal-surface--f: #1B2A24;
+    --portal-surface--t: #FFFFFF;
+    --portal-surface--b: #2B3B35;
+    --portal-surface--s: #1B2A24;
+    --portal-secondary--f: #855403;
+    --portal-secondary--t: #F1D19D;
+    --portal-secondary--b: #855403;
+    --portal-secondary--s: rgba(0, 0, 0, 0.6);
+    --portal-secondary-container--f: #FFBD6A;
+    --portal-secondary-container--t: #FFBD6A;
+    --portal-secondary-container--b: #61492A;
+    --portal-secondary-container--s: #FFBD6A;
+}
+
+html[data-tema="oscuro"] body.auth-page {
+    color: var(--portal-on-surface--t);
+    background-color: var(--portal-bg--f);
+    background-image: none;
+    background-image: linear-gradient(rgba(19, 29, 25, 0.936), rgba(20, 31, 27, 0.952)), url('https://lh3.googleusercontent.com/aida-public/AB6AXuBfDRPwcNxUzV8jpZnD6qyRV3zwhXN4Cei3ItRME8iDL8E5wTOR34sch_HZfl_zbEk0eMLm4A0IZUU9-SXIsaJS6gr2X0zkQkHkTs_sP0TBHknnA3Qp6zMrsLpCwinZ-YxVJbf34E-3IcY0PC0nyWp9I_g-ewI0W8eqeSKRIe-MmhgFWu6Az72NTrTe9XYEs-KAsqlQj83JvLjW_kJKXt1cfkvnJDBcycvO8uSEfhjIDpfgT5x5z7s_');
+}
+
+html[data-tema="oscuro"] .auth-page .portal-header {
+    color: var(--portal-on-surface--t);
+    background-color: rgba(19, 29, 25, 0.944);
+    background-image: none;
+    border: 0;
+    box-shadow: 0 1px 8px rgba(0, 0, 0, 0.072);
+}
+
+html[data-tema="oscuro"] .portal-brand {
+    color: var(--portal-primary--t);
+}
+
+html[data-tema="oscuro"] .portal-brand:hover {
+    color: var(--portal-primary-container--t);
+}
+
+html[data-tema="oscuro"] .portal-brand-icon {
+    color: #FFFFFF;
+    background-color: var(--portal-primary--f);
+    background-image: none;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.252);
+}
+
+html[data-tema="oscuro"] .portal-brand-name {
+    color: var(--portal-primary--t);
+}
+
+html[data-tema="oscuro"] .portal-brand-subtitle {
+    color: var(--portal-muted--t);
+}
+
+html[data-tema="oscuro"] .auth-nav-link {
+    color: var(--portal-muted--t);
+}
+
+html[data-tema="oscuro"] .auth-nav-link:hover {
+    color: var(--portal-on-surface--t);
+    background-color: rgba(23, 36, 31, 0.82);
+    background-image: none;
+}
+
+html[data-tema="oscuro"] .auth-nav-link.is-active {
+    color: #FFFFFF;
+    background-color: var(--portal-primary-container--f);
+    background-image: none;
+}
+
+html[data-tema="oscuro"] .auth-nav-link.is-active:hover {
+    color: #FFFFFF;
+    background-color: var(--portal-primary--f);
+    background-image: none;
+}
+
+html[data-tema="oscuro"] .secure-label {
+    color: var(--portal-primary--t);
+    background-color: rgba(20, 31, 27, 0.96);
+    background-image: none;
+}
+
+html[data-tema="oscuro"] .portal-avatar {
+    color: #FFFFFF;
+    background-color: var(--portal-primary--f);
+    background-image: none;
+}
+
+html[data-tema="oscuro"] .auth-eyebrow {
+    color: var(--portal-primary--t);
+    background-color: rgba(23, 36, 31, 0.864);
+    background-image: none;
+}
+
+html[data-tema="oscuro"] .status-dot {
+    background-color: var(--portal-primary-container--f);
+    background-image: none;
+}
+
+html[data-tema="oscuro"] .auth-intro h1 {
+    color: var(--portal-primary--t);
+}
+
+html[data-tema="oscuro"] .auth-intro-copy > p {
+    color: var(--portal-muted--t);
+}
+
+html[data-tema="oscuro"] .reference-image {
+    background-color: var(--portal-border--f);
+    background-image: none;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.216);
+}
+
+html[data-tema="oscuro"] .reference-copy > span {
+    color: var(--portal-muted--t);
+}
+
+html[data-tema="oscuro"] .reference-copy p {
+    color: var(--portal-primary--t);
+}
+
+html[data-tema="oscuro"] .auth-page .auth-card {
+    color: var(--portal-on-surface--t);
+    background-color: var(--portal-surface--f);
+    background-image: none;
+    border: 1px solid rgba(168, 200, 188, 0.048);
+    box-shadow: 0 12px 40px -12px rgba(0, 0, 0, 0.216);
+}
+
+html[data-tema="oscuro"] .auth-page .auth-card:hover {
+    box-shadow: 0 12px 40px -12px rgba(0, 0, 0, 0.216);
+}
+
+html[data-tema="oscuro"] .auth-card-accent {
+    background-color: transparent;
+    background-image: linear-gradient(90deg, var(--portal-primary--f), var(--portal-primary-container--f) 62%, var(--portal-secondary-container--f));
+}
+
+html[data-tema="oscuro"] .auth-key-icon {
+    color: var(--portal-primary--t);
+    background-color: var(--portal-container--f);
+    background-image: none;
+}
+
+html[data-tema="oscuro"] .auth-page .auth-card h2 {
+    color: var(--portal-primary--t);
+    border: 0;
+}
+
+html[data-tema="oscuro"] .heading-rule {
+    background-color: rgba(151, 216, 201, 0.26);
+    background-image: none;
+}
+
+html[data-tema="oscuro"] .auth-card-heading p {
+    color: var(--portal-muted--t);
+}
+
+html[data-tema="oscuro"] .auth-page .alert-info {
+    color: #E9DAB6;
+    background-color: #3C301B;
+    background-image: none;
+    border-left-color: #D99B4B;
+}
+
+html[data-tema="oscuro"] .auth-page .alert-success {
+    color: var(--portal-primary--t);
+    background-color: var(--portal-container--f);
+    background-image: none;
+    border-left-color: var(--portal-primary-container--b);
+}
+
+html[data-tema="oscuro"] .auth-page .alert-error,
+html[data-tema="oscuro"] .auth-page .alert-danger {
+    color: #E3A29F;
+    background-color: #3C1F1B;
+    background-image: none;
+    border-left-color: #BA1A1A;
+}
+
+html[data-tema="oscuro"] .auth-page .auth-card form {
+    background-color: transparent;
+    background-image: none;
+    border: 0;
+    box-shadow: none;
+}
+
+html[data-tema="oscuro"] .auth-page .auth-field > label {
+    color: var(--portal-on-surface--t);
+}
+
+html[data-tema="oscuro"] .auth-input-wrap {
+    background-color: rgba(20, 31, 27, 0.808);
+    border: 1px solid transparent;
+}
+
+html[data-tema="oscuro"] .auth-input-wrap > .material-symbols-outlined {
+    color: var(--portal-muted--t);
+}
+
+html[data-tema="oscuro"] .auth-page .auth-input-wrap input,
+html[data-tema="oscuro"] .auth-page .auth-input-wrap select {
+    color: var(--portal-on-surface--t);
+    background-color: transparent;
+    background-image: none;
+    border: 0;
+    box-shadow: none;
+}
+
+html[data-tema="oscuro"] .auth-page .auth-field > input[type="file"],
+html[data-tema="oscuro"] .auth-page .auth-field > textarea {
+    color: var(--portal-on-surface--t);
+    background-color: rgba(20, 31, 27, 0.808);
+    border: 1px solid transparent;
+    box-shadow: none;
+}
+
+html[data-tema="oscuro"] .auth-page .auth-input-wrap:hover,
+html[data-tema="oscuro"] .auth-page .auth-field > input[type="file"]:hover,
+html[data-tema="oscuro"] .auth-page .auth-field > textarea:hover {
+    background-color: var(--portal-container--f);
+}
+
+html[data-tema="oscuro"] .auth-page .auth-input-wrap:focus-within,
+html[data-tema="oscuro"] .auth-page .auth-field > input[type="file"]:focus,
+html[data-tema="oscuro"] .auth-page .auth-field > textarea:focus {
+    background-color: #1B2A24;
+    border-color: rgba(159, 209, 197, 0.168);
+    box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.216);
+}
+
+html[data-tema="oscuro"] .auth-page .auth-input-wrap input:focus,
+html[data-tema="oscuro"] .auth-page .auth-input-wrap select:focus {
+    outline: none;
+    box-shadow: none;
+}
+
+html[data-tema="oscuro"] .auth-page .auth-input-wrap input::placeholder {
+    color: #89958F;
+}
+
+html[data-tema="oscuro"] .password-toggle {
+    color: var(--portal-muted--t);
+    background-color: transparent;
+    background-image: none;
+    border: 0;
+}
+
+html[data-tema="oscuro"] .password-toggle:hover {
+    color: var(--portal-on-surface--t);
+    background-color: rgba(23, 36, 31, 0.82);
+    background-image: none;
+}
+
+html[data-tema="oscuro"] .auth-page .auth-card .auth-submit {
+    color: #FFFFFF;
+    background-color: var(--portal-primary--f);
+    background-image: none;
+    border: 1px solid var(--portal-primary--b);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.18);
+}
+
+html[data-tema="oscuro"] .auth-page .auth-card .auth-submit:hover {
+    color: #FFFFFF;
+    background-color: var(--portal-primary-container--f);
+    background-image: none;
+    border-color: var(--portal-primary-container--b);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.288);
+}
+
+html[data-tema="oscuro"] .oauth-divider {
+    color: var(--portal-muted--t);
+}
+
+html[data-tema="oscuro"] .oauth-divider::before,
+html[data-tema="oscuro"] .oauth-divider::after {
+    background-color: var(--portal-border--f);
+    background-image: none;
+}
+
+html[data-tema="oscuro"] .oauth-divider span {
+    background-color: #1B2A24;
+    background-image: none;
+}
+
+html[data-tema="oscuro"] .btn-google-login {
+    color: var(--portal-on-surface--t);
+    background-color: #1B2A24;
+    background-image: none;
+    border: 1px solid var(--portal-border--b);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.108);
+}
+
+html[data-tema="oscuro"] .btn-google-login:hover {
+    color: var(--portal-on-surface--t);
+    background-color: var(--portal-container--f);
+    background-image: none;
+    border-color: var(--portal-border--b);
+}
+
+html[data-tema="oscuro"] .auth-card-footer {
+    background-color: rgba(20, 31, 27, 0.848);
+    background-image: none;
+}
+
+html[data-tema="oscuro"] .auth-card-footer p {
+    color: var(--portal-muted--t);
+}
+
+html[data-tema="oscuro"] .auth-card-footer a {
+    color: var(--portal-primary--t);
+    text-decoration-color: transparent;
+}
+
+html[data-tema="oscuro"] .auth-card-footer a:hover {
+    color: var(--portal-secondary--t);
+    text-decoration-color: currentColor;
+}
+
+html[data-tema="oscuro"] .auth-page > .auth-footer {
+    color: var(--portal-muted--t);
+    background-color: rgba(20, 31, 27, 0.88);
+    background-image: none;
+    border: 0;
+    box-shadow: none;
+}
+
+html[data-tema="oscuro"] .auth-page > .auth-footer a {
+    color: var(--portal-primary--t);
+}
+
+html[data-tema="oscuro"] .auth-hint,
+html[data-tema="oscuro"] .field-hint {
+    color: var(--portal-outline--t);
+}
+
+html[data-tema="oscuro"] .field-hint.error {
+    color: #ED7F7F;
+}
+
+html[data-tema="oscuro"] .auth-page .register-card .auth-input-wrap:has(input.input-error) {
+    border-color: #BA1A1A;
+    box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.216);
+}
+
+html[data-tema="oscuro"] .auth-page .register-card .auth-input-wrap:has(input.input-success) {
+    border-color: #27805B;
+}
+
+html[data-tema="oscuro"] .doctor-fields {
+    background-color: rgba(20, 31, 27, 0.82);
+    background-image: none;
+    border: 1px solid rgba(56, 75, 68, 0.55);
+}
+
+html[data-tema="oscuro"] .auth-page .check-privacidad {
+    color: var(--portal-muted--t);
+}
+
+html[data-tema="oscuro"] .auth-page .check-privacidad input {
+    accent-color: var(--portal-primary);
+}
+
+html[data-tema="oscuro"] .auth-page .check-privacidad a {
+    color: var(--portal-primary--t);
+}
+
+html[data-tema="oscuro"] .register-promise-panel {
+    color: #D8F3E9;
+    background-color: transparent;
+    background-image: linear-gradient(155deg, #0E5849 0%, #0E5849 55%, #0C5A4B 100%);
+    border: 1px solid rgba(159, 209, 197, 0.216);
+    box-shadow: 0 10px 22px rgba(0, 0, 0, 0.324);
+}
+
+html[data-tema="oscuro"] .register-panel-topline {
+    color: rgba(216, 243, 233, 0.76);
+}
+
+html[data-tema="oscuro"] .register-certification {
+    background-color: rgba(183, 238, 217, 0.13);
+    background-image: none;
+    border: 1px solid rgba(183, 238, 217, 0.08);
+    color: #D6F5E8;
+}
+
+html[data-tema="oscuro"] .register-promise-panel > h1 {
+    color: #FFFFFF;
+}
+
+html[data-tema="oscuro"] .register-promise-panel > h1 em {
+    color: #A5E6D1;
+}
+
+html[data-tema="oscuro"] .register-panel-description {
+    color: rgba(216, 243, 233, 0.72);
+}
+
+html[data-tema="oscuro"] .register-metrics {
+    border-bottom: 1px solid rgba(183, 238, 217, 0.12);
+}
+
+html[data-tema="oscuro"] .register-metrics > div + div {
+    border-left: 1px solid rgba(183, 238, 217, 0.14);
+}
+
+html[data-tema="oscuro"] .register-metrics strong {
+    color: #A9E8D2;
+}
+
+html[data-tema="oscuro"] .register-metrics span {
+    color: rgba(216, 243, 233, 0.61);
+}
+
+html[data-tema="oscuro"] .register-benefits {
+    background-color: rgba(183, 238, 217, 0.1);
+    background-image: none;
+    border: 1px solid rgba(183, 238, 217, 0.09);
+}
+
+html[data-tema="oscuro"] .benefit-number {
+    color: #CBE3DD;
+    background-color: #215745;
+    background-image: none;
+}
+
+html[data-tema="oscuro"] .register-benefits strong,
+html[data-tema="oscuro"] .network-copy strong {
+    color: #F3FFF9;
+}
+
+html[data-tema="oscuro"] .register-benefits small,
+html[data-tema="oscuro"] .network-copy small {
+    color: rgba(216, 243, 233, 0.7);
+}
+
+html[data-tema="oscuro"] .register-network {
+    background-color: rgba(183, 238, 217, 0.11);
+    background-image: none;
+    border: 1px solid rgba(183, 238, 217, 0.1);
+}
+
+html[data-tema="oscuro"] .network-icon {
+    color: #B5F0DD;
+    background-color: rgba(183, 238, 217, 0.14);
+    background-image: none;
+}
+
+html[data-tema="oscuro"] .network-verified {
+    color: #A6EBD4;
+}
+
+html[data-tema="oscuro"] .register-heading-meta {
+    color: var(--portal-muted--t);
+}
+
+html[data-tema="oscuro"] .register-step {
+    color: #F1D09B;
+    background-color: #3C2E1B;
+    background-image: none;
+}
+
+html[data-tema="oscuro"] .register-step i {
+    background-color: #855403;
+    background-image: none;
+}
+
+html[data-tema="oscuro"] .register-form-heading h2 {
+    color: var(--portal-primary--t);
+}
+
+html[data-tema="oscuro"] .register-form-heading > p {
+    color: var(--portal-muted--t);
+}
+
+html[data-tema="oscuro"] .register-progress {
+    background-color: var(--portal-container--f);
+    background-image: none;
+}
+
+html[data-tema="oscuro"] .register-progress span {
+    background-color: transparent;
+    background-image: linear-gradient(90deg, var(--portal-primary--f), var(--portal-primary-container--f));
+}
+
+html[data-tema="oscuro"] .role-picker {
+    border: 0;
+}
+
+html[data-tema="oscuro"] .role-picker legend {
+    color: var(--portal-on-surface--t);
+}
+
+html[data-tema="oscuro"] .role-segmented {
+    background-color: var(--portal-container--f);
+    background-image: none;
+}
+
+html[data-tema="oscuro"] .role-option {
+    color: var(--portal-muted--t);
+}
+
+html[data-tema="oscuro"] .role-option-content {
+    border: 1px solid transparent;
+}
+
+html[data-tema="oscuro"] .role-option input:checked + .role-option-content {
+    color: var(--portal-primary--t);
+    background-color: #1B2A24;
+    background-image: none;
+    border-color: rgba(159, 209, 197, 0.072);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.144);
+}
+
+html[data-tema="oscuro"] .role-option input:focus-visible + .role-option-content {
+    outline: 2px solid rgba(0, 47, 36, 0.48);
+}
+
+html[data-tema="oscuro"] .register-password-hint span {
+    color: var(--portal-muted--t);
+}
+
+html[data-tema="oscuro"] .register-card .auth-card-footer {
+    background-color: #1B2A24;
+    background-image: none;
+}
+
+html[data-tema="oscuro"] .register-trust-row {
+    color: var(--portal-primary--t);
+}
+
+html[data-tema="oscuro"] .register-trust-row > span,
+html[data-tema="oscuro"] .register-trust-row > a {
+    color: inherit;
+}
+
+html[data-tema="oscuro"] .register-trust-row > a:hover {
+    color: var(--portal-secondary--t);
+}
+
+html[data-tema="oscuro"] .register-help-strip {
+    background-color: rgba(20, 31, 27, 0.94);
+    background-image: none;
+    border: 1px solid rgba(50, 68, 61, 0.65);
+}
+
+html[data-tema="oscuro"] .help-icon {
+    color: #F1D19D;
+    background-color: #3C2D1B;
+    background-image: none;
+}
+
+html[data-tema="oscuro"] .help-copy strong {
+    color: var(--portal-primary--t);
+}
+
+html[data-tema="oscuro"] .help-copy small {
+    color: var(--portal-muted--t);
+}
+
+html[data-tema="oscuro"] .register-help-strip > a {
+    color: var(--portal-primary--t);
+    background-color: #1B2A24;
+    background-image: none;
+    border: 1px solid var(--portal-border--b);
+}
+
+html[data-tema="oscuro"] .register-help-strip > a:hover {
+    background-color: var(--portal-container--f);
+    background-image: none;
+}
+
+html[data-tema="oscuro"] .auth-page .auth-nav {
+    background-color: transparent;
+    background-image: none;
+    border: 0;
+}
+
+html[data-tema="oscuro"] .register-form-heading h2 {
+    border: 0;
+}
+
+html[data-tema="oscuro"] .auth-page .register-card .doctor-fields .custom-select-trigger {
+    color: var(--portal-on-surface--t);
+    background-color: rgba(20, 31, 27, 0.808);
+    border: 1px solid transparent;
+}
+
+html[data-tema="oscuro"] .auth-page .register-card .doctor-fields .custom-select-trigger:hover {
+    background-color: var(--portal-container--f);
+}
+
+html[data-tema="oscuro"] .auth-page .register-card .doctor-fields .custom-select-wrapper.open .custom-select-trigger,
+html[data-tema="oscuro"] .auth-page .register-card .doctor-fields .custom-select-trigger:focus-visible {
+    outline: none;
+    background-color: #1B2A24;
+    border-color: rgba(159, 209, 197, 0.168);
+    box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.216);
+}

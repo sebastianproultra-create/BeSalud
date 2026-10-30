@@ -44,6 +44,7 @@ class CitaControllerTest {
     @BeforeEach
     void permitirPeticiones() {
         when(rateLimiter.permitir(anyString(), anyInt(), any())).thenReturn(true);
+        org.mockito.Mockito.lenient().when(pasarelaPagos.pagosDisponibles()).thenReturn(true);
     }
 
     @MockBean private CitaService citaService;
@@ -67,17 +68,13 @@ class CitaControllerTest {
     }
 
     @Test
-    void guardarPaciente_medicoSinPrecio_noRecibeReservas() throws Exception {
-        Paciente paciente = new Paciente();
-        paciente.setId("p1");
-        paciente.setEmail("paciente@test.com");
-
-        when(citaService.buscarPacientePorEmail("paciente@test.com")).thenReturn(Optional.of(paciente));
-        when(citaService.esFechaHoraPasada(any(), any())).thenReturn(false);
+    void guardarPaciente_medicoSinPrecio_igualApartaYEnviaAPagar() throws Exception {
         Doctor sinPrecio = doctorActivo();
         sinPrecio.setPrecioConsulta(null);
-        when(citaService.buscarDoctorPorId("d1")).thenReturn(Optional.of(sinPrecio));
-        when(citaService.esHorarioValido(eq("d1"), any(), any())).thenReturn(true);
+        prepararReservaValida(sinPrecio);
+        com.gestion.proyectos.modelo.Reserva reserva = new com.gestion.proyectos.modelo.Reserva();
+        reserva.setReferencia("BS-456");
+        when(reservaService.apartar(eq(sinPrecio), eq("p1"), any(), any(), eq("Dolor de cabeza"))).thenReturn(reserva);
 
         mockMvc.perform(post("/citas/guardar-paciente")
                         .param("doctorId", "d1")
@@ -87,10 +84,26 @@ class CitaControllerTest {
                         .with(csrf())
                         .with(user("paciente@test.com").roles("PACIENTE")))
                 .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl("/pacientes/landing?error=sin_reservas_en_linea"));
+                .andExpect(redirectedUrl("/pagos/BS-456"));
+    }
+
+    @Test
+    void guardarPaciente_sinWompiNiPasarelaDePruebas_pausaLasReservas() throws Exception {
+        when(pasarelaPagos.pagosDisponibles()).thenReturn(false);
+        when(citaService.esFechaHoraPasada(any(), any())).thenReturn(false);
+        when(citaService.buscarDoctorPorId("d1")).thenReturn(Optional.of(doctorActivo()));
+
+        mockMvc.perform(post("/citas/guardar-paciente")
+                        .param("doctorId", "d1")
+                        .param("fecha", LocalDate.now().plusDays(1).toString())
+                        .param("hora", "09:00")
+                        .param("motivo", "Dolor de cabeza")
+                        .with(csrf())
+                        .with(user("paciente@test.com").roles("PACIENTE")))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/pacientes/landing?error=pagos_no_disponibles"));
 
         verify(reservaService, never()).apartar(any(), any(), any(), any(), any());
-        verify(citaService, never()).crearCita(any(), any(), any(), any(), any());
     }
 
     @Test

@@ -346,6 +346,49 @@ public class DoctorService {
         return true;
     }
 
+    // ── Abonos ───────────────────────────────────────────────────────────────
+
+    /** Lo que el médico necesita saber de sus abonos: este mes y lo que tiene pendiente por devolver. */
+    public record ResumenAbonos(long cobradosMes, long retenidosMes, long porDevolver, List<Cita> pendientes,
+            Map<String, String> pacientes) {
+    }
+
+    public ResumenAbonos resumenAbonos(String doctorId) {
+        LocalDate hoy = Reloj.hoy();
+        LocalDate inicio = hoy.withDayOfMonth(1);
+        // Between de Mongo excluye los extremos: se corre un día a cada lado
+        List<Cita> delMes = citaRepo.findByDoctorIdAndFechaBetweenAndAbonoCentavosIsNotNull(doctorId,
+                inicio.minusDays(1), inicio.plusMonths(1));
+        long cobrados = sumar(delMes.stream().filter(c -> c.getEstadoAbono() == EstadoAbono.PAGADO
+                || c.getEstadoAbono() == EstadoAbono.RETENIDO).toList());
+        long retenidos = sumar(delMes.stream().filter(c -> c.getEstadoAbono() == EstadoAbono.RETENIDO).toList());
+        List<Cita> pendientes = citaRepo.findByDoctorIdAndEstadoAbonoOrderByFechaAsc(doctorId, EstadoAbono.A_REEMBOLSAR);
+        Map<String, String> pacientes = new HashMap<>();
+        for (Cita c : pendientes)
+            pacientes.computeIfAbsent(c.getPacienteId(), id -> personaRepo.findById(id)
+                    .map(p -> p.getNombre() + " " + p.getApellido()).orElse("Paciente"));
+        return new ResumenAbonos(cobrados, retenidos, sumar(pendientes), pendientes, pacientes);
+    }
+
+    private static long sumar(List<Cita> citas) {
+        return citas.stream().mapToLong(c -> c.getAbonoPesos() == null ? 0 : c.getAbonoPesos()).sum();
+    }
+
+    /** El médico registra que ya le devolvió el abono al paciente (por Wompi o transferencia). */
+    public boolean marcarAbonoDevuelto(String citaId, String doctorId) {
+        Cita cita = citaRepo.findById(citaId).orElseThrow();
+        if (!cita.getDoctorId().equals(doctorId))
+            throw new AccessDeniedException("No autorizado");
+        if (cita.getEstadoAbono() != EstadoAbono.A_REEMBOLSAR)
+            return false;
+        cita.setEstadoAbono(EstadoAbono.DEVUELTO);
+        cita.setAbonoDevueltoEn(Reloj.ahora());
+        citaRepo.save(cita);
+        log.info("Abono de la cita {} devuelto por doctor {}", citaId, doctorId);
+        eventos.publishEvent(new CitaEvento(CitaEvento.Tipo.ABONO_DEVUELTO, citaId));
+        return true;
+    }
+
     /** Si cancela el profesional, el abono siempre se devuelve. */
     public boolean cancelarCita(String citaId, String doctorId) {
         Cita cita = citaPendienteDe(citaId, doctorId);

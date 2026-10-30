@@ -2,13 +2,15 @@
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Elegir rol - BeSalud</title>
     <link rel="stylesheet" th:href="@{/css/base/global.css}">
     <link rel="stylesheet" th:href="@{/css/auth/register.css}">
+    <th:block th:replace="~{fragments/layout :: design-system}"></th:block>
+    <link rel="stylesheet" th:href="@{/css/base/tema-oscuro.css}">
+    <script th:src="@{/js/tema.js}"></script>
 </head>
 <body>
-<header th:replace="~{fragments/layout :: header-brand}"></header>
+<header th:replace="~{fragments/navbar :: navbar}"></header>
 
 <div class="container">
     <div class="card card-center">
@@ -39,7 +41,7 @@
             <label for="identificacion">Identificación:</label>
             <input type="text" id="identificacion" name="identificacion" maxlength="10" pattern="[0-9]{6,10}" title="Entre 6 y 10 dígitos, solo números" inputmode="numeric" required/>
 
-            <div id="doctor-fields" style="display:none;">
+            <div id="doctor-fields" hidden>
                 <label for="especialidad">Especialidad:</label>
                 <select id="especialidad" name="especialidad" class="styled-select">
                     <option value="">Selecciona una especialidad</option>
@@ -68,7 +70,7 @@
 function toggleDoctorFields() {
     const role = document.getElementById('role').value;
     const doctorFields = document.getElementById('doctor-fields');
-    doctorFields.style.display = role === 'DOCTOR' ? 'block' : 'none';
+    doctorFields.hidden = role !== 'DOCTOR';
     const especialidad = document.getElementById('especialidad');
     const fechaNac = document.getElementById('fechaNacimiento');
     especialidad.required = role === 'DOCTOR';

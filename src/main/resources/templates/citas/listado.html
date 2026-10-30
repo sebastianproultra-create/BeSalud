@@ -3,12 +3,14 @@
       xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Citas - BeSalud</title>
     <link rel="stylesheet" th:href="@{/css/base/global.css}">
+    <th:block th:replace="~{fragments/layout :: design-system}"></th:block>
+    <link rel="stylesheet" th:href="@{/css/base/tema-oscuro.css}">
+    <script th:src="@{/js/tema.js}"></script>
 </head>
 <body>
-<header th:replace="~{fragments/layout :: shell-admin('citas')}"></header>
+<header th:replace="~{fragments/navbar :: navbar}"></header>
 
 <main class="container">
     <section class="page-header" aria-labelledby="page-title">

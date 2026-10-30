@@ -113,4 +113,119 @@ class ReservaServiceTest {
     void referenciaDesconocida() {
         assertThat(service.confirmarPago("BS-X", "tx1", "APPROVED", 1, "COP")).isEqualTo(Resultado.NO_EXISTE);
     }
+
+    // ── Pasarela de pruebas ─────────────────────────────────────────────────
+
+    @Test
+    void pruebaConTarjeta_seResuelveDeInmediatoYGuardaElMedio() {
+        laReservaSeToma();
+        when(citaService.doctorActivo("d1")).thenReturn(true);
+        Cita cita = new Cita();
+        cita.setId("c1");
+        when(citaService.crearCitaConAbono(reserva)).thenReturn(cita);
+
+        assertThat(service.pagoSimulado("BS-1", "CARD", "Visa •••• 4242", "APPROVED")).isEqualTo(Resultado.APROBADA);
+        assertThat(reserva.getMedioPago()).isEqualTo("Visa •••• 4242");
+        assertThat(reserva.getEstado()).isEqualTo(Reserva.Estado.APROBADA);
+        assertThat(reserva.getCodigoAutorizacion()).matches("\\d{6}");
+        assertThat(reserva.getPagadaEn()).isNotNull();
+    }
+
+    @Test
+    void pruebaRechazada_noTieneCodigoDeAutorizacion() {
+        laReservaSeToma();
+
+        service.pagoSimulado("BS-1", "CARD", "Visa •••• 4111", "DECLINED");
+
+        assertThat(reserva.getEstado()).isEqualTo(Reserva.Estado.RECHAZADA);
+        assertThat(reserva.getCodigoAutorizacion()).isNull();
+        assertThat(reserva.getPagadaEn()).isNull();
+    }
+
+    @Test
+    void pruebaConNequi_quedaEnProcesoHastaQuePaseLaEspera() {
+        assertThat(service.pagoSimulado("BS-1", "NEQUI", "Nequi •••• 1111", "APPROVED")).isEqualTo(Resultado.PENDIENTE);
+        assertThat(reserva.getTransaccionId()).matches("\\d{5}-\\d+-\\d{5}");
+        assertThat(reserva.getSimulacionEstado()).isEqualTo("APPROVED");
+
+        service.resolverSimulacion(reserva); // todavía no pasan los segundos de espera
+        verify(citaService, never()).crearCitaConAbono(any());
+        assertThat(reserva.getEstado()).isEqualTo(Reserva.Estado.ESPERANDO_PAGO);
+    }
+
+    @Test
+    void pruebaEnProceso_alTerminarLaEsperaSeConfirma() {
+        service.pagoSimulado("BS-1", "PSE", "PSE · Banco que rechaza", "DECLINED");
+        reserva.setSimulacionListaEn(com.gestion.proyectos.util.Reloj.ahora().minusSeconds(1));
+        laReservaSeToma();
+
+        service.resolverSimulacion(reserva);
+
+        assertThat(reserva.getEstado()).isEqualTo(Reserva.Estado.RECHAZADA);
+        verify(citaService, never()).crearCitaConAbono(any());
+    }
+
+    @Test
+    void pruebaRepetida_noCambiaElPagoEnCurso() {
+        service.pagoSimulado("BS-1", "NEQUI", "Nequi •••• 1111", "APPROVED");
+        String transaccion = reserva.getTransaccionId();
+
+        assertThat(service.pagoSimulado("BS-1", "CARD", "Visa •••• 4111", "DECLINED")).isEqualTo(Resultado.PENDIENTE);
+        assertThat(reserva.getTransaccionId()).isEqualTo(transaccion);
+        assertThat(reserva.getMedioPago()).isEqualTo("Nequi •••• 1111");
+    }
+
+    // ── Historial de pagos ──────────────────────────────────────────────────
+
+    @Test
+    void historial_omiteLoQueNuncaSePagoYTraduceElEstadoDelAbono() {
+        Reserva aprobada = new Reserva();
+        aprobada.setReferencia("BS-A");
+        aprobada.setDoctorId("d1");
+        aprobada.setEstado(Reserva.Estado.APROBADA);
+        aprobada.setCitaId("c1");
+        aprobada.setMontoCentavos(1_200_000);
+        Reserva rechazada = new Reserva();
+        rechazada.setReferencia("BS-R");
+        rechazada.setDoctorId("d1");
+        rechazada.setEstado(Reserva.Estado.RECHAZADA);
+        rechazada.setMontoCentavos(1_200_000);
+        Reserva sinIntento = new Reserva();
+        sinIntento.setReferencia("BS-X");
+        sinIntento.setDoctorId("d1");
+        sinIntento.setEstado(Reserva.Estado.EXPIRADA);
+        when(reservaRepo.findByPacienteIdOrderByCreadaEnDesc("p1")).thenReturn(java.util.List.of(aprobada, rechazada, sinIntento));
+        Cita devuelta = new Cita();
+        devuelta.setEstadoAbono(com.gestion.proyectos.modelo.EstadoAbono.DEVUELTO);
+        when(citaService.buscarPorId("c1")).thenReturn(Optional.of(devuelta));
+        when(citaService.buscarDoctorPorId("d1")).thenReturn(Optional.empty());
+
+        ReservaService.HistorialPagos h = service.historialDe("p1");
+
+        assertThat(h.movimientos()).extracting(ReservaService.MovimientoPago::referencia).containsExactly("BS-A", "BS-R");
+        assertThat(h.movimientos()).extracting(ReservaService.MovimientoPago::estado)
+                .containsExactly(ReservaService.EstadoPago.DEVUELTO, ReservaService.EstadoPago.RECHAZADO);
+        assertThat(h.totalPagado()).isZero();
+        assertThat(h.totalDevuelto()).isEqualTo(12_000);
+    }
+
+    @Test
+    void estadoDelPago_pagoEnProcesoYPagadoSinCupo() {
+        Reserva enProceso = new Reserva();
+        enProceso.setEstado(Reserva.Estado.ESPERANDO_PAGO);
+        enProceso.setTransaccionId("1234-1-12345");
+        Reserva sinCupo = new Reserva();
+        sinCupo.setEstado(Reserva.Estado.CONFLICTO);
+
+        assertThat(service.estadoPagoDe(enProceso)).isEqualTo(ReservaService.EstadoPago.EN_PROCESO);
+        assertThat(service.estadoPagoDe(sinCupo)).isEqualTo(ReservaService.EstadoPago.POR_DEVOLVER);
+    }
+
+    @Test
+    void cadaEstadoTieneSuFiltroEnMisPagos() {
+        assertThat(ReservaService.EstadoPago.CONSERVADO.getGrupo()).isEqualTo("pagados");
+        assertThat(ReservaService.EstadoPago.POR_DEVOLVER.getGrupo()).isEqualTo("devoluciones");
+        assertThat(ReservaService.EstadoPago.DEVUELTO.getGrupo()).isEqualTo("devoluciones");
+        assertThat(ReservaService.EstadoPago.RECHAZADO.getGrupo()).isEqualTo("rechazados");
+    }
 }

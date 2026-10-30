@@ -1,0 +1,23 @@
+/* Generado por scripts/generar_tema_oscuro.py a partir de base/scrollbar.css. No editar a mano:
+   los ajustes van en base/tema-oscuro.css o en el generador. */
+
+html[data-tema="oscuro"] ::-webkit-scrollbar-track {
+    background-color: transparent;
+    background-image: none;
+}
+
+html[data-tema="oscuro"] ::-webkit-scrollbar-thumb {
+    background-color: #2E493B;
+    background-image: none;
+    border: 2px solid transparent;
+}
+
+html[data-tema="oscuro"] ::-webkit-scrollbar-thumb:hover {
+    background-color: #2B4338;
+    background-image: none;
+}
+
+html[data-tema="oscuro"] ::-webkit-scrollbar-corner {
+    background-color: transparent;
+    background-image: none;
+}

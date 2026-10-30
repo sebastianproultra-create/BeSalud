@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org"
+      th:with="loc=${T(java.util.Locale).forLanguageTag('es-CO')}">
+<head>
+    <meta charset="UTF-8">
+    <title>Mis pagos · BeSalud</title>
+    <link rel="stylesheet" th:href="@{/css/base/global.css}">
+    <link rel="stylesheet" th:href="@{/css/auth/portal.css}">
+    <link rel="stylesheet" th:href="@{/css/publico/pagos.css}">
+    <th:block th:replace="~{fragments/layout :: design-system}"></th:block>
+    <link rel="stylesheet" th:href="@{/css/base/tema-oscuro.css}">
+    <script th:src="@{/js/tema.js}"></script>
+</head>
+<body class="auth-page pago-page">
+<header th:replace="~{fragments/navbar :: navbar}"></header>
+
+<main class="auth-main pago-main">
+    <section class="pago-tarjeta historial" aria-labelledby="historial-titulo">
+        <div class="historial-cabecera">
+            <div>
+                <h1 id="historial-titulo">Mis pagos</h1>
+                <p class="pago-sub">Los abonos que has pagado para reservar tus citas.</p>
+            </div>
+            <a class="historial-volver" th:href="@{/pacientes/landing}">
+                <span class="material-symbols-outlined" aria-hidden="true">arrow_back</span>Mis citas
+            </a>
+        </div>
+
+        <div class="historial-totales" th:unless="${historial.movimientos.isEmpty()}">
+            <div>
+                <span>Pagado en abonos</span>
+                <strong th:text="${'$' + #numbers.formatInteger(historial.totalPagado, 1, 'POINT')}">$0</strong>
+            </div>
+            <div>
+                <span>Devuelto o por devolver</span>
+                <strong th:text="${'$' + #numbers.formatInteger(historial.totalDevuelto, 1, 'POINT')}">$0</strong>
+            </div>
+        </div>
+
+        <div class="historial-vacio" th:if="${historial.movimientos.isEmpty()}">
+            <span class="material-symbols-outlined" aria-hidden="true">receipt_long</span>
+            <strong>Aún no tienes pagos</strong>
+            <p>Cuando reserves una cita y pagues el abono, el comprobante aparecerá aquí.</p>
+            <a class="pago-boton" th:href="@{/pacientes/landing}">Buscar un profesional</a>
+        </div>
+
+        <div class="historial-filtros" role="group" aria-label="Filtrar pagos" data-filtros
+             th:unless="${historial.movimientos.isEmpty()}">
+            <button type="button" class="is-activo" data-filtro="todos" aria-pressed="true">Todos <span data-cuenta></span></button>
+            <button type="button" data-filtro="pagados" aria-pressed="false">Pagados <span data-cuenta></span></button>
+            <button type="button" data-filtro="devoluciones" aria-pressed="false">Devoluciones <span data-cuenta></span></button>
+            <button type="button" data-filtro="rechazados" aria-pressed="false">Rechazados <span data-cuenta></span></button>
+        </div>
+
+        <ul class="historial-lista" th:unless="${historial.movimientos.isEmpty()}">
+            <th:block th:each="m, it : ${historial.movimientos}"
+                      th:with="mes=${m.fechaPago() != null ? #temporals.format(m.fechaPago(), 'MMMM yyyy', loc) : 'Sin fecha'},
+                               anterior=${it.index == 0 ? null : historial.movimientos[it.index - 1].fechaPago()},
+                               mesAnterior=${it.index == 0 ? '' : (anterior != null ? #temporals.format(anterior, 'MMMM yyyy', loc) : 'Sin fecha')}">
+            <li class="historial-mes" th:if="${mes != mesAnterior}" th:text="${#strings.capitalize(mes)}" aria-hidden="true">Octubre 2026</li>
+            <li th:class="${'historial-item is-' + m.estado().tono}" th:attr="data-grupo=${m.estado().grupo}">
+                <div class="historial-icono" aria-hidden="true">
+                    <span class="material-symbols-outlined"
+                          th:text="${m.estado().name() == 'RECHAZADO' ? 'credit_card_off' : (m.estado().name() == 'EN_PROCESO' ? 'hourglass_top' : (m.estado().name() == 'PAGADO' or m.estado().name() == 'CONSERVADO' ? 'receipt_long' : 'undo'))}">receipt_long</span>
+                </div>
+                <div class="historial-detalle">
+                    <strong th:text="${m.profesional()}">Dr(a). Profesional</strong>
+                    <span th:text="${'Cita del ' + #temporals.format(m.fechaCita(), 'd ''de'' MMMM', loc) + ' · ' + #temporals.format(m.horaCita(), 'h:mm a', loc)}">Cita del 4 de noviembre</span>
+                    <small>
+                        <span th:if="${m.fechaPago() != null}" th:text="${(m.estado().name() == 'RECHAZADO' ? 'Intentado el ' : (m.estado().name() == 'EN_PROCESO' ? 'Iniciado el ' : 'Pagado el ')) + #temporals.format(m.fechaPago(), 'd MMM yyyy', loc)}">Pagado el</span>
+                        <span th:if="${m.medioPago() != null}" th:text="${' · ' + m.medioPago()}"> · Visa</span>
+                    </small>
+                </div>
+                <div class="historial-monto">
+                    <strong th:text="${'$' + #numbers.formatInteger(m.montoPesos(), 1, 'POINT')}">$12.000</strong>
+                    <span class="historial-estado" th:text="${m.estado().texto}">Pagado</span>
+                </div>
+                <a class="historial-ver" th:href="@{/pagos/{ref}/resultado(ref=${m.referencia()})}"
+                   th:attr="aria-label=${'Ver detalle del pago ' + m.referencia()}">
+                    <span th:text="${m.estado().name() == 'PAGADO' or m.estado().name() == 'CONSERVADO' ? 'Comprobante' : 'Detalle'}">Comprobante</span>
+                    <span class="material-symbols-outlined" aria-hidden="true">chevron_right</span>
+                </a>
+            </li>
+            </th:block>
+        </ul>
+        <p class="historial-sin-resultados" data-sin-resultados hidden>No tienes pagos en esta categoría.</p>
+
+        <p class="historial-nota" th:unless="${historial.movimientos.isEmpty()}">
+            <span class="material-symbols-outlined" aria-hidden="true">info</span>
+            <span>Si cancelas a tiempo, el profesional te devuelve el abono por el mismo medio; según tu banco puede
+                tardar unos días hábiles. Si no asistes o cancelas tarde, el abono no es reembolsable.</span>
+        </p>
+    </section>
+</main>
+
+<div th:replace="~{fragments/layout :: auth-footer}"></div>
+<script th:src="@{/js/pagos.js}" defer></script>
+</body>
+</html>

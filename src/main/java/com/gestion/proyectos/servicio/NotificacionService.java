@@ -20,8 +20,6 @@ import org.springframework.web.util.HtmlUtils;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Locale;
-import java.util.Map;
-import java.nio.charset.StandardCharsets;
 import com.gestion.proyectos.util.Calendario;
 
 @Service
@@ -65,6 +63,9 @@ public class NotificacionService {
                 // Sin datos clínicos en el correo: la historia clínica es reservada y solo se consulta dentro de la app.
                 case DICTAMEN -> enviar(cita, "Tu dictamen médico está disponible", "Tu dictamen médico está disponible",
                         "Tu médico registró el resultado de la consulta. Ingresa a BeSalud para verlo.", "Ver mi dictamen");
+                case ABONO_DEVUELTO -> enviar(cita, "Te devolvimos el abono", "Te devolvimos el abono",
+                        "El profesional registró la devolución de tu abono de " + pesos(cita.getAbonoPesos() == null ? 0 : cita.getAbonoPesos())
+                                + ". Según tu banco, puede tardar unos días hábiles en verse reflejado.", "Ver mis citas");
             }
         });
     }
@@ -83,6 +84,36 @@ public class NotificacionService {
             enviados++;
         }
         if (enviados > 0) log.info("Recordatorios procesados para {}: {}", manana, enviados);
+    }
+
+    // Cada hora: se pregunta "¿Vas a ir?" a las citas que entraron en la ventana de confirmación.
+    @Scheduled(cron = "0 5 * * * *", zone = "America/Bogota")
+    public void pedirConfirmaciones() {
+        var ahora = Reloj.ahora();
+        int enviados = 0;
+        // La ventana más larga es de 48 h de plazo + 24 h de margen: basta con revisar los próximos 4 días
+        for (int d = 0; d <= 4; d++) {
+            for (Cita cita : citaRepo.findByFechaAndEstado(ahora.toLocalDate().plusDays(d), EstadoCita.PENDIENTE)) {
+                if (cita.isConfirmacionSolicitada()) continue;
+                Doctor doctor = personaRepo.findById(cita.getDoctorId())
+                        .filter(p -> p instanceof Doctor).map(p -> (Doctor) p).orElse(null);
+                if (!CitaService.esperaConfirmacion(cita, doctor, ahora)) continue;
+                enviar(cita, "¿Vas a ir a tu cita?", "¿Vas a ir a tu cita?", mensajeConfirmacion(cita, doctor, ahora),
+                        "Responder en BeSalud");
+                citaRepo.marcarConfirmacionSolicitada(cita.getId());
+                enviados++;
+            }
+        }
+        if (enviados > 0) log.info("Solicitudes de confirmación de asistencia: {}", enviados);
+    }
+
+    static String mensajeConfirmacion(Cita cita, Doctor doctor, java.time.LocalDateTime ahora) {
+        int horas = doctor == null ? 24 : doctor.horasCancelacionEfectivas();
+        var limite = cita.getFecha().atTime(cita.getHora()).minusHours(horas);
+        if (cita.getAbonoCentavos() == null || !ahora.isBefore(limite))
+            return "Confírmanos si asistirás. Si no puedes ir, avísanos para liberar el turno a otro paciente.";
+        return "Confírmanos si asistirás. Si no puedes ir y nos avisas antes del " + limite.format(FECHA_HORA)
+                + ", cancelamos la cita y te devolvemos el abono.";
     }
 
     private void enviar(Cita cita, String asunto, String titulo, String mensaje, String textoBoton) {
@@ -105,13 +136,8 @@ public class NotificacionService {
         String html = plantilla(paciente, doctor, cita, "¡Tu cita está confirmada!",
                 "Recibimos el pago de tu abono. Guarda este correo como comprobante.", "Ver mis citas",
                 bloqueComprobante(doctor, cita));
-        String quien = doctor == null ? "tu profesional" : "Dr(a). " + doctor.getNombre() + " " + doctor.getApellido();
-        String ics = Calendario.evento(cita.getId() + "@besalud", cita.getFecha().atTime(cita.getHora()), 30,
-                "Cita con " + quien, doctor == null ? null : doctor.getDireccionConsultorio(),
-                "Referencia del abono: " + cita.getReferenciaPago());
         correo.enviar(paciente.getEmail(), paciente.getNombre() + " " + paciente.getApellido(),
-                "Cita confirmada · comprobante de pago · BeSalud", html,
-                Map.of("cita-besalud.ics", ics.getBytes(StandardCharsets.UTF_8)));
+                "Cita confirmada · comprobante de pago · BeSalud", html);
     }
 
     /** Filas del comprobante: abono, saldo, lugar, referencia y hasta cuándo se puede cancelar con devolución. */
@@ -119,17 +145,24 @@ public class NotificacionService {
         long abono = cita.getAbonoPesos() == null ? 0 : cita.getAbonoPesos();
         StringBuilder filas = new StringBuilder();
         filas.append(fila("Abono pagado", pesos(abono)));
-        if (doctor != null && doctor.getPrecioConsulta() != null && doctor.getPrecioConsulta() > abono)
-            filas.append(fila("Pagas en el consultorio", pesos(doctor.getPrecioConsulta() - abono)));
+        if (doctor != null && doctor.getPrecioEfectivo() > abono)
+            filas.append(fila("Pagas en el consultorio", pesos(doctor.getPrecioEfectivo() - abono)));
         if (doctor != null && doctor.getDireccionConsultorio() != null)
             filas.append(fila("Lugar", doctor.getDireccionConsultorio()));
+        if (cita.getMedioPago() != null)
+            filas.append(fila("Medio de pago", cita.getMedioPago()));
         filas.append(fila("Referencia", cita.getReferenciaPago()));
         String politica = "";
         if (doctor != null && cita.getFecha() != null && cita.getHora() != null) {
             var limite = cita.getFecha().atTime(cita.getHora()).minusHours(doctor.horasCancelacionEfectivas());
             politica = "<p style=\"margin:16px 0 0;font-size:13px;line-height:1.6;color:#5F6662;\">Si no puedes ir, cancela antes del "
                     + "<strong style=\"color:#171B19;\">" + esc(limite.format(FECHA_HORA)) + "</strong> y te devolvemos el abono. "
-                    + "Después de esa hora, el profesional lo conserva. Adjuntamos la cita para que la guardes en tu calendario.</p>";
+                    + "Después de esa hora, el profesional lo conserva.</p>";
+            String google = Calendario.enlaceGoogle(cita.getFecha().atTime(cita.getHora()), 30,
+                    "Cita con Dr(a). " + doctor.getNombre() + " " + doctor.getApellido(),
+                    doctor.getDireccionConsultorio(), "Referencia del abono: " + cita.getReferenciaPago());
+            politica += "<p style=\"margin:12px 0 0;font-size:13px;line-height:1.6;color:#5F6662;\">"
+                    + "<a href=\"" + esc(google) + "\" style=\"color:#0D4738;font-weight:700;\">Agregar a Google Calendar</a></p>";
         }
         return """
                 <table role="presentation" width="100%%" cellpadding="0" cellspacing="0" style="margin-top:20px;border:1px dashed #D5DED8;border-radius:3px;">

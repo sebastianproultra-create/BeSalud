@@ -7,8 +7,10 @@ import com.gestion.proyectos.modelo.Reserva;
 import com.gestion.proyectos.servicio.CitaService;
 import com.gestion.proyectos.servicio.PasarelaPagos;
 import com.gestion.proyectos.servicio.ReservaService;
+import com.gestion.proyectos.util.Calendario;
 import com.gestion.proyectos.util.Reloj;
 import java.time.Duration;
+import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import org.springframework.beans.factory.annotation.Value;
@@ -37,13 +39,16 @@ public class PagoController {
     private final PasarelaPagos pasarela;
     private final CitaService citaService;
     private final String urlApp;
+    private final String nitComercio;
 
     public PagoController(ReservaService reservaService, PasarelaPagos pasarela, CitaService citaService,
-            @Value("${app.url:http://localhost:8080}") String urlApp) {
+            @Value("${app.url:http://localhost:8080}") String urlApp,
+            @Value("${app.comercio.nit:}") String nitComercio) {
         this.reservaService = reservaService;
         this.pasarela = pasarela;
         this.citaService = citaService;
         this.urlApp = urlApp.replaceAll("/+$", "");
+        this.nitComercio = nitComercio;
     }
 
     // ── Resumen antes de pagar ──────────────────────────────────────────────
@@ -61,7 +66,7 @@ public class PagoController {
         model.addAttribute("segundosRestantes", segundosRestantes(reserva));
         model.addAttribute("segundosTotales", reservaService.getMinutosParaPagar() * 60);
         model.addAttribute("saldo", saldo(doctor, reserva));
-        model.addAttribute("pagoSimulado", !pasarela.wompiConfigurado());
+        model.addAttribute("pagoSimulado", pasarela.usaSimulada());
         model.addAttribute("urlPago", pasarela.urlPago(reserva, paciente.getEmail(),
                 paciente.getNombre() + " " + paciente.getApellido(), urlApp + "/pagos/retorno"));
         return "pagos/resumen";
@@ -86,18 +91,48 @@ public class PagoController {
         model.addAttribute("doctor", doctorDe(reserva));
         model.addAttribute("segundosRestantes", segundosRestantes(reserva));
         model.addAttribute("segundosTotales", reservaService.getMinutosParaPagar() * 60);
+        model.addAttribute("bancos", BANCOS_PRUEBA);
+        model.addAttribute("correoPaciente", auth.getName());
         return "pagos/simulado";
     }
 
+    /** Bancos de la lista de PSE en la pasarela de pruebas; los dos primeros son los de prueba de Wompi. */
+    /** Bancos que muestra el simulador de PSE (solo la demostración: no se conecta con ninguno). */
+    static final List<String> BANCOS_PRUEBA = List.of("Bancolombia", "Banco de Bogotá", "Davivienda", "BBVA Colombia",
+            "Banco de Occidente", "Banco Popular", "Scotiabank Colpatria", "Banco AV Villas", "Banco Caja Social",
+            "Banco Itaú", "Banco Falabella", "Nequi", "Daviplata");
+
+    /**
+     * Recibe solo lo necesario para el comprobante (marca y últimos 4 dígitos, banco, últimos 4 del
+     * celular). El número completo de la tarjeta, la fecha y el CVC nunca salen del navegador.
+     */
     @PostMapping("/pagos/simulado/{referencia}")
-    public String pagarSimulado(@PathVariable String referencia, @RequestParam String resultado, Authentication auth) {
+    public String pagarSimulado(@PathVariable String referencia, @RequestParam String medio,
+            @RequestParam String escenario, @RequestParam(required = false) String marca,
+            @RequestParam(required = false) String ultimos4, @RequestParam(required = false) Integer banco,
+            Authentication auth) {
         reservaSimulada(referencia, auth);
-        reservaService.pagoSimulado(referencia, "aprobar".equals(resultado));
+        String estado = "APPROVED".equals(escenario) ? "APPROVED" : "DECLINED";
+        String digitos = ultimos4 != null && ultimos4.matches("\\d{4}") ? ultimos4 : "••••";
+        String descripcion = switch (medio) {
+            case "CARD" -> MARCAS.getOrDefault(marca, "Tarjeta") + " •••• " + digitos;
+            case "PSE" -> "PSE · " + (banco != null && banco >= 0 && banco < BANCOS_PRUEBA.size()
+                    ? BANCOS_PRUEBA.get(banco) : "Banco");
+            case "NEQUI" -> "Nequi •••• " + digitos;
+            case "BANCOLOMBIA_TRANSFER" -> "Botón Bancolombia";
+            default -> null;
+        };
+        if (descripcion == null)
+            return "redirect:/pagos/simulado/" + referencia;
+        reservaService.pagoSimulado(referencia, medio, descripcion, estado);
         return "redirect:/pagos/" + referencia + "/resultado";
     }
 
+    private static final Map<String, String> MARCAS = Map.of("VISA", "Visa", "MASTERCARD", "Mastercard",
+            "AMEX", "American Express", "DINERS", "Diners Club");
+
     private Reserva reservaSimulada(String referencia, Authentication auth) {
-        if (pasarela.wompiConfigurado())
+        if (!pasarela.usaSimulada())
             throw new NoSuchElementException();
         return reservaDe(referencia, paciente(auth));
     }
@@ -143,10 +178,18 @@ public class PagoController {
         model.addAttribute("reserva", reserva);
         model.addAttribute("doctor", doctor);
         model.addAttribute("saldo", saldo(doctor, reserva));
+        model.addAttribute("pagoSimulado", pasarela.usaSimulada());
+        model.addAttribute("nitComercio", nitComercio.isBlank() ? null : nitComercio);
         model.addAttribute("cancelarHasta", reserva.getFecha().atTime(reserva.getHora())
                 .minusHours(doctor.horasCancelacionEfectivas()));
         if (vista == Vista.CONFIRMADA && reserva.getCitaId() != null)
-            citaService.buscarPorId(reserva.getCitaId()).ifPresent(c -> model.addAttribute("cita", c));
+            citaService.buscarPorId(reserva.getCitaId()).ifPresent(c -> {
+                model.addAttribute("cita", c);
+                model.addAttribute("enlaceGoogle", Calendario.enlaceGoogle(c.getFecha().atTime(c.getHora()), 30,
+                        "Cita con Dr(a). " + doctor.getNombre() + " " + doctor.getApellido(),
+                        doctor.getDireccionConsultorio(),
+                        "Cita agendada en BeSalud. Referencia del abono: " + reserva.getReferencia() + "."));
+            });
         return "pagos/resultado";
     }
 
@@ -164,7 +207,11 @@ public class PagoController {
     private Reserva actualizar(Reserva r) {
         boolean pendiente = r.getTransaccionId() != null
                 && (r.getEstado() == Reserva.Estado.ESPERANDO_PAGO || r.getEstado() == Reserva.Estado.EXPIRADA);
-        if (!pendiente || !pasarela.wompiConfigurado())
+        if (!pendiente)
+            return r;
+        if (pasarela.usaSimulada())
+            return reservaService.resolverSimulacion(r);
+        if (!pasarela.wompiConfigurado())
             return r;
         pasarela.consultar(r.getTransaccionId()).ifPresent(t ->
                 reservaService.confirmarPago(t.referencia(), t.id(), t.estado(), t.montoCentavos(), t.moneda()));
@@ -204,8 +251,6 @@ public class PagoController {
 
     /** Lo que el paciente paga en el consultorio; null si el médico no publicó el valor. */
     private static Long saldo(Doctor doctor, Reserva reserva) {
-        if (doctor.getPrecioConsulta() == null || doctor.getPrecioConsulta() <= 0)
-            return null;
-        return Math.max(0, doctor.getPrecioConsulta() - reserva.getMontoPesos());
+        return Math.max(0, doctor.getPrecioEfectivo() - reserva.getMontoPesos());
     }
 }

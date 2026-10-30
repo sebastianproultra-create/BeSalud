@@ -27,7 +27,7 @@ class PerfilPublicoServiceTest {
     void consultaValida_seGuardaConPorcentaje() {
         Doctor d = new Doctor();
         assertThat(service.guardarConsulta(d, 80_000, 20, "  Calle 10   # 5-20 ", 24)).isNull();
-        assertThat(d.recibeReservas()).isTrue();
+        assertThat(d.tienePrecioPropio()).isTrue();
         assertThat(d.getAbono()).isEqualTo(16_000);
         assertThat(d.getDireccionConsultorio()).isEqualTo("Calle 10 # 5-20");
         verify(personaRepo).save(d);
@@ -47,8 +47,8 @@ class PerfilPublicoServiceTest {
     @Test
     void abono_redondeaYRespetaElMinimo() {
         Doctor d = new Doctor();
-        assertThat(d.recibeReservas()).isFalse();
-        assertThat(d.getAbono()).isZero();
+        assertThat(d.tienePrecioPropio()).isFalse();
+        assertThat(d.getAbono()).isEqualTo(10_000); // 20 % del precio base
 
         d.setPrecioConsulta(75_550);
         d.setPorcentajeAbono(30);

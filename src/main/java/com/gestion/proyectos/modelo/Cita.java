@@ -26,6 +26,9 @@ public class Cita {
     /** Momento en que el médico marcó la asistencia (inicio real de la atención). */
     private LocalDateTime inicioAtencion;
     private boolean recordatorioEnviado;
+    /** Respuesta del paciente a "¿Vas a ir a tu cita?": true asistirá, null aún no responde. */
+    private Boolean asistenciaConfirmada;
+    private boolean confirmacionSolicitada;
 
     /**
      * "doctorId|fecha|hora" mientras la cita ocupa el turno (pendiente, en atención o completada); vacío si
@@ -38,7 +41,10 @@ public class Cita {
     /** Abono pagado al reservar (en centavos, como lo maneja la pasarela); null si la cita no tuvo abono. */
     private Long abonoCentavos;
     private String referenciaPago;
+    private String medioPago;
     private EstadoAbono estadoAbono;
+    /** Cuándo el profesional registró que devolvió el abono. */
+    private LocalDateTime abonoDevueltoEn;
 
     public String getId() {
         return id;
@@ -112,6 +118,30 @@ public class Cita {
         this.recordatorioEnviado = recordatorioEnviado;
     }
 
+    public String getMedioPago() {
+        return medioPago;
+    }
+
+    public void setMedioPago(String medioPago) {
+        this.medioPago = medioPago;
+    }
+
+    public Boolean getAsistenciaConfirmada() {
+        return asistenciaConfirmada;
+    }
+
+    public void setAsistenciaConfirmada(Boolean asistenciaConfirmada) {
+        this.asistenciaConfirmada = asistenciaConfirmada;
+    }
+
+    public boolean isConfirmacionSolicitada() {
+        return confirmacionSolicitada;
+    }
+
+    public void setConfirmacionSolicitada(boolean confirmacionSolicitada) {
+        this.confirmacionSolicitada = confirmacionSolicitada;
+    }
+
     public static String claveTurno(String doctorId, LocalDate fecha, LocalTime hora) {
         return doctorId + "|" + fecha + "|" + hora.withSecond(0).withNano(0);
     }
@@ -156,6 +186,14 @@ public class Cita {
 
     public void setEstadoAbono(EstadoAbono estadoAbono) {
         this.estadoAbono = estadoAbono;
+    }
+
+    public LocalDateTime getAbonoDevueltoEn() {
+        return abonoDevueltoEn;
+    }
+
+    public void setAbonoDevueltoEn(LocalDateTime abonoDevueltoEn) {
+        this.abonoDevueltoEn = abonoDevueltoEn;
     }
 
     public LocalDateTime getInicioAtencion() {

@@ -1,0 +1,152 @@
+/* ==============================================
+   MODO OSCURO - BeSalud
+   Los colores de cada página salen de css/oscuro/ (generado por scripts/generar_tema_oscuro.py).
+   Aquí van el botón para cambiar de tema y los ajustes que el generador no puede deducir.
+   Se carga al final del <head>, después de las hojas de la página.
+   ============================================== */
+
+html[data-tema="oscuro"] {
+    color-scheme: dark;
+}
+
+/* Cambio de tema suave (solo mientras se cambia) */
+html.tema-cambiando,
+html.tema-cambiando *,
+html.tema-cambiando *::before,
+html.tema-cambiando *::after {
+    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease, fill 0.3s ease !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    html.tema-cambiando,
+    html.tema-cambiando *,
+    html.tema-cambiando *::before,
+    html.tema-cambiando *::after {
+        transition: none !important;
+    }
+}
+
+/* ── Botón para cambiar de tema ── */
+.tema-boton {
+    position: fixed;
+    bottom: 24px;
+    left: 24px;
+    z-index: 90;
+    display: grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    min-height: 0;
+    margin: 0;
+    padding: 0;
+    /* Verde de la marca con aro claro: se distingue sobre fondos claros, fotos y tarjetas */
+    color: #EAF7F0;
+    background: linear-gradient(145deg, #0D4738, #002F24);
+    border: 2px solid #EAF7F0;
+    border-radius: 50%;
+    box-shadow: 0 0 0 1px rgba(0, 47, 36, 0.25), 0 8px 22px -8px rgba(0, 47, 36, 0.55);
+    cursor: pointer;
+    transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+}
+
+.tema-boton:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 0 0 1px rgba(0, 47, 36, 0.3), 0 12px 26px -10px rgba(0, 47, 36, 0.6);
+}
+
+.tema-boton:active {
+    transform: translateY(0);
+}
+
+.tema-boton:focus-visible {
+    outline: 3px solid rgba(13, 71, 56, 0.35);
+    outline-offset: 2px;
+}
+
+.tema-boton svg {
+    width: 20px;
+    height: 20px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.8;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+/* En oscuro se invierte: menta con el sol en verde bosque, para que resalte sobre el fondo */
+html[data-tema="oscuro"] .tema-boton {
+    color: #002F24;
+    background: linear-gradient(145deg, #EAF7F0, #B7EED9);
+    border: 2px solid #0D4738;
+    box-shadow: 0 0 0 1px rgba(183, 238, 217, 0.35), 0 8px 22px -8px rgba(0, 0, 0, 0.7);
+}
+
+html[data-tema="oscuro"] .tema-boton:hover {
+    box-shadow: 0 0 0 1px rgba(183, 238, 217, 0.5), 0 12px 26px -10px rgba(0, 0, 0, 0.8);
+}
+
+html[data-tema="oscuro"] .tema-boton:focus-visible {
+    outline-color: rgba(159, 216, 197, 0.5);
+}
+
+@media (max-width: 600px) {
+    .tema-boton {
+        bottom: 16px;
+        left: 16px;
+        width: 38px;
+        height: 38px;
+    }
+
+    .tema-boton svg {
+        width: 18px;
+        height: 18px;
+    }
+}
+
+/* En el celular, sobre la barra fija de pago */
+@media (max-width: 960px) {
+    body:has(.pago-barra-movil:not(.is-oculta)) .tema-boton {
+        bottom: 96px;
+    }
+}
+
+@media print {
+    .tema-boton {
+        display: none;
+    }
+}
+
+/* ── Ajustes que el generador no puede deducir ── */
+
+/* Velo detrás de las ventanas: sobre fondo oscuro necesita más contraste */
+html[data-tema="oscuro"] .verificacion,
+html[data-tema="oscuro"] .modal-overlay {
+    background-color: rgba(0, 0, 0, 0.66);
+}
+
+/* Lista desplegable de los <select>: el navegador la pinta blanca aunque el texto ya sea claro */
+html[data-tema="oscuro"] select option,
+html[data-tema="oscuro"] select optgroup {
+    color: #E6F2EC;
+    background-color: #14231D;
+}
+
+html[data-tema="oscuro"] select option:disabled {
+    color: #8FA79C;
+}
+
+/* Leyenda de la gráfica de demanda (panel del médico): mismos colores que dibuja prediccion.js en oscuro */
+html[data-tema="oscuro"] .demanda-muestra--cupos {
+    background-color: var(--d-highest--b);
+}
+
+html[data-tema="oscuro"] .demanda-muestra--rango {
+    border-top-color: var(--d-on--t);
+    border-bottom-color: var(--d-on--t);
+    background-image: linear-gradient(var(--d-on--t), var(--d-on--t));
+}
+
+/* Imágenes y fotos: un poco menos de brillo para no deslumbrar */
+html[data-tema="oscuro"] img:not([src$=".svg"]) {
+    filter: brightness(0.92);
+}

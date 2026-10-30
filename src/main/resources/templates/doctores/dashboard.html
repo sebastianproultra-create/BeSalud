@@ -3,13 +3,15 @@
       xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Panel médico — BeSalud</title>
     <link rel="stylesheet" th:href="@{/css/base/global.css}">
     <link rel="stylesheet" th:href="@{/css/doctores/dashboard.css}">
+    <th:block th:replace="~{fragments/layout :: design-system}"></th:block>
+    <link rel="stylesheet" th:href="@{/css/base/tema-oscuro.css}">
+    <script th:src="@{/js/tema.js}"></script>
 </head>
 <body class="doc-page">
-<header th:replace="~{fragments/layout :: shell-doctor}"></header>
+<header th:replace="~{fragments/navbar :: navbar}"></header>
 
 <main class="doc-main" th:with="
     loc=${T(java.util.Locale).forLanguageTag('es-CO')},
@@ -80,6 +82,16 @@
         </div>
     </section>
 
+    <!-- Sin precio propio el abono sale del precio base: se avisa arriba para que no pase desapercibido -->
+    <div class="doc-aviso-precio" role="status" th:unless="${doctor.tienePrecioPropio()}">
+        <span class="material-symbols-outlined" aria-hidden="true">sell</span>
+        <div>
+            <strong>Estás usando el precio base</strong>
+            <span th:text="${'Los pacientes reservan con un abono calculado sobre $' + #numbers.formatInteger(T(com.gestion.proyectos.modelo.Doctor).PRECIO_CONSULTA_DEFECTO, 1, 'POINT') + '. Pon el precio real de tu consulta.'}">Los pacientes reservan con un abono calculado sobre el precio base.</span>
+        </div>
+        <a href="#precio-y-pagos">Configurar precio</a>
+    </div>
+
     <!-- ═══════════════ NAV DE SECCIONES ═══════════════ -->
     <nav class="section-nav" aria-label="Secciones del panel">
         <div class="section-nav-links">
@@ -88,6 +100,7 @@
             <a href="#disponibilidad" class="section-nav-link">Disponibilidad semanal</a>
             <a href="#demanda" class="section-nav-link">Demanda proyectada</a>
             <a href="#citas" class="section-nav-link">Mis citas</a>
+            <a href="#abonos" class="section-nav-link" th:if="${abonos != null}">Abonos</a>
             <a href="#pacientes" class="section-nav-link">Pacientes</a>
         </div>
         <span class="section-nav-hoy">
@@ -139,7 +152,7 @@
                 <div class="doc-perfil-foto">
                     <img th:src="${doctor.foto != null ? doctor.foto : '/images/default-avatar.jpg'}"
                          th:alt="'Foto de ' + ${doctor.nombre}"
-                         onerror="this.src='/images/default-avatar.jpg'">
+                         onerror="this.hidden=true">
                     <span class="doc-perfil-check material-symbols-outlined" title="Médico registrado" aria-hidden="true">check</span>
                 </div>
                 <div class="doc-perfil-datos">
@@ -197,15 +210,15 @@
                 </div>
             </div>
 
-            <form th:action="@{/doctores/perfil/consulta}" method="post" class="doc-consulta-form"
+            <form th:action="@{/doctores/perfil/consulta}" method="post" class="doc-consulta-form" id="precio-y-pagos"
                   th:with="horas=${doctor.horasCancelacionEfectivas()}">
                 <h3 class="doc-bloque-titulo">Precio y pagos</h3>
                 <div th:if="${exitoConsulta}" class="alert alert-success" th:text="${exitoConsulta}"></div>
                 <div th:if="${errorConsulta}" class="alert alert-error" th:text="${errorConsulta}"></div>
 
-                <p class="doc-aviso-reservas" th:unless="${doctor.recibeReservas()}">
+                <p class="doc-aviso-reservas" th:unless="${doctor.tienePrecioPropio()}">
                     <span class="material-symbols-outlined" aria-hidden="true">info</span>
-                    Pon el precio de tu consulta para empezar a recibir reservas en línea.
+                    Mientras no pongas tu precio, el abono se calcula sobre el precio base.
                 </p>
 
                 <div class="doc-consulta-campos">
@@ -229,7 +242,7 @@
                                     th:selected="${p == doctor.porcentajeAbonoEfectivo()}">20 % del precio</option>
                         </select>
                         <small class="doc-abono-calculo" id="abonoCalculado"
-                               th:text="${doctor.recibeReservas() ? 'El paciente paga $' + #numbers.formatInteger(doctor.abono, 1, 'POINT') + ' al reservar' : ''}"></small>
+                               th:text="${doctor.tienePrecioPropio() ? 'El paciente paga $' + #numbers.formatInteger(doctor.abono, 1, 'POINT') + ' al reservar' : ''}"></small>
                     </label>
                     <label class="doc-campo">Se devuelve si cancelan con
                         <select name="horasCancelacion">
@@ -304,7 +317,7 @@
                                     </div>
                                     <button type="button" class="add-interval-btn" th:id="'add2-' + ${d[0]}" th:data-day="${d[0]}" onclick="toggleSecond(this.dataset.day)">+ 2° intervalo</button>
                                 </div>
-                                <div class="time-row second-row" th:id="'second-' + ${d[0]}" style="display:none">
+                                <div class="time-row second-row" th:id="'second-' + ${d[0]}" hidden>
                                     <div class="time-field">
                                         <span class="time-label">Entrada 2</span>
                                         <input type="time" th:id="'start2_' + ${d[0]}" th:name="|startTimes2[${d[0]}]|" disabled/>
@@ -446,35 +459,49 @@
         <div id="demandaContenido" hidden>
             <div class="demanda-kpis">
                 <article class="demanda-kpi">
-                    <span class="doc-label">Mañana</span>
-                    <p class="demanda-kpi-valor"><strong id="dkManana">0</strong> <span>citas</span></p>
-                    <span class="demanda-kpi-foot" id="dkMananaRango">entre 0 y 0</span>
+                    <span class="doc-label" id="dkProximoTitulo">Próximo día de consulta</span>
+                    <p class="demanda-kpi-valor"><strong id="dkProximo">0</strong> <span id="dkProximoUnidad">citas</span></p>
+                    <span class="demanda-kpi-foot" id="dkProximoFecha">—</span>
+                    <span class="demanda-kpi-pie" id="dkProximoRango">Lo más probable: entre 0 y 0</span>
                 </article>
                 <article class="demanda-kpi">
-                    <span class="doc-label">Día más cargado</span>
-                    <p class="demanda-kpi-valor"><strong id="dkPico">0</strong> <span>citas</span></p>
+                    <span class="doc-label" id="dkPicoTitulo">Día más cargado</span>
+                    <p class="demanda-kpi-valor"><strong id="dkPico">0</strong> <span id="dkPicoUnidad">citas</span></p>
                     <span class="demanda-kpi-foot" id="dkPicoFecha">—</span>
+                    <span class="demanda-kpi-pie" id="dkPicoDetalle">El día con más citas esperadas</span>
                 </article>
                 <article class="demanda-kpi">
                     <span class="doc-label" id="dkTotalTitulo">Próximos 30 días</span>
                     <p class="demanda-kpi-valor"><strong id="dkTotal">0</strong> <span>citas</span></p>
-                    <span class="demanda-kpi-foot" id="dkTotalPromedio">0 por día hábil</span>
+                    <span class="demanda-kpi-foot" id="dkTotalPromedio">0 por día de consulta</span>
+                    <span class="demanda-kpi-pie">Citas esperadas en todo el periodo</span>
                 </article>
-                <article class="demanda-kpi" id="dkAlertaCaja">
-                    <span class="doc-label">Días sin cupo suficiente</span>
-                    <p class="demanda-kpi-valor"><strong id="dkAlerta">0</strong> <span id="dkAlertaUnidad">días</span></p>
-                    <span class="demanda-kpi-foot" id="dkAlertaFoot">Tus cupos cubren la demanda</span>
+                <article class="demanda-kpi" id="dkOcupacionCaja">
+                    <span class="doc-label">Ocupación de tu agenda</span>
+                    <p class="demanda-kpi-valor"><strong id="dkOcupacion">0</strong> <span id="dkOcupacionUnidad">%</span></p>
+                    <span class="demanda-kpi-foot" id="dkOcupacionFoot">Ningún día supera tus cupos</span>
+                    <span class="demanda-kpi-pie">Parte de tus cupos que llenarían las citas esperadas</span>
                 </article>
             </div>
 
             <div class="demanda-grafica">
-                <canvas id="demandaChart" role="img" aria-label="Gráfica de citas proyectadas por día"></canvas>
+                <canvas id="demandaChart" role="img" aria-label="Gráfica de citas esperadas por día frente a tus cupos"></canvas>
             </div>
             <ul class="demanda-leyenda" aria-hidden="true">
-                <li><span class="demanda-muestra demanda-muestra--valor"></span>Citas proyectadas</li>
-                <li><span class="demanda-muestra demanda-muestra--rango"></span>Margen probable</li>
-                <li><span class="demanda-muestra demanda-muestra--cupos"></span>Cupos de tu horario</li>
+                <li><span class="demanda-muestra demanda-muestra--cupos"></span>Tus cupos del día</li>
+                <li><span class="demanda-muestra demanda-muestra--valor"></span>Citas esperadas</li>
+                <li id="demandaLeyendaExcede" hidden><span class="demanda-muestra demanda-muestra--excede"></span>Demanda mayor que tus cupos</li>
+                <li><span class="demanda-muestra demanda-muestra--rango"></span>Rango probable</li>
             </ul>
+            <details class="demanda-ayuda">
+                <summary>¿Cómo leer esta gráfica?</summary>
+                <ul>
+                    <li>Cada <strong>columna gris</strong> es un día de tu agenda: su altura son los cupos que tienes ese día según tu horario. Si no hay columna, ese día no atiendes.</li>
+                    <li>La <strong>barra verde</strong> de adentro son las citas que se esperan. Cuanto más llena está la columna, más ocupada estará tu agenda. Si la barra se pinta de <strong>ámbar</strong>, se espera que más pacientes pidan cita de los que caben en tus cupos: algunos tendrían que buscar otro día u otro médico.</li>
+                    <li>La <strong>línea fina con topes</strong> es el rango probable: 8 de cada 10 días la cantidad real de citas cae entre esos dos valores.</li>
+                    <li>Los <strong>fines de semana y festivos</strong> casi no tienen citas; por eso esos días la barra no aparece.</li>
+                </ul>
+            </details>
             <p class="text-muted doc-nota" id="demandaResumen"></p>
         </div>
     </section>
@@ -536,6 +563,12 @@
                         <span class="material-symbols-outlined" aria-hidden="true">payments</span>
                         <span th:text="${'Abono $' + #numbers.formatInteger(cita.abonoPesos, 1, 'POINT') + (cita.estadoAbono != null ? ' · ' + cita.estadoAbono.descripcion : '')}">Abono</span>
                     </p>
+                    <p th:if="${cita.estado.name() == 'PENDIENTE' and (cita.asistenciaConfirmada != null or cita.confirmacionSolicitada)}"
+                       class="cita-asistencia" th:classappend="${cita.asistenciaConfirmada != null} ? 'is-confirmada'">
+                        <span class="material-symbols-outlined" aria-hidden="true"
+                              th:text="${cita.asistenciaConfirmada != null ? 'event_available' : 'schedule'}">schedule</span>
+                        <span th:text="${cita.asistenciaConfirmada != null ? 'El paciente confirmó que asistirá' : 'Esperando que el paciente confirme'}">Asistencia</span>
+                    </p>
                     <p th:if="${cita.dictamen != null}" class="cita-dx">
                         <span class="material-symbols-outlined" aria-hidden="true">clinical_notes</span>
                         <span class="dictamen-preview" th:classappend="${cita.dictamen.tieneAlergias} ? 'con-alergias'"
@@ -572,6 +605,64 @@
 
         </div>
         <nav th:replace="~{fragments/layout :: paginacionAncla(${citasPage}, ${'/doctores?' + paramsCitas}, 'pc', 'citas')}"></nav>
+    </section>
+
+    <!-- ═══════════════ ABONOS ═══════════════ -->
+    <section id="abonos" class="doc-card" aria-labelledby="abonos-title"
+             th:if="${abonos != null}">
+        <div class="doc-card-head">
+            <div class="doc-card-title">
+                <span class="doc-card-ico material-symbols-outlined" aria-hidden="true">payments</span>
+                <div>
+                    <h2 id="abonos-title">Abonos
+                        <span class="card-counter" th:if="${!abonos.pendientes.isEmpty()}" th:text="${abonos.pendientes.size()}">0</span>
+                    </h2>
+                    <p th:text="${'Resumen de ' + #temporals.format(hoy, 'MMMM', loc) + ' y devoluciones pendientes'}">Resumen del mes</p>
+                </div>
+            </div>
+        </div>
+
+        <div th:if="${exitoAbonos}" class="alert alert-success" role="status" th:text="${exitoAbonos}"></div>
+
+        <div class="abonos-resumen">
+            <div class="abonos-dato">
+                <span>Recibidos este mes</span>
+                <strong th:text="${'$' + #numbers.formatInteger(abonos.cobradosMes, 1, 'POINT')}">$0</strong>
+                <small>Citas pagadas del mes</small>
+            </div>
+            <div class="abonos-dato">
+                <span>Conservados</span>
+                <strong th:text="${'$' + #numbers.formatInteger(abonos.retenidosMes, 1, 'POINT')}">$0</strong>
+                <small>Faltas o cancelaciones tardías</small>
+            </div>
+            <div class="abonos-dato" th:classappend="${abonos.porDevolver > 0} ? 'is-pendiente'">
+                <span>Por devolver</span>
+                <strong th:text="${'$' + #numbers.formatInteger(abonos.porDevolver, 1, 'POINT')}">$0</strong>
+                <small th:text="${abonos.pendientes.isEmpty() ? 'Nada pendiente' : abonos.pendientes.size() + (abonos.pendientes.size() == 1 ? ' paciente' : ' pacientes')}">Nada pendiente</small>
+            </div>
+        </div>
+
+        <div th:unless="${abonos.pendientes.isEmpty()}" class="abonos-pendientes">
+            <h3 class="doc-bloque-titulo">Devoluciones pendientes</h3>
+            <p class="abonos-ayuda">Estas citas se cancelaron a tiempo. Devuelve el abono por el mismo medio
+                (desde tu cuenta de Wompi) o por transferencia, y márcalo aquí: le avisamos al paciente.</p>
+            <ul>
+                <li th:each="c : ${abonos.pendientes}">
+                    <div>
+                        <strong th:text="${abonos.pacientes[c.pacienteId]}">Paciente</strong>
+                        <span th:text="${'Cita del ' + #temporals.format(c.fecha, 'd ''de'' MMMM', loc) + ' · ' + #temporals.format(c.hora, 'h:mm a', loc)}">Cita</span>
+                        <span class="abonos-ref" th:if="${c.referenciaPago != null}" th:text="${'Ref. ' + c.referenciaPago + (c.medioPago != null ? ' · ' + c.medioPago : '')}">Ref.</span>
+                    </div>
+                    <strong class="abonos-monto" th:text="${'$' + #numbers.formatInteger(c.abonoPesos, 1, 'POINT')}">$0</strong>
+                    <form th:action="@{/doctores/citas/{id}/abono-devuelto(id=${c.id})}" method="post"
+                          onsubmit="return confirm('¿Ya le devolviste el abono a este paciente?');">
+                        <button type="submit" class="doc-btn doc-btn--primary">
+                            <span class="material-symbols-outlined" aria-hidden="true">check</span>Marcar como devuelto
+                        </button>
+                    </form>
+                </li>
+            </ul>
+        </div>
     </section>
 
     <!-- ═══════════════ MIS PACIENTES ═══════════════ -->
@@ -625,12 +716,12 @@
 </main>
 
 <!-- ═══════════════ MODAL DICTAMEN (SOAP) ═══════════════ -->
-<div id="dictamenModal" class="modal-overlay" style="display:none" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+<div id="dictamenModal" class="modal-overlay" hidden role="dialog" aria-modal="true" aria-labelledby="modalTitle">
     <div class="modal-content modal-dictamen">
         <h3 id="modalTitle">Registrar dictamen</h3>
         <p class="dictamen-ayuda">Los campos con <span class="obligatorio">*</span> son obligatorios. El resto se llena solo si aplica.</p>
         <div id="dictamenError" class="alert alert-danger" role="alert" hidden></div>
-        <form id="dictamenForm" method="post">
+        <form id="dictamenForm" class="dictamen-form" method="post">
             <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
 
             <fieldset class="dictamen-seccion">
@@ -857,7 +948,7 @@
 </template>
 
 <!-- ═══════════════ MODAL VER DICTAMEN ═══════════════ -->
-<div id="verDictamenModal" class="modal-overlay" style="display:none" role="dialog" aria-modal="true" aria-labelledby="verDictamenTitle">
+<div id="verDictamenModal" class="modal-overlay" hidden role="dialog" aria-modal="true" aria-labelledby="verDictamenTitle">
     <div class="modal-content modal-dictamen">
         <h3 id="verDictamenTitle">Dictamen de la cita</h3>
         <div id="verDictamenCuerpo" class="dictamen-detail"></div>
@@ -886,7 +977,7 @@ function toggleDay(cb, day) {
         end.value   = '';
         const secondRow = document.getElementById('second-' + day);
         if (secondRow) {
-            secondRow.style.display = 'none';
+            secondRow.hidden = true;
             const s2 = document.getElementById('start2_' + day);
             const e2 = document.getElementById('end2_' + day);
             s2.disabled = true; s2.value = '';
@@ -902,13 +993,13 @@ function toggleSecond(day) {
     const s2  = document.getElementById('start2_' + day);
     const e2  = document.getElementById('end2_' + day);
     const btn = document.getElementById('add2-' + day);
-    if (row.style.display === 'none') {
-        row.style.display = 'flex';
+    if (row.hidden) {
+        row.hidden = false;
         s2.disabled = false;
         e2.disabled = false;
         btn.textContent = '− Quitar 2° intervalo';
     } else {
-        row.style.display = 'none';
+        row.hidden = true;
         s2.disabled = true; s2.value = '';
         e2.disabled = true; e2.value = '';
         btn.textContent = '+ 2° intervalo';

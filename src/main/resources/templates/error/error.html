@@ -2,12 +2,14 @@
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Error - BeSalud</title>
     <link rel="stylesheet" th:href="@{/css/base/global.css}">
+    <th:block th:replace="~{fragments/layout :: design-system}"></th:block>
+    <link rel="stylesheet" th:href="@{/css/base/tema-oscuro.css}">
+    <script th:src="@{/js/tema.js}"></script>
 </head>
 <body>
-<header th:replace="~{fragments/layout :: header-brand}"></header>
+<header th:replace="~{fragments/navbar :: navbar}"></header>
 
 <div class="container">
     <div class="card card-center text-center">

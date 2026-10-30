@@ -1,0 +1,652 @@
+/* Generado por scripts/generar_tema_oscuro.py a partir de publico/index.css. No editar a mano:
+   los ajustes van en base/tema-oscuro.css o en el generador. */
+
+html[data-tema="oscuro"] {
+    --primary--f: #125441;
+    --primary--t: #CFE5DF;
+    --primary--b: #125441;
+    --primary--s: rgba(0, 0, 0, 0.6);
+    --primary-mid--f: #1A5C45;
+    --primary-mid--t: #C2DED4;
+    --primary-mid--b: #1A5C45;
+    --primary-mid--s: rgba(0, 0, 0, 0.6);
+    --accent--f: #C8A96E;
+    --accent--t: #C8A96E;
+    --accent--b: #6A552E;
+    --accent--s: #C8A96E;
+    --accent-light--f: #E8D5B0;
+    --accent-light--t: #E8D5B0;
+    --accent-light--b: #594826;
+    --accent-light--s: #E8D5B0;
+    --white--f: #121C18;
+    --white--t: #FDFCF9;
+    --white--b: #2C3C36;
+    --white--s: #121C18;
+    --off-white--f: #3C311B;
+    --off-white--t: #F5F2EC;
+    --off-white--b: #483C26;
+    --off-white--s: #3C311B;
+    --text-dark--f: #1C1C1A;
+    --text-dark--t: #E0E0DD;
+    --text-dark--b: #1C1C1A;
+    --text-dark--s: rgba(0, 0, 0, 0.6);
+    --text-mid--f: #4A4A46;
+    --text-mid--t: #CCCCC9;
+    --text-mid--b: #4A4A46;
+    --text-mid--s: rgba(0, 0, 0, 0.6);
+    --text-muted--f: #353533;
+    --text-muted--t: #B0B0AC;
+    --text-muted--b: #353533;
+    --text-muted--s: #353533;
+    --border--f: rgba(151, 216, 198, 0.156);
+    --border--t: rgba(207, 229, 223, 0.12);
+    --border--b: rgba(159, 209, 194, 0.144);
+    --border--s: rgba(0, 0, 0, 0.216);
+    --border-mid--f: rgba(151, 216, 198, 0.286);
+    --border-mid--t: rgba(207, 229, 223, 0.22);
+    --border-mid--b: rgba(159, 209, 194, 0.264);
+    --border-mid--s: rgba(0, 0, 0, 0.396);
+}
+
+html[data-tema="oscuro"] body {
+    color: var(--text-dark--t);
+    background-color: var(--white--f);
+}
+
+html[data-tema="oscuro"] .nav-brand a {
+    color: var(--white--t);
+}
+
+html[data-tema="oscuro"] .brand-icon {
+    color: var(--accent--t);
+}
+
+html[data-tema="oscuro"] .nav-links a {
+    color: rgba(255, 255, 255, 0.82);
+}
+
+html[data-tema="oscuro"] .nav-links a:hover {
+    color: var(--white--t);
+}
+
+html[data-tema="oscuro"] .nav-toggle {
+    background-color: transparent;
+    background-image: none;
+    border: none;
+    color: var(--white--t);
+}
+
+html[data-tema="oscuro"] .hero {
+    background-color: var(--primary--f);
+    background-image: url('https://images.unsplash.com/photo-1631217868264-e5b90bb7e133?w=1600&q=85&auto=format&fit=crop');
+}
+
+html[data-tema="oscuro"] .hero-overlay {
+    background-color: transparent;
+    background-image: linear-gradient(
+        160deg,
+        rgba(7, 34, 22, 0.82) 0%,
+        rgba(13, 59, 46, 0.7) 45%,
+        rgba(7, 28, 20, 0.88) 100%
+    );
+}
+
+html[data-tema="oscuro"] .hero-eyebrow {
+    color: var(--accent--t);
+    border: 1px solid rgba(106, 85, 46, 0.4);
+}
+
+html[data-tema="oscuro"] .hero h1 {
+    color: var(--white--t);
+}
+
+html[data-tema="oscuro"] .hero p {
+    color: rgba(255, 255, 255, 0.78);
+}
+
+html[data-tema="oscuro"] .hero-scroll-indicator {
+    color: rgba(255, 255, 255, 0.45);
+}
+
+html[data-tema="oscuro"] .scroll-line {
+    background-color: transparent;
+    background-image: linear-gradient(to bottom, rgba(27, 42, 36, 0.78), transparent);
+}
+
+html[data-tema="oscuro"] .btn-primary {
+    background-color: var(--accent--f);
+    color: var(--primary--t);
+    border: 1px solid var(--accent--b);
+}
+
+html[data-tema="oscuro"] .btn-primary:hover,
+html[data-tema="oscuro"] #irLogin:hover {
+    background-color: transparent;
+    color: var(--accent--t);
+    border-color: var(--accent--b);
+}
+
+html[data-tema="oscuro"] .btn-secondary {
+    background-color: transparent;
+    background-image: none;
+    color: rgba(255, 255, 255, 0.85);
+    border: 1px solid rgba(255, 255, 255, 0.35);
+}
+
+html[data-tema="oscuro"] .btn-secondary:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    background-image: none;
+    color: var(--white--t);
+    border-color: rgba(43, 59, 53, 0.65);
+}
+
+html[data-tema="oscuro"] .btn-ghost {
+    background-color: transparent;
+    background-image: none;
+    color: rgba(255, 255, 255, 0.7);
+    border: 1px solid rgba(255, 255, 255, 0.25);
+}
+
+html[data-tema="oscuro"] .btn-ghost:hover {
+    background-color: rgba(255, 255, 255, 0.08);
+    background-image: none;
+    color: var(--white--t);
+}
+
+html[data-tema="oscuro"] .main-content {
+    background-color: var(--white--f);
+}
+
+html[data-tema="oscuro"] .section-label {
+    color: var(--accent--t);
+}
+
+html[data-tema="oscuro"] .section h2 {
+    color: var(--primary--t);
+}
+
+html[data-tema="oscuro"] .section h2 em {
+    color: var(--primary-mid--t);
+}
+
+html[data-tema="oscuro"] .section-about p {
+    color: var(--text-mid--t);
+}
+
+html[data-tema="oscuro"] .stat-number {
+    color: var(--primary--t);
+}
+
+html[data-tema="oscuro"] .stat-label {
+    color: var(--text-muted--t);
+}
+
+html[data-tema="oscuro"] .stat-divider {
+    background-color: var(--border-mid--f);
+    background-image: none;
+}
+
+html[data-tema="oscuro"] .section-image {
+    background-color: transparent;
+    background-image: linear-gradient(160deg, var(--primary-mid--f), var(--primary--f));
+}
+
+html[data-tema="oscuro"] .section-image::before {
+    border-top: 2px solid var(--accent--b);
+    border-right: 2px solid var(--accent--b);
+}
+
+html[data-tema="oscuro"] .section-image::after {
+    border-bottom: 2px solid var(--accent--b);
+    border-left: 2px solid var(--accent--b);
+}
+
+html[data-tema="oscuro"] .section-image img {
+    filter: saturate(0.9);
+}
+
+html[data-tema="oscuro"] .section-team {
+    border-top: 1px solid var(--border--b);
+}
+
+html[data-tema="oscuro"] .cards {
+    background-color: var(--border--f);
+    background-image: none;
+}
+
+html[data-tema="oscuro"] .card {
+    background-color: var(--white--f);
+    background-image: none;
+}
+
+html[data-tema="oscuro"] .card:hover {
+    background-color: var(--off-white--f);
+    background-image: none;
+}
+
+html[data-tema="oscuro"] .card h3 {
+    color: var(--primary--t);
+}
+
+html[data-tema="oscuro"] .card p {
+    color: var(--text-mid--t);
+}
+
+html[data-tema="oscuro"] .section-contact {
+    border-top: 1px solid var(--border--b);
+}
+
+html[data-tema="oscuro"] .contact-grid {
+    border-top: 1px solid var(--border--b);
+}
+
+html[data-tema="oscuro"] .contact-item {
+    border-bottom: 1px solid var(--border--b);
+}
+
+html[data-tema="oscuro"] .contact-icon {
+    color: var(--accent--t);
+}
+
+html[data-tema="oscuro"] .contact-type {
+    color: var(--text-muted--t);
+}
+
+html[data-tema="oscuro"] .contact-item a,
+html[data-tema="oscuro"] .contact-item span:last-child {
+    color: var(--primary--t);
+}
+
+html[data-tema="oscuro"] .contact-item a:hover {
+    color: var(--accent--t);
+}
+
+html[data-tema="oscuro"] footer {
+    background-color: var(--primary--f);
+}
+
+html[data-tema="oscuro"] .footer-brand {
+    color: var(--white--t);
+}
+
+html[data-tema="oscuro"] .footer-copy {
+    color: rgba(255, 255, 255, 0.42);
+}
+
+html[data-tema="oscuro"] .footer-copy a {
+    color: var(--accent-light--t);
+}
+
+html[data-tema="oscuro"] .footer-copy a:hover {
+    color: var(--white--t);
+}
+
+@media (max-width: 900px) {
+html[data-tema="oscuro"] .navbar.open .nav-links {
+    background-color: #125441;
+    background-image: none;
+}
+}
+
+html[data-tema="oscuro"] {
+    --primary--f: #105644;
+    --primary--t: #CCE3DD;
+    --primary--b: #105644;
+    --primary--s: rgba(0, 0, 0, 0.6);
+    --primary-dark--f: #115545;
+    --primary-dark--t: #D6E9E4;
+    --primary-dark--b: #115545;
+    --primary-dark--s: rgba(0, 0, 0, 0.6);
+    --primary-soft--f: #155142;
+    --primary-soft--t: #CFE5E0;
+    --primary-soft--b: #155142;
+    --primary-soft--s: rgba(0, 0, 0, 0.6);
+    --accent--f: #D99B4B;
+    --accent--t: #D99B4B;
+    --accent--b: #D99B4B;
+    --accent--s: #D99B4B;
+    --accent-hover--f: #C4883A;
+    --accent-hover--t: #D9B27F;
+    --accent-hover--b: #C4883A;
+    --accent-hover--s: rgba(0, 0, 0, 0.6);
+    --white--f: #121C18;
+    --white--t: #FAFBF9;
+    --white--b: #2C3C36;
+    --white--s: #121C18;
+    --off-white--f: #131D19;
+    --off-white--t: #F4F7F4;
+    --off-white--b: #2D3D38;
+    --off-white--s: #131D19;
+    --section-border--f: #15201C;
+    --section-border--t: #EAEFEA;
+    --section-border--b: #2F403A;
+    --section-border--s: #15201C;
+    --text-dark--f: #171B19;
+    --text-dark--t: #DDE2DF;
+    --text-dark--b: #171B19;
+    --text-dark--s: rgba(0, 0, 0, 0.6);
+    --text-mid--f: #5F6662;
+    --text-mid--t: #BCC1BE;
+    --text-mid--b: #5F6662;
+    --text-mid--s: rgba(0, 0, 0, 0.6);
+    --text-muted--f: #343835;
+    --text-muted--t: #969D98;
+    --text-muted--b: #41584F;
+    --text-muted--s: #343835;
+    --border--f: rgba(151, 216, 199, 0.156);
+    --border--t: rgba(204, 227, 221, 0.12);
+    --border--b: rgba(159, 209, 196, 0.144);
+    --border--s: rgba(0, 0, 0, 0.216);
+    --border-mid--f: rgba(151, 216, 199, 0.26);
+    --border-mid--t: rgba(204, 227, 221, 0.2);
+    --border-mid--b: rgba(159, 209, 196, 0.24);
+    --border-mid--s: rgba(0, 0, 0, 0.36);
+}
+
+html[data-tema="oscuro"] body {
+    color: #C2C7C4;
+    background-color: var(--white--f);
+}
+
+html[data-tema="oscuro"] .site-header {
+    background-color: rgba(8, 41, 33, 0.88);
+    background-image: none;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+html[data-tema="oscuro"] .nav-brand a {
+    color: #FFFFFF;
+}
+
+html[data-tema="oscuro"] .brand-icon {
+    background-color: rgba(255, 255, 255, 0.1);
+    background-image: none;
+    color: #A9D5C3;
+}
+
+html[data-tema="oscuro"] .nav-brand a:hover .brand-icon {
+    background-color: rgba(255, 255, 255, 0.2);
+    background-image: none;
+}
+
+html[data-tema="oscuro"] .nav-links a {
+    color: rgba(226, 244, 236, 0.8);
+}
+
+html[data-tema="oscuro"] .nav-links a:hover {
+    color: #FFFFFF;
+}
+
+html[data-tema="oscuro"] .btn-secondary {
+    color: #FFFFFF !important;
+    background-color: rgba(255, 255, 255, 0.08);
+    background-image: none;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.144);
+}
+
+html[data-tema="oscuro"] .btn-secondary:hover {
+    background-color: var(--primary--f);
+    background-image: none;
+    border-color: #2B8064;
+}
+
+html[data-tema="oscuro"] .nav-toggle {
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+html[data-tema="oscuro"] .nav-toggle span {
+    background-color: #1B2A24;
+    background-image: none;
+}
+
+html[data-tema="oscuro"] .hero {
+    background-color: var(--primary-dark--f);
+    background-image: none;
+}
+
+html[data-tema="oscuro"] .hero-image {
+    filter: grayscale(1);
+}
+
+html[data-tema="oscuro"] .hero-overlay {
+    background-color: transparent;
+    background-image: linear-gradient(180deg, rgba(13, 71, 56, 0.82) 0%, rgba(13, 71, 56, 0.76) 50%, rgba(8, 41, 33, 0.94) 100%);
+}
+
+html[data-tema="oscuro"] .hero-overlay::after {
+    background-color: transparent;
+    background-image: radial-gradient(ellipse at center, transparent 0%, rgba(8, 41, 33, 0.38) 55%, rgba(8, 41, 33, 0.9) 100%);
+}
+
+html[data-tema="oscuro"] .hero-eyebrow {
+    color: #C4E5D7;
+    background-color: rgba(13, 71, 56, 0.4);
+    background-image: none;
+    border: 1px solid rgba(169, 213, 195, 0.3);
+}
+
+html[data-tema="oscuro"] .hero h1 {
+    color: #FFFFFF;
+}
+
+html[data-tema="oscuro"] .hero p {
+    color: rgba(226, 244, 236, 0.9);
+}
+
+html[data-tema="oscuro"] .btn-primary {
+    color: #DDE2DF;
+    background-color: var(--accent--f);
+    background-image: none;
+    border: 1px solid var(--accent--b);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.36);
+}
+
+html[data-tema="oscuro"] .btn-primary:hover,
+html[data-tema="oscuro"] #irLogin:hover {
+    color: #DDE2DF;
+    background-color: var(--accent-hover--f);
+    background-image: none;
+    border-color: var(--accent-hover--b);
+}
+
+html[data-tema="oscuro"] .btn-ghost {
+    color: #FFFFFF;
+    background-color: rgba(255, 255, 255, 0.02);
+    background-image: none;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+html[data-tema="oscuro"] .btn-ghost:hover {
+    color: #FFFFFF;
+    background-color: rgba(255, 255, 255, 0.1);
+    background-image: none;
+    border-color: rgba(43, 59, 53, 0.4);
+}
+
+html[data-tema="oscuro"] .hero-scroll-indicator {
+    color: rgba(169, 213, 195, 0.7);
+}
+
+html[data-tema="oscuro"] .hero-scroll-indicator:hover {
+    color: #C4E5D7;
+}
+
+html[data-tema="oscuro"] .scroll-line {
+    background-color: rgba(38, 79, 62, 0.8);
+    background-image: none;
+}
+
+html[data-tema="oscuro"] .main-content {
+    background-color: var(--white--f);
+    background-image: none;
+}
+
+html[data-tema="oscuro"] .section-label {
+    color: rgba(204, 227, 221, 0.72);
+}
+
+html[data-tema="oscuro"] .section h2 {
+    color: var(--text-dark--t);
+}
+
+html[data-tema="oscuro"] .section h2 em {
+    color: var(--primary--t);
+}
+
+html[data-tema="oscuro"] .section-about {
+    border-bottom: 1px solid rgba(47, 64, 58, 0.8);
+}
+
+html[data-tema="oscuro"] .section-about p {
+    color: var(--text-mid--t);
+}
+
+html[data-tema="oscuro"] .about-stats {
+    border-top: 1px solid rgba(178, 189, 184, 0.144);
+}
+
+html[data-tema="oscuro"] .stat + .stat {
+    border-left: 1px solid rgba(178, 189, 184, 0.144);
+}
+
+html[data-tema="oscuro"] .stat-number {
+    color: var(--text-dark--t);
+}
+
+html[data-tema="oscuro"] .stat-label {
+    color: var(--text-muted--t);
+}
+
+html[data-tema="oscuro"] .section-image {
+    background-color: #15201C;
+    background-image: none;
+    box-shadow: 0 18px 40px rgba(0, 0, 0, 0.252);
+}
+
+html[data-tema="oscuro"] .section-image::before {
+    border: 1px solid rgba(159, 209, 196, 0.12);
+}
+
+html[data-tema="oscuro"] .section-image img {
+    filter: none;
+}
+
+html[data-tema="oscuro"] .section-team {
+    background-color: #1B2A24;
+    background-image: none;
+    border-top: 0;
+    border-bottom: 1px solid rgba(47, 64, 58, 0.8);
+}
+
+html[data-tema="oscuro"] .cards {
+    background-color: transparent;
+    background-image: none;
+}
+
+html[data-tema="oscuro"] .card {
+    background-color: #131D19;
+    background-image: none;
+    border: 1px solid rgba(178, 189, 184, 0.096);
+}
+
+html[data-tema="oscuro"] .card:hover {
+    background-color: #131D19;
+    background-image: none;
+    border-color: rgba(159, 209, 196, 0.24);
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.144);
+}
+
+html[data-tema="oscuro"] .card-icon {
+    color: var(--primary--t);
+    background-color: rgba(151, 216, 199, 0.078);
+    background-image: none;
+}
+
+html[data-tema="oscuro"] .card:hover .card-icon {
+    color: #FFFFFF;
+    background-color: var(--primary--f);
+    background-image: none;
+}
+
+html[data-tema="oscuro"] .card h3 {
+    color: var(--text-dark--t);
+}
+
+html[data-tema="oscuro"] .card p {
+    color: var(--text-mid--t);
+}
+
+html[data-tema="oscuro"] .section-contact {
+    background-color: var(--white--f);
+    background-image: none;
+    border-top: 0;
+}
+
+html[data-tema="oscuro"] .contact-grid {
+    border-top: 1px solid rgba(178, 189, 184, 0.144);
+}
+
+html[data-tema="oscuro"] .contact-item {
+    border-bottom: 1px solid rgba(178, 189, 184, 0.144);
+}
+
+html[data-tema="oscuro"] .contact-item:hover {
+    background-color: rgba(27, 42, 36, 0.82);
+    background-image: none;
+}
+
+html[data-tema="oscuro"] .contact-icon {
+    color: var(--primary--t);
+    background-color: rgba(151, 216, 199, 0.078);
+    background-image: none;
+}
+
+html[data-tema="oscuro"] .contact-type {
+    color: var(--text-muted--t);
+}
+
+html[data-tema="oscuro"] .contact-item a,
+html[data-tema="oscuro"] .contact-item span:last-child {
+    color: var(--text-dark--t);
+}
+
+html[data-tema="oscuro"] .contact-item a:hover {
+    color: var(--primary--t);
+}
+
+html[data-tema="oscuro"] footer {
+    background-color: var(--primary-dark--f);
+    background-image: none;
+    border-top: 1px solid rgba(13, 71, 56, 0.4);
+}
+
+html[data-tema="oscuro"] .footer-brand {
+    color: #FFFFFF;
+}
+
+html[data-tema="oscuro"] .footer-brand .brand-icon {
+    color: #69B493;
+    background-color: transparent;
+    background-image: none;
+}
+
+html[data-tema="oscuro"] .footer-copy {
+    color: rgba(196, 229, 215, 0.6);
+}
+
+html[data-tema="oscuro"] .footer-copy a {
+    color: #C4E5D7;
+}
+
+html[data-tema="oscuro"] .footer-copy a:hover {
+    color: #FFFFFF;
+}
+
+@media (max-width: 900px) {
+html[data-tema="oscuro"] .navbar.open .nav-links {
+    background-color: var(--primary-dark--f);
+    background-image: none;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+}
+}

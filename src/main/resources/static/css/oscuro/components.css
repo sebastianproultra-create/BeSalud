@@ -1,0 +1,176 @@
+/* Generado por scripts/generar_tema_oscuro.py a partir de components.css. No editar a mano:
+   los ajustes van en base/tema-oscuro.css o en el generador. */
+
+html[data-tema="oscuro"] .bs-btn {
+    border: 1px solid transparent;
+}
+
+html[data-tema="oscuro"] .bs-btn--primary {
+    color: var(--color-surface--t);
+    background-color: var(--color-primary--f);
+    background-image: none;
+}
+
+html[data-tema="oscuro"] .bs-btn--primary:hover {
+    background-color: var(--color-primary-hover--f);
+    background-image: none;
+}
+
+html[data-tema="oscuro"] .bs-btn--secondary {
+    color: var(--color-primary--t);
+    background-color: var(--color-surface--f);
+    background-image: none;
+    border-color: var(--color-border-strong--b);
+}
+
+html[data-tema="oscuro"] .bs-btn--danger {
+    color: var(--color-surface--t);
+    background-color: var(--color-danger--f);
+    background-image: none;
+}
+
+html[data-tema="oscuro"] .bs-btn--ghost {
+    color: var(--color-primary--t);
+    background-color: transparent;
+    background-image: none;
+    border-color: currentColor;
+}
+
+html[data-tema="oscuro"] .bs-field__label {
+    color: var(--color-text--t);
+}
+
+html[data-tema="oscuro"] .bs-field__error {
+    color: var(--color-danger--t);
+}
+
+html[data-tema="oscuro"] .bs-field__control {
+    color: var(--color-text--t);
+    background-color: var(--color-surface--f);
+    background-image: none;
+    border: 1px solid var(--color-border--b);
+}
+
+html[data-tema="oscuro"] .bs-card {
+    background-color: var(--color-surface--f);
+    background-image: none;
+    border: 1px solid var(--color-border--b);
+    box-shadow: var(--shadow-sm--s);
+}
+
+html[data-tema="oscuro"] .bs-table-wrap {
+    border: 1px solid var(--color-border--b);
+}
+
+html[data-tema="oscuro"] .bs-table th,
+html[data-tema="oscuro"] .bs-table td {
+    border-bottom: 1px solid var(--color-border--b);
+}
+
+html[data-tema="oscuro"] .bs-alert {
+    border: 1px solid var(--color-border--b);
+}
+
+html[data-tema="oscuro"] .bs-alert--success {
+    color: var(--color-success--t);
+    background-color: var(--color-primary-soft--f);
+    background-image: none;
+}
+
+html[data-tema="oscuro"] .bs-alert--danger {
+    color: var(--color-danger--t);
+    background-color: var(--color-surface--f);
+    background-image: none;
+}
+
+html[data-tema="oscuro"] .bs-alert--warning {
+    color: var(--color-warning--t);
+    background-color: var(--color-surface--f);
+    background-image: none;
+}
+
+html[data-tema="oscuro"] .bs-alert--info {
+    color: var(--color-info--t);
+    background-color: var(--color-surface--f);
+    background-image: none;
+}
+
+html[data-tema="oscuro"] .bs-badge--success {
+    color: var(--color-success--t);
+    background-color: var(--color-primary-soft--f);
+    background-image: none;
+}
+
+html[data-tema="oscuro"] .bs-badge--warning {
+    color: var(--color-warning--t);
+    background-color: var(--color-surface-muted--f);
+    background-image: none;
+}
+
+html[data-tema="oscuro"] .bs-badge--danger {
+    color: var(--color-danger--t);
+    background-color: var(--color-surface-muted--f);
+    background-image: none;
+}
+
+html[data-tema="oscuro"] .bs-modal {
+    background-color: var(--color-overlay--f);
+    background-image: none;
+}
+
+html[data-tema="oscuro"] input:not([type="checkbox"]):not([type="radio"]):not([type="hidden"]),
+html[data-tema="oscuro"] select,
+html[data-tema="oscuro"] textarea {
+    color: var(--color-text--t);
+    background-color: var(--color-surface--f);
+    background-image: none;
+    border: 1px solid var(--color-border--b);
+}
+
+html[data-tema="oscuro"] progress {
+    border: 0;
+    background-color: var(--color-primary-soft--f);
+    background-image: none;
+}
+
+html[data-tema="oscuro"] progress::-webkit-progress-bar {
+    background-color: var(--color-primary-soft--f);
+    background-image: none;
+}
+
+html[data-tema="oscuro"] progress::-webkit-progress-value {
+    background-color: var(--color-primary--f);
+    background-image: none;
+}
+
+html[data-tema="oscuro"] progress::-moz-progress-bar {
+    background-color: var(--color-primary--f);
+    background-image: none;
+}
+
+html[data-tema="oscuro"] .barra-relleno {
+    border: 0;
+    background-color: var(--color-primary-soft--f);
+    background-image: none;
+}
+
+html[data-tema="oscuro"] .barra-relleno::-webkit-progress-bar {
+    background-color: var(--color-primary-soft--f);
+    background-image: none;
+}
+
+html[data-tema="oscuro"] .barra-relleno::-webkit-progress-value {
+    background-color: var(--color-primary--f);
+    background-image: none;
+}
+
+html[data-tema="oscuro"] .barra-relleno::-moz-progress-bar {
+    background-color: var(--color-primary--f);
+    background-image: none;
+}
+
+html[data-tema="oscuro"] .card,
+html[data-tema="oscuro"] .panel,
+html[data-tema="oscuro"] .surface-card {
+    box-shadow: var(--shadow-sm--s);
+}

@@ -127,6 +127,7 @@ public class CitaService {
         cita.setMotivo(reserva.getMotivo());
         cita.setAbonoCentavos(reserva.getMontoCentavos());
         cita.setReferenciaPago(reserva.getReferencia());
+        cita.setMedioPago(reserva.getMedioPago());
         cita.setEstadoAbono(EstadoAbono.PAGADO);
         Cita guardada = guardarOcupandoTurno(cita);
         log.info("Cita creada con abono: id={} referencia={}", guardada.getId(), reserva.getReferencia());
@@ -151,6 +152,9 @@ public class CitaService {
         cita.setFecha(fecha);
         cita.setHora(hora);
         cita.setRecordatorioEnviado(false);
+        // Nueva fecha: se vuelve a preguntar si asistirá
+        cita.setAsistenciaConfirmada(null);
+        cita.setConfirmacionSolicitada(false);
         try {
             guardarOcupandoTurno(cita);
         } catch (TurnoOcupadoException e) {
@@ -185,6 +189,47 @@ public class CitaService {
         citaRepo.save(cita);
         log.info("Cita cancelada: id={}", cita.getId());
         eventos.publishEvent(new CitaEvento(CitaEvento.Tipo.CANCELADA, cita.getId()));
+        return true;
+    }
+
+    /**
+     * Se le pregunta al paciente si asistirá desde un día antes del plazo de cancelación hasta la hora de la
+     * cita. Así, si responde que no a tiempo, el abono se devuelve.
+     */
+    public static final int HORAS_EXTRA_CONFIRMACION = 24;
+
+    public static boolean esperaConfirmacion(Cita cita, Doctor doctor, LocalDateTime ahora) {
+        if (cita.getEstado() != EstadoCita.PENDIENTE || cita.getAsistenciaConfirmada() != null
+                || cita.getFecha() == null || cita.getHora() == null)
+            return false;
+        int horas = (doctor == null ? 24 : doctor.horasCancelacionEfectivas()) + HORAS_EXTRA_CONFIRMACION;
+        LocalDateTime inicio = LocalDateTime.of(cita.getFecha(), cita.getHora());
+        return !ahora.isBefore(inicio.minusHours(horas)) && ahora.isBefore(inicio);
+    }
+
+    /** Citas del paciente a las que todavía debe responder si asistirá. */
+    public List<Cita> porConfirmarDe(String pacienteId) {
+        LocalDateTime ahora = Reloj.ahora();
+        return citaRepo.findByPacienteId(pacienteId).stream()
+                .filter(c -> c.getEstado() == EstadoCita.PENDIENTE && c.getFecha() != null
+                        && !c.getFecha().isBefore(ahora.toLocalDate()))
+                .filter(c -> esperaConfirmacion(c, buscarDoctorPorId(c.getDoctorId()).orElse(null), ahora))
+                .sorted(java.util.Comparator.comparing(Cita::getFecha).thenComparing(Cita::getHora))
+                .toList();
+    }
+
+    /**
+     * Respuesta del paciente. Si asistirá, la cita queda confirmada; si no, se cancela y el abono se devuelve
+     * cuando responde dentro del plazo (si no, lo conserva el profesional, como en cualquier cancelación tardía).
+     */
+    public boolean responderAsistencia(Cita cita, boolean asistira) {
+        if (cita.getEstado() != EstadoCita.PENDIENTE)
+            return false;
+        if (!asistira)
+            return cancelar(cita, true);
+        cita.setAsistenciaConfirmada(true);
+        citaRepo.save(cita);
+        log.info("Asistencia confirmada por el paciente: cita={}", cita.getId());
         return true;
     }
 

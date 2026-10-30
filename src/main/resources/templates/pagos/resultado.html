@@ -7,33 +7,42 @@
                nombreMedico=${'Dr(a). ' + doctor.nombre + ' ' + doctor.apellido}">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title th:text="${vista == 'CONFIRMADA' ? '¡Cita confirmada! · BeSalud' : 'Estado de tu pago · BeSalud'}">Resultado · BeSalud</title>
+    <title th:text="${vista == 'CONFIRMADA' ? (cita == null or cita.estado.name() == 'PENDIENTE' ? '¡Cita confirmada! · BeSalud' : 'Comprobante de pago · BeSalud') : 'Estado de tu pago · BeSalud'}">Resultado · BeSalud</title>
     <link rel="stylesheet" th:href="@{/css/base/global.css}">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400&amp;family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@100..700&amp;display=block" rel="stylesheet">
     <link rel="stylesheet" th:href="@{/css/auth/portal.css}">
     <link rel="stylesheet" th:href="@{/css/publico/pagos.css}">
+    <th:block th:replace="~{fragments/layout :: design-system}"></th:block>
+    <link rel="stylesheet" th:href="@{/css/base/tema-oscuro.css}">
+    <script th:src="@{/js/tema.js}"></script>
 </head>
 <body class="auth-page pago-page">
-<header th:replace="~{fragments/layout :: pago-header}"></header>
+<header th:replace="~{fragments/navbar :: navbar}"></header>
 
 <main class="auth-main pago-main">
-    <ol class="pago-pasos" aria-label="Pasos de la reserva" th:if="${vista == 'CONFIRMADA'}">
+    <ol class="pago-pasos" aria-label="Pasos de la reserva" th:if="${vista == 'CONFIRMADA' and (cita == null or cita.estado.name() == 'PENDIENTE')}">
         <li class="is-hecho"><span>1</span>Horario</li>
         <li class="is-hecho"><span>2</span>Pago del abono</li>
         <li class="is-hecho is-actual" aria-current="step"><span>3</span>Confirmación</li>
     </ol>
 
     <!-- ✔ Confirmada -->
-    <section class="pago-tarjeta resultado is-exito" th:if="${vista == 'CONFIRMADA'}" aria-labelledby="res-titulo">
-        <div class="resultado-icono" aria-hidden="true"><span class="material-symbols-outlined">check</span></div>
-        <h1 id="res-titulo">¡Tu cita está confirmada!</h1>
-        <p class="resultado-texto">
+    <!-- Si la cita ya pasó o se canceló, la misma página sirve como comprobante (desde "Mis pagos") -->
+    <section class="pago-tarjeta resultado is-exito" th:if="${vista == 'CONFIRMADA'}" aria-labelledby="res-titulo"
+             th:with="vigente=${cita == null or cita.estado.name() == 'PENDIENTE'}">
+        <!-- Solo al imprimir: encabezado del recibo -->
+        <div class="impreso-cabecera" aria-hidden="true">
+            <strong>BeSalud</strong>
+            <span th:text="${'Comprobante de pago · emitido el ' + #temporals.format(T(com.gestion.proyectos.util.Reloj).ahora(), 'd ''de'' MMMM ''de'' yyyy, h:mm a', loc)}">Comprobante</span>
+        </div>
+        <div class="resultado-icono" aria-hidden="true"><span class="material-symbols-outlined" th:text="${vigente ? 'check' : 'receipt_long'}">check</span></div>
+        <h1 id="res-titulo" th:text="${vigente ? '¡Tu cita está confirmada!' : 'Comprobante de pago'}">¡Tu cita está confirmada!</h1>
+        <p class="resultado-texto" th:if="${vigente}">
             Recibimos tu abono de <strong th:text="${'$' + #numbers.formatInteger(reserva.montoPesos, 1, 'POINT')}">$20.000</strong>.
             Te esperamos el <strong th:text="${fechaFrase + ', ' + horaCorta}">martes</strong>
+        </p>
+        <p class="resultado-texto" th:unless="${vigente}">
+            Pagaste un abono de <strong th:text="${'$' + #numbers.formatInteger(reserva.montoPesos, 1, 'POINT')}">$20.000</strong>
+            para tu cita del <strong th:text="${fechaFrase + ', ' + horaCorta}">martes</strong>
         </p>
 
         <div class="comprobante" aria-label="Comprobante">
@@ -53,9 +62,21 @@
                 <span>Abono pagado</span>
                 <strong th:text="${'$' + #numbers.formatInteger(reserva.montoPesos, 1, 'POINT')}">$20.000</strong>
             </div>
-            <div class="comprobante-fila" th:if="${saldo != null}">
+            <div class="comprobante-fila" th:if="${reserva.medioPago != null}">
+                <span>Medio de pago</span>
+                <strong th:text="${reserva.medioPago}">Visa •••• 4242</strong>
+            </div>
+            <div class="comprobante-fila" th:if="${vigente and saldo != null}">
                 <span>Pagas en el consultorio</span>
                 <strong th:text="${'$' + #numbers.formatInteger(saldo, 1, 'POINT')}">$60.000</strong>
+            </div>
+            <div class="comprobante-fila" th:unless="${vigente}">
+                <span>Estado de la cita</span>
+                <strong th:text="${cita.estado.descripcion}">Cancelada</strong>
+            </div>
+            <div class="comprobante-fila" th:if="${!vigente and cita.estadoAbono != null}">
+                <span>Abono</span>
+                <strong th:text="${cita.estadoAbono.descripcion}">Abono devuelto</strong>
             </div>
             <div class="comprobante-fila is-tenue">
                 <span>Referencia</span>
@@ -63,7 +84,31 @@
             </div>
         </div>
 
-        <p class="resultado-politica">
+        <!-- Datos de la transacción, como en el recibo de la pasarela -->
+        <dl class="recibo-transaccion" aria-label="Datos de la transacción">
+            <div>
+                <dt>Comercio</dt>
+                <dd th:text="${'BeSalud' + (nitComercio != null ? ' · NIT ' + nitComercio : '')}">BeSalud</dd>
+            </div>
+            <div th:if="${reserva.pagadaEn != null}">
+                <dt>Aprobado el</dt>
+                <dd th:text="${#temporals.format(reserva.pagadaEn, 'd MMM yyyy, h:mm a', loc)}">26 oct 2026</dd>
+            </div>
+            <div th:if="${reserva.codigoAutorizacion != null}">
+                <dt>Autorización</dt>
+                <dd th:text="${reserva.codigoAutorizacion}">482913</dd>
+            </div>
+            <div th:if="${reserva.transaccionId != null}">
+                <dt>Transacción</dt>
+                <dd th:text="${reserva.transaccionId}">1234-1700000000-12345</dd>
+            </div>
+            <div>
+                <dt>Procesado por</dt>
+                <dd th:text="${pagoSimulado ? 'Pasarela de pruebas' : 'Wompi'}">Wompi</dd>
+            </div>
+        </dl>
+
+        <p class="resultado-politica" th:if="${vigente}">
             <span class="material-symbols-outlined" aria-hidden="true">event_busy</span>
             <span>Si no puedes ir, cancela antes del
                 <strong th:text="${#temporals.format(cancelarHasta, 'EEEE d ''de'' MMMM, h:mm a', loc)}">lunes</strong>
@@ -71,13 +116,20 @@
         </p>
 
         <div class="resultado-acciones">
-            <a class="pago-boton" th:href="@{/pacientes/landing}">
+            <a class="pago-boton" th:href="@{/pacientes/landing}" th:if="${vigente}">
                 <span class="material-symbols-outlined" aria-hidden="true">event_note</span>Ver mis citas
             </a>
-            <a class="pago-boton is-secundario" th:if="${cita != null}" th:href="@{/citas/{id}/calendario.ics(id=${cita.id})}">
-                <span class="material-symbols-outlined" aria-hidden="true">calendar_add_on</span>Agregar a mi calendario
+            <a class="pago-boton" th:href="@{/pacientes/pagos}" th:unless="${vigente}">
+                <span class="material-symbols-outlined" aria-hidden="true">receipt_long</span>Volver a mis pagos
+            </a>
+            <a class="pago-boton is-secundario" th:if="${vigente and enlaceGoogle != null}" th:href="${enlaceGoogle}"
+               target="_blank" rel="noopener">
+                <span class="material-symbols-outlined" aria-hidden="true">calendar_add_on</span>Agregar a Google Calendar
             </a>
         </div>
+        <button type="button" class="resultado-imprimir" data-imprimir>
+            <span class="material-symbols-outlined" aria-hidden="true">print</span>Imprimir o guardar en PDF
+        </button>
     </section>
 
     <!-- ✖ Rechazada -->
@@ -88,6 +140,7 @@
             No te cobramos nada. Tu cita del <strong th:text="${fechaFrase + ', ' + horaCorta}">martes</strong>
             con <span th:text="${nombreMedico}">el profesional</span> aún no está confirmada.
         </p>
+        <p class="resultado-ref" th:if="${reserva.medioPago != null}" th:text="${'Intentaste con ' + reserva.medioPago}">Intentaste con Visa •••• 4111</p>
         <div class="resultado-causas">
             <h2>Suele pasar por</h2>
             <ul>
@@ -108,10 +161,18 @@
     <section class="pago-tarjeta resultado is-espera" th:if="${vista == 'PROCESANDO'}" aria-labelledby="res-titulo-p"
              th:attr="data-estado-url=@{/pagos/{ref}/estado(ref=${reserva.referencia})}">
         <div class="resultado-icono" aria-hidden="true"><span class="material-symbols-outlined resultado-girando">progress_activity</span></div>
-        <h1 id="res-titulo-p">Estamos confirmando tu pago</h1>
-        <p class="resultado-texto">
-            Algunos medios como PSE o Nequi tardan unos minutos. Esta página se actualiza sola;
-            también puedes cerrarla: la cita aparecerá en tus citas apenas el pago se apruebe.
+        <h1 id="res-titulo-p" th:text="${reserva.tipoMedio == 'NEQUI' ? 'Acepta el pago en tu app Nequi' : 'Estamos confirmando tu pago'}">Estamos confirmando tu pago</h1>
+        <p class="resultado-texto" th:switch="${reserva.tipoMedio}">
+            <span th:case="'NEQUI'">Te enviamos una notificación al celular terminado en
+                <strong th:text="${#strings.substringAfter(reserva.medioPago, '•••• ')}">1111</strong>. Ábrela y acepta el pago.</span>
+            <span th:case="'PSE'">Tu banco está confirmando el débito. Suele tardar menos de un minuto.</span>
+            <span th:case="'BANCOLOMBIA_TRANSFER'">Bancolombia está confirmando la transferencia.</span>
+            <span th:case="*">Algunos medios como PSE o Nequi tardan unos minutos.</span>
+            Esta página se actualiza sola; también puedes cerrarla: la cita aparecerá en tus citas apenas el pago se apruebe.
+        </p>
+        <p class="pago-demo-nota" th:if="${reserva.simulacionEstado != null}">
+            <span class="material-symbols-outlined" aria-hidden="true">science</span>
+            Modo pruebas: el pago se resuelve solo en unos segundos.
         </p>
         <p class="resultado-ref" th:text="${'Referencia ' + reserva.referencia}">Referencia</p>
         <div class="resultado-acciones">

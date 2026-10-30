@@ -2,18 +2,16 @@
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BeSalud · Centro de Ayuda</title>
     <link rel="stylesheet" th:href="@{/css/base/global.css}">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400&amp;family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@100..700&amp;display=block" rel="stylesheet">
     <link rel="stylesheet" th:href="@{/css/auth/portal.css}">
     <link rel="stylesheet" th:href="@{/css/publico/ayuda.css}">
+    <th:block th:replace="~{fragments/layout :: design-system}"></th:block>
+    <link rel="stylesheet" th:href="@{/css/base/tema-oscuro.css}">
+    <script th:src="@{/js/tema.js}"></script>
 </head>
 <body class="auth-page ayuda-page">
-<header th:replace="~{fragments/layout :: auth-header('ayuda')}"></header>
+<header th:replace="~{fragments/navbar :: navbar}"></header>
 
 <main class="auth-main ayuda-main">
     <section class="ayuda-hero" aria-labelledby="ayuda-title">
