@@ -63,7 +63,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 /** Comprueba que las plantillas con mensajes de error y botones nuevos renderizan sin fallar. */
 @WebMvcTest({DoctorController.class, PacienteController.class, CitaController.class, LoginController.class,
-        RolSelectionController.class, TriageController.class, PerfilPublicoController.class})
+        RolSelectionController.class, TriageController.class, PerfilPublicoController.class, HomeController.class})
 @Import(SecurityConfig.class)
 class VistasRenderTest {
 
@@ -374,6 +374,14 @@ class VistasRenderTest {
                 .andExpect(content().string(containsString("09:00")))
                 .andExpect(content().string(containsString("$50.000")))
                 .andExpect(content().string(containsString("href=\"/citas/nueva?doctorId=d1")));
+    }
+
+    @Test
+    void landing_rendersinSesionConWidgetDelChatbot() throws Exception {
+        mockMvc.perform(get("/"))
+                .andExpect(status().isOk())
+                .andExpect(content().string(containsString("chatbot-landing.js")))
+                .andExpect(content().string(containsString("chatbot-landing.css")));
     }
 
     @Test
