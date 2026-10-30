@@ -88,9 +88,9 @@ qué pasa los festivos) y **repite ese comportamiento hacia el futuro**, con un 
 4. **Se comparan dos candidatos y se elige el mejor.** HistGradientBoosting con pérdida cuadrática y con pérdida
    Poisson; gana el de menor **MAE medio en los 6 cortes**, y se reporta junto con su desviación.
 5. **Se reentrena el ganador con todo el historial** y se proyectan los días desde mañana (hasta 180).
-6. **Se calcula el rango probable.** Con los errores fuera de muestra de los 6 cortes se toman cuantiles del error
-   relativo, por separado para días laborables y no laborables. Cada serie usa el rango más angosto que, en un
-   backtest, cubre al menos el 80 % de los días hábiles. El rango crece con la demanda.
+6. **Se calcula el rango probable.** Con los errores fuera de muestra de los 6 cortes se toman los cuantiles 15 % y
+   85 % del error relativo, por separado para días laborables y no laborables. El rango crece con la demanda, y su
+   cobertura real se mide en un backtest (≈80 %).
 7. **Se entrega.** La API devuelve, por cada día, el valor proyectado y el rango, y el panel del médico lo dibuja.
 
 ### Las características (feature engineering)
@@ -134,11 +134,8 @@ La pérdida Poisson gana en 17 de las 19 series. También se probó **RandomFore
 nunca ganó con las 4 características (MAE medio 1,193 contra 1,169); se descartó para entrenar más rápido.
 
 **Rango probable.** Con los errores fuera de muestra de los 6 cortes se calcula el error relativo
-(real − proyectado) / (proyectado + 1) y se toman sus cuantiles p y 1 − p, por separado para días laborables y no
-laborables. El cuantil p se elige **por serie**: el más alto (rango más angosto) de 20 %, 17,5 %, 15 %, 12,5 %, 10 %,
-7,5 % y 5 % cuya cobertura en el backtest llega al 80 %. Hace falta porque las citas son enteras y el rango se
-redondea: un mismo cuantil cubre más en un médico (pocas citas, un rango de 0 a 2 cubre casi todo) que en una
-especialidad con 20 citas al día. Con un p fijo de 15 % las especialidades quedaban en 74–79 %. Al dividir entre lo proyectado, **el rango crece con la demanda**: con conteos la variación sube con la
+(real − proyectado) / (proyectado + 1) y se toman sus cuantiles 15 % y 85 %, por separado para días laborables y no
+laborables. Al dividir entre lo proyectado, **el rango crece con la demanda**: con conteos la variación sube con la
 media, así que octubre necesita un margen más ancho que febrero. Los valores se redondean a citas enteras y los
 negativos se llevan a 0 (no existen "−1 citas").
 
@@ -208,11 +205,9 @@ Para ponerlo en contexto: Medicina General recibe unas 20 a 28 citas por día h�
 equivocarse en ~3 citas es un error de alrededor del 12 %, suficiente para planear la agenda.
 
 **Cobertura del rango probable (backtest).** Para cada corte se calibran los cuantiles con los otros 5 cortes y se
-cuenta en cuántos días hábiles la demanda real cayó dentro del rango. Resultado: **82,3 %** en promedio y **todas las
-series llegan al 80 %** (81–83 % en las especialidades, 80–85 % en los médicos). Medido sobre todos los días hábiles de
-la validación: 81 % en temporada de lluvias y 83 % en temporada seca. Ojo: un corte de 60 días suelto puede quedar
-lejos (entre 55 % y 98 %), porque cada temporada tiene sus brotes; el 80 % se cumple en el conjunto del año. Como el
-cuantil se elige mirando esta misma cobertura, la cifra es levemente optimista. En fines de semana y festivos la cobertura es mayor (≈95 %), porque casi siempre
+cuenta en cuántos días hábiles la demanda real cayó dentro del rango. Resultado: **80,8 %** en promedio (74–79 % en
+las especialidades, 79–88 % en los médicos). Medido sobre todos los días hábiles de la validación: 79 % en temporada
+de lluvias y 84 % en temporada seca. En fines de semana y festivos la cobertura es mayor (≈95 %), porque casi siempre
 hay 0, 1 o 2 citas y un rango entero de 0 a 2 las cubre casi todas.
 
 ### Metodología (fases de CRISP-DM)
@@ -229,7 +224,7 @@ hay 0, 1 o 2 citas y un rango entero de 0 a 2 las cubre casi todas.
 ### El rango probable
 
 Además del valor proyectado, el modelo da un **rango probable** (`margenMinimo` – `margenMaximo`): en la validación,
-la demanda real de los días hábiles cayó dentro de ese rango **8 de cada 10 veces** (82,3 %; ninguna serie por debajo del 80 %).
+la demanda real de los días hábiles cayó dentro de ese rango **8 de cada 10 veces** (80,8 %).
 
 ---
 
@@ -340,8 +335,7 @@ python entrenar_modelos.py    # entrena todo, imprime MAE ± desviación y cober
 
 - La API carga el archivo al arrancar, así la primera consulta ya no espera al entrenamiento.
 - El archivo guarda dos huellas (hash). La del código cubre la versión de scikit-learn, `caracteristicas()`,
-  `entrenar()`, el cálculo del rango (`cuantiles_por_grupo()`, `rango()`, `cobertura_por_cortes()`), los
-  hiperparámetros, `CORTES`, `DIAS_TEST`, `COBERTURA_OBJETIVO` y `P_CANDIDATOS`; la de los datos cubre toda la serie de
+  `entrenar()`, los hiperparámetros, `CORTES`, `DIAS_TEST` y `P_INTERVALO`; la de los datos cubre toda la serie de
   cada modelo.
 - Si el archivo falta, está dañado o la huella del código no coincide (cambiaron las features, los hiperparámetros o
   la versión de scikit-learn), la API deja un `WARNING` en el log, marca `modelos: obsoletos (...)` en `/salud` y
@@ -420,8 +414,7 @@ festivos salen de la librería `holidays`, que es el calendario oficial de Colom
 el ruido aleatorio (Poisson) y los brotes aleatorios hacen que nunca acierte exacto, como se ve en el MAE.
 
 **¿Cómo comprobaron que el rango es del 80 %?** Con un backtest: en cada uno de los 6 cortes se calibró el rango con
-los otros 5 y se contó en cuántos días hábiles la demanda real cayó dentro. Dio 82,3 % (81 % en lluvias, 83 % en seca),
-y cada serie usa el rango más angosto que llega al 80 %.
+los otros 5 y se contó en cuántos días hábiles la demanda real cayó dentro. Dio 80,8 % (79 % en lluvias, 84 % en seca).
 
 **¿Su MAE de un solo corte es representativo?** No lo usamos: validamos con 6 cortes que cubren un año entero y
 reportamos la media ± la desviación.
