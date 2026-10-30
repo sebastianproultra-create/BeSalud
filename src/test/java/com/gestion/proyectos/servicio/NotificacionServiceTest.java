@@ -22,6 +22,7 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.never;
@@ -34,6 +35,7 @@ class NotificacionServiceTest {
     @Mock CitaRepositorio citaRepo;
     @Mock PersonaRepositorio personaRepo;
     @Mock CorreoService correo;
+    @Mock WhatsappService whatsapp;
 
     NotificacionService service;
     Paciente paciente;
@@ -41,7 +43,7 @@ class NotificacionServiceTest {
 
     @BeforeEach
     void setUp() {
-        service = new NotificacionService(citaRepo, personaRepo, correo, "https://besalud.test/");
+        service = new NotificacionService(citaRepo, personaRepo, correo, whatsapp, "https://besalud.test/");
         paciente = new Paciente("Ana", "<b>Ruiz</b>", "3001112233", "123", "ana@gmail.com", "x");
         paciente.setId("p1");
         doctor = new Doctor();
@@ -147,6 +149,71 @@ class NotificacionServiceTest {
         verify(citaRepo).save(pendiente);
         verify(citaRepo, never()).save(yaAvisada);
         assertThat(pendiente.isRecordatorioEnviado()).isTrue();
+    }
+
+    @SuppressWarnings("unchecked")
+    private ArgumentCaptor<List<String>> params() { return ArgumentCaptor.forClass(List.class); }
+
+    @SuppressWarnings("unchecked")
+    private ArgumentCaptor<List<WhatsappService.Boton>> botonesCaptor() { return ArgumentCaptor.forClass(List.class); }
+
+    @Test
+    void citaCreada_enviaMismoContenidoPorWhatsappSinBotones() {
+        when(citaRepo.findById("c1")).thenReturn(Optional.of(cita(LocalDate.of(2026, 10, 13))));
+        conPersonas();
+
+        service.alCambiarCita(new CitaEvento(CitaEvento.Tipo.CREADA, "c1"));
+
+        var parametros = params();
+        var botones = botonesCaptor();
+        ArgumentCaptor<String> texto = ArgumentCaptor.forClass(String.class);
+        verify(whatsapp).enviar(eq("3001112233"), parametros.capture(), texto.capture(), botones.capture());
+        assertThat(parametros.getValue()).hasSize(5);
+        assertThat(parametros.getValue().get(0)).isEqualTo("Ana");
+        assertThat(parametros.getValue().get(1)).isEqualTo("Tu cita quedó agendada");
+        assertThat(parametros.getValue().get(2)).contains("Martes 13 de octubre de 2026");
+        assertThat(parametros.getValue().get(3)).startsWith("Dr(a). Laura Gómez");
+        assertThat(parametros.getValue().get(4)).isNotBlank();
+        assertThat(botones.getValue()).isEmpty();
+        assertThat(texto.getValue()).contains("Tu cita quedó agendada", "Dr(a). Laura Gómez",
+                "https://besalud.test/pacientes/landing");
+    }
+
+    @Test
+    void pedirConfirmaciones_mandaBotonesAsistireYNoIre() {
+        Cita manana = cita(LocalDate.now().plusDays(1));
+        when(citaRepo.findByFechaAndEstado(any(), eq(EstadoCita.PENDIENTE))).thenAnswer(inv ->
+                manana.getFecha().equals(inv.getArgument(0)) ? List.of(manana) : List.of());
+        conPersonas();
+
+        service.pedirConfirmaciones();
+
+        var botones = botonesCaptor();
+        ArgumentCaptor<String> texto = ArgumentCaptor.forClass(String.class);
+        verify(whatsapp).enviar(eq("3001112233"), anyList(), texto.capture(), botones.capture());
+        assertThat(botones.getValue()).extracting(WhatsappService.Boton::id).containsExactly("ASISTIRE:c1", "NO_IRE:c1");
+        assertThat(texto.getValue()).contains("¿Vas a ir a tu cita?").doesNotContain("/pacientes/landing");
+        verify(correo).enviar(eq("ana@gmail.com"), anyString(), eq("¿Vas a ir a tu cita? · BeSalud"), anyString());
+        verify(citaRepo).marcarConfirmacionSolicitada("c1");
+    }
+
+    @Test
+    void comprobante_incluyeAbonoYReferenciaEnWhatsapp() {
+        Cita pagada = cita(LocalDate.of(2026, 10, 30));
+        pagada.setReferenciaPago("BS-3236031AB887409B");
+        pagada.setAbonoCentavos(1_600_000L);
+        doctor.setPrecioConsulta(80_000);
+        when(citaRepo.findById("c1")).thenReturn(Optional.of(pagada));
+        conPersonas();
+
+        service.alCambiarCita(new CitaEvento(CitaEvento.Tipo.CREADA, "c1"));
+
+        ArgumentCaptor<String> texto = ArgumentCaptor.forClass(String.class);
+        var parametros = params();
+        verify(whatsapp).enviar(eq("3001112233"), parametros.capture(), texto.capture(), eq(List.of()));
+        assertThat(texto.getValue()).contains("$16.000", "BS-3236031AB887409B");
+        assertThat(parametros.getValue().get(1)).isEqualTo("¡Tu cita está confirmada!");
+        assertThat(parametros.getValue().get(4)).contains("BS-3236031AB887409B");
     }
 
     @Test
