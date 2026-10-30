@@ -77,6 +77,12 @@ class SecurityRulesTest {
     }
 
     @Test
+    void chatbotLandingJson_esPublicoSinSesion() throws Exception {
+        mockMvc.perform(get("/data/chatbot-landing.json"))
+                .andExpect(status().isOk());
+    }
+
+    @Test
     void registerSinAutenticar_esAccesible() throws Exception {
         mockMvc.perform(get("/register"))
                 .andExpect(status().isOk());

@@ -31,7 +31,7 @@ public class SecurityConfig {
                                 .authorizeHttpRequests(auth -> auth
                                                 .requestMatchers("/", LOGIN_URL, "/register", "/register/save",
                                                                 "/css/**", "/images/**", "/vendor/**",
-                                                                "/js/**", "/error", "/elegir-rol", "/privacidad",
+                                                                "/js/**", "/data/**", "/error", "/elegir-rol", "/privacidad",
                                                                 "/ayuda", "/ayuda/contacto", "/p/**",
                                                                 "/pagos/retorno", "/pagos/wompi/eventos")
                                                 .permitAll()
