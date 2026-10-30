@@ -1221,7 +1221,7 @@ html[data-tema="oscuro"] .cita-abono {
 }
 
 html[data-tema="oscuro"] .cita-abono.is-completa {
-    color: var(--d-primary-c--t);
+    color: var(--color-success--t);
 }
 
 html[data-tema="oscuro"] .cita-asistencia {

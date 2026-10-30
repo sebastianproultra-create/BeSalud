@@ -216,7 +216,7 @@
                         <form th:if="${saldosPorPagar != null and saldosPorPagar[cita.id] != null}"
                               th:action="@{/citas/{id}/pagar-saldo(id=${cita.id})}" method="post" class="cita-saldo">
                             <span th:text="${cita.saldoObligatorio ? 'Paga $' + #numbers.formatInteger(saldosPorPagar[cita.id], 1, 'POINT') + ' antes del ' + #temporals.format(cita.limitePagoSaldo, 'd ''de'' MMMM, h:mm a', T(java.util.Locale).forLanguageTag('es-CO')) + ' o la cita se cancela.' : 'Te faltan $' + #numbers.formatInteger(saldosPorPagar[cita.id], 1, 'POINT') + '. Págalos ya y no pagas nada en el consultorio.'}">Paga $60.000 antes del 5 de noviembre o la cita se cancela.</span>
-                            <button type="submit" class="btn btn-primary btn-small">
+                            <button type="submit" class="bs-btn bs-btn--primary bs-btn--small">
                                 <i class="fa-solid fa-lock" aria-hidden="true"></i>
                                 <span th:text="${'Pagar ahora $' + #numbers.formatInteger(saldosPorPagar[cita.id], 1, 'POINT')}">Pagar ahora $60.000</span>
                             </button>

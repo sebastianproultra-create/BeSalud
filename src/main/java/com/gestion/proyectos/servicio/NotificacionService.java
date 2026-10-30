@@ -184,7 +184,8 @@ public class NotificacionService {
         correo.enviar(paciente.getEmail(), paciente.getNombre() + " " + paciente.getApellido(),
                 "Cita confirmada · comprobante de pago · BeSalud", html);
         enviarWhatsapp(paciente, doctor, cita, "¡Tu cita está confirmada!",
-                "Recibimos el pago de tu abono. Guarda este mensaje como comprobante.", "Ver mis citas",
+                (cita.isPagadaCompleta() ? "Recibimos el pago total de tu consulta." : "Recibimos el pago de tu abono.")
+                        + " Guarda este mensaje como comprobante.", "Ver mis citas",
                 lineasComprobante(doctor, cita), List.of());
     }
 
@@ -212,15 +213,22 @@ public class NotificacionService {
     List<String> lineasComprobante(Doctor doctor, Cita cita) {
         long abono = cita.getAbonoPesos() == null ? 0 : cita.getAbonoPesos();
         var lineas = new java.util.ArrayList<String>();
-        lineas.add("💳 Abono pagado: " + pesos(abono));
-        if (doctor != null && doctor.getPrecioEfectivo() > abono)
-            lineas.add("💵 Pagas en el consultorio: " + pesos(doctor.getPrecioEfectivo() - abono));
+        if (cita.isPagadaCompleta()) {
+            lineas.add("💳 Pagaste el total: " + pesos(cita.getPagadoPesos()));
+        } else {
+            lineas.add("💳 Abono pagado: " + pesos(abono));
+            if (doctor != null && doctor.getPrecioEfectivo() > abono)
+                lineas.add("💵 " + (cita.isSaldoObligatorio() && cita.getLimitePagoSaldo() != null
+                        ? "Pagas en línea antes del " + cita.getLimitePagoSaldo().format(FECHA_HORA) : "Pagas en el consultorio")
+                        + ": " + pesos(doctor.getPrecioEfectivo() - abono));
+        }
         if (doctor != null && doctor.getDireccionConsultorio() != null)
             lineas.add("📍 Lugar: " + doctor.getDireccionConsultorio());
         lineas.add("🧾 Referencia: " + cita.getReferenciaPago());
         if (doctor != null && cita.getFecha() != null && cita.getHora() != null)
             lineas.add("Si no puedes ir, cancela antes del " + cita.getFecha().atTime(cita.getHora())
-                    .minusHours(doctor.horasCancelacionEfectivas()).format(FECHA_HORA) + " y te devolvemos el abono.");
+                    .minusHours(doctor.horasCancelacionEfectivas()).format(FECHA_HORA) + " y te devolvemos "
+                    + (cita.isPagadaCompleta() ? "todo lo pagado." : "el abono."));
         return lineas;
     }
 

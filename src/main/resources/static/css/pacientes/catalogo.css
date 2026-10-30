@@ -2004,11 +2004,12 @@ body.patient-catalog-page {
     font-weight: 600;
 }
 
+/* Nuevas reglas con tokens del sistema de diseño */
 .cita-abono.is-completa {
     display: flex;
     align-items: center;
-    gap: 6px;
-    color: var(--secondary-color);
+    gap: var(--space-2);
+    color: var(--color-success);
 }
 
 /* Pagar el resto de la consulta en línea */
@@ -2016,18 +2017,18 @@ body.patient-catalog-page {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
-    gap: 6px 10px;
-    margin-top: 8px;
-    padding: 8px 10px;
-    background: var(--light-bg);
-    border: 1px solid var(--border-color);
+    gap: var(--space-2) var(--space-3);
+    margin-top: var(--space-2);
+    padding: var(--space-2) var(--space-3);
+    color: var(--color-text-muted);
+    background: var(--color-surface-muted);
+    border: 1px solid var(--color-border);
     border-radius: var(--radius-sm);
-    color: var(--text-light);
-    font-size: 12px;
+    font-size: var(--font-size-xs);
 }
 
-.cita-saldo .btn-small {
-    gap: 6px;
+.cita-saldo .bs-btn {
+    gap: var(--space-2);
 }
 
 .doctor-profile-link {

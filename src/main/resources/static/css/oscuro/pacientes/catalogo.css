@@ -713,14 +713,14 @@ html[data-tema="oscuro"] .cita-abono {
 }
 
 html[data-tema="oscuro"] .cita-abono.is-completa {
-    color: var(--secondary-color--t);
+    color: var(--color-success--t);
 }
 
 html[data-tema="oscuro"] .cita-saldo {
-    background-color: var(--light-bg--f);
+    color: var(--color-text-muted--t);
+    background-color: var(--color-surface-muted--f);
     background-image: none;
-    border: 1px solid var(--border-color--b);
-    color: var(--text-light--t);
+    border: 1px solid var(--color-border--b);
 }
 
 html[data-tema="oscuro"] .doctor-profile-link {

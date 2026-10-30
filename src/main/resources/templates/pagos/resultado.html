@@ -133,7 +133,7 @@
               th:action="@{/citas/{id}/pagar-saldo(id=${cita.id})}">
             <span class="material-symbols-outlined" aria-hidden="true">payments</span>
             <span th:text="${'Te falta pagar $' + #numbers.formatInteger(saldoPorPagar, 1, 'POINT') + '. Puedes hacerlo ahora o desde Mis citas, a más tardar el ' + #temporals.format(limiteSaldo, 'EEEE d ''de'' MMMM, h:mm a', loc) + '; si no, la cita se cancela.'}">Te falta pagar el resto.</span>
-            <button type="submit" class="pago-boton is-secundario"
+            <button type="submit" class="bs-btn bs-btn--secondary"
                     th:text="${'Pagar el resto ahora ($' + #numbers.formatInteger(saldoPorPagar, 1, 'POINT') + ')'}">Pagar el resto ahora</button>
         </form>
 

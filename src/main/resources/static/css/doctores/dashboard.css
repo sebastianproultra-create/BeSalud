@@ -1875,7 +1875,7 @@ a.doc-segmento {
 }
 /* El paciente pagó en línea toda la consulta: no hay nada que cobrar en el consultorio */
 .cita-abono.is-completa {
-    color: var(--d-primary-c);
+    color: var(--color-success);
 }
 .cita-asistencia {
     display: flex;
