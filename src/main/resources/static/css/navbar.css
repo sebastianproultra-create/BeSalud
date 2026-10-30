@@ -36,16 +36,9 @@
 }
 
 .bs-navbar__brand-mark {
-    display: grid;
-    width: 2rem;
-    aspect-ratio: 1;
-    place-items: center;
-    color: var(--color-surface);
-    background: rgb(255 255 255 / 10%);
-    border: 1px solid rgb(255 255 255 / 28%);
-    border-radius: var(--radius-sm);
-    font-family: var(--font-body);
-    font-weight: 700;
+    display: block;
+    width: auto;
+    height: 2.25rem;
 }
 
 .bs-navbar__menu {

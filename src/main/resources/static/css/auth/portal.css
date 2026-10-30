@@ -382,6 +382,17 @@ body.auth-page {
     border-radius: 50%;
 }
 
+.auth-logo {
+    display: block;
+    width: auto;
+    height: 64px;
+    margin-bottom: 4px;
+}
+
+.auth-logo--oscuro {
+    display: none;
+}
+
 .auth-key-icon .material-symbols-outlined {
     font-size: 24px;
 }
