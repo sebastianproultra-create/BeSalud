@@ -459,35 +459,49 @@
         <div id="demandaContenido" hidden>
             <div class="demanda-kpis">
                 <article class="demanda-kpi">
-                    <span class="doc-label">Mañana</span>
-                    <p class="demanda-kpi-valor"><strong id="dkManana">0</strong> <span>citas</span></p>
-                    <span class="demanda-kpi-foot" id="dkMananaRango">entre 0 y 0</span>
+                    <span class="doc-label" id="dkProximoTitulo">Próximo día de consulta</span>
+                    <p class="demanda-kpi-valor"><strong id="dkProximo">0</strong> <span id="dkProximoUnidad">citas</span></p>
+                    <span class="demanda-kpi-foot" id="dkProximoFecha">—</span>
+                    <span class="demanda-kpi-pie" id="dkProximoRango">Lo más probable: entre 0 y 0</span>
                 </article>
                 <article class="demanda-kpi">
-                    <span class="doc-label">Día más cargado</span>
-                    <p class="demanda-kpi-valor"><strong id="dkPico">0</strong> <span>citas</span></p>
+                    <span class="doc-label" id="dkPicoTitulo">Día más cargado</span>
+                    <p class="demanda-kpi-valor"><strong id="dkPico">0</strong> <span id="dkPicoUnidad">citas</span></p>
                     <span class="demanda-kpi-foot" id="dkPicoFecha">—</span>
+                    <span class="demanda-kpi-pie" id="dkPicoDetalle">El día con más citas esperadas</span>
                 </article>
                 <article class="demanda-kpi">
                     <span class="doc-label" id="dkTotalTitulo">Próximos 30 días</span>
                     <p class="demanda-kpi-valor"><strong id="dkTotal">0</strong> <span>citas</span></p>
-                    <span class="demanda-kpi-foot" id="dkTotalPromedio">0 por día hábil</span>
+                    <span class="demanda-kpi-foot" id="dkTotalPromedio">0 por día de consulta</span>
+                    <span class="demanda-kpi-pie">Citas esperadas en todo el periodo</span>
                 </article>
-                <article class="demanda-kpi" id="dkAlertaCaja">
-                    <span class="doc-label">Días sin cupo suficiente</span>
-                    <p class="demanda-kpi-valor"><strong id="dkAlerta">0</strong> <span id="dkAlertaUnidad">días</span></p>
-                    <span class="demanda-kpi-foot" id="dkAlertaFoot">Tus cupos cubren la demanda</span>
+                <article class="demanda-kpi" id="dkOcupacionCaja">
+                    <span class="doc-label">Ocupación de tu agenda</span>
+                    <p class="demanda-kpi-valor"><strong id="dkOcupacion">0</strong> <span id="dkOcupacionUnidad">%</span></p>
+                    <span class="demanda-kpi-foot" id="dkOcupacionFoot">Ningún día supera tus cupos</span>
+                    <span class="demanda-kpi-pie">Parte de tus cupos que llenarían las citas esperadas</span>
                 </article>
             </div>
 
             <div class="demanda-grafica">
-                <canvas id="demandaChart" role="img" aria-label="Gráfica de citas proyectadas por día"></canvas>
+                <canvas id="demandaChart" role="img" aria-label="Gráfica de citas esperadas por día frente a tus cupos"></canvas>
             </div>
             <ul class="demanda-leyenda" aria-hidden="true">
-                <li><span class="demanda-muestra demanda-muestra--valor"></span>Citas proyectadas</li>
-                <li><span class="demanda-muestra demanda-muestra--rango"></span>Margen probable</li>
-                <li><span class="demanda-muestra demanda-muestra--cupos"></span>Cupos de tu horario</li>
+                <li><span class="demanda-muestra demanda-muestra--cupos"></span>Tus cupos del día</li>
+                <li><span class="demanda-muestra demanda-muestra--valor"></span>Citas esperadas</li>
+                <li id="demandaLeyendaExcede" hidden><span class="demanda-muestra demanda-muestra--excede"></span>Demanda mayor que tus cupos</li>
+                <li><span class="demanda-muestra demanda-muestra--rango"></span>Rango probable</li>
             </ul>
+            <details class="demanda-ayuda">
+                <summary>¿Cómo leer esta gráfica?</summary>
+                <ul>
+                    <li>Cada <strong>columna gris</strong> es un día de tu agenda: su altura son los cupos que tienes ese día según tu horario. Si no hay columna, ese día no atiendes.</li>
+                    <li>La <strong>barra verde</strong> de adentro son las citas que se esperan. Cuanto más llena está la columna, más ocupada estará tu agenda. Si la barra se pinta de <strong>ámbar</strong>, se espera que más pacientes pidan cita de los que caben en tus cupos: algunos tendrían que buscar otro día u otro médico.</li>
+                    <li>La <strong>línea fina con topes</strong> es el rango probable: 8 de cada 10 días la cantidad real de citas cae entre esos dos valores.</li>
+                    <li>Los <strong>fines de semana y festivos</strong> casi no tienen citas; por eso esos días la barra no aparece.</li>
+                </ul>
+            </details>
             <p class="text-muted doc-nota" id="demandaResumen"></p>
         </div>
     </section>
