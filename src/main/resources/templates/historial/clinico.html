@@ -15,12 +15,34 @@
 
 <main class="bs-container hc-main">
 
-    <!-- Solo al imprimir o guardar en PDF: encabezado del documento -->
+    <!-- Solo al imprimir o guardar en PDF: membrete y datos del paciente -->
     <div class="hc-impreso" aria-hidden="true">
-        <strong>BeSalud · Historia clínica</strong>
-        <span th:text="${pac.nombre + ' ' + pac.apellido + (pac.identificacion != null ? ' · Doc. ' + pac.identificacion : '')}">Paciente</span>
-        <span th:text="${'Emitido el ' + #temporals.format(T(com.gestion.proyectos.util.Reloj).ahora(), 'dd/MM/yyyy, h:mm a')}">Emitido</span>
-        <small>Documento informativo generado por BeSalud a partir de los dictámenes registrados. El original queda en la cuenta del paciente.</small>
+        <div class="hc-impreso__membrete">
+            <img class="hc-impreso__logo" th:src="@{/images/logo/simbolo.png}" src="/images/logo/simbolo.png" alt="">
+            <div class="hc-impreso__marca">
+                <strong>BeSalud</strong>
+                <span>Historia clínica</span>
+            </div>
+            <p class="hc-impreso__emision" th:text="${'Emitido el ' + #temporals.format(T(com.gestion.proyectos.util.Reloj).ahora(), 'dd/MM/yyyy, h:mm a')}">Emitido</p>
+        </div>
+        <dl class="hc-impreso__datos">
+            <div>
+                <dt>Paciente</dt>
+                <dd th:text="${pac.nombre + ' ' + pac.apellido}">Paciente</dd>
+            </div>
+            <div th:if="${pac.identificacion != null}">
+                <dt>Documento</dt>
+                <dd th:text="${pac.identificacion}">Documento</dd>
+            </div>
+            <div th:if="${pac.telefono != null}">
+                <dt>Teléfono</dt>
+                <dd th:text="${pac.telefono}">Teléfono</dd>
+            </div>
+            <div th:if="${pac.email != null}">
+                <dt>Correo</dt>
+                <dd th:text="${pac.email}">Correo</dd>
+            </div>
+        </dl>
     </div>
 
     <!-- ── Cabecera ── -->
@@ -323,6 +345,11 @@
             </li>
         </ol>
     </section>
+
+    <p class="hc-impreso-pie" aria-hidden="true">
+        Documento informativo generado por BeSalud a partir de los dictámenes registrados por los profesionales.
+        El original queda en la cuenta del paciente.
+    </p>
 </main>
 
 <footer th:replace="~{fragments/layout :: app-footer}"></footer>
