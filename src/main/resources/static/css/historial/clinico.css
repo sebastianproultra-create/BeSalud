@@ -95,8 +95,9 @@
     justify-self: start;
 }
 
-/* Encabezado del documento: solo al imprimir */
-.hc-impreso {
+/* Membrete y pie del documento: solo al imprimir */
+.hc-impreso,
+.hc-impreso-pie {
     display: none;
 }
 
@@ -522,68 +523,192 @@
     }
 }
 
-/* ── Al imprimir o guardar en PDF: solo el documento, sin menús ni botones ── */
+/* ── Al imprimir o guardar en PDF: documento con membrete, sin menús ni botones ──
+   Las hojas compartidas (navbar, botones, pie, tema) cargan después de esta, por eso las reglas que
+   ocultan o cambian sus componentes van precedidas de .hc-page: así ganan sin !important. */
 @media print {
-    .hc-page {
-        background: none;
+    @page {
+        size: A4;
+        margin: 16mm 14mm 18mm;
+
+        /* Con cajas de margen propias el navegador deja de imprimir su fecha, título y URL */
+        @top-left {
+            content: "";
+        }
+
+        @top-right {
+            content: "";
+        }
+
+        @bottom-left {
+            content: "BeSalud · Historia clínica";
+            color: var(--color-text-muted);
+            font-family: var(--font-body);
+            font-size: var(--font-size-xs);
+        }
+
+        @bottom-right {
+            content: "Página " counter(page) " de " counter(pages);
+            color: var(--color-text-muted);
+            font-family: var(--font-body);
+            font-size: var(--font-size-xs);
+        }
     }
 
-    .bs-navbar,
-    .bs-footer,
-    .tema-boton,
-    .hc-acciones,
-    .hc-aviso,
-    .hc-form,
-    .hc-documento__eliminar,
-    .hc-consulta__descargar,
-    .hc-bloque__ayuda {
+    .hc-page {
+        display: block;
+        min-height: 0;
+        color: var(--color-text);
+        background: none;
+        font-size: var(--font-size-sm);
+        print-color-adjust: exact;
+    }
+
+    .hc-page .bs-navbar,
+    .hc-page .bs-footer,
+    .hc-page .tema-boton,
+    .hc-page .hc-cabecera,
+    .hc-page .hc-aviso,
+    .hc-page .hc-form,
+    .hc-page .hc-documento__eliminar,
+    .hc-page .hc-consulta__descargar,
+    .hc-page .hc-bloque__ayuda {
         display: none;
     }
 
-    .hc-main {
+    .hc-page .hc-main {
+        width: auto;
         align-content: start;
-        gap: var(--space-4);
+        gap: var(--space-5);
         padding: 0;
     }
 
+    /* Membrete: logo, nombre del documento, fecha de emisión y datos del paciente */
     .hc-impreso {
         display: grid;
-        align-content: start;
-        gap: var(--space-1);
+        gap: var(--space-4);
+    }
+
+    .hc-impreso__membrete {
+        display: flex;
+        align-items: center;
+        gap: var(--space-3);
         padding-bottom: var(--space-3);
         border-bottom: 2px solid var(--color-primary);
     }
 
-    .hc-impreso strong {
+    .hc-impreso__logo {
+        width: 2.75rem;
+        height: 2.75rem;
+        object-fit: contain;
+    }
+
+    .hc-impreso__marca {
+        display: grid;
+        line-height: 1.15;
+    }
+
+    .hc-impreso__marca strong {
         color: var(--color-primary);
         font-family: var(--font-heading);
         font-size: var(--font-size-xl);
+        font-weight: 500;
     }
 
-    .hc-impreso small {
+    .hc-impreso__marca span {
+        color: var(--color-secondary);
+        font-size: var(--font-size-xs);
+        font-weight: 700;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+    }
+
+    .hc-impreso__emision {
+        margin: 0 0 0 auto;
         color: var(--color-text-muted);
         font-size: var(--font-size-xs);
+        text-align: right;
+    }
+
+    .hc-impreso__datos {
+        display: flex;
+        flex-wrap: wrap;
+        gap: var(--space-3) var(--space-8);
+        margin: 0;
+        padding: var(--space-3) var(--space-4);
+        background: var(--color-surface-muted);
+        border-radius: var(--radius-md);
+    }
+
+    .hc-impreso__datos dt {
+        color: var(--color-text-muted);
+        font-size: var(--font-size-xs);
+        font-weight: 600;
+    }
+
+    .hc-impreso__datos dd {
+        margin: 0;
+        font-weight: 600;
+        overflow-wrap: anywhere;
+    }
+
+    .hc-page .bs-card {
+        box-shadow: none;
+    }
+
+    .hc-page .hc-seccion-titulo {
+        font-size: var(--font-size-lg);
+        break-after: avoid;
+    }
+
+    .hc-bloque,
+    .hc-soap__seccion {
+        break-inside: avoid;
     }
 
     .hc-solo-impreso {
         display: grid;
     }
 
-    .bs-card {
-        box-shadow: none;
+    /* Cada dictamen abre con una franja de borde a borde: fecha, diagnóstico y médico */
+    .hc-page .hc-consulta__tarjeta {
+        padding: 0;
+    }
+
+    .hc-page .hc-consulta__resumen {
+        grid-template-columns: 6rem minmax(0, 1fr) auto;
+        align-items: center;
+        gap: var(--space-3);
+        padding: var(--space-3) var(--space-4);
+        background: var(--color-primary-soft);
+        cursor: auto;
+        break-after: avoid;
+    }
+
+    .hc-page .hc-consulta__resumen::marker {
+        content: "";
+    }
+
+    .hc-page .hc-consulta__cuerpo {
+        padding: var(--space-4);
+    }
+
+    .hc-soap__seccion + .hc-soap__seccion {
+        padding-top: var(--space-3);
+        border-top: 1px solid var(--color-border);
+    }
+
+    .hc-impreso-pie {
+        display: block;
+        margin: 0;
+        padding-top: var(--space-3);
+        color: var(--color-text-muted);
+        border-top: 1px solid var(--color-border);
+        font-size: var(--font-size-xs);
         break-inside: avoid;
     }
 
-    .hc-consulta__tarjeta {
-        break-inside: avoid;
-    }
-
-    .hc-consulta__resumen:hover {
-        background: none;
-    }
-
-    /* "Descargar este dictamen": solo esa consulta */
-    .hc-imprime-una .hc-cabecera,
+    /* "Descargar este dictamen": solo esa consulta, con el membrete y las alergias */
     .hc-imprime-una .hc-resumen,
     .hc-imprime-una .hc-seccion-titulo,
     .hc-imprime-una .hc-consulta:not(.is-impresa) {
