@@ -1,7 +1,8 @@
 """API predictiva de BESalud: pronostica el volumen de citas con scikit-learn.
 
 GET /prediccion/{especialidad}?dias=30                 -> demanda de toda la especialidad
-GET /prediccion/{especialidad}?dias=30&medico_id=...   -> agenda proyectada de un médico
+GET /prediccion/{especialidad}?dias=30&medico_id=...   -> agenda proyectada de un médico (sin historial:
+                                                          promedio por médico de su especialidad, respaldo=true)
 GET /medicos?especialidad=...                          -> médicos con historial
 GET /salud
 
@@ -267,15 +268,23 @@ def obtener_prediccion(especialidad: str, dias: int = Query(30, ge=1, le=MAX_DIA
         raise HTTPException(status_code=404, detail='Especialidad no encontrada en el historial.')
 
     medico_nombre = None
+    respaldo = False
     if medico_id:
         filas = df_medicos[df_medicos['medico_id'] == medico_id]
         if filas.empty:
-            raise HTTPException(status_code=404, detail='Médico sin historial de citas.')
-        if filas['especialidad_medica'].iloc[0] != nombre:
+            # Médico nuevo, sin historial: se usa el modelo ya entrenado de su especialidad.
+            respaldo = True
+        elif filas['especialidad_medica'].iloc[0] != nombre:
             raise HTTPException(status_code=400, detail='El médico no pertenece a esa especialidad.')
-        medico_nombre = filas['medico_nombre'].iloc[0]
+        else:
+            medico_nombre = filas['medico_nombre'].iloc[0]
 
-    resultados = pronosticar(nombre, medico_id, dias)
+    resultados = pronosticar(nombre, None if respaldo else medico_id, dias)
+    if respaldo:
+        # El modelo de la especialidad pronostica el total de todos sus médicos: se reparte entre ellos
+        # para mostrarle al médico nuevo la demanda de un médico promedio, no la de toda la especialidad.
+        n_medicos = df_medicos.loc[df_medicos['especialidad_medica'] == nombre, 'medico_id'].nunique()
+        resultados[['yhat', 'yhat_lower', 'yhat_upper']] /= max(1, n_medicos)
     predicciones = [{
         'fecha': fila.ds.strftime('%Y-%m-%d'),
         'volumenProyectado': max(0, int(round(fila.yhat))),
@@ -287,6 +296,7 @@ def obtener_prediccion(especialidad: str, dias: int = Query(30, ge=1, le=MAX_DIA
         'especialidad': nombre,
         'medico_id': medico_id,
         'medico_nombre': medico_nombre,
+        'respaldo': respaldo,
         'dias_proyectados': dias,
         'predicciones': predicciones,
     }

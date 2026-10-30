@@ -245,6 +245,11 @@ Archivo: `api_predictiva.py`. Producción: `https://besalud-prediccion-productio
   calendario, así que sirven para cualquier día futuro.
 - Los modelos salen de `modelos_entrenados.joblib`. Si falta o quedó viejo, la primera consulta de cada especialidad o
   médico entrena el modelo (unos 10 segundos) y las siguientes salen de memoria.
+- **Médico nuevo, sin historial:** si el `medico_id` no está en `citas_por_medico.csv` pero su especialidad sí está en el
+  modelo, se usa el modelo ya entrenado de la especialidad (el del `.joblib`) y se divide entre los médicos que la
+  atienden: el médico nuevo ve la demanda de **un médico promedio** de su especialidad, no el total. La respuesta trae
+  `"respaldo": true` y el panel lo avisa. Al principio un médico recién llegado suele recibir menos citas que el
+  promedio, así que esta estimación tiende a quedar por encima.
 
 Ejemplo de respuesta:
 
@@ -253,6 +258,7 @@ Ejemplo de respuesta:
   "especialidad": "Medicina General",
   "medico_id": "659246d00001000000000001",
   "medico_nombre": "Laura Martínez Ortega",
+  "respaldo": false,
   "dias_proyectados": 3,
   "predicciones": [
     { "fecha": "2026-10-16", "volumenProyectado": 8, "margenMinimo": 7, "margenMaximo": 10 },
@@ -261,7 +267,7 @@ Ejemplo de respuesta:
 }
 ```
 
-Errores: **404** si la especialidad o el médico no tienen historial, y **400** si el médico no pertenece a esa especialidad.
+Errores: **404** si la especialidad no está en el modelo, y **400** si el médico tiene historial en otra especialidad.
 
 ---
 
@@ -436,5 +442,9 @@ día libre de cada médico como variable; y usando datos reales de lluvia del ID
 - El historial termina el 15 de octubre de 2026 y **no se actualiza solo** con las citas nuevas de la app. El pronóstico sí arranca siempre mañana, pero lo que pasó después de esa fecha no se aprende. Para incorporarlo habría que exportar las citas de MongoDB al CSV y volver a desplegar.
 - Los modelos por médico y por especialidad son independientes: la suma de los médicos no da exactamente el total de la especialidad (diferencias de pocas citas al mes).
 - En los datos simulados ningún médico supera los cupos de su horario, así que la alerta de "días sin cupo suficiente" casi nunca se activa en la demo.
-- Solo los 14 médicos simulados tienen pronóstico propio; los demás ven el mensaje de "sin historial".
+- Solo los 14 médicos simulados tienen pronóstico propio. Los demás médicos de las 5 especialidades ven el promedio por
+  médico de su especialidad (respaldo); los de otras especialidades no tienen pronóstico.
+- El modelo aprende solo de los CSV, que terminan el 15/10/2026: las citas nuevas de MongoDB no lo reentrenan. El paso
+  siguiente sería exportar periódicamente las citas reales a los CSV y reentrenar; así entrarían también las demás
+  especialidades y los médicos nuevos pasarían del respaldo a su propio modelo.
 - El pronóstico de un médico todavía puede marcar 1 o 2 citas en su día libre, porque el modelo no sabe cuál es. Se podría afinar agregando ese día como regresor.
