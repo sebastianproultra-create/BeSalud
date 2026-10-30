@@ -2,7 +2,6 @@ const http = require('http');
 const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
-const recordatorios = require('./recordatorios');
 
 const PORT = process.env.PORT || 3000;
 const VERIFY_TOKEN = process.env.WHATSAPP_VERIFY_TOKEN;
@@ -12,6 +11,7 @@ const APP_SECRET = process.env.WHATSAPP_APP_SECRET;
 const GRAPH = `https://graph.facebook.com/${process.env.GRAPH_VERSION || 'v25.0'}`;
 const PORTAL = process.env.PORTAL_URL || 'https://besalud-app-production.up.railway.app';
 const DRY_RUN = process.env.DRY_RUN === '1';
+const BOT_SECRET = process.env.WHATSAPP_BOT_SECRET;
 
 const RUTAS_JSON = [
   process.env.CHATBOT_JSON,
@@ -95,6 +95,23 @@ async function enviar(payload) {
   return res.ok;
 }
 
+// Confirmar o cancelar lo resuelve el portal, con la misma lógica (y devolución del abono) que sus botones
+async function responderAsistencia(payload, telefono) {
+  if (!BOT_SECRET) return null;
+  try {
+    const res = await fetch(`${PORTAL}/whatsapp/asistencia`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-Bot-Secret': BOT_SECRET },
+      body: JSON.stringify({ payload, telefono }),
+    });
+    if (!res.ok) return console.error('El portal no aceptó la respuesta', res.status) || null;
+    return (await res.json()).texto;
+  } catch (e) {
+    console.error('No se pudo contactar al portal', e.message);
+    return 'No pudimos registrar su respuesta ahora. Respóndala en BeSalud: ' + PORTAL + '/pacientes/landing';
+  }
+}
+
 async function atender(cuerpo) {
   for (const entry of cuerpo.entry || []) {
     for (const change of entry.changes || []) {
@@ -105,8 +122,8 @@ async function atender(cuerpo) {
         if (procesados.size > 5000) procesados.clear();
 
         const payload = mensaje.button?.payload || mensaje.interactive?.button_reply?.id;
-        if (payload) {
-          const texto = await recordatorios.responderBoton(payload);
+        if (payload && payload.includes(':')) {
+          const texto = await responderAsistencia(payload, mensaje.from);
           if (texto) {
             nodoActual.set(mensaje.from, 'inicio');
             await enviar({ messaging_product: 'whatsapp', to: mensaje.from, type: 'text', text: { body: texto } });
@@ -159,11 +176,3 @@ http.createServer((req, res) => {
   res.writeHead(url.pathname === '/' ? 200 : 404);
   res.end(url.pathname === '/' ? 'Bot de WhatsApp de BeSalud activo' : '');
 }).listen(PORT, () => console.log(`Bot de WhatsApp escuchando en ${PORT}`));
-
-function iniciarRecordatorios() {
-  recordatorios.iniciar(enviar).catch(e => {
-    console.error('No se pudieron iniciar los recordatorios, reintento en 1 min', e.message);
-    setTimeout(iniciarRecordatorios, 60000);
-  });
-}
-iniciarRecordatorios();

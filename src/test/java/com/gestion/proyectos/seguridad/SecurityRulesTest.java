@@ -83,6 +83,14 @@ class SecurityRulesTest {
     }
 
     @Test
+    void whatsappAsistencia_noExigeSesionNiCsrf() throws Exception {
+        // El controlador no está en este slice: 404 prueba que pasó el filtro (si no, sería 302/401/403)
+        mockMvc.perform(post("/whatsapp/asistencia").contentType("application/json")
+                        .content("{\"payload\":\"ASISTIRE:c1\",\"telefono\":\"573001112233\"}"))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
     void registerSinAutenticar_esAccesible() throws Exception {
         mockMvc.perform(get("/register"))
                 .andExpect(status().isOk());

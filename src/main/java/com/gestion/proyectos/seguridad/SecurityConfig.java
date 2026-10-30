@@ -27,13 +27,13 @@ public class SecurityConfig {
                         OAuth2LoginSuccessHandler oauth2LoginSuccessHandler) throws Exception {
                 http
                                 // Wompi firma sus eventos con un checksum propio; no puede enviar el token CSRF
-                                .csrf(csrf -> csrf.ignoringRequestMatchers("/pagos/wompi/eventos"))
+                                .csrf(csrf -> csrf.ignoringRequestMatchers("/pagos/wompi/eventos", "/whatsapp/asistencia"))
                                 .authorizeHttpRequests(auth -> auth
                                                 .requestMatchers("/", LOGIN_URL, "/register", "/register/save",
                                                                 "/css/**", "/images/**", "/vendor/**",
-                                                                "/js/**", "/data/**", "/error", "/elegir-rol", "/privacidad",
+                                                                "/js/**", "/data/**", "/favicon.ico", "/error", "/elegir-rol", "/privacidad",
                                                                 "/ayuda", "/ayuda/contacto", "/p/**",
-                                                                "/pagos/retorno", "/pagos/wompi/eventos")
+                                                                "/pagos/retorno", "/pagos/wompi/eventos", "/whatsapp/asistencia")
                                                 .permitAll()
                                                 .requestMatchers("/pagos/**", "/citas/*/asistencia", "/citas/*/google-calendar",
                                                                 "/citas/*/pagar-saldo").hasRole("PACIENTE")

@@ -19,6 +19,7 @@ import org.springframework.web.util.HtmlUtils;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 import java.util.Locale;
 import com.gestion.proyectos.util.Calendario;
 
@@ -34,13 +35,15 @@ public class NotificacionService {
     private final CitaRepositorio citaRepo;
     private final PersonaRepositorio personaRepo;
     private final CorreoService correo;
+    private final WhatsappService whatsapp;
     private final String urlApp;
 
     public NotificacionService(CitaRepositorio citaRepo, PersonaRepositorio personaRepo, CorreoService correo,
-            @Value("${app.url:http://localhost:8080}") String urlApp) {
+            WhatsappService whatsapp, @Value("${app.url:http://localhost:8080}") String urlApp) {
         this.citaRepo = citaRepo;
         this.personaRepo = personaRepo;
         this.correo = correo;
+        this.whatsapp = whatsapp;
         this.urlApp = urlApp.replaceAll("/+$", "");
     }
 
@@ -133,7 +136,8 @@ public class NotificacionService {
                         .filter(p -> p instanceof Doctor).map(p -> (Doctor) p).orElse(null);
                 if (!CitaService.esperaConfirmacion(cita, doctor, ahora)) continue;
                 enviar(cita, "¿Vas a ir a tu cita?", "¿Vas a ir a tu cita?", mensajeConfirmacion(cita, doctor, ahora),
-                        "Responder en BeSalud");
+                        "Responder en BeSalud", List.of(new WhatsappService.Boton("ASISTIRE:" + cita.getId(), "Sí, asistiré"),
+                                new WhatsappService.Boton("NO_IRE:" + cita.getId(), "No podré ir")));
                 citaRepo.marcarConfirmacionSolicitada(cita.getId());
                 enviados++;
             }
@@ -151,6 +155,11 @@ public class NotificacionService {
     }
 
     private void enviar(Cita cita, String asunto, String titulo, String mensaje, String textoBoton) {
+        enviar(cita, asunto, titulo, mensaje, textoBoton, List.of());
+    }
+
+    private void enviar(Cita cita, String asunto, String titulo, String mensaje, String textoBoton,
+            List<WhatsappService.Boton> botones) {
         Paciente paciente = personaRepo.findById(cita.getPacienteId())
                 .filter(p -> p instanceof Paciente).map(p -> (Paciente) p).orElse(null);
         if (paciente == null) return;
@@ -158,6 +167,7 @@ public class NotificacionService {
                 .filter(p -> p instanceof Doctor).map(p -> (Doctor) p).orElse(null);
         String html = plantilla(paciente, doctor, cita, titulo, mensaje, textoBoton);
         correo.enviar(paciente.getEmail(), paciente.getNombre() + " " + paciente.getApellido(), asunto + " · BeSalud", html);
+        enviarWhatsapp(paciente, doctor, cita, titulo, mensaje, textoBoton, List.of(), botones);
     }
 
     /** Cita pagada con abono: correo de confirmación con el comprobante y la cita para el calendario. */
@@ -173,6 +183,45 @@ public class NotificacionService {
                 bloqueComprobante(doctor, cita));
         correo.enviar(paciente.getEmail(), paciente.getNombre() + " " + paciente.getApellido(),
                 "Cita confirmada · comprobante de pago · BeSalud", html);
+        enviarWhatsapp(paciente, doctor, cita, "¡Tu cita está confirmada!",
+                "Recibimos el pago de tu abono. Guarda este mensaje como comprobante.", "Ver mis citas",
+                lineasComprobante(doctor, cita), List.of());
+    }
+
+    /** Mismo título, mensaje y datos de la cita que el correo, en texto para WhatsApp. */
+    private void enviarWhatsapp(Paciente paciente, Doctor doctor, Cita cita, String titulo, String mensaje,
+            String textoBoton, List<String> extra, List<WhatsappService.Boton> botones) {
+        String fecha = cita.getFecha() == null ? "" : capitalizar(cita.getFecha().format(FECHA));
+        String hora = cita.getHora() == null ? "" : cita.getHora().format(HORA).replace(' ', ' ').toLowerCase();
+        String cuando = fecha + (hora.isEmpty() ? "" : " · " + hora);
+        String conQuien = doctor == null ? "Por confirmar" : "Dr(a). " + doctor.getNombre() + " " + doctor.getApellido()
+                + (doctor.getEspecialidad() == null ? "" : " (" + doctor.getEspecialidad() + ")");
+        StringBuilder texto = new StringBuilder("*").append(titulo).append("*\n\nHola ").append(paciente.getNombre())
+                .append(". ").append(mensaje).append("\n\n🗓️ ").append(cuando).append("\n👨‍⚕️ ").append(conQuien);
+        if (cita.getMotivo() != null && !cita.getMotivo().isBlank())
+            texto.append("\n📝 Motivo: ").append(cita.getMotivo());
+        extra.forEach(l -> texto.append("\n").append(l));
+        if (botones.isEmpty())
+            texto.append("\n\n👉 ").append(textoBoton).append(": ").append(urlApp).append("/pacientes/landing");
+        String mensajePlantilla = extra.isEmpty() ? mensaje : mensaje + " " + String.join(" · ", extra);
+        whatsapp.enviar(paciente.getTelefono(), List.of(paciente.getNombre(), titulo, cuando, conQuien, mensajePlantilla),
+                texto.toString(), botones);
+    }
+
+    /** Las mismas filas del comprobante del correo, en texto. */
+    List<String> lineasComprobante(Doctor doctor, Cita cita) {
+        long abono = cita.getAbonoPesos() == null ? 0 : cita.getAbonoPesos();
+        var lineas = new java.util.ArrayList<String>();
+        lineas.add("💳 Abono pagado: " + pesos(abono));
+        if (doctor != null && doctor.getPrecioEfectivo() > abono)
+            lineas.add("💵 Pagas en el consultorio: " + pesos(doctor.getPrecioEfectivo() - abono));
+        if (doctor != null && doctor.getDireccionConsultorio() != null)
+            lineas.add("📍 Lugar: " + doctor.getDireccionConsultorio());
+        lineas.add("🧾 Referencia: " + cita.getReferenciaPago());
+        if (doctor != null && cita.getFecha() != null && cita.getHora() != null)
+            lineas.add("Si no puedes ir, cancela antes del " + cita.getFecha().atTime(cita.getHora())
+                    .minusHours(doctor.horasCancelacionEfectivas()).format(FECHA_HORA) + " y te devolvemos el abono.");
+        return lineas;
     }
 
     /** Filas del comprobante: abono, saldo, lugar, referencia y hasta cuándo se puede cancelar con devolución. */
