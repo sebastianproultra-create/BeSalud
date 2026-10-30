@@ -172,5 +172,16 @@ http.createServer(async (req, res) => {
   res.end(url.pathname === '/' ? `Bot de WhatsApp Web de BeSalud: ${listo ? 'conectado' : 'sin vincular'}` : '');
 }).listen(PORT, () => console.log(`Escuchando en ${PORT}`));
 
+// Al redesplegar, el contenedor anterior deja el perfil de Chromium "bloqueado" en el disco y el nuevo no arranca
+function quitarBloqueos(dir) {
+  if (!fs.existsSync(dir)) return;
+  for (const f of fs.readdirSync(dir, { withFileTypes: true })) {
+    const ruta = path.join(dir, f.name);
+    if (f.name.startsWith('Singleton')) fs.rmSync(ruta, { force: true });
+    else if (f.isDirectory()) quitarBloqueos(ruta);
+  }
+}
+
 fs.mkdirSync(DATOS, { recursive: true });
+quitarBloqueos(path.join(DATOS, 'sesion'));
 client.initialize();
