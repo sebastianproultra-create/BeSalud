@@ -21,10 +21,14 @@ try { pendientes = JSON.parse(fs.readFileSync(PENDIENTES, 'utf8')); } catch { }
 const guardarPendientes = () => fs.writeFile(PENDIENTES, JSON.stringify(pendientes), () => { });
 
 let qrActual = null;
+let codigoActual = null;
+const VINCULAR = (process.env.PAIR_PHONE || '').replace(/\D/g, '');
 let listo = false;
 
 const client = new Client({
   authStrategy: new LocalAuth({ dataPath: path.join(DATOS, 'sesion') }),
+  // Con PAIR_PHONE se vincula con un código de 8 caracteres en vez del QR (sirve si el celular no está al lado)
+  ...(VINCULAR && { pairWithPhoneNumber: { phoneNumber: VINCULAR, showNotification: true, intervalMs: 180000 } }),
   puppeteer: {
     headless: true,
     executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || undefined,
@@ -33,7 +37,8 @@ const client = new Client({
 });
 
 client.on('qr', qr => { qrActual = qr; listo = false; console.log('Hay un QR nuevo para vincular el número: abra /qr'); });
-client.on('ready', () => { qrActual = null; listo = true; console.log('WhatsApp Web conectado'); });
+client.on('code', codigo => { codigoActual = codigo; listo = false; console.log('Hay un código nuevo para vincular el número: abra /qr'); });
+client.on('ready', () => { qrActual = null; codigoActual = null; listo = true; console.log('WhatsApp Web conectado'); });
 client.on('disconnected', motivo => { listo = false; console.warn('WhatsApp desconectado:', motivo); client.initialize(); });
 client.on('auth_failure', m => console.error('Falló la autenticación:', m));
 
@@ -150,7 +155,8 @@ http.createServer(async (req, res) => {
     if (!autorizado(req.headers['x-bot-secret'])) { res.writeHead(401); return res.end(); }
     res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
     if (listo) return res.end('<h2>✅ El número ya está vinculado a BeSalud.</h2>');
-    if (!qrActual) return res.end('<meta http-equiv="refresh" content="3"><h2>Generando el código QR…</h2>');
+    if (codigoActual) return res.end(`<h2>Código para vincular</h2><p style="font-size:48px;letter-spacing:6px;font-weight:bold">${codigoActual}</p><p>WhatsApp → Dispositivos vinculados → Vincular un dispositivo → Vincular con número de teléfono</p>`);
+    if (!qrActual) return res.end('<meta http-equiv="refresh" content="3"><h2>Generando el código…</h2>');
     const img = await QRCode.toDataURL(qrActual, { width: 360, margin: 2 });
     return res.end(`<meta http-equiv="refresh" content="20"><h2>Escanee con WhatsApp → Dispositivos vinculados</h2><img src="${img}">`);
   }
