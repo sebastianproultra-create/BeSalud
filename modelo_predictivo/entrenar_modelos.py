@@ -22,10 +22,17 @@ def main():
 
     print(f'\n{len(modelos)} modelos guardados en {api.ARCHIVO_MODELOS.name} '
           f'({api.ARCHIVO_MODELOS.stat().st_size / 1e6:.1f} MB)')
+    print(f'MAE medio ± desviación en {api.CORTES} cortes de {api.DIAS_TEST} días; cobertura del rango en días hábiles')
     for clave, m in modelos.items():
-        mae = m['mae']
-        print(f"{clave:55s} MAE baseline={mae['baseline']:.3f}  RF={mae['RandomForest']:.3f}  "
-              f"HGB={mae['HistGradientBoosting']:.3f}  -> {m['ganador']}")
+        mae, desv = m['mae'], m['mae_desv']
+        detalle = '  '.join(f'{nombre}={mae[nombre]:.2f}±{desv[nombre]:.2f}' for nombre in mae)
+        print(f"{clave:40s} {detalle}  -> {m['ganador']}  cobertura={m['cobertura_habiles']:.0%}")
+    ganadores = [m['mae'][m['ganador']] for m in modelos.values()]
+    baselines = [m['mae']['baseline'] for m in modelos.values()]
+    coberturas = [m['cobertura_habiles'] for m in modelos.values()]
+    print(f'\nPromedio: MAE ganador={sum(ganadores) / len(ganadores):.3f}  baseline={sum(baselines) / len(baselines):.3f}  '
+          f'cobertura={sum(coberturas) / len(coberturas):.1%}  '
+          f'gana al baseline en {sum(g < b for g, b in zip(ganadores, baselines))}/{len(modelos)}')
 
 
 if __name__ == '__main__':

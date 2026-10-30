@@ -12,6 +12,7 @@ import hashlib
 import inspect
 import logging
 import unicodedata
+from datetime import datetime, timedelta, timezone
 from functools import lru_cache
 from pathlib import Path
 from typing import Optional
@@ -23,10 +24,8 @@ import pandas as pd
 import sklearn
 from fastapi import FastAPI, HTTPException, Query
 from sklearn.base import clone
-from sklearn.ensemble import HistGradientBoostingRegressor, RandomForestRegressor
+from sklearn.ensemble import HistGradientBoostingRegressor
 from sklearn.metrics import mean_absolute_error
-
-from config_simulacion import factor_lluvias
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger('api_predictiva')
@@ -34,8 +33,12 @@ logger = logging.getLogger('api_predictiva')
 RAIZ = Path(__file__).resolve().parent
 MAX_DIAS = 180
 ARCHIVO_MODELOS = RAIZ / 'modelos_entrenados.joblib'
-DIAS_TEST = 60      # el test son los últimos 60 días (split temporal, NO aleatorio)
-Z_80 = 1.28         # z del intervalo de 80 %
+CORTES = 6          # validación rolling-origin: 6 cortes de 60 días, el último año del historial
+DIAS_TEST = 60      # días de cada corte (split temporal, NO aleatorio)
+# Cuantiles 15/85 de los residuos: como las citas son enteras y el rango se redondea, así cubre
+# ≈80 % de los días hábiles (medido fuera de muestra, ver README).
+P_INTERVALO = 0.15
+COLOMBIA = timezone(timedelta(hours=-5))
 
 app = FastAPI(title='API Predictiva BESalud')
 
@@ -56,32 +59,33 @@ FESTIVOS = holidays.CO(years=range(2024, pd.Timestamp.today().year + 2))
 
 
 def caracteristicas(fechas):
-    """Variables numéricas calculadas solo desde la fecha."""
+    """Variables numéricas calculadas solo desde el calendario (sirven igual para el pasado y el futuro).
+
+    `mes` captura la temporada de lluvias. Se probaron también dia_mes, semana_anio, dia_anio y un
+    factor de lluvias por mes: no mejoraban el MAE y las de año permitían memorizar fechas (ver README).
+    """
     f = pd.DatetimeIndex(fechas)
-    laborable = np.array([int(d.dayofweek < 5 and d.date() not in FESTIVOS) for d in f])
     return pd.DataFrame({
         'mes': f.month,
         'dia_semana': f.dayofweek,
-        'dia_mes': f.day,
-        'semana_anio': f.isocalendar().week.astype(int).to_numpy(),
-        'dia_anio': f.dayofyear,
         'es_festivo': [int(d.date() in FESTIVOS) for d in f],
-        'laborable': laborable,
-        'lluvias_laborable': np.array([factor_lluvias(m) for m in f.month]) * laborable,
+        'laborable': [int(d.dayofweek < 5 and d.date() not in FESTIVOS) for d in f],
     })
 
 
 def modelos_candidatos():
+    """Mismo algoritmo con dos funciones de pérdida: error cuadrático y Poisson (la natural para conteos)."""
     return {
-        'RandomForest': RandomForestRegressor(n_estimators=300, min_samples_leaf=2, random_state=42, n_jobs=-1),
         'HistGradientBoosting': HistGradientBoostingRegressor(max_iter=300, learning_rate=0.05, max_depth=6, random_state=42),
+        'HistGradientBoosting Poisson': HistGradientBoostingRegressor(loss='poisson', max_iter=300, learning_rate=0.05,
+                                                                      max_depth=6, random_state=42),
     }
 
 
 def huella_codigo():
     """Huella de todo lo que define el modelo: si cambia cualquiera, el .joblib quedó viejo."""
-    partes = [sklearn.__version__, inspect.getsource(caracteristicas), inspect.getsource(factor_lluvias),
-              repr(modelos_candidatos()), str(DIAS_TEST), str(Z_80)]
+    partes = [sklearn.__version__, inspect.getsource(caracteristicas), inspect.getsource(entrenar),
+              repr(modelos_candidatos()), str(CORTES), str(DIAS_TEST), str(P_INTERVALO)]
     return hashlib.sha256('|'.join(partes).encode('utf-8')).hexdigest()
 
 
@@ -105,69 +109,91 @@ def clave_de(especialidad, medico_id):
     return f'medico:{medico_id}' if medico_id else f'especialidad:{especialidad}'
 
 
-def entrenar(serie, etiqueta):
-    """Entrena los candidatos, elige el de menor MAE en test y devuelve el artefacto guardable.
+def cuantiles_por_grupo(y, yhat, laborable):
+    """Cuantiles (P, 1-P) del residuo relativo (y - ŷ)/(ŷ + 1), aparte para días laborables y no laborables.
 
-    Split temporal: se entrena con todo menos los últimos `dias_test` días y se evalúa sobre
-    esos días escondidos (no aleatorio, para no filtrar el futuro). Entre RandomForest e
-    HistGradientBoosting se elige el de menor MAE en test; los márgenes son ±1.28·σ de los
-    residuos del test (≈ intervalo del 80 %), con σ distinta para días laborables y no laborables.
+    Dividir entre ŷ+1 hace que el margen crezca con la demanda: con conteos la variación sube con la
+    media, así que octubre (más citas) necesita un rango más ancho que febrero.
+    """
+    r = (y - yhat) / (yhat + 1)
+    cuantiles = {}
+    for grupo, valor in (('laborable', 1), ('no_laborable', 0)):
+        rg = r[laborable == valor]
+        lo, hi = np.quantile(rg if len(rg) >= 10 else r, [P_INTERVALO, 1 - P_INTERVALO])
+        cuantiles[grupo] = (float(lo), float(hi))
+    return cuantiles
+
+
+def rango(yhat, laborable, cuantiles):
+    """Rango probable (mínimo, máximo) de cada día a partir de los cuantiles del residuo relativo."""
+    lo = np.where(laborable == 1, cuantiles['laborable'][0], cuantiles['no_laborable'][0])
+    hi = np.where(laborable == 1, cuantiles['laborable'][1], cuantiles['no_laborable'][1])
+    return np.maximum(0, yhat + lo * (yhat + 1)), yhat + hi * (yhat + 1)
+
+
+def entrenar(serie, etiqueta):
+    """Valida con varios cortes, elige el candidato de menor MAE medio y devuelve el artefacto guardable.
+
+    Rolling-origin: en cada uno de los CORTES se entrena con todo lo anterior al corte y se evalúa en
+    los DIAS_TEST días siguientes (nunca se usa el futuro para predecir el pasado). Los cortes cubren
+    el último año, así el MAE mezcla temporada seca y de lluvias en vez de depender de un solo tramo.
+    Con los residuos fuera de muestra del ganador se calibra el rango probable; su cobertura se mide
+    dejando cada corte fuera (se calibra con los otros cortes y se evalúa en ese).
     """
     X = caracteristicas(serie['ds'])
     y = serie['y'].to_numpy()
-
-    # El test son los últimos días: en series de tiempo el pasado predice el futuro, no al revés.
-    dias_test = min(DIAS_TEST, len(serie) // 4)
-    corte = len(serie) - dias_test
-    X_train, y_train = X.iloc[:corte], y[:corte]
-    X_test, y_test = X.iloc[corte:], y[corte:]
-    laborable_test = X_test['laborable'].to_numpy()
-
-    # Baseline ingenuo: el promedio de citas del train por día de la semana, aplicado al test.
-    media_por_dia = X_train.assign(y=y_train).groupby('dia_semana')['y'].mean()
-    baseline = X_test['dia_semana'].map(media_por_dia).fillna(y_train.mean()).to_numpy()
-    mae_baseline = mean_absolute_error(y_test, baseline)
+    laborable = X['laborable'].to_numpy()
+    n = len(y)
+    dias_test = min(DIAS_TEST, n // (CORTES + 1))
+    inicios = [n - k * dias_test for k in range(CORTES, 0, -1)]
 
     candidatos = modelos_candidatos()
-    maes = {}
-    predicciones = {}
-    for nombre, modelo in candidatos.items():
-        modelo.fit(X_train, y_train)
-        predicciones[nombre] = modelo.predict(X_test)
-        maes[nombre] = mean_absolute_error(y_test, predicciones[nombre])
-    ganador = min(maes, key=maes.get)
+    maes = {nombre: [] for nombre in [*candidatos, 'baseline']}
+    fuera_de_muestra = {nombre: [] for nombre in candidatos}
+    for ini in inicios:
+        fin = ini + dias_test
+        X_train, y_train, X_test, y_test = X.iloc[:ini], y[:ini], X.iloc[ini:fin], y[ini:fin]
+        # Baseline ingenuo: el promedio de citas del train por día de la semana.
+        media_por_dia = X_train.assign(y=y_train).groupby('dia_semana')['y'].mean()
+        baseline = X_test['dia_semana'].map(media_por_dia).fillna(y_train.mean()).to_numpy()
+        maes['baseline'].append(mean_absolute_error(y_test, baseline))
+        for nombre, modelo in candidatos.items():
+            pred = np.maximum(0, clone(modelo).fit(X_train, y_train).predict(X_test))
+            maes[nombre].append(mean_absolute_error(y_test, pred))
+            fuera_de_muestra[nombre].append(pred)
+    ganador = min(candidatos, key=lambda nombre: np.mean(maes[nombre]))
 
-    logger.info(
-        'entrenar %s train=%d test=%d | MAE baseline=%.3f | RandomForest=%.3f '
-        'HistGradientBoosting=%.3f | ganador=%s',
-        etiqueta, len(y_train), len(y_test), mae_baseline,
-        maes['RandomForest'], maes['HistGradientBoosting'], ganador,
-    )
+    # Rango probable con los residuos fuera de muestra del ganador.
+    y_oof, lab_oof = y[inicios[0]:], laborable[inicios[0]:]
+    yhat_oof = np.concatenate(fuera_de_muestra[ganador])
+    cuantiles = cuantiles_por_grupo(y_oof, yhat_oof, lab_oof)
 
-    # Residuos del ganador en test; σ por grupo para que fines de semana/festivos no
-    # hereden un margen enorme de los días hábiles.
-    res = y_test - predicciones[ganador]
-    sigmas = {}
-    for grupo, valor in (('laborable', 1), ('no_laborable', 0)):
-        mascara = laborable_test == valor
-        sigma = res[mascara].std() if mascara.sum() >= 2 else res.std()
-        sigmas[grupo] = 0.0 if np.isnan(sigma) else float(sigma)
+    # Cobertura medida sin trampa: cada corte se evalúa con cuantiles calibrados en los otros.
+    corte_de = np.repeat(np.arange(CORTES), dias_test)
+    cubre = np.zeros(len(y_oof), dtype=bool)
+    for k in range(CORTES):
+        fuera = corte_de == k
+        q = cuantiles_por_grupo(y_oof[~fuera], yhat_oof[~fuera], lab_oof[~fuera])
+        lo, hi = rango(yhat_oof[fuera], lab_oof[fuera], q)
+        cubre[fuera] = (y_oof[fuera] >= np.round(lo)) & (y_oof[fuera] <= np.round(hi))
+    cobertura = float(cubre[lab_oof == 1].mean()) if (lab_oof == 1).any() else float(cubre.mean())
 
-    # Reentrenar el ganador con TODO el histórico.
-    modelo_final = clone(candidatos[ganador])
-    modelo_final.fit(X, y)
+    logger.info('entrenar %s | %d cortes de %d días | MAE medio: %s | ganador=%s | cobertura del rango=%.0f%%',
+                etiqueta, CORTES, dias_test, ', '.join(f'{k}={np.mean(v):.3f}' for k, v in maes.items()),
+                ganador, 100 * cobertura)
 
     return {
-        'modelo': modelo_final,
+        'modelo': clone(candidatos[ganador]).fit(X, y),  # el ganador se reentrena con TODO el histórico
         'ganador': ganador,
-        'mae': {**maes, 'baseline': mae_baseline},
-        'sigma_laborable': sigmas['laborable'],
-        'sigma_no_laborable': sigmas['no_laborable'],
+        'mae': {nombre: float(np.mean(v)) for nombre, v in maes.items()},
+        'mae_desv': {nombre: float(np.std(v)) for nombre, v in maes.items()},
+        'cuantiles': cuantiles,
+        'cobertura_habiles': cobertura,
         'ultima_fecha': serie['ds'].iloc[-1],
         'huella_codigo': huella_codigo(),
         'huella_datos': huella_datos(serie),
-        'dias_train': len(y_train),
-        'dias_test': len(y_test),
+        'cortes': CORTES,
+        'dias_test': dias_test,
     }
 
 
@@ -197,24 +223,27 @@ MODELOS_GUARDADOS = cargar_modelos()
 
 
 @lru_cache(maxsize=64)
-def pronosticar(especialidad, medico_id):
-    """Pronostica MAX_DIAS días futuros (desde el día siguiente al último dato)."""
+def artefacto_de(especialidad, medico_id):
+    """Modelo guardado de la serie; si no existe o el CSV cambió desde que se entrenó, se entrena al vuelo."""
     serie = serie_de(especialidad, medico_id)
     clave = clave_de(especialidad, medico_id)
     artefacto = MODELOS_GUARDADOS.get(clave)
-    # Si el CSV cambió respecto al entrenamiento guardado, se reentrena.
     if artefacto is None or artefacto.get('huella_datos') != huella_datos(serie):
         artefacto = entrenar(serie, clave)
+    return artefacto
 
-    fechas_fut = pd.date_range(artefacto['ultima_fecha'] + pd.Timedelta(days=1), periods=MAX_DIAS)
-    X_fut = caracteristicas(fechas_fut)
-    sigma_fut = np.where(X_fut['laborable'].to_numpy() == 1,
-                         artefacto['sigma_laborable'], artefacto['sigma_no_laborable'])
+
+def pronosticar(especialidad, medico_id, dias=MAX_DIAS):
+    """Pronostica `dias` días desde mañana (hora de Colombia), aunque el historial termine antes:
+    las características son solo de calendario, así que sirven para cualquier fecha futura."""
+    artefacto = artefacto_de(especialidad, medico_id)
+    manana = pd.Timestamp(datetime.now(COLOMBIA).date() + timedelta(days=1))
+    fechas = pd.date_range(max(manana, artefacto['ultima_fecha'] + pd.Timedelta(days=1)), periods=dias)
+    X_fut = caracteristicas(fechas)
     yhat = np.maximum(0, artefacto['modelo'].predict(X_fut))
-    yhat_lower = np.maximum(0, yhat - Z_80 * sigma_fut)
-    yhat_upper = yhat + Z_80 * sigma_fut
+    yhat_lower, yhat_upper = rango(yhat, X_fut['laborable'].to_numpy(), artefacto['cuantiles'])
 
-    return pd.DataFrame({'ds': fechas_fut, 'yhat': yhat, 'yhat_lower': yhat_lower, 'yhat_upper': yhat_upper})
+    return pd.DataFrame({'ds': fechas, 'yhat': yhat, 'yhat_lower': yhat_lower, 'yhat_upper': yhat_upper})
 
 
 @app.get('/salud')
@@ -246,7 +275,7 @@ def obtener_prediccion(especialidad: str, dias: int = Query(30, ge=1, le=MAX_DIA
             raise HTTPException(status_code=400, detail='El médico no pertenece a esa especialidad.')
         medico_nombre = filas['medico_nombre'].iloc[0]
 
-    resultados = pronosticar(nombre, medico_id).head(dias)
+    resultados = pronosticar(nombre, medico_id, dias)
     predicciones = [{
         'fecha': fila.ds.strftime('%Y-%m-%d'),
         'volumenProyectado': max(0, int(round(fila.yhat))),
