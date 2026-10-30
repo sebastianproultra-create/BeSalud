@@ -80,8 +80,13 @@ function textoNodo(nodo) {
 
 async function numeroDe(msg) {
   // WhatsApp ya identifica a algunos usuarios con un id privado (@lid): el número real sale del contacto
-  const contacto = await msg.getContact();
-  return contacto.number || msg.from.replace(/@.*/, '');
+  try {
+    const contacto = await msg.getContact();
+    if (contacto?.number) return contacto.number;
+  } catch (e) {
+    console.warn('No se pudo leer el contacto', e.message);
+  }
+  return msg.from.replace(/@.*/, '');
 }
 
 async function responderAsistencia(id, telefono) {
@@ -99,7 +104,10 @@ async function responderAsistencia(id, telefono) {
   }
 }
 
-client.on('message', async msg => {
+client.on('message', msg => atender(msg).catch(e => console.error('Error atendiendo mensaje', e.message)));
+
+async function atender(msg) {
+  console.log(`mensaje recibido tipo=${msg.type} de=${String(msg.from).slice(-9)}`);
   if (msg.fromMe || msg.isStatus || msg.from.endsWith('@g.us') || msg.from === 'status@broadcast') return;
   if (msg.type !== 'chat') return;
   const texto = (msg.body || '').trim();
@@ -122,7 +130,7 @@ client.on('message', async msg => {
   nodoActual.set(msg.from, nodo.id);
   console.log(`...${telefono.slice(-4)} -> ${nodo.id}`);
   await msg.reply(textoNodo(nodo));
-});
+}
 
 async function enviar({ telefono, texto, opciones = [] }) {
   const digitos = String(telefono || '').replace(/\D/g, '');
