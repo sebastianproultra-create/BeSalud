@@ -1,0 +1,439 @@
+/* Historial clínico del paciente (vista del médico y del propio paciente). Solo tokens del sistema de diseño. */
+@import url('../oscuro/historial/clinico.css');
+
+.hc-page {
+    display: flex;
+    min-height: 100vh;
+    flex-direction: column;
+    background: var(--color-background);
+}
+
+.hc-main {
+    display: grid;
+    gap: var(--space-6);
+    padding-block: var(--space-8) var(--space-12);
+}
+
+/* ── Cabecera ── */
+.hc-cabecera {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: var(--space-4);
+}
+
+.hc-eyebrow {
+    margin: 0 0 var(--space-1);
+    color: var(--color-secondary);
+    font-size: var(--font-size-xs);
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.hc-titulo {
+    margin: 0;
+    color: var(--color-primary);
+    font-family: var(--font-heading);
+    font-size: var(--font-size-2xl);
+    font-weight: 500;
+    line-height: 1.15;
+}
+
+.hc-sub {
+    max-width: 40rem;
+    margin: var(--space-2) 0 0;
+    color: var(--color-text-muted);
+}
+
+.hc-datos {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2) var(--space-5);
+    margin: var(--space-3) 0 0;
+    padding: 0;
+    color: var(--color-text-muted);
+    font-size: var(--font-size-sm);
+    list-style: none;
+}
+
+.hc-datos li {
+    display: inline-flex;
+    min-width: 0;
+    align-items: center;
+    gap: var(--space-1);
+    overflow-wrap: anywhere;
+}
+
+.hc-datos .material-symbols-outlined,
+.hc-volver .material-symbols-outlined,
+.hc-bloque__titulo .material-symbols-outlined,
+.hc-form .bs-btn .material-symbols-outlined {
+    font-size: var(--font-size-lg);
+}
+
+.hc-volver {
+    gap: var(--space-2);
+}
+
+.hc-aviso {
+    margin: 0;
+}
+
+/* ── Alergias ── */
+.hc-alergias {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-3);
+    padding: var(--space-4) var(--space-5);
+    color: var(--color-danger);
+    background: var(--color-surface);
+    border: 1px solid var(--color-danger);
+    border-left-width: 4px;
+    border-radius: var(--radius-md);
+}
+
+.hc-alergias p {
+    margin: var(--space-1) 0 0;
+    color: var(--color-text);
+    overflow-wrap: anywhere;
+}
+
+/* ── Resumen ── */
+.hc-resumen {
+    display: grid;
+    gap: var(--space-4);
+}
+
+.hc-bloque {
+    display: grid;
+    align-content: start;
+    gap: var(--space-3);
+    min-width: 0;
+}
+
+.hc-bloque__titulo {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    margin: 0;
+    color: var(--color-primary);
+    font-family: var(--font-heading);
+    font-size: var(--font-size-xl);
+    font-weight: 500;
+}
+
+.hc-bloque__titulo .material-symbols-outlined {
+    color: var(--color-secondary);
+}
+
+.hc-bloque__ayuda,
+.hc-vacio-texto {
+    margin: 0;
+    color: var(--color-text-muted);
+    font-size: var(--font-size-sm);
+}
+
+.hc-lista {
+    display: grid;
+    gap: var(--space-3);
+    margin: 0;
+}
+
+.hc-lista__fila {
+    display: grid;
+    gap: var(--space-1);
+    padding-bottom: var(--space-3);
+    border-bottom: 1px solid var(--color-border);
+}
+
+.hc-lista__fila:last-child {
+    padding-bottom: 0;
+    border-bottom: 0;
+}
+
+.hc-lista dt {
+    color: var(--color-text-muted);
+    font-size: var(--font-size-xs);
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+}
+
+.hc-lista dd {
+    display: grid;
+    gap: var(--space-1);
+    margin: 0;
+    color: var(--color-text);
+    overflow-wrap: anywhere;
+    white-space: pre-line;
+}
+
+.hc-lista small,
+.hc-diagnosticos small {
+    color: var(--color-text-muted);
+    font-size: var(--font-size-xs);
+}
+
+.hc-diagnosticos,
+.hc-formula {
+    display: grid;
+    gap: var(--space-3);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.hc-diagnosticos li {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-3);
+}
+
+.hc-diagnosticos__texto {
+    display: grid;
+    min-width: 0;
+    gap: var(--space-1);
+    overflow-wrap: anywhere;
+}
+
+.hc-codigo {
+    display: inline-flex;
+    flex-shrink: 0;
+    padding: 0 var(--space-2);
+    color: var(--color-primary);
+    background: var(--color-primary-soft);
+    border-radius: var(--radius-sm);
+    font-family: var(--font-mono);
+    font-size: var(--font-size-sm);
+    font-weight: 700;
+}
+
+.hc-formula li {
+    display: grid;
+    gap: var(--space-1);
+    padding: var(--space-3);
+    background: var(--color-surface-muted);
+    border-radius: var(--radius-sm);
+    overflow-wrap: anywhere;
+}
+
+.hc-formula span {
+    color: var(--color-text-muted);
+    font-size: var(--font-size-sm);
+}
+
+/* ── Formulario del historial previo (paciente) ── */
+.hc-form {
+    display: grid;
+    gap: var(--space-4);
+}
+
+.hc-form__grid {
+    display: grid;
+    gap: var(--space-3);
+}
+
+.hc-form textarea {
+    resize: vertical;
+}
+
+.hc-form .bs-btn {
+    gap: var(--space-2);
+    justify-self: start;
+}
+
+/* ── Línea de tiempo ── */
+.hc-linea {
+    display: grid;
+    gap: var(--space-4);
+}
+
+.hc-seccion-titulo {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    margin: 0;
+    color: var(--color-primary);
+    font-family: var(--font-heading);
+    font-size: var(--font-size-xl);
+    font-weight: 500;
+}
+
+.hc-vacio {
+    display: grid;
+    justify-items: center;
+    gap: var(--space-2);
+    color: var(--color-text-muted);
+    text-align: center;
+}
+
+.hc-vacio .material-symbols-outlined {
+    font-size: var(--font-size-2xl);
+}
+
+.hc-vacio p {
+    margin: 0;
+}
+
+.hc-consultas {
+    display: grid;
+    gap: var(--space-3);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.hc-consulta__tarjeta {
+    padding: 0;
+    overflow: hidden;
+}
+
+.hc-consulta__resumen {
+    display: grid;
+    gap: var(--space-1);
+    padding: var(--space-4) var(--space-5);
+    cursor: pointer;
+    list-style: none;
+}
+
+.hc-consulta__resumen::-webkit-details-marker {
+    display: none;
+}
+
+.hc-consulta__resumen:hover {
+    background: var(--color-surface-muted);
+}
+
+.hc-consulta__fecha {
+    color: var(--color-secondary);
+    font-size: var(--font-size-xs);
+    font-weight: 700;
+    letter-spacing: 0.06em;
+}
+
+.hc-consulta__dx {
+    color: var(--color-text);
+    font-weight: 600;
+    overflow-wrap: anywhere;
+}
+
+.hc-consulta__medico {
+    color: var(--color-text-muted);
+    font-size: var(--font-size-sm);
+}
+
+.hc-consulta__cuerpo {
+    display: grid;
+    gap: var(--space-3);
+    padding: var(--space-4) var(--space-5) var(--space-5);
+    border-top: 1px solid var(--color-border);
+}
+
+.hc-consulta__cuerpo p {
+    margin: 0;
+    overflow-wrap: anywhere;
+}
+
+/* Textos que escribió el médico: se respetan sus saltos de línea */
+.hc-consulta__cuerpo .hc-texto {
+    white-space: pre-line;
+}
+
+.hc-dx {
+    display: flex;
+    align-items: baseline;
+    gap: var(--space-2);
+}
+
+.hc-relacionado {
+    color: var(--color-text-muted);
+    font-size: var(--font-size-sm);
+}
+
+.hc-consulta__meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+}
+
+.hc-consulta__meta span {
+    padding: var(--space-1) var(--space-3);
+    color: var(--color-secondary);
+    background: var(--color-primary-soft);
+    border-radius: var(--radius-pill);
+    font-size: var(--font-size-xs);
+    font-weight: 600;
+}
+
+.hc-soap {
+    display: grid;
+    gap: var(--space-4);
+}
+
+.hc-soap__seccion {
+    display: grid;
+    gap: var(--space-2);
+}
+
+.hc-soap__seccion h3 {
+    margin: 0;
+    color: var(--color-text-muted);
+    font-size: var(--font-size-xs);
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+}
+
+.hc-signos {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.hc-signos li {
+    padding: var(--space-1) var(--space-3);
+    background: var(--color-surface-muted);
+    border-radius: var(--radius-pill);
+    font-size: var(--font-size-sm);
+}
+
+/* 768 px (--breakpoint-md): resumen en dos columnas */
+@media (min-width: 48rem) {
+    .hc-resumen {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .hc-bloque--declarado {
+        grid-column: 1 / -1;
+    }
+
+    .hc-form__grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .hc-consulta__resumen {
+        grid-template-columns: 7rem minmax(0, 1fr) auto;
+        align-items: center;
+        gap: var(--space-4);
+    }
+
+    .hc-soap {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+/* 1024 px (--breakpoint-lg): resumen en tres columnas */
+@media (min-width: 64rem) {
+    .hc-resumen {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .hc-form__grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+}

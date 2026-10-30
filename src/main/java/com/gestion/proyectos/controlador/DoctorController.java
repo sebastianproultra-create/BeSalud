@@ -1,9 +1,12 @@
 package com.gestion.proyectos.controlador;
 
 import com.gestion.proyectos.util.Reloj;
+import com.gestion.proyectos.modelo.Antecedentes;
 import com.gestion.proyectos.modelo.CausaExterna;
+import com.gestion.proyectos.modelo.Cita;
 import com.gestion.proyectos.modelo.Dictamen;
 import com.gestion.proyectos.modelo.Doctor;
+import com.gestion.proyectos.modelo.EstadoCita;
 import com.gestion.proyectos.modelo.HorarioAtencion;
 import com.gestion.proyectos.modelo.TipoConsulta;
 import com.gestion.proyectos.modelo.TipoDiagnostico;
@@ -11,6 +14,7 @@ import com.gestion.proyectos.modelo.UserRegistrationDTO;
 import com.gestion.proyectos.modelo.ViaAdministracion;
 import com.gestion.proyectos.servicio.DictamenVista;
 import com.gestion.proyectos.servicio.DoctorService;
+import com.gestion.proyectos.servicio.HistorialClinicoService;
 import com.gestion.proyectos.servicio.PanelDoctorService;
 import com.gestion.proyectos.servicio.PerfilPublicoService;
 import org.springframework.beans.factory.annotation.Value;
@@ -51,13 +55,16 @@ public class DoctorController {
     private final DoctorService doctorService;
     private final PanelDoctorService panelDoctorService;
     private final PerfilPublicoService perfilPublicoService;
+    private final HistorialClinicoService historialClinicoService;
     private final String urlApp;
 
     public DoctorController(DoctorService doctorService, PanelDoctorService panelDoctorService,
-            PerfilPublicoService perfilPublicoService, @Value("${app.url:http://localhost:8080}") String urlApp) {
+            PerfilPublicoService perfilPublicoService, HistorialClinicoService historialClinicoService,
+            @Value("${app.url:http://localhost:8080}") String urlApp) {
         this.doctorService = doctorService;
         this.panelDoctorService = panelDoctorService;
         this.perfilPublicoService = perfilPublicoService;
+        this.historialClinicoService = historialClinicoService;
         this.urlApp = urlApp.replaceAll("/+$", "");
     }
 
@@ -119,6 +126,7 @@ public class DoctorController {
             model.addAttribute("hoy", Reloj.hoy());
             model.addAttribute("abonos", doctorService.resumenAbonos(doctor.getId()));
             model.addAttribute("dictamenDataMap", panelCitas.dictamenes());
+            model.addAttribute("antecedentesDictamen", antecedentesParaDictamen(panelCitas.pagina().getContent()));
             model.addAttribute("tiposConsulta", TipoConsulta.values());
             model.addAttribute("causasExternas", CausaExterna.values());
             model.addAttribute("tiposDiagnostico", TipoDiagnostico.values());
@@ -151,6 +159,37 @@ public class DoctorController {
         model.addAttribute("size", size);
         model.addAttribute("doctor", new Doctor());
         return "admin/doctores";
+    }
+
+    /**
+     * Antecedentes con que se precarga "Dar dictamen" en las citas en atención: lo último que registraron los
+     * médicos y, donde no hay nada, lo que declaró el paciente.
+     */
+    private Map<String, Antecedentes> antecedentesParaDictamen(List<Cita> citas) {
+        Map<String, Antecedentes> porCita = new HashMap<>();
+        for (Cita c : citas)
+            if (c.getEstado() == EstadoCita.ASISTIO && c.getPacienteId() != null) {
+                Antecedentes a = historialClinicoService.antecedentesParaDictamen(c.getPacienteId());
+                if (a != null && !a.isVacio())
+                    porCita.put(c.getId(), a);
+            }
+        return porCita;
+    }
+
+    /** Historial clínico de un paciente: solo si el médico tiene o tuvo una cita con él. */
+    @PreAuthorize("hasRole('DOCTOR')")
+    @GetMapping("/pacientes/{pacienteId}/historial")
+    public String historialPaciente(@PathVariable String pacienteId, Model model) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        Doctor doctor = doctorService.buscarPorEmail(auth.getName()).orElseThrow();
+        if (!historialClinicoService.medicoPuedeVer(doctor.getId(), pacienteId))
+            return "redirect:/doctores?error=historial_no_autorizado#citas";
+        var historial = historialClinicoService.historialDe(pacienteId).orElse(null);
+        if (historial == null)
+            return "redirect:/doctores?error=historial_no_autorizado#citas";
+        model.addAttribute("historialClinico", historial);
+        model.addAttribute("vistaMedico", true);
+        return "historial/clinico";
     }
 
     @PostMapping("/guardar")

@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org"
+      th:with="h=${historialClinico}, pac=${historialClinico.paciente()}">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${vistaMedico ? 'Historial clínico de ' + pac.nombre + ' · BeSalud' : 'Mi historial clínico · BeSalud'}">Historial clínico · BeSalud</title>
+    <link rel="stylesheet" th:href="@{/css/historial/clinico.css}">
+    <th:block th:replace="~{fragments/layout :: design-system}"></th:block>
+    <link rel="stylesheet" th:href="@{/css/base/tema-oscuro.css}">
+    <script th:src="@{/js/tema.js}"></script>
+</head>
+<body class="hc-page">
+<header th:replace="~{fragments/navbar :: navbar}"></header>
+
+<main class="bs-container hc-main">
+
+    <!-- ── Cabecera ── -->
+    <div class="hc-cabecera">
+        <div>
+            <p class="hc-eyebrow" th:text="${vistaMedico ? 'Historia clínica del paciente' : 'Tu información de salud'}">Historia clínica</p>
+            <h1 class="hc-titulo" th:text="${vistaMedico ? pac.nombre + ' ' + pac.apellido : 'Mi historial clínico'}">Historial clínico</h1>
+            <ul class="hc-datos" th:if="${vistaMedico}">
+                <li th:if="${pac.identificacion != null}"><span class="material-symbols-outlined" aria-hidden="true">badge</span><span th:text="${'Doc. ' + pac.identificacion}">Doc.</span></li>
+                <li th:if="${pac.telefono != null}"><span class="material-symbols-outlined" aria-hidden="true">call</span><span th:text="${pac.telefono}">Teléfono</span></li>
+                <li th:if="${pac.email != null}"><span class="material-symbols-outlined" aria-hidden="true">mail</span><span th:text="${pac.email}">Correo</span></li>
+            </ul>
+            <p class="hc-sub" th:unless="${vistaMedico}">
+                Aquí se reúnen los dictámenes de todas tus consultas, con cualquier profesional de BeSalud.
+            </p>
+        </div>
+        <a class="bs-btn bs-btn--secondary bs-btn--small hc-volver"
+           th:href="@{${vistaMedico ? '/doctores#citas' : '/pacientes/landing'}}">
+            <span class="material-symbols-outlined" aria-hidden="true">arrow_back</span>
+            <span th:text="${vistaMedico ? 'Volver al panel' : 'Mis citas'}">Volver</span>
+        </a>
+    </div>
+
+    <div th:if="${param.success != null and param.success[0] == 'historial_guardado'}" class="bs-alert bs-alert--success hc-aviso" role="status">
+        Guardamos tu historial previo. Los profesionales que te atiendan lo verán en tu historia clínica.
+    </div>
+    <div th:if="${param.error != null and param.error[0] == 'historial_largo'}" class="bs-alert bs-alert--danger hc-aviso" role="alert">
+        No se guardó: cada campo admite hasta 1.000 caracteres.
+    </div>
+
+    <!-- ── Alergias: lo primero que debe ver el médico ── -->
+    <div th:if="${h.alergias() != null}" class="hc-alergias" role="note">
+        <span class="material-symbols-outlined" aria-hidden="true">warning</span>
+        <div>
+            <strong>Alergias</strong>
+            <p th:text="${h.alergias()}">Penicilina</p>
+        </div>
+    </div>
+
+    <!-- ── Resumen ── -->
+    <div class="hc-resumen">
+        <section class="bs-card hc-bloque" aria-labelledby="hc-antecedentes">
+            <h2 id="hc-antecedentes" class="hc-bloque__titulo">
+                <span class="material-symbols-outlined" aria-hidden="true">history_edu</span>Antecedentes vigentes
+            </h2>
+            <p class="hc-bloque__ayuda">Lo más reciente que registró un profesional en sus dictámenes.</p>
+            <dl class="hc-lista" th:unless="${h.filasAntecedentes.isEmpty()}">
+                <div th:each="f : ${h.filasAntecedentes}" class="hc-lista__fila">
+                    <dt th:text="${f.etiqueta()}">Patológicos</dt>
+                    <dd>
+                        <span th:text="${f.valor()}">Hipertensión</span>
+                        <small th:if="${f.fecha() != null}" th:text="${'Registrado el ' + #temporals.format(f.fecha(), 'dd/MM/yyyy')}">Registrado</small>
+                    </dd>
+                </div>
+            </dl>
+            <p class="hc-vacio-texto" th:if="${h.filasAntecedentes.isEmpty()}">Ningún profesional ha registrado antecedentes todavía.</p>
+        </section>
+
+        <section class="bs-card hc-bloque" aria-labelledby="hc-diagnosticos">
+            <h2 id="hc-diagnosticos" class="hc-bloque__titulo">
+                <span class="material-symbols-outlined" aria-hidden="true">clinical_notes</span>Diagnósticos registrados
+            </h2>
+            <ul class="hc-diagnosticos" th:unless="${h.diagnosticos().isEmpty()}">
+                <li th:each="dx : ${h.diagnosticosAgrupados}">
+                    <span class="hc-codigo" th:if="${dx.diagnostico().codigo != null}" th:text="${dx.diagnostico().codigo}">J039</span>
+                    <span class="hc-diagnosticos__texto">
+                        <span th:text="${dx.diagnostico().descripcion}">Amigdalitis aguda</span>
+                        <small th:text="${(dx.veces() > 1 ? dx.veces() + ' consultas · última el ' : 'El ') + (dx.ultima() != null ? #temporals.format(dx.ultima(), 'dd/MM/yyyy') : 'sin fecha') + ' · ' + dx.ultimoMedico()}">Una consulta</small>
+                    </span>
+                </li>
+            </ul>
+            <p class="hc-vacio-texto" th:if="${h.diagnosticos().isEmpty()}">Aún no hay diagnósticos registrados.</p>
+        </section>
+
+        <section class="bs-card hc-bloque" aria-labelledby="hc-formula">
+            <h2 id="hc-formula" class="hc-bloque__titulo">
+                <span class="material-symbols-outlined" aria-hidden="true">medication</span>Última fórmula médica
+            </h2>
+            <p class="hc-bloque__ayuda" th:if="${h.ultimaFormulaFecha() != null}"
+               th:text="${'Recetada el ' + #temporals.format(h.ultimaFormulaFecha(), 'dd/MM/yyyy')}">Recetada</p>
+            <ul class="hc-formula" th:unless="${h.ultimaFormula().isEmpty()}">
+                <li th:each="m : ${h.ultimaFormula()}">
+                    <strong th:text="${m.nombre}">Acetaminofén 500 mg</strong>
+                    <span th:text="${(m.dosisFrecuencia ?: '') + (m.duracion != null ? ' · ' + m.duracion : '') + (m.via != null ? ' · ' + m.via.descripcion : '')}">1 tableta cada 8 horas</span>
+                </li>
+            </ul>
+            <p class="hc-vacio-texto" th:if="${h.ultimaFormula().isEmpty()}">No hay fórmulas médicas registradas.</p>
+        </section>
+
+        <!-- Historial previo que declaró el paciente -->
+        <section id="mi-historial-previo" class="bs-card hc-bloque hc-bloque--declarado" aria-labelledby="hc-declarado">
+            <h2 id="hc-declarado" class="hc-bloque__titulo">
+                <span class="material-symbols-outlined" aria-hidden="true">person_book</span>
+                <span th:text="${vistaMedico ? 'Historial previo que aportó el paciente' : 'Mi historial previo'}">Historial previo</span>
+            </h2>
+            <p class="hc-bloque__ayuda" th:if="${pac.historialPrevioActualizado != null}"
+               th:text="${'Actualizado el ' + #temporals.format(pac.historialPrevioActualizado, 'dd/MM/yyyy')}">Actualizado</p>
+
+            <th:block th:if="${vistaMedico}">
+                <dl class="hc-lista" th:if="${h.tieneDeclarado}">
+                    <div th:each="f : ${h.filasDeclarado}" class="hc-lista__fila"><dt th:text="${f.etiqueta()}">Alergias</dt><dd th:text="${f.valor()}"></dd></div>
+                </dl>
+                <p class="hc-vacio-texto" th:unless="${h.tieneDeclarado}">El paciente no ha aportado historial previo.</p>
+            </th:block>
+
+            <form th:unless="${vistaMedico}" class="hc-form" th:action="@{/pacientes/historial/antecedentes}" method="post">
+                <p class="hc-bloque__ayuda">Cuéntanos lo que el profesional debe tener presente. Todo es opcional y puedes cambiarlo cuando quieras.</p>
+                <div class="hc-form__grid">
+                    <div class="bs-field">
+                        <label class="bs-field__label" for="hpPatologicos">Enfermedades que tienes o tuviste</label>
+                        <textarea class="bs-field__control" id="hpPatologicos" name="patologicos" rows="2" maxlength="1000"
+                                  placeholder="Ej.: hipertensión, asma, diabetes"
+                                  th:text="${pac.historialPrevio != null ? pac.historialPrevio.patologicos : ''}"></textarea>
+                    </div>
+                    <div class="bs-field">
+                        <label class="bs-field__label" for="hpQuirurgicos">Cirugías</label>
+                        <textarea class="bs-field__control" id="hpQuirurgicos" name="quirurgicos" rows="2" maxlength="1000"
+                                  placeholder="Ej.: apendicectomía en 2019"
+                                  th:text="${pac.historialPrevio != null ? pac.historialPrevio.quirurgicos : ''}"></textarea>
+                    </div>
+                    <div class="bs-field">
+                        <label class="bs-field__label" for="hpFarmacologicos">Medicamentos que tomas</label>
+                        <textarea class="bs-field__control" id="hpFarmacologicos" name="farmacologicos" rows="2" maxlength="1000"
+                                  placeholder="Ej.: losartán 50 mg cada día"
+                                  th:text="${pac.historialPrevio != null ? pac.historialPrevio.farmacologicos : ''}"></textarea>
+                    </div>
+                    <div class="bs-field">
+                        <label class="bs-field__label" for="hpAlergicos">Alergias</label>
+                        <textarea class="bs-field__control" id="hpAlergicos" name="alergicos" rows="2" maxlength="1000"
+                                  placeholder="Ej.: penicilina. Escribe “Ninguna” si no tienes"
+                                  th:text="${pac.historialPrevio != null ? pac.historialPrevio.alergicos : ''}"></textarea>
+                    </div>
+                    <div class="bs-field">
+                        <label class="bs-field__label" for="hpFamiliares">Enfermedades en tu familia</label>
+                        <textarea class="bs-field__control" id="hpFamiliares" name="familiares" rows="2" maxlength="1000"
+                                  placeholder="Ej.: madre con diabetes"
+                                  th:text="${pac.historialPrevio != null ? pac.historialPrevio.familiares : ''}"></textarea>
+                    </div>
+                    <div class="bs-field">
+                        <label class="bs-field__label" for="hpNotas">Otros datos</label>
+                        <textarea class="bs-field__control" id="hpNotas" name="notas" rows="2" maxlength="1000"
+                                  placeholder="Exámenes recientes, tratamientos, embarazo…"
+                                  th:text="${pac.historialPrevioNotas}"></textarea>
+                    </div>
+                </div>
+                <button type="submit" class="bs-btn bs-btn--primary">
+                    <span class="material-symbols-outlined" aria-hidden="true">save</span>Guardar mi historial previo
+                </button>
+            </form>
+        </section>
+    </div>
+
+    <!-- ── Línea de tiempo de dictámenes ── -->
+    <section class="hc-linea" aria-labelledby="hc-consultas">
+        <h2 id="hc-consultas" class="hc-seccion-titulo">
+            Consultas atendidas <span class="bs-badge bs-badge--success" th:text="${h.entradas().size()}">0</span>
+        </h2>
+
+        <div th:if="${h.vacio}" class="bs-card hc-vacio">
+            <span class="material-symbols-outlined" aria-hidden="true">folder_open</span>
+            <p th:text="${vistaMedico ? 'El paciente aún no tiene consultas con dictamen.' : 'Cuando un profesional registre el dictamen de una consulta, aparecerá aquí.'}">Sin consultas</p>
+        </div>
+
+        <ol class="hc-consultas" th:unless="${h.vacio}">
+            <li th:each="e, iter : ${h.entradas()}" class="hc-consulta" th:with="d=${e.dictamen()}">
+                <details class="bs-card hc-consulta__tarjeta" th:open="${iter.first}">
+                    <summary class="hc-consulta__resumen">
+                        <span class="hc-consulta__fecha" th:text="${e.fecha() != null ? #temporals.format(e.fecha(), 'dd/MM/yyyy') : 'Sin fecha'}">01/10/2026</span>
+                        <span class="hc-consulta__dx" th:text="${d.resumenDiagnostico ?: 'Consulta'}">J039 · Amigdalitis aguda</span>
+                        <span class="hc-consulta__medico" th:text="${e.medico() + (e.especialidad() != null ? ' · ' + e.especialidad() : '')}">Dr(a). · Medicina General</span>
+                    </summary>
+
+                    <div class="hc-consulta__cuerpo">
+                        <!-- Formato anterior: texto libre -->
+                        <th:block th:if="${d.formatoAnterior}">
+                            <p th:if="${!#strings.isEmpty(d.diagnostico)}"><strong>Diagnóstico:</strong> <span th:text="${d.diagnostico}"></span></p>
+                            <p th:if="${!#strings.isEmpty(d.tratamiento)}"><strong>Tratamiento:</strong> <span th:text="${d.tratamiento}"></span></p>
+                            <p th:if="${!#strings.isEmpty(d.observaciones)}"><strong>Observaciones:</strong> <span th:text="${d.observaciones}"></span></p>
+                        </th:block>
+
+                        <th:block th:unless="${d.formatoAnterior}">
+                            <p class="hc-consulta__meta">
+                                <span th:if="${d.tipoConsulta != null}" th:text="${d.tipoConsulta.descripcion}">Primera vez</span>
+                                <span th:if="${d.causaExterna != null}" th:text="${d.causaExterna.descripcion}">Enfermedad general</span>
+                            </p>
+                            <div class="hc-soap">
+                                <div class="hc-soap__seccion">
+                                    <h3>Motivo y enfermedad actual</h3>
+                                    <p class="hc-texto" th:text="${d.motivoConsulta}">Motivo</p>
+                                    <p class="hc-texto" th:if="${!#strings.isEmpty(d.enfermedadActual)}" th:text="${d.enfermedadActual}">Enfermedad actual</p>
+                                </div>
+                                <div class="hc-soap__seccion" th:if="${!#strings.isEmpty(d.examenFisico) or (d.signosVitales != null and !d.signosVitales.vacio)}">
+                                    <h3>Examen físico</h3>
+                                    <ul class="hc-signos" th:if="${d.signosVitales != null and !d.signosVitales.vacio}" th:with="s=${d.signosVitales}">
+                                        <li th:if="${s.tensionSistolica != null}" th:text="${'TA ' + s.tensionSistolica + '/' + (s.tensionDiastolica ?: '—') + ' mmHg'}">TA</li>
+                                        <li th:if="${s.frecuenciaCardiaca != null}" th:text="${'FC ' + s.frecuenciaCardiaca + ' lpm'}">FC</li>
+                                        <li th:if="${s.frecuenciaRespiratoria != null}" th:text="${'FR ' + s.frecuenciaRespiratoria + ' rpm'}">FR</li>
+                                        <li th:if="${s.temperatura != null}" th:text="${'T ' + s.temperatura + ' °C'}">T</li>
+                                        <li th:if="${s.saturacionOxigeno != null}" th:text="${'SatO₂ ' + s.saturacionOxigeno + ' %'}">Sat</li>
+                                        <li th:if="${s.peso != null}" th:text="${'Peso ' + s.peso + ' kg'}">Peso</li>
+                                        <li th:if="${s.imc != null}" th:text="${'IMC ' + #numbers.formatDecimal(s.imc, 1, 1)}">IMC</li>
+                                    </ul>
+                                    <p class="hc-texto" th:if="${!#strings.isEmpty(d.examenFisico)}" th:text="${d.examenFisico}">Examen</p>
+                                </div>
+                                <div class="hc-soap__seccion" th:if="${d.diagnosticoPrincipal != null}">
+                                    <h3>Diagnóstico</h3>
+                                    <p class="hc-dx"><span class="hc-codigo" th:text="${d.diagnosticoPrincipal.codigo}">J039</span> <span th:text="${d.diagnosticoPrincipal.descripcion}">Amigdalitis</span></p>
+                                    <p th:each="r : ${d.diagnosticosRelacionados}" class="hc-dx hc-relacionado">
+                                        <span class="hc-codigo" th:text="${r.codigo}">R51</span> <span th:text="${r.descripcion}">Cefalea</span>
+                                    </p>
+                                </div>
+                                <div class="hc-soap__seccion" th:if="${!#lists.isEmpty(d.medicamentos) or !#strings.isEmpty(d.ordenesMedicas) or !#strings.isEmpty(d.recomendaciones) or d.incapacidadDias != null}">
+                                    <h3>Plan</h3>
+                                    <ul class="hc-formula" th:unless="${#lists.isEmpty(d.medicamentos)}">
+                                        <li th:each="m : ${d.medicamentos}">
+                                            <strong th:text="${m.nombre}">Medicamento</strong>
+                                            <span th:text="${(m.dosisFrecuencia ?: '') + (m.duracion != null ? ' · ' + m.duracion : '')}">Dosis</span>
+                                        </li>
+                                    </ul>
+                                    <p class="hc-texto" th:if="${!#strings.isEmpty(d.ordenesMedicas)}"><strong>Órdenes:</strong> <span th:text="${d.ordenesMedicas}"></span></p>
+                                    <p class="hc-texto" th:if="${!#strings.isEmpty(d.recomendaciones)}"><strong>Recomendaciones:</strong> <span th:text="${d.recomendaciones}"></span></p>
+                                    <p th:if="${d.incapacidadDias != null and d.incapacidadDias > 0}"><strong>Incapacidad:</strong> <span th:text="${d.incapacidadDias + ' días'}"></span></p>
+                                </div>
+                            </div>
+                        </th:block>
+                    </div>
+                </details>
+            </li>
+        </ol>
+    </section>
+</main>
+
+<footer th:replace="~{fragments/layout :: app-footer}"></footer>
+</body>
+</html>

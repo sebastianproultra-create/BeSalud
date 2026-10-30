@@ -125,6 +125,7 @@
             <span th:if="${err.startsWith('missing_time2_')}" th:text="'Falta completar el segundo intervalo del día ' + ${diasNombre[err.substring(14)] ?: err.substring(14)}"></span>
             <span th:if="${err.startsWith('solapamiento_intervalos_')}" th:text="'Los dos intervalos se solapan el día ' + ${diasNombre[err.substring(24)] ?: err.substring(24)}"></span>
             <span th:if="${err == 'no_autorizado'}">No tienes permiso para realizar esa acción.</span>
+            <span th:if="${err == 'historial_no_autorizado'}">Solo puedes ver la historia clínica de pacientes con una cita contigo.</span>
         </span>
     </div>
 
@@ -600,6 +601,8 @@
                         <button type="button" class="btn btn-light btn-sm"
                                 th:data-cita-id="${cita.id}" onclick="verDictamen(this.dataset.citaId)"><span class="material-symbols-outlined" aria-hidden="true">folder_shared</span>Ver dictamen</button>
                     </th:block>
+                    <a th:if="${cita.pacienteId != null and (cita.estado.name() == 'PENDIENTE' or cita.estado.name() == 'ASISTIO' or cita.estado.name() == 'COMPLETADA')}"
+                       class="btn btn-light btn-sm" th:href="@{'/doctores/pacientes/' + ${cita.pacienteId} + '/historial'}"><span class="material-symbols-outlined" aria-hidden="true">history_edu</span>Historial clínico</a>
                 </div>
             </article>
 
@@ -709,6 +712,9 @@
                     <li><span>Teléfono</span><span th:text="${pac.telefono ?: '—'}"></span></li>
                     <li><span>Email</span><span class="paciente-email" th:text="${pac.email}" th:title="${pac.email}"></span></li>
                 </ul>
+                <a class="btn btn-light btn-sm paciente-historial" th:href="@{'/doctores/pacientes/' + ${pac.id} + '/historial'}">
+                    <span class="material-symbols-outlined" aria-hidden="true">history_edu</span>Historial clínico
+                </a>
             </article>
         </div>
         <nav th:replace="~{fragments/layout :: paginacionAncla(${pacientesPage}, ${'/doctores?' + paramsPacientes}, 'pp', 'pacientes')}"></nav>
@@ -1035,6 +1041,7 @@ document.addEventListener('keydown', function(e) {
 <script th:inline="javascript">
 window.BESALUD_DICTAMEN = {
     datos: /*[[${dictamenDataMap}]]*/ {},
+    antecedentes: /*[[${antecedentesDictamen}]]*/ {},
     previo: /*[[${dictamenPrevio}]]*/ null,
     citaId: /*[[${dictamenCitaId}]]*/ null,
     error: /*[[${errorDictamen}]]*/ null
