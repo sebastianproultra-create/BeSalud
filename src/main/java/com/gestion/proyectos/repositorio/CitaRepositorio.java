@@ -21,6 +21,8 @@ public interface CitaRepositorio extends MongoRepository<Cita, String> {
     List<Cita> findByDoctorIdAndFecha(String doctorId, LocalDate fecha);
     List<Cita> findByPacienteIdAndFecha(String pacienteId, LocalDate fecha);
     List<Cita> findByFechaAndEstado(LocalDate fecha, EstadoCita estado);
+    /** Citas pendientes que deben pagar el resto antes de la cita y aún no lo han hecho. */
+    List<Cita> findByEstadoAndSaldoObligatorioTrueAndSaldoCentavosIsNull(EstadoCita estado);
     List<Cita> findByDoctorIdAndEstadoAbonoOrderByFechaAsc(String doctorId, com.gestion.proyectos.modelo.EstadoAbono estadoAbono);
     List<Cita> findByDoctorIdAndFechaBetweenAndAbonoCentavosIsNotNull(String doctorId, LocalDate desde, LocalDate hasta);
 
@@ -31,4 +33,9 @@ public interface CitaRepositorio extends MongoRepository<Cita, String> {
     @Query("{ '_id': ?0, 'estado': 'PENDIENTE' }")
     @Update("{ '$set': { 'confirmacionSolicitada': true } }")
     long marcarConfirmacionSolicitada(String id);
+
+    /** Marca el aviso de "paga el resto" sin pisar otros cambios de la cita. */
+    @Query("{ '_id': ?0, 'estado': 'PENDIENTE' }")
+    @Update("{ '$set': { 'recordatorioSaldoEnviado': true } }")
+    long marcarRecordatorioSaldo(String id);
 }

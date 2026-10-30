@@ -1,6 +1,8 @@
 package com.gestion.proyectos.controlador;
 
+import com.gestion.proyectos.modelo.Antecedentes;
 import com.gestion.proyectos.modelo.Paciente;
+import com.gestion.proyectos.servicio.HistorialClinicoService;
 import com.gestion.proyectos.servicio.PacienteService;
 import com.gestion.proyectos.servicio.CitaService;
 import com.gestion.proyectos.servicio.ReservaService;
@@ -19,11 +21,14 @@ public class PacienteController {
     private final PacienteService pacienteService;
     private final ReservaService reservaService;
     private final CitaService citaService;
+    private final HistorialClinicoService historialClinicoService;
 
-    public PacienteController(PacienteService pacienteService, ReservaService reservaService, CitaService citaService) {
+    public PacienteController(PacienteService pacienteService, ReservaService reservaService, CitaService citaService,
+            HistorialClinicoService historialClinicoService) {
         this.pacienteService = pacienteService;
         this.reservaService = reservaService;
         this.citaService = citaService;
+        this.historialClinicoService = historialClinicoService;
     }
 
     @GetMapping
@@ -41,6 +46,11 @@ public class PacienteController {
     @InitBinder("paciente")
     void camposPermitidos(WebDataBinder binder) {
         binder.setAllowedFields("nombre", "apellido", "telefono", "identificacion", "email", "password");
+    }
+
+    @InitBinder("historialPrevio")
+    void camposHistorialPrevio(WebDataBinder binder) {
+        binder.setAllowedFields("patologicos", "quirurgicos", "farmacologicos", "alergicos", "familiares");
     }
 
     @PostMapping("/guardar")
@@ -78,7 +88,10 @@ public class PacienteController {
                 String nombre = (paciente.getNombre() == null ? "" : paciente.getNombre())
                         + " " + (paciente.getApellido() == null ? "" : paciente.getApellido());
                 model.addAttribute("pacienteNombre", nombre.isBlank() ? "Paciente" : nombre.trim());
-                model.addAttribute("misCitas", pacienteService.citasDelPaciente(paciente.getId()));
+                var misCitas = pacienteService.citasDelPaciente(paciente.getId());
+                model.addAttribute("misCitas", misCitas);
+                // Citas con abono a las que aún les puede pagar el resto en línea
+                model.addAttribute("saldosPorPagar", reservaService.saldosPorPagar(misCitas));
                 // Turnos apartados que aún esperan el pago del abono
                 model.addAttribute("reservasPendientes", reservaService.pendientesDe(paciente.getId()));
                 // Citas a las que debe responder si asistirá
@@ -97,5 +110,25 @@ public class PacienteController {
         var paciente = pacienteService.buscarPorEmail(auth.getName()).orElseThrow();
         model.addAttribute("historial", reservaService.historialDe(paciente.getId()));
         return "pacientes/pagos";
+    }
+
+    /** Historial clínico del paciente: todos sus dictámenes y el historial previo que declaró (editable). */
+    @GetMapping("/historial")
+    public String historialClinico(Model model) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        var paciente = pacienteService.buscarPorEmail(auth.getName()).orElseThrow();
+        model.addAttribute("historialClinico", historialClinicoService.historialDe(paciente.getId()).orElseThrow());
+        model.addAttribute("vistaMedico", false);
+        return "historial/clinico";
+    }
+
+    @PostMapping("/historial/antecedentes")
+    public String guardarHistorialPrevio(@ModelAttribute("historialPrevio") Antecedentes datos,
+            @RequestParam(required = false) String notas) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        var paciente = pacienteService.buscarPorEmail(auth.getName()).orElseThrow();
+        String error = historialClinicoService.guardarDeclarado(paciente, datos, notas);
+        return error == null ? "redirect:/pacientes/historial?success=historial_guardado#mi-historial-previo"
+                : "redirect:/pacientes/historial?error=historial_largo#mi-historial-previo";
     }
 }

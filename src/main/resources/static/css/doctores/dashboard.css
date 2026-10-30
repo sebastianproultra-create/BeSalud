@@ -1873,6 +1873,10 @@ a.doc-segmento {
     font-size: 13px;
     font-weight: 600;
 }
+/* El paciente pagó en línea toda la consulta: no hay nada que cobrar en el consultorio */
+.cita-abono.is-completa {
+    color: var(--color-success);
+}
 .cita-asistencia {
     display: flex;
     align-items: center;
@@ -1983,4 +1987,10 @@ a.doc-segmento {
     .abonos-pendientes li { flex-wrap: wrap; }
     .abonos-pendientes form { width: 100%; }
     .doc-page .abonos-pendientes .doc-btn { width: 100%; justify-content: center; }
+}
+
+/* Enlace a la historia clínica en la tarjeta del paciente */
+.paciente-card .paciente-historial {
+    align-self: flex-start;
+    margin-top: auto;
 }

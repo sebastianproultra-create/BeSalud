@@ -13,13 +13,6 @@ html[data-tema="oscuro"] .bs-navbar__brand {
     color: var(--color-surface--t);
 }
 
-html[data-tema="oscuro"] .bs-navbar__brand-mark {
-    color: var(--color-surface--t);
-    background-color: rgba(255, 255, 255, 0.1);
-    background-image: none;
-    border: 1px solid rgba(255, 255, 255, 0.28);
-}
-
 html[data-tema="oscuro"] .bs-navbar__menu {
     background-color: transparent;
     background-image: none;

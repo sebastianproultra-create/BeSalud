@@ -77,6 +77,20 @@ class SecurityRulesTest {
     }
 
     @Test
+    void chatbotLandingJson_esPublicoSinSesion() throws Exception {
+        mockMvc.perform(get("/data/chatbot-landing.json"))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    void whatsappAsistencia_noExigeSesionNiCsrf() throws Exception {
+        // El controlador no está en este slice: 404 prueba que pasó el filtro (si no, sería 302/401/403)
+        mockMvc.perform(post("/whatsapp/asistencia").contentType("application/json")
+                        .content("{\"payload\":\"ASISTIRE:c1\",\"telefono\":\"573001112233\"}"))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
     void registerSinAutenticar_esAccesible() throws Exception {
         mockMvc.perform(get("/register"))
                 .andExpect(status().isOk());
@@ -251,4 +265,11 @@ class SecurityRulesTest {
         mockMvc.perform(post("/citas/guardar-paciente").with(csrf()))
                 .andExpect(status().isForbidden());
     }
+    @Test
+    @WithMockUser(roles = "DOCTOR")
+    void pagarSaldo_soloElPaciente() throws Exception {
+        mockMvc.perform(post("/citas/c1/pagar-saldo").with(csrf()))
+                .andExpect(status().isForbidden());
+    }
+
 }

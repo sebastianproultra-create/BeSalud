@@ -421,3 +421,22 @@ html[data-tema="oscuro"] .alert-info-reserva {
     background-color: #141F1B;
     background-image: none;
 }
+
+html[data-tema="oscuro"] .historial-previo {
+    border: 1px solid var(--color-border--b);
+    background-color: var(--color-surface--f);
+    background-image: none;
+}
+
+html[data-tema="oscuro"] .historial-previo__resumen .material-symbols-outlined {
+    color: var(--color-secondary--t);
+}
+
+html[data-tema="oscuro"] .historial-previo__resumen strong {
+    color: var(--color-primary--t);
+}
+
+html[data-tema="oscuro"] .historial-previo__resumen small,
+html[data-tema="oscuro"] .historial-previo__nota {
+    color: var(--color-text-muted--t);
+}

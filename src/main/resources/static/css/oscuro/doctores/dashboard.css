@@ -739,15 +739,15 @@ html[data-tema="oscuro"] .demanda-muestra--excede {
 }
 
 html[data-tema="oscuro"] .demanda-muestra--cupos {
-    background-color: var(--d-highest--b);
+    background-color: var(--d-highest--f);
     background-image: none;
 }
 
 html[data-tema="oscuro"] .demanda-muestra--rango {
-    border-top: 2px solid var(--d-on--t);
-    border-bottom: 2px solid var(--d-on--t);
+    border-top: 2px solid var(--d-on--b);
+    border-bottom: 2px solid var(--d-on--b);
     background-color: transparent;
-    background-image: linear-gradient(var(--d-on--t), var(--d-on--t));
+    background-image: linear-gradient(var(--d-on--f), var(--d-on--f));
 }
 
 html[data-tema="oscuro"] .demanda-ayuda {
@@ -1218,6 +1218,10 @@ html[data-tema="oscuro"] .doc-aviso-reservas {
 
 html[data-tema="oscuro"] .cita-abono {
     color: var(--d-amber--t);
+}
+
+html[data-tema="oscuro"] .cita-abono.is-completa {
+    color: var(--color-success--t);
 }
 
 html[data-tema="oscuro"] .cita-asistencia {

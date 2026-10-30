@@ -371,7 +371,8 @@ public class DoctorService {
     }
 
     private static long sumar(List<Cita> citas) {
-        return citas.stream().mapToLong(c -> c.getAbonoPesos() == null ? 0 : c.getAbonoPesos()).sum();
+        // Lo pagado en línea: el abono y, si el paciente lo pagó, también el saldo
+        return citas.stream().mapToLong(c -> c.getPagadoPesos() == null ? 0 : c.getPagadoPesos()).sum();
     }
 
     /** El médico registra que ya le devolvió el abono al paciente (por Wompi o transferencia). */

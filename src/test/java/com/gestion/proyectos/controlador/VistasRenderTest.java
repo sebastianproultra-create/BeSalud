@@ -63,7 +63,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 /** Comprueba que las plantillas con mensajes de error y botones nuevos renderizan sin fallar. */
 @WebMvcTest({DoctorController.class, PacienteController.class, CitaController.class, LoginController.class,
-        RolSelectionController.class, TriageController.class, PerfilPublicoController.class})
+        RolSelectionController.class, TriageController.class, PerfilPublicoController.class, HomeController.class})
 @Import(SecurityConfig.class)
 class VistasRenderTest {
 
@@ -80,6 +80,7 @@ class VistasRenderTest {
     @MockBean private com.gestion.proyectos.servicio.TriageService triageService;
     @MockBean private com.gestion.proyectos.servicio.AsistenteService asistenteService;
     @MockBean private org.springframework.security.authentication.AuthenticationManager authenticationManager;
+    @MockBean private com.gestion.proyectos.servicio.HistorialClinicoService historialClinicoService;
     @MockBean private CustomUserDetailsService customUserDetailsService;
     @MockBean private PersonaRepositorio personaRepositorio;
     @MockBean private AdminRepositorio adminRepositorio;
@@ -331,6 +332,41 @@ class VistasRenderTest {
     }
 
     @Test
+    void landingPaciente_ofrecePagarElRestoYMarcaLasPagadasCompletas() throws Exception {
+        Paciente p = new Paciente();
+        p.setId("p1");
+        Cita conAbono = new Cita();
+        conAbono.setId("c1");
+        conAbono.setDoctorId("d1");
+        conAbono.setFecha(LocalDate.now().plusDays(2));
+        conAbono.setHora(LocalTime.of(9, 0));
+        conAbono.setEstado(EstadoCita.PENDIENTE);
+        conAbono.setAbonoCentavos(2_000_000L);
+        Cita pagada = new Cita();
+        pagada.setId("c2");
+        pagada.setDoctorId("d1");
+        pagada.setFecha(LocalDate.now().plusDays(3));
+        pagada.setHora(LocalTime.of(10, 0));
+        pagada.setEstado(EstadoCita.PENDIENTE);
+        pagada.setAbonoCentavos(2_000_000L);
+        pagada.setSaldoCentavos(6_000_000L);
+        pagada.setEstadoAbono(com.gestion.proyectos.modelo.EstadoAbono.PAGADO);
+        when(pacienteService.listarDoctoresPaginated(anyInt(), anyInt(), any(), any())).thenReturn(new PageImpl<>(List.of()));
+        when(pacienteService.especialidadesDisponibles()).thenReturn(List.of());
+        when(pacienteService.buscarPorEmail("pac@test.com")).thenReturn(Optional.of(p));
+        when(pacienteService.citasDelPaciente("p1")).thenReturn(List.of(conAbono, pagada));
+        when(pacienteService.mapDoctores()).thenReturn(Map.of("d1", "Dr. X"));
+        when(reservaService.saldosPorPagar(any())).thenReturn(Map.of("c1", 60_000L));
+
+        mockMvc.perform(get("/pacientes/landing").with(user("pac@test.com").roles("PACIENTE")))
+                .andExpect(status().isOk())
+                .andExpect(content().string(containsString("/citas/c1/pagar-saldo")))
+                .andExpect(content().string(containsString("Pagar ahora $60.000")))
+                .andExpect(content().string(org.hamcrest.Matchers.not(containsString("/citas/c2/pagar-saldo"))))
+                .andExpect(content().string(containsString("Pagada por completo $80.000")));
+    }
+
+    @Test
     void reprogramar_noPideMotivoYMuestraError() throws Exception {
         Paciente p = new Paciente();
         p.setId("p1");
@@ -374,6 +410,14 @@ class VistasRenderTest {
                 .andExpect(content().string(containsString("09:00")))
                 .andExpect(content().string(containsString("$50.000")))
                 .andExpect(content().string(containsString("href=\"/citas/nueva?doctorId=d1")));
+    }
+
+    @Test
+    void landing_rendersinSesionConWidgetDelChatbot() throws Exception {
+        mockMvc.perform(get("/"))
+                .andExpect(status().isOk())
+                .andExpect(content().string(containsString("chatbot-landing.js")))
+                .andExpect(content().string(containsString("chatbot-landing.css")));
     }
 
     @Test
@@ -474,11 +518,11 @@ class VistasRenderTest {
         var pago = new com.gestion.proyectos.servicio.ReservaService.MovimientoPago("BS-1",
                 java.time.LocalDateTime.of(2026, 10, 20, 9, 0), "Dr(a). Ana Ruiz", "Psicología",
                 java.time.LocalDate.of(2026, 11, 4), java.time.LocalTime.of(8, 0), 12_000, "Visa •••• 4242",
-                com.gestion.proyectos.servicio.ReservaService.EstadoPago.PAGADO);
+                com.gestion.proyectos.servicio.ReservaService.EstadoPago.PAGADO, "Abono");
         var rechazado = new com.gestion.proyectos.servicio.ReservaService.MovimientoPago("BS-2",
                 java.time.LocalDateTime.of(2026, 10, 19, 9, 0), "Dr(a). Ana Ruiz", "Psicología",
                 java.time.LocalDate.of(2026, 11, 4), java.time.LocalTime.of(8, 0), 12_000, null,
-                com.gestion.proyectos.servicio.ReservaService.EstadoPago.RECHAZADO);
+                com.gestion.proyectos.servicio.ReservaService.EstadoPago.RECHAZADO, "Abono");
         when(reservaService.historialDe("p1")).thenReturn(
                 new com.gestion.proyectos.servicio.ReservaService.HistorialPagos(List.of(pago, rechazado), 12_000, 0));
 
@@ -495,5 +539,155 @@ class VistasRenderTest {
     void misPagos_soloParaPacientes() throws Exception {
         mockMvc.perform(get("/pacientes/pagos").with(user("doc@test.com").roles("DOCTOR")))
                 .andExpect(status().isForbidden());
+    }
+
+    // ── Historial clínico ───────────────────────────────────────────────────
+
+    private static com.gestion.proyectos.servicio.HistorialClinicoService.HistorialClinico historialDeAna() {
+        Paciente p = new Paciente();
+        p.setId("p1");
+        p.setNombre("Ana");
+        p.setApellido("Gil");
+        p.setIdentificacion("1047");
+        Antecedentes declarado = new Antecedentes();
+        declarado.setQuirurgicos("Apendicectomía en 2019");
+        p.setHistorialPrevio(declarado);
+        p.setHistorialPrevioNotas("Exámenes de sangre normales");
+
+        Dictamen d = new Dictamen();
+        d.setTipoConsulta(TipoConsulta.values()[0]);
+        d.setCausaExterna(CausaExterna.values()[0]);
+        d.setMotivoConsulta("Dolor de garganta");
+        d.setEnfermedadActual("Tres días de fiebre");
+        d.setExamenFisico("Amígdalas eritematosas");
+        Diagnostico dx = new Diagnostico();
+        dx.setCodigo("J039");
+        dx.setDescripcion("Amigdalitis aguda");
+        dx.setTipo(TipoDiagnostico.values()[0]);
+        d.setDiagnosticoPrincipal(dx);
+        SignosVitales sv = new SignosVitales();
+        sv.setTemperatura(38.2);
+        d.setSignosVitales(sv);
+        Medicamento m = new Medicamento();
+        m.setNombre("Amoxicilina 500 mg");
+        m.setVia(ViaAdministracion.values()[0]);
+        m.setDosisFrecuencia("1 cápsula cada 8 horas");
+        d.setMedicamentos(List.of(m));
+        Antecedentes ant = new Antecedentes();
+        ant.setAlergicos("Penicilina");
+        d.setAntecedentes(ant);
+        Cita c = new Cita();
+        c.setId("c1");
+        c.setPacienteId("p1");
+        c.setEstado(EstadoCita.COMPLETADA);
+        c.setDictamen(d);
+        java.time.LocalDateTime fecha = java.time.LocalDateTime.of(2026, 9, 1, 9, 0);
+
+        return new com.gestion.proyectos.servicio.HistorialClinicoService.HistorialClinico(p,
+                List.of(new com.gestion.proyectos.servicio.HistorialClinicoService.Entrada(c, d, "Dr(a). Laura Ruiz", "Medicina General", fecha)),
+                ant, Map.of("alergicos", fecha),
+                List.of(new com.gestion.proyectos.servicio.HistorialClinicoService.DiagnosticoRegistrado(dx, true, fecha, "Dr(a). Laura Ruiz")),
+                List.of(m), fecha, "Penicilina");
+    }
+
+    @Test
+    void historialClinico_elMedicoVeTodosLosDictamenesYLoQueAportoElPaciente() throws Exception {
+        Doctor doctor = new Doctor();
+        doctor.setId("d1");
+        when(doctorService.buscarPorEmail("doc@test.com")).thenReturn(Optional.of(doctor));
+        when(historialClinicoService.medicoPuedeVer("d1", "p1")).thenReturn(true);
+        when(historialClinicoService.historialDe("p1")).thenReturn(Optional.of(historialDeAna()));
+
+        mockMvc.perform(get("/doctores/pacientes/p1/historial").with(user("doc@test.com").roles("DOCTOR")))
+                .andExpect(status().isOk())
+                .andExpect(content().string(containsString("Ana Gil")))
+                .andExpect(content().string(containsString("Penicilina")))
+                .andExpect(content().string(containsString("Amigdalitis aguda")))
+                .andExpect(content().string(containsString("Dr(a). Laura Ruiz")))
+                .andExpect(content().string(containsString("Amoxicilina 500 mg")))
+                .andExpect(content().string(containsString("Historial previo que aportó el paciente")))
+                .andExpect(content().string(containsString("Apendicectomía en 2019")))
+                .andExpect(content().string(containsString("Exámenes de sangre normales")))
+                // El médico solo lo lee: no hay formulario para editar lo que declaró el paciente
+                .andExpect(content().string(not(containsString("/pacientes/historial/antecedentes"))));
+    }
+
+    @Test
+    void historialClinico_medicoSinCitaConElPaciente_noLoVe() throws Exception {
+        Doctor doctor = new Doctor();
+        doctor.setId("d1");
+        when(doctorService.buscarPorEmail("doc@test.com")).thenReturn(Optional.of(doctor));
+        when(historialClinicoService.medicoPuedeVer("d1", "p9")).thenReturn(false);
+
+        mockMvc.perform(get("/doctores/pacientes/p9/historial").with(user("doc@test.com").roles("DOCTOR")))
+                .andExpect(redirectedUrl("/doctores?error=historial_no_autorizado#citas"));
+        verify(historialClinicoService, org.mockito.Mockito.never()).historialDe("p9");
+    }
+
+    @Test
+    void historialClinico_soloElRolCorrespondiente() throws Exception {
+        mockMvc.perform(get("/doctores/pacientes/p1/historial").with(user("pac@test.com").roles("PACIENTE")))
+                .andExpect(status().isForbidden());
+        mockMvc.perform(get("/pacientes/historial").with(user("doc@test.com").roles("DOCTOR")))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    void miHistorial_elPacienteVeSusDictamenesYPuedeEditarSuHistorialPrevio() throws Exception {
+        var h = historialDeAna();
+        when(pacienteService.buscarPorEmail("pac@test.com")).thenReturn(Optional.of(h.paciente()));
+        when(historialClinicoService.historialDe("p1")).thenReturn(Optional.of(h));
+
+        mockMvc.perform(get("/pacientes/historial").param("success", "historial_guardado")
+                        .with(user("pac@test.com").roles("PACIENTE")))
+                .andExpect(status().isOk())
+                .andExpect(content().string(containsString("Mi historial clínico")))
+                .andExpect(content().string(containsString("Amigdalitis aguda")))
+                .andExpect(content().string(containsString("action=\"/pacientes/historial/antecedentes\"")))
+                .andExpect(content().string(containsString("Apendicectomía en 2019")))
+                .andExpect(content().string(containsString("Guardamos tu historial previo")));
+    }
+
+    @Test
+    void miHistorial_guardarHistorialPrevio() throws Exception {
+        Paciente p = new Paciente();
+        p.setId("p1");
+        when(pacienteService.buscarPorEmail("pac@test.com")).thenReturn(Optional.of(p));
+        when(historialClinicoService.guardarDeclarado(any(), any(), any())).thenReturn(null);
+
+        mockMvc.perform(post("/pacientes/historial/antecedentes")
+                        .param("alergicos", "Penicilina")
+                        .param("notas", "Asma")
+                        .with(csrf()).with(user("pac@test.com").roles("PACIENTE")))
+                .andExpect(redirectedUrl("/pacientes/historial?success=historial_guardado#mi-historial-previo"));
+
+        ArgumentCaptor<Antecedentes> datos = ArgumentCaptor.forClass(Antecedentes.class);
+        verify(historialClinicoService).guardarDeclarado(org.mockito.ArgumentMatchers.same(p), datos.capture(), eq("Asma"));
+        assertThat(datos.getValue().getAlergicos()).isEqualTo("Penicilina");
+    }
+
+    @Test
+    void agendar_ofreceAnexarElHistorialPrevioYLoMuestraSiYaExiste() throws Exception {
+        Paciente p = new Paciente();
+        p.setId("p1");
+        Antecedentes declarado = new Antecedentes();
+        declarado.setAlergicos("Penicilina");
+        p.setHistorialPrevio(declarado);
+        Doctor d = new Doctor();
+        d.setId("d1");
+        d.setNombre("Ana");
+        d.setApellido("Ruiz");
+        d.setEstado("ACTIVO");
+        when(citaService.buscarDoctorPorId("d1")).thenReturn(Optional.of(d));
+        when(citaService.buscarPacientePorEmail("pac@test.com")).thenReturn(Optional.of(p));
+        Map<String, List<String>> slots = new LinkedHashMap<>();
+        slots.put(LocalDate.now().plusDays(2).toString(), List.of("10:00"));
+        when(citaService.slotsDisponibles(any(), any(), any(), any(), any())).thenReturn(new LinkedHashMap<>(slots));
+
+        mockMvc.perform(get("/citas/nueva").param("doctorId", "d1").with(user("pac@test.com").roles("PACIENTE")))
+                .andExpect(status().isOk())
+                .andExpect(content().string(containsString("Tu historial médico previo")))
+                .andExpect(content().string(containsString("name=\"historialEnviado\"")))
+                .andExpect(content().string(containsString(">Penicilina</textarea>")));
     }
 }

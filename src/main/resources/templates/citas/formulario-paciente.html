@@ -46,6 +46,7 @@
         <span th:case="'horario_invalido'">El horario seleccionado ya no está disponible. Por favor, elige otro.</span>
         <span th:case="'conflicto_cita'">Ese horario ya fue reservado por otro paciente. Por favor elige otro.</span>
         <span th:case="'conflicto_paciente'">Ya tienes otra cita a esa hora. Elige un horario distinto.</span>
+        <span th:case="'saldo_requerido'">Para mover la cita a menos de 24 horas primero paga el resto de la consulta desde Mis citas.</span>
         <span th:case="'doctor_invalido'">No puedes agendar una cita contigo mismo. Elige otro doctor.</span>
         <span th:case="'fecha_pasada'">Esa fecha y hora ya pasaron. Elige un horario futuro.</span>
         <span th:case="'estado_invalido'">Solo se pueden reprogramar citas pendientes.</span>
@@ -54,6 +55,7 @@
         <span th:case="'motivo_requerido'">Escribe el motivo de la consulta.</span>
         <span th:case="'fecha_invalida'">La fecha no es válida.</span>
         <span th:case="'hora_invalida'">La hora no es válida.</span>
+        <span th:case="'historial_largo'">Tu historial previo es muy largo: cada campo admite hasta 1.000 caracteres.</span>
         <span th:case="'pago_rechazado'">El pago del abono no fue aprobado y el horario quedó libre. Puedes intentarlo de nuevo con otro medio de pago.</span>
         <span th:case="'reserva_vencida'">Se acabó el tiempo para pagar y el horario se liberó. Elige un horario de nuevo.</span>
         <span th:case="*">No se pudo guardar la cita. Intenta de nuevo.</span>
@@ -93,7 +95,8 @@
                     <p>
                         Para confirmar pagas en línea un abono de
                         <strong th:text="${'$' + #numbers.formatInteger(doctorSeleccionado.abono, 1, 'POINT') + ' (' + doctorSeleccionado.porcentajeAbonoEfectivo() + ' % de la consulta)'}">$16.000</strong>;
-                        el resto lo pagas en el consultorio.
+                        el resto lo pagas en línea cuando quieras, a más tardar 24 horas antes de la cita
+                        (también puedes pagar todo de una vez).
                         Apartamos el horario <span th:text="${minutosParaPagar + ' minutos'}">15 minutos</span> mientras pagas.
                     </p>
                     <p>
@@ -112,6 +115,52 @@
                         <textarea id="motivo" name="motivo" rows="3" placeholder="Describe brevemente el motivo de tu visita..." required
                                   th:text="${motivoSugerido != null ? motivoSugerido : ''}"></textarea>
                     </div>
+                    <!-- Historial previo (opcional): queda en el perfil del paciente y el médico lo ve en su historia clínica -->
+                    <details class="historial-previo" th:if="${cita == null}"
+                             th:with="hp=${historialPrevio}, tieneHp=${historialPrevio != null and !historialPrevio.vacio}"
+                             th:open="${!tieneHp}">
+                        <summary class="historial-previo__resumen">
+                            <span class="material-symbols-outlined" aria-hidden="true">person_book</span>
+                            <span>
+                                <strong th:text="${tieneHp ? 'Tu historial médico previo' : 'Anexa tu historial médico previo'}">Anexa tu historial médico previo</strong>
+                                <small th:text="${tieneHp ? 'Ya lo tenemos. Revísalo por si algo cambió.' : 'Opcional: ayuda al profesional a conocerte antes de la consulta.'}">Opcional</small>
+                            </span>
+                        </summary>
+                        <input type="hidden" name="historialEnviado" value="1"/>
+                        <div class="historial-previo__campos">
+                            <div class="form-group">
+                                <label for="historialPatologicos">Enfermedades que tienes o tuviste</label>
+                                <textarea id="historialPatologicos" name="historialPatologicos" rows="2" maxlength="1000"
+                                          placeholder="Ej.: hipertensión, asma, diabetes" th:text="${hp != null ? hp.patologicos : ''}"></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label for="historialQuirurgicos">Cirugías</label>
+                                <textarea id="historialQuirurgicos" name="historialQuirurgicos" rows="2" maxlength="1000"
+                                          placeholder="Ej.: apendicectomía en 2019" th:text="${hp != null ? hp.quirurgicos : ''}"></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label for="historialFarmacologicos">Medicamentos que tomas</label>
+                                <textarea id="historialFarmacologicos" name="historialFarmacologicos" rows="2" maxlength="1000"
+                                          placeholder="Ej.: losartán 50 mg cada día" th:text="${hp != null ? hp.farmacologicos : ''}"></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label for="historialAlergicos">Alergias</label>
+                                <textarea id="historialAlergicos" name="historialAlergicos" rows="2" maxlength="1000"
+                                          placeholder="Ej.: penicilina. Escribe “Ninguna” si no tienes" th:text="${hp != null ? hp.alergicos : ''}"></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label for="historialFamiliares">Enfermedades en tu familia</label>
+                                <textarea id="historialFamiliares" name="historialFamiliares" rows="2" maxlength="1000"
+                                          placeholder="Ej.: madre con diabetes" th:text="${hp != null ? hp.familiares : ''}"></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label for="historialNotas">Otros datos</label>
+                                <textarea id="historialNotas" name="historialNotas" rows="2" maxlength="1000"
+                                          placeholder="Exámenes recientes, tratamientos, embarazo…" th:text="${historialPrevioNotas}"></textarea>
+                            </div>
+                        </div>
+                        <p class="historial-previo__nota">Se guarda en tu perfil para tus próximas citas. Puedes cambiarlo en «Mi historial».</p>
+                    </details>
                     <button type="submit" class="btn btn-primary btn-confirm" th:text="${submitLabel != null ? submitLabel : 'Confirmar cita'}">Confirmar cita</button>
                     <button type="button" class="btn btn-link btn-change" onclick="clearSlot()">Cambiar horario</button>
                 </form>

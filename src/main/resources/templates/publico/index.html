@@ -5,6 +5,7 @@
     <title>BeSalud — Plataforma Médica Digital</title>
     <link rel="stylesheet" th:href="@{/css/base/scrollbar.css}"  />
     <link rel="stylesheet" th:href="@{/css/publico/index.css}"  />
+    <link rel="stylesheet" th:href="@{/css/publico/chatbot-landing.css}" />
     <th:block th:replace="~{fragments/layout :: design-system}"></th:block>
     <link rel="stylesheet" th:href="@{/css/base/tema-oscuro.css}">
     <script th:src="@{/js/tema.js}"></script>
@@ -105,5 +106,26 @@
 </main>
 
 <footer th:replace="~{fragments/layout :: app-footer}"></footer>
+
+<button type="button" class="cb-lanzador" data-chatbot-abrir aria-controls="cb-panel" aria-expanded="false">
+    <span class="cb-lanzador-punto" aria-hidden="true"></span> ¿Le ayudo?
+</button>
+<section id="cb-panel" class="cb-panel" data-chatbot-landing hidden aria-label="Asistente de BeSalud"
+         th:attr="data-fuente=@{/data/chatbot-landing.json}" data-fuente="/data/chatbot-landing.json">
+    <div class="cb-cabecera">
+        <div>
+            <strong>Asistente BeSalud</strong>
+            <small>Respuestas al instante</small>
+        </div>
+        <button type="button" class="cb-cerrar" data-chatbot-cerrar aria-label="Cerrar asistente">&times;</button>
+    </div>
+    <div class="cb-mensajes" aria-live="polite"></div>
+    <div class="cb-opciones"></div>
+    <form class="cb-form">
+        <input type="text" maxlength="200" placeholder="Escriba su pregunta…" aria-label="Escriba su pregunta">
+        <button type="submit">Enviar</button>
+    </form>
+</section>
+<script th:src="@{/js/chatbot-landing.js}" src="/js/chatbot-landing.js" defer></script>
 </body>
 </html>

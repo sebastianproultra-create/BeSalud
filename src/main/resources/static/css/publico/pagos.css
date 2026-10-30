@@ -211,11 +211,89 @@
     color: var(--portal-muted);
 }
 
+/* Los montos no se parten aunque la etiqueta sea larga ("Pagas antes del lunes 9 de noviembre…") */
+.pago-cuentas dd {
+    white-space: nowrap;
+}
+
 .pago-cuentas .is-total dt,
 .pago-cuentas .is-total dd {
     color: var(--portal-primary);
     font-size: 18px;
     font-weight: 700;
+}
+
+/* ── Abono o total: el paciente elige cuánto paga al reservar (tokens del sistema de diseño) ── */
+.pago-modalidad {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-2);
+    margin: 0 0 var(--space-4);
+}
+
+/* Cita muy pronto: solo queda la opción de pagar todo */
+.pago-modalidad form:only-of-type {
+    grid-column: 1 / -1;
+}
+
+.pago-modalidad-titulo,
+.pago-modalidad-nota {
+    grid-column: 1 / -1;
+    margin: 0;
+    color: var(--color-text-muted);
+    font-size: var(--font-size-sm);
+}
+
+.pago-modalidad-titulo {
+    font-weight: 600;
+}
+
+.pago-page .pago-modalidad-opcion {
+    display: grid;
+    align-content: start;
+    justify-items: start;
+    gap: var(--space-1);
+    width: 100%;
+    height: 100%;
+    min-height: 44px;
+    padding: var(--space-3) var(--space-4);
+    color: var(--color-text);
+    font-size: var(--font-size-sm);
+    letter-spacing: normal;
+    text-align: left;
+    text-transform: none;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    box-shadow: none;
+    cursor: pointer;
+}
+
+.pago-page .pago-modalidad-opcion:hover,
+.pago-page .pago-modalidad-opcion:focus-visible {
+    color: var(--color-text);
+    background: var(--color-surface-muted);
+    border-color: var(--color-secondary);
+    box-shadow: none;
+    transform: none;
+}
+
+/* La elegida: borde doble con sombra interior para no mover el contenido */
+.pago-page .pago-modalidad-opcion.is-elegida {
+    background: var(--color-primary-soft);
+    border-color: var(--color-primary);
+    box-shadow: inset 0 0 0 1px var(--color-primary);
+}
+
+.pago-modalidad-opcion strong {
+    color: var(--color-primary);
+    font-size: var(--font-size-base);
+}
+
+.pago-modalidad-opcion span {
+    color: var(--color-text-muted);
+    font-size: var(--font-size-xs);
+    line-height: 1.4;
 }
 
 /* El CSS global da a todo <form> aspecto de tarjeta: aquí los formularios son solo contenedores */
@@ -997,6 +1075,31 @@
 .resultado-politica .material-symbols-outlined {
     color: var(--portal-primary-container);
     font-size: 20px;
+}
+
+/* Le falta pagar el resto: se ofrece pagarlo desde el comprobante (tokens del sistema de diseño) */
+.pago-page .resultado-saldo {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: var(--space-3);
+    margin: var(--space-3) 0 0;
+    padding: var(--space-3) var(--space-4);
+    color: var(--color-text);
+    text-align: left;
+    background: var(--color-surface-muted);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    font-size: var(--font-size-sm);
+    line-height: 1.55;
+}
+
+.resultado-saldo .material-symbols-outlined {
+    color: var(--color-warning);
+    font-size: var(--font-size-xl);
+}
+
+.pago-page .resultado-saldo .bs-btn {
+    grid-column: 1 / -1;
 }
 
 .resultado-acciones {

@@ -17,3 +17,4 @@ scripts/package*.json
 # Modelo predictivo: salida pesada del generador (se regenera con generar_citas.py)
 modelo_predictivo/salida/
 __pycache__/
+whatsapp-bot/node_modules/

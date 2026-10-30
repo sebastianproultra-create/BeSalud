@@ -50,6 +50,7 @@ class CitaControllerTest {
     @MockBean private CitaService citaService;
     @MockBean private com.gestion.proyectos.servicio.ReservaService reservaService;
     @MockBean private com.gestion.proyectos.servicio.PasarelaPagos pasarelaPagos;
+    @MockBean private com.gestion.proyectos.servicio.HistorialClinicoService historialClinicoService;
     @MockBean private CustomUserDetailsService customUserDetailsService;
     @MockBean private PersonaRepositorio personaRepositorio;
     @MockBean private AdminRepositorio adminRepositorio;
@@ -415,5 +416,71 @@ class CitaControllerTest {
                         .with(user("pac@test.com").roles("PACIENTE")))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/pacientes/landing?error=cancelacion_no_permitida"));
+    }
+
+    // ── historial previo al agendar ─────────────────────────────────────────
+
+    @Test
+    void guardarPaciente_conHistorialPrevio_loGuardaEnElPerfilYSigueAlPago() throws Exception {
+        Doctor doctor = doctorActivo();
+        prepararReservaValida(doctor);
+        com.gestion.proyectos.modelo.Reserva reserva = new com.gestion.proyectos.modelo.Reserva();
+        reserva.setReferencia("BS-789");
+        when(reservaService.apartar(eq(doctor), eq("p1"), any(), any(), eq("Control"))).thenReturn(reserva);
+        when(historialClinicoService.guardarDeclarado(any(), any(), any())).thenReturn(null);
+
+        mockMvc.perform(post("/citas/guardar-paciente")
+                        .param("doctorId", "d1")
+                        .param("fecha", LocalDate.now().plusDays(1).toString())
+                        .param("hora", "09:00")
+                        .param("motivo", "Control")
+                        .param("historialEnviado", "1")
+                        .param("historialAlergicos", "Penicilina")
+                        .param("historialNotas", "Asmática desde niña")
+                        .with(csrf())
+                        .with(user("paciente@test.com").roles("PACIENTE")))
+                .andExpect(redirectedUrl("/pagos/BS-789"));
+
+        verify(historialClinicoService).guardarDeclarado(argThat(p -> "p1".equals(p.getId())),
+                argThat(a -> "Penicilina".equals(a.getAlergicos())), eq("Asmática desde niña"));
+    }
+
+    @Test
+    void guardarPaciente_historialDemasiadoLargo_noAparta() throws Exception {
+        prepararReservaValida(doctorActivo());
+        when(historialClinicoService.guardarDeclarado(any(), any(), any())).thenReturn("Muy largo");
+
+        mockMvc.perform(post("/citas/guardar-paciente")
+                        .param("doctorId", "d1")
+                        .param("fecha", LocalDate.now().plusDays(1).toString())
+                        .param("hora", "09:00")
+                        .param("motivo", "Control")
+                        .param("historialEnviado", "1")
+                        .param("historialPatologicos", "x".repeat(1001))
+                        .with(csrf())
+                        .with(user("paciente@test.com").roles("PACIENTE")))
+                .andExpect(redirectedUrl("/citas/nueva?doctorId=d1&error=historial_largo"));
+
+        verify(reservaService, never()).apartar(any(), any(), any(), any(), any());
+    }
+
+    @Test
+    void guardarPaciente_sinSeccionDeHistorial_noTocaElPerfil() throws Exception {
+        Doctor doctor = doctorActivo();
+        prepararReservaValida(doctor);
+        com.gestion.proyectos.modelo.Reserva reserva = new com.gestion.proyectos.modelo.Reserva();
+        reserva.setReferencia("BS-790");
+        when(reservaService.apartar(eq(doctor), eq("p1"), any(), any(), eq("Control"))).thenReturn(reserva);
+
+        mockMvc.perform(post("/citas/guardar-paciente")
+                        .param("doctorId", "d1")
+                        .param("fecha", LocalDate.now().plusDays(1).toString())
+                        .param("hora", "09:00")
+                        .param("motivo", "Control")
+                        .with(csrf())
+                        .with(user("paciente@test.com").roles("PACIENTE")))
+                .andExpect(redirectedUrl("/pagos/BS-790"));
+
+        verify(historialClinicoService, never()).guardarDeclarado(any(), any(), any());
     }
 }

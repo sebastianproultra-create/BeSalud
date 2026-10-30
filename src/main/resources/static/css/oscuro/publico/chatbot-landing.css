@@ -1,0 +1,94 @@
+/* Generado por scripts/generar_tema_oscuro.py a partir de publico/chatbot-landing.css. No editar a mano:
+   los ajustes van en base/tema-oscuro.css o en el generador. */
+
+html[data-tema="oscuro"] .cb-lanzador {
+    color: #FDFCF9;
+    background-color: #125441;
+    background-image: none;
+    border: 0;
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.54);
+}
+
+html[data-tema="oscuro"] .cb-lanzador:hover {
+    background-color: #1A5C45;
+    background-image: none;
+}
+
+html[data-tema="oscuro"] .cb-lanzador-punto {
+    background-color: #C8A96E;
+    background-image: none;
+}
+
+html[data-tema="oscuro"] .cb-panel {
+    background-color: #121C18;
+    background-image: none;
+    border: 1px solid rgba(159, 209, 194, 0.144);
+    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.45);
+}
+
+html[data-tema="oscuro"] .cb-cabecera {
+    color: #FDFCF9;
+    background-color: #125441;
+    background-image: none;
+}
+
+html[data-tema="oscuro"] .cb-cabecera small {
+    color: #E8D5B0;
+}
+
+html[data-tema="oscuro"] .cb-cerrar {
+    color: #FDFCF9;
+    background-color: transparent;
+    background-image: none;
+    border: 0;
+}
+
+html[data-tema="oscuro"] .cb-mensajes {
+    background-color: #3C311B;
+    background-image: none;
+}
+
+html[data-tema="oscuro"] .cb-bot {
+    color: #E0E0DD;
+    background-color: #1B2A24;
+    background-image: none;
+    border: 1px solid rgba(159, 209, 194, 0.144);
+}
+
+html[data-tema="oscuro"] .cb-usuario {
+    color: #FDFCF9;
+    background-color: #1A5C45;
+    background-image: none;
+}
+
+html[data-tema="oscuro"] .cb-accion {
+    color: #CFE5DF;
+}
+
+html[data-tema="oscuro"] .cb-opciones {
+    border-top: 1px solid rgba(159, 209, 194, 0.144);
+}
+
+html[data-tema="oscuro"] .cb-opcion {
+    color: #CFE5DF;
+    background-color: #1B2A24;
+    background-image: none;
+    border: 1px solid rgba(159, 209, 194, 0.264);
+}
+
+html[data-tema="oscuro"] .cb-opcion:hover {
+    background-color: #E8D5B0;
+    background-image: none;
+    border-color: #6A552E;
+}
+
+html[data-tema="oscuro"] .cb-form input {
+    border: 1px solid rgba(159, 209, 194, 0.264);
+}
+
+html[data-tema="oscuro"] .cb-form button {
+    color: #FDFCF9;
+    background-color: #125441;
+    background-image: none;
+    border: 0;
+}

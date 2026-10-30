@@ -92,6 +92,11 @@ public class AsistenteService {
     private final RestClient http;
     private final String apiKey;
     private final List<String> modelos;
+    // Los horarios de 30 profesionales × 30 días son miles de consultas: se piden en paralelo y se reusan 1 minuto
+    private final java.util.concurrent.ExecutorService hilos = java.util.concurrent.Executors.newFixedThreadPool(12);
+    private final Map<String, LibresCache> libresCache = new java.util.concurrent.ConcurrentHashMap<>();
+
+    private record LibresCache(long creado, Map<String, List<String>> libres) {}
 
     public AsistenteService(CitaService citaService, TriageService triageService, ObjectMapper mapper,
             @Value("${app.gemini.api-key:}") String apiKey,
@@ -206,15 +211,33 @@ public class AsistenteService {
 
     /** Horarios de varios profesionales ordenados por fecha y hora; sin fecha, desde hoy. */
     private List<Horario> mezclar(List<Doctor> doctores, LocalDate fecha, Franja franja) {
+        List<java.util.concurrent.Future<Map<String, List<String>>>> pendientes = doctores.stream()
+                .map(d -> hilos.submit(() -> libresDe(d.getId()))).toList();
         List<Horario> todos = new ArrayList<>();
-        for (Doctor d : doctores) {
-            Map<String, List<String>> libres = citaService.slotsDisponibles(d.getId(), null, null, null);
+        for (int i = 0; i < doctores.size(); i++) {
+            Map<String, List<String>> libres;
+            try {
+                libres = pendientes.get(i).get();
+            } catch (Exception e) {
+                log.warn("No se pudieron leer los horarios de {}: {}", doctores.get(i).getId(), e.getMessage());
+                continue;
+            }
             if (fecha != null)
                 libres = Map.of(fecha.toString(), libres.getOrDefault(fecha.toString(), List.of()));
-            todos.addAll(filtrar(d, libres, franja, true));
+            todos.addAll(filtrar(doctores.get(i), libres, franja, true));
         }
         todos.sort(java.util.Comparator.comparing(Horario::fecha).thenComparing(Horario::hora));
         return todos.subList(0, Math.min(MAX_HORARIOS, todos.size()));
+    }
+
+    private Map<String, List<String>> libresDe(String doctorId) {
+        long ahora = System.currentTimeMillis();
+        LibresCache c = libresCache.get(doctorId);
+        if (c != null && ahora - c.creado() < 60_000)
+            return c.libres();
+        Map<String, List<String>> libres = citaService.slotsDisponibles(doctorId, null, null, null);
+        libresCache.put(doctorId, new LibresCache(ahora, libres));
+        return libres;
     }
 
     private List<Horario> proximosGeneral(List<Doctor> doctores, int cuantos) {
@@ -447,7 +470,7 @@ public class AsistenteService {
     String textoPrecio(Doctor d) {
         return "La consulta con " + nombre(d) + " vale " + pesos(d.getPrecioEfectivo()) + ". Para reservar pagas en "
                 + "línea un abono del " + d.porcentajeAbonoEfectivo() + " % (" + pesos(d.getAbono())
-                + ") y el resto en el consultorio.";
+                + ") y el resto en línea a más tardar 24 horas antes de la cita (o todo de una vez).";
     }
 
     String textoAbono(Doctor d) {

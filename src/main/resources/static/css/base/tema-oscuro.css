@@ -135,6 +135,41 @@ html[data-tema="oscuro"] select option:disabled {
     color: #8FA79C;
 }
 
+/* Leyenda de la gráfica de demanda (panel del médico): mismos colores que dibuja prediccion.js en oscuro */
+html[data-tema="oscuro"] .demanda-muestra--valor {
+    background-color: var(--d-primary-c--t);
+}
+
+html[data-tema="oscuro"] .demanda-muestra--cupos {
+    background-color: var(--d-highest--b);
+}
+
+html[data-tema="oscuro"] .demanda-muestra--rango {
+    border-top-color: var(--d-on--t);
+    border-bottom-color: var(--d-on--t);
+    background-image: linear-gradient(var(--d-on--t), var(--d-on--t));
+}
+
+/* Logo del login: en oscuro se muestra la versión clara del símbolo */
+html[data-tema="oscuro"] .auth-logo {
+    display: none;
+}
+
+html[data-tema="oscuro"] .auth-logo--oscuro {
+    display: block;
+}
+
+/* Chatbot de la página de inicio: sus cremas y dorados se leen como café en oscuro; se pasan a la paleta verde */
+html[data-tema="oscuro"] .cb-mensajes {
+    background-color: #14231D;
+}
+
+html[data-tema="oscuro"] .cb-opcion:hover {
+    color: #EAF7F0;
+    background-color: #0D4738;
+    border-color: #9FD8C5;
+}
+
 /* Imágenes y fotos: un poco menos de brillo para no deslumbrar */
 html[data-tema="oscuro"] img:not([src$=".svg"]) {
     filter: brightness(0.92);
