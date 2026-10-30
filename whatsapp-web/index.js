@@ -147,7 +147,7 @@ http.createServer(async (req, res) => {
   const url = new URL(req.url, 'http://localhost');
 
   if (req.method === 'GET' && url.pathname === '/qr') {
-    if (!autorizado(url.searchParams.get('clave'))) { res.writeHead(401); return res.end(); }
+    if (!autorizado(req.headers['x-bot-secret'])) { res.writeHead(401); return res.end(); }
     res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
     if (listo) return res.end('<h2>✅ El número ya está vinculado a BeSalud.</h2>');
     if (!qrActual) return res.end('<meta http-equiv="refresh" content="3"><h2>Generando el código QR…</h2>');
