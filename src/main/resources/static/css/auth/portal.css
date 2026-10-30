@@ -370,18 +370,6 @@ body.auth-page {
     text-align: center;
 }
 
-.auth-key-icon {
-    width: 48px;
-    height: 48px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    margin-bottom: 2px;
-    color: var(--portal-primary);
-    background: var(--portal-container);
-    border-radius: 50%;
-}
-
 .auth-logo {
     display: block;
     width: auto;
@@ -391,10 +379,6 @@ body.auth-page {
 
 .auth-logo--oscuro {
     display: none;
-}
-
-.auth-key-icon .material-symbols-outlined {
-    font-size: 24px;
 }
 
 .auth-page .auth-card h2 {

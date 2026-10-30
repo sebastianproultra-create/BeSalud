@@ -83,6 +83,12 @@ class SecurityRulesTest {
     }
 
     @Test
+    void favicon_esPublicoSinSesion() throws Exception {
+        mockMvc.perform(get("/favicon.ico"))
+                .andExpect(status().isOk());
+    }
+
+    @Test
     void whatsappAsistencia_noExigeSesionNiCsrf() throws Exception {
         // El controlador no está en este slice: 404 prueba que pasó el filtro (si no, sería 302/401/403)
         mockMvc.perform(post("/whatsapp/asistencia").contentType("application/json")

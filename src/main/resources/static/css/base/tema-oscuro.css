@@ -165,3 +165,12 @@ html[data-tema="oscuro"] .cb-opcion:hover {
 html[data-tema="oscuro"] img:not([src$=".svg"]) {
     filter: brightness(0.92);
 }
+
+/* Login: el logo verde se cambia por su versión clara sobre la tarjeta oscura */
+html[data-tema="oscuro"] .auth-logo {
+    display: none;
+}
+
+html[data-tema="oscuro"] .auth-logo--oscuro {
+    display: block;
+}
