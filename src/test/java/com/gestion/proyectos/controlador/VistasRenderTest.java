@@ -332,6 +332,41 @@ class VistasRenderTest {
     }
 
     @Test
+    void landingPaciente_ofrecePagarElRestoYMarcaLasPagadasCompletas() throws Exception {
+        Paciente p = new Paciente();
+        p.setId("p1");
+        Cita conAbono = new Cita();
+        conAbono.setId("c1");
+        conAbono.setDoctorId("d1");
+        conAbono.setFecha(LocalDate.now().plusDays(2));
+        conAbono.setHora(LocalTime.of(9, 0));
+        conAbono.setEstado(EstadoCita.PENDIENTE);
+        conAbono.setAbonoCentavos(2_000_000L);
+        Cita pagada = new Cita();
+        pagada.setId("c2");
+        pagada.setDoctorId("d1");
+        pagada.setFecha(LocalDate.now().plusDays(3));
+        pagada.setHora(LocalTime.of(10, 0));
+        pagada.setEstado(EstadoCita.PENDIENTE);
+        pagada.setAbonoCentavos(2_000_000L);
+        pagada.setSaldoCentavos(6_000_000L);
+        pagada.setEstadoAbono(com.gestion.proyectos.modelo.EstadoAbono.PAGADO);
+        when(pacienteService.listarDoctoresPaginated(anyInt(), anyInt(), any(), any())).thenReturn(new PageImpl<>(List.of()));
+        when(pacienteService.especialidadesDisponibles()).thenReturn(List.of());
+        when(pacienteService.buscarPorEmail("pac@test.com")).thenReturn(Optional.of(p));
+        when(pacienteService.citasDelPaciente("p1")).thenReturn(List.of(conAbono, pagada));
+        when(pacienteService.mapDoctores()).thenReturn(Map.of("d1", "Dr. X"));
+        when(reservaService.saldosPorPagar(any())).thenReturn(Map.of("c1", 60_000L));
+
+        mockMvc.perform(get("/pacientes/landing").with(user("pac@test.com").roles("PACIENTE")))
+                .andExpect(status().isOk())
+                .andExpect(content().string(containsString("/citas/c1/pagar-saldo")))
+                .andExpect(content().string(containsString("Pagar ahora $60.000")))
+                .andExpect(content().string(org.hamcrest.Matchers.not(containsString("/citas/c2/pagar-saldo"))))
+                .andExpect(content().string(containsString("Pagada por completo $80.000")));
+    }
+
+    @Test
     void reprogramar_noPideMotivoYMuestraError() throws Exception {
         Paciente p = new Paciente();
         p.setId("p1");
@@ -483,11 +518,11 @@ class VistasRenderTest {
         var pago = new com.gestion.proyectos.servicio.ReservaService.MovimientoPago("BS-1",
                 java.time.LocalDateTime.of(2026, 10, 20, 9, 0), "Dr(a). Ana Ruiz", "Psicología",
                 java.time.LocalDate.of(2026, 11, 4), java.time.LocalTime.of(8, 0), 12_000, "Visa •••• 4242",
-                com.gestion.proyectos.servicio.ReservaService.EstadoPago.PAGADO);
+                com.gestion.proyectos.servicio.ReservaService.EstadoPago.PAGADO, "Abono");
         var rechazado = new com.gestion.proyectos.servicio.ReservaService.MovimientoPago("BS-2",
                 java.time.LocalDateTime.of(2026, 10, 19, 9, 0), "Dr(a). Ana Ruiz", "Psicología",
                 java.time.LocalDate.of(2026, 11, 4), java.time.LocalTime.of(8, 0), 12_000, null,
-                com.gestion.proyectos.servicio.ReservaService.EstadoPago.RECHAZADO);
+                com.gestion.proyectos.servicio.ReservaService.EstadoPago.RECHAZADO, "Abono");
         when(reservaService.historialDe("p1")).thenReturn(
                 new com.gestion.proyectos.servicio.ReservaService.HistorialPagos(List.of(pago, rechazado), 12_000, 0));
 

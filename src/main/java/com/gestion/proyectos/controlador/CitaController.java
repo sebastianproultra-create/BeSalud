@@ -9,6 +9,7 @@ import com.gestion.proyectos.modelo.EstadoCita;
 import com.gestion.proyectos.modelo.Paciente;
 import com.gestion.proyectos.modelo.Reserva;
 import com.gestion.proyectos.servicio.CitaService;
+import com.gestion.proyectos.util.Reloj;
 import com.gestion.proyectos.servicio.HistorialClinicoService;
 import com.gestion.proyectos.servicio.PasarelaPagos;
 import com.gestion.proyectos.servicio.ReservaService;
@@ -175,6 +176,9 @@ public class CitaController {
             return "redirect:/citas/" + id + "/reprogramar?error=conflicto_cita";
         if (citaService.pacienteTieneConflicto(cita.getPacienteId(), cita.getDoctorId(), fechaCita, horaCita, cita.getId()))
             return "redirect:/citas/" + id + "/reprogramar?error=conflicto_paciente";
+        // Con el resto sin pagar, la nueva fecha debe dejar tiempo para pagarlo antes del plazo
+        if (!CitaService.reprogramacionDejaPlazoParaPagar(cita, fechaCita, horaCita, Reloj.ahora()))
+            return "redirect:/citas/" + id + "/reprogramar?error=saldo_requerido";
 
         try {
             citaService.reprogramar(cita, fechaCita, horaCita);

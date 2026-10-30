@@ -255,7 +255,7 @@
                         </select>
                     </label>
                 </div>
-                <p class="doc-enlace-ayuda">Todas las citas se reservan pagando el abono en línea; el resto se paga en el consultorio.</p>
+                <p class="doc-enlace-ayuda">El paciente reserva pagando el abono (o todo) en línea y paga el resto a más tardar 24 horas antes; si no, la cita se cancela y conservas el abono. No cobras nada en el consultorio.</p>
 
                 <button type="submit" class="doc-btn doc-btn--amber">
                     <span class="material-symbols-outlined" aria-hidden="true">save</span><span>Guardar cambios</span>
@@ -560,9 +560,9 @@
                               th:text="${cita.estado.descripcion}"></span>
                     </div>
                     <p class="cita-motivo"><strong>Motivo:</strong> <span th:text="${cita.motivo}" th:title="${cita.motivo}"></span></p>
-                    <p th:if="${cita.abonoPesos != null}" class="cita-abono">
-                        <span class="material-symbols-outlined" aria-hidden="true">payments</span>
-                        <span th:text="${'Abono $' + #numbers.formatInteger(cita.abonoPesos, 1, 'POINT') + (cita.estadoAbono != null ? ' · ' + cita.estadoAbono.descripcion : '')}">Abono</span>
+                    <p th:if="${cita.abonoPesos != null}" class="cita-abono" th:classappend="${cita.pagadaCompleta} ? 'is-completa'">
+                        <span class="material-symbols-outlined" aria-hidden="true" th:text="${cita.pagadaCompleta ? 'verified' : 'payments'}">payments</span>
+                        <span th:text="${(cita.pagadaCompleta ? 'Pagada por completo $' + #numbers.formatInteger(cita.pagadoPesos, 1, 'POINT') : 'Abono $' + #numbers.formatInteger(cita.abonoPesos, 1, 'POINT')) + (cita.estadoAbono != null and (!cita.pagadaCompleta or cita.estadoAbono.name() != 'PAGADO') ? ' · ' + cita.estadoAbono.descripcion : '') + (cita.saldoObligatorio and !cita.pagadaCompleta and cita.estado.name() == 'PENDIENTE' ? ' · el resto vence el ' + #temporals.format(cita.limitePagoSaldo, 'd MMM, h:mm a', loc) : '')}">Abono</span>
                     </p>
                     <p th:if="${cita.estado.name() == 'PENDIENTE' and (cita.asistenciaConfirmada != null or cita.confirmacionSolicitada)}"
                        class="cita-asistencia" th:classappend="${cita.asistenciaConfirmada != null} ? 'is-confirmada'">
@@ -647,7 +647,7 @@
 
         <div th:unless="${abonos.pendientes.isEmpty()}" class="abonos-pendientes">
             <h3 class="doc-bloque-titulo">Devoluciones pendientes</h3>
-            <p class="abonos-ayuda">Estas citas se cancelaron a tiempo. Devuelve el abono por el mismo medio
+            <p class="abonos-ayuda">Estas citas se cancelaron a tiempo. Devuelve lo que pagó el paciente (el abono y, si lo pagó, el saldo) por el mismo medio
                 (desde tu cuenta de Wompi) o por transferencia, y márcalo aquí: le avisamos al paciente.</p>
             <ul>
                 <li th:each="c : ${abonos.pendientes}">
@@ -656,9 +656,9 @@
                         <span th:text="${'Cita del ' + #temporals.format(c.fecha, 'd ''de'' MMMM', loc) + ' · ' + #temporals.format(c.hora, 'h:mm a', loc)}">Cita</span>
                         <span class="abonos-ref" th:if="${c.referenciaPago != null}" th:text="${'Ref. ' + c.referenciaPago + (c.medioPago != null ? ' · ' + c.medioPago : '')}">Ref.</span>
                     </div>
-                    <strong class="abonos-monto" th:text="${'$' + #numbers.formatInteger(c.abonoPesos, 1, 'POINT')}">$0</strong>
+                    <strong class="abonos-monto" th:text="${'$' + #numbers.formatInteger(c.pagadoPesos, 1, 'POINT')}">$0</strong>
                     <form th:action="@{/doctores/citas/{id}/abono-devuelto(id=${c.id})}" method="post"
-                          onsubmit="return confirm('¿Ya le devolviste el abono a este paciente?');">
+                          onsubmit="return confirm('¿Ya le devolviste el pago a este paciente?');">
                         <button type="submit" class="doc-btn doc-btn--primary">
                             <span class="material-symbols-outlined" aria-hidden="true">check</span>Marcar como devuelto
                         </button>

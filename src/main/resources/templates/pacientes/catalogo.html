@@ -79,6 +79,7 @@
             <span th:case="'pago_conflicto'">Recibimos tu pago, pero no pudimos confirmar la cita (el horario ya no estaba disponible o el monto no coincide). Tu abono queda para devolución; escríbenos desde el Centro de Ayuda.</span>
             <span th:case="'pago_sin_confirmar'">No pudimos confirmar el pago. Si se te cobró, la cita aparecerá en unos minutos; si no, intenta de nuevo.</span>
             <span th:case="'cancelacion_no_permitida'">Solo se pueden cancelar citas pendientes.</span>
+            <span th:case="'saldo_no_disponible'">Esa cita ya no tiene saldo por pagar en línea (ya está pagada, se canceló o ya pasó).</span>
             <span th:case="*">No se pudo completar la acción. Intenta de nuevo.</span>
         </div>
             </div>
@@ -203,10 +204,23 @@
                         <div class="cita-asistencia" th:if="${cita.estado.name() == 'PENDIENTE' and cita.asistenciaConfirmada != null and cita.asistenciaConfirmada}">
                             <i class="fa-solid fa-check" aria-hidden="true"></i> Confirmaste tu asistencia
                         </div>
-                        <div class="cita-abono" th:if="${cita.abonoPesos != null}">
+                        <div class="cita-abono" th:if="${cita.abonoPesos != null and !cita.pagadaCompleta}">
                             <span th:text="${'Abono $' + #numbers.formatInteger(cita.abonoPesos, 1, 'POINT')}">Abono $20.000</span>
                             <span th:text="${cita.estadoAbono != null ? '· ' + cita.estadoAbono.descripcion : ''}"></span>
                         </div>
+                        <div class="cita-abono is-completa" th:if="${cita.pagadaCompleta}">
+                            <i class="fa-solid fa-circle-check" aria-hidden="true"></i>
+                            <span th:text="${(cita.estado.name() == 'PENDIENTE' or cita.estadoAbono == null or cita.estadoAbono.name() == 'PAGADO' ? 'Pagada por completo $' : 'Pagado $') + #numbers.formatInteger(cita.pagadoPesos, 1, 'POINT')}">Pagada por completo $80.000</span>
+                            <span th:if="${cita.estadoAbono != null and cita.estadoAbono.name() != 'PAGADO'}" th:text="${'· ' + cita.estadoAbono.descripcion}"></span>
+                        </div>
+                        <form th:if="${saldosPorPagar != null and saldosPorPagar[cita.id] != null}"
+                              th:action="@{/citas/{id}/pagar-saldo(id=${cita.id})}" method="post" class="cita-saldo">
+                            <span th:text="${cita.saldoObligatorio ? 'Paga $' + #numbers.formatInteger(saldosPorPagar[cita.id], 1, 'POINT') + ' antes del ' + #temporals.format(cita.limitePagoSaldo, 'd ''de'' MMMM, h:mm a', T(java.util.Locale).forLanguageTag('es-CO')) + ' o la cita se cancela.' : 'Te faltan $' + #numbers.formatInteger(saldosPorPagar[cita.id], 1, 'POINT') + '. Págalos ya y no pagas nada en el consultorio.'}">Paga $60.000 antes del 5 de noviembre o la cita se cancela.</span>
+                            <button type="submit" class="btn btn-primary btn-small">
+                                <i class="fa-solid fa-lock" aria-hidden="true"></i>
+                                <span th:text="${'Pagar ahora $' + #numbers.formatInteger(saldosPorPagar[cita.id], 1, 'POINT')}">Pagar ahora $60.000</span>
+                            </button>
+                        </form>
                         <div class="cita-motivo" th:if="${cita.motivo}" th:text="${cita.motivo}"></div>
                         <div class="cita-actions">
                             <a th:href="@{/citas/{id}/reprogramar(id=${cita.id})}"

@@ -109,6 +109,42 @@ html[data-tema="oscuro"] .pago-cuentas .is-total dd {
     color: var(--portal-primary--t);
 }
 
+html[data-tema="oscuro"] .pago-modalidad-titulo,
+html[data-tema="oscuro"] .pago-modalidad-nota {
+    color: var(--portal-muted--t);
+}
+
+html[data-tema="oscuro"] .pago-page .pago-modalidad-opcion {
+    color: var(--portal-on-surface--t);
+    background-color: var(--portal-surface--f);
+    background-image: none;
+    border: 1px solid var(--portal-border--b);
+    box-shadow: none;
+}
+
+html[data-tema="oscuro"] .pago-page .pago-modalidad-opcion:hover,
+html[data-tema="oscuro"] .pago-page .pago-modalidad-opcion:focus-visible {
+    color: var(--portal-on-surface--t);
+    background-color: var(--portal-container--f);
+    background-image: none;
+    border-color: var(--portal-primary-container--b);
+    box-shadow: none;
+}
+
+html[data-tema="oscuro"] .pago-page .pago-modalidad-opcion.is-elegida {
+    background-color: var(--portal-container--f);
+    background-image: none;
+    border: 2px solid var(--portal-primary--b);
+}
+
+html[data-tema="oscuro"] .pago-modalidad-opcion strong {
+    color: var(--portal-primary--t);
+}
+
+html[data-tema="oscuro"] .pago-modalidad-opcion span {
+    color: var(--portal-muted--t);
+}
+
 html[data-tema="oscuro"] .pago-page form {
     background-color: transparent;
     background-image: none;
@@ -498,6 +534,17 @@ html[data-tema="oscuro"] .resultado-politica {
 
 html[data-tema="oscuro"] .resultado-politica .material-symbols-outlined {
     color: var(--portal-primary-container--t);
+}
+
+html[data-tema="oscuro"] .pago-page .resultado-saldo {
+    color: var(--portal-on-surface--t);
+    background-color: var(--portal-container--f);
+    background-image: none;
+    border: 1px solid var(--portal-border--b);
+}
+
+html[data-tema="oscuro"] .resultado-saldo .material-symbols-outlined {
+    color: var(--portal-secondary--t);
 }
 
 @media (max-width: 960px) {

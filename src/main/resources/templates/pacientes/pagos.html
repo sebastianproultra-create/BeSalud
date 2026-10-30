@@ -65,7 +65,7 @@
                 </div>
                 <div class="historial-detalle">
                     <strong th:text="${m.profesional()}">Dr(a). Profesional</strong>
-                    <span th:text="${'Cita del ' + #temporals.format(m.fechaCita(), 'd ''de'' MMMM', loc) + ' · ' + #temporals.format(m.horaCita(), 'h:mm a', loc)}">Cita del 4 de noviembre</span>
+                    <span th:text="${m.concepto + ' · cita del ' + #temporals.format(m.fechaCita(), 'd ''de'' MMMM', loc) + ' · ' + #temporals.format(m.horaCita(), 'h:mm a', loc)}">Abono · cita del 4 de noviembre</span>
                     <small>
                         <span th:if="${m.fechaPago() != null}" th:text="${(m.estado().name() == 'RECHAZADO' ? 'Intentado el ' : (m.estado().name() == 'EN_PROCESO' ? 'Iniciado el ' : 'Pagado el ')) + #temporals.format(m.fechaPago(), 'd MMM yyyy', loc)}">Pagado el</span>
                         <span th:if="${m.medioPago() != null}" th:text="${' · ' + m.medioPago()}"> · Visa</span>
@@ -87,8 +87,8 @@
 
         <p class="historial-nota" th:unless="${historial.movimientos.isEmpty()}">
             <span class="material-symbols-outlined" aria-hidden="true">info</span>
-            <span>Si cancelas a tiempo, el profesional te devuelve el abono por el mismo medio; según tu banco puede
-                tardar unos días hábiles. Si no asistes o cancelas tarde, el abono no es reembolsable.</span>
+            <span>Si cancelas a tiempo, el profesional te devuelve lo pagado (el abono y, si lo pagaste, el saldo) por el
+                mismo medio; según tu banco puede tardar unos días hábiles. Si no asistes o cancelas tarde, no es reembolsable.</span>
         </p>
     </section>
 </main>

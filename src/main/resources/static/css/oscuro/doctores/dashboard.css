@@ -1220,6 +1220,10 @@ html[data-tema="oscuro"] .cita-abono {
     color: var(--d-amber--t);
 }
 
+html[data-tema="oscuro"] .cita-abono.is-completa {
+    color: var(--d-primary-c--t);
+}
+
 html[data-tema="oscuro"] .cita-asistencia {
     color: #B3B9B6;
 }

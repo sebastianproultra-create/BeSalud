@@ -88,7 +88,10 @@ public class PacienteController {
                 String nombre = (paciente.getNombre() == null ? "" : paciente.getNombre())
                         + " " + (paciente.getApellido() == null ? "" : paciente.getApellido());
                 model.addAttribute("pacienteNombre", nombre.isBlank() ? "Paciente" : nombre.trim());
-                model.addAttribute("misCitas", pacienteService.citasDelPaciente(paciente.getId()));
+                var misCitas = pacienteService.citasDelPaciente(paciente.getId());
+                model.addAttribute("misCitas", misCitas);
+                // Citas con abono a las que aún les puede pagar el resto en línea
+                model.addAttribute("saldosPorPagar", reservaService.saldosPorPagar(misCitas));
                 // Turnos apartados que aún esperan el pago del abono
                 model.addAttribute("reservasPendientes", reservaService.pendientesDe(paciente.getId()));
                 // Citas a las que debe responder si asistirá

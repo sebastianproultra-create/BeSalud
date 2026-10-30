@@ -2004,6 +2004,32 @@ body.patient-catalog-page {
     font-weight: 600;
 }
 
+.cita-abono.is-completa {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--secondary-color);
+}
+
+/* Pagar el resto de la consulta en línea */
+.cita-saldo {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px 10px;
+    margin-top: 8px;
+    padding: 8px 10px;
+    background: var(--light-bg);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    color: var(--text-light);
+    font-size: 12px;
+}
+
+.cita-saldo .btn-small {
+    gap: 6px;
+}
+
 .doctor-profile-link {
     display: inline-flex;
     align-items: center;

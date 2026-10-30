@@ -218,6 +218,77 @@
     font-weight: 700;
 }
 
+/* ── Abono o total: el paciente elige cuánto paga al reservar ── */
+.pago-modalidad {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+    margin: 0 0 16px;
+}
+
+/* Cita muy pronto: solo queda la opción de pagar todo */
+.pago-modalidad form:only-of-type {
+    grid-column: 1 / -1;
+}
+
+.pago-modalidad-titulo,
+.pago-modalidad-nota {
+    grid-column: 1 / -1;
+    margin: 0;
+    color: var(--portal-muted);
+    font-size: 13px;
+}
+
+.pago-modalidad-titulo {
+    font-weight: 600;
+}
+
+.pago-page .pago-modalidad-opcion {
+    display: grid;
+    align-content: start;
+    justify-items: start;
+    gap: 2px;
+    width: 100%;
+    height: 100%;
+    padding: 12px 14px;
+    color: var(--portal-on-surface);
+    font-size: 14px;
+    letter-spacing: normal;
+    text-align: left;
+    text-transform: none;
+    background: var(--portal-surface);
+    border: 1px solid var(--portal-border);
+    border-radius: 12px;
+    box-shadow: none;
+    cursor: pointer;
+}
+
+.pago-page .pago-modalidad-opcion:hover,
+.pago-page .pago-modalidad-opcion:focus-visible {
+    color: var(--portal-on-surface);
+    background: var(--portal-container);
+    border-color: var(--portal-primary-container);
+    box-shadow: none;
+    transform: none;
+}
+
+.pago-page .pago-modalidad-opcion.is-elegida {
+    background: var(--portal-container);
+    border: 2px solid var(--portal-primary);
+    padding: 11px 13px;
+}
+
+.pago-modalidad-opcion strong {
+    color: var(--portal-primary);
+    font-size: 16px;
+}
+
+.pago-modalidad-opcion span {
+    color: var(--portal-muted);
+    font-size: 12px;
+    line-height: 1.4;
+}
+
 /* El CSS global da a todo <form> aspecto de tarjeta: aquí los formularios son solo contenedores */
 .pago-page form {
     margin: 0;
@@ -997,6 +1068,34 @@
 .resultado-politica .material-symbols-outlined {
     color: var(--portal-primary-container);
     font-size: 20px;
+}
+
+/* Le falta pagar el resto: se ofrece pagarlo desde el comprobante */
+.pago-page .resultado-saldo {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 10px;
+    margin: 12px 0 0;
+    padding: 12px 14px;
+    color: var(--portal-on-surface);
+    text-align: left;
+    background: var(--portal-container);
+    border: 1px solid var(--portal-border);
+    border-radius: 12px;
+    font-size: 13px;
+    line-height: 1.55;
+}
+
+.resultado-saldo .material-symbols-outlined {
+    color: var(--portal-secondary);
+    font-size: 20px;
+}
+
+.pago-page .resultado-saldo .pago-boton {
+    grid-column: 1 / -1;
+    margin: 0;
+    padding: 12px 16px;
+    font-size: 14px;
 }
 
 .resultado-acciones {
