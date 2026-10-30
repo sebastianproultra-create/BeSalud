@@ -340,6 +340,11 @@
         form.action = '/doctores/citas/' + btn.dataset.citaId + '/dictamen';
         form.reset();
         limpiarFilas();
+        // Antecedentes ya conocidos del paciente (dictámenes anteriores o lo que él declaró): el médico solo los revisa
+        var conocidos = (CFG.antecedentes || {})[btn.dataset.citaId] || {};
+        ['patologicos', 'quirurgicos', 'farmacologicos', 'alergicos', 'familiares'].forEach(function (k) {
+            if (conocidos[k]) asignar('antecedentes.' + k, conocidos[k]);
+        });
         $('motivoConsulta').value = btn.dataset.motivo || '';
         $('dxFechaAtencion').textContent = btn.dataset.inicio || 'se registra al guardar';
         $('dictamenError').hidden = true;

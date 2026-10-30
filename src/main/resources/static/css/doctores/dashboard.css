@@ -1984,3 +1984,9 @@ a.doc-segmento {
     .abonos-pendientes form { width: 100%; }
     .doc-page .abonos-pendientes .doc-btn { width: 100%; justify-content: center; }
 }
+
+/* Enlace a la historia clínica en la tarjeta del paciente */
+.paciente-card .paciente-historial {
+    align-self: flex-start;
+    margin-top: auto;
+}

@@ -1,0 +1,131 @@
+/* Generado por scripts/generar_tema_oscuro.py a partir de historial/clinico.css. No editar a mano:
+   los ajustes van en base/tema-oscuro.css o en el generador. */
+
+html[data-tema="oscuro"] .hc-page {
+    background-color: var(--color-background--f);
+    background-image: none;
+}
+
+html[data-tema="oscuro"] .hc-eyebrow {
+    color: var(--color-secondary--t);
+}
+
+html[data-tema="oscuro"] .hc-titulo {
+    color: var(--color-primary--t);
+}
+
+html[data-tema="oscuro"] .hc-sub {
+    color: var(--color-text-muted--t);
+}
+
+html[data-tema="oscuro"] .hc-datos {
+    color: var(--color-text-muted--t);
+}
+
+html[data-tema="oscuro"] .hc-alergias {
+    color: var(--color-danger--t);
+    background-color: var(--color-surface--f);
+    background-image: none;
+    border: 1px solid var(--color-danger--b);
+}
+
+html[data-tema="oscuro"] .hc-alergias p {
+    color: var(--color-text--t);
+}
+
+html[data-tema="oscuro"] .hc-bloque__titulo {
+    color: var(--color-primary--t);
+}
+
+html[data-tema="oscuro"] .hc-bloque__titulo .material-symbols-outlined {
+    color: var(--color-secondary--t);
+}
+
+html[data-tema="oscuro"] .hc-bloque__ayuda,
+html[data-tema="oscuro"] .hc-vacio-texto {
+    color: var(--color-text-muted--t);
+}
+
+html[data-tema="oscuro"] .hc-lista__fila {
+    border-bottom: 1px solid var(--color-border--b);
+}
+
+html[data-tema="oscuro"] .hc-lista__fila:last-child {
+    border-bottom: 0;
+}
+
+html[data-tema="oscuro"] .hc-lista dt {
+    color: var(--color-text-muted--t);
+}
+
+html[data-tema="oscuro"] .hc-lista dd {
+    color: var(--color-text--t);
+}
+
+html[data-tema="oscuro"] .hc-lista small,
+html[data-tema="oscuro"] .hc-diagnosticos small {
+    color: var(--color-text-muted--t);
+}
+
+html[data-tema="oscuro"] .hc-codigo {
+    color: var(--color-primary--t);
+    background-color: var(--color-primary-soft--f);
+    background-image: none;
+}
+
+html[data-tema="oscuro"] .hc-formula li {
+    background-color: var(--color-surface-muted--f);
+    background-image: none;
+}
+
+html[data-tema="oscuro"] .hc-formula span {
+    color: var(--color-text-muted--t);
+}
+
+html[data-tema="oscuro"] .hc-seccion-titulo {
+    color: var(--color-primary--t);
+}
+
+html[data-tema="oscuro"] .hc-vacio {
+    color: var(--color-text-muted--t);
+}
+
+html[data-tema="oscuro"] .hc-consulta__resumen:hover {
+    background-color: var(--color-surface-muted--f);
+    background-image: none;
+}
+
+html[data-tema="oscuro"] .hc-consulta__fecha {
+    color: var(--color-secondary--t);
+}
+
+html[data-tema="oscuro"] .hc-consulta__dx {
+    color: var(--color-text--t);
+}
+
+html[data-tema="oscuro"] .hc-consulta__medico {
+    color: var(--color-text-muted--t);
+}
+
+html[data-tema="oscuro"] .hc-consulta__cuerpo {
+    border-top: 1px solid var(--color-border--b);
+}
+
+html[data-tema="oscuro"] .hc-relacionado {
+    color: var(--color-text-muted--t);
+}
+
+html[data-tema="oscuro"] .hc-consulta__meta span {
+    color: var(--color-secondary--t);
+    background-color: var(--color-primary-soft--f);
+    background-image: none;
+}
+
+html[data-tema="oscuro"] .hc-soap__seccion h3 {
+    color: var(--color-text-muted--t);
+}
+
+html[data-tema="oscuro"] .hc-signos li {
+    background-color: var(--color-surface-muted--f);
+    background-image: none;
+}

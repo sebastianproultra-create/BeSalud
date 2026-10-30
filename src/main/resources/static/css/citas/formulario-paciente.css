@@ -898,3 +898,62 @@
     background: #EAF7F0;
     border-radius: 10px;
 }
+
+/* ── Historial médico previo (opcional) al agendar ── */
+.historial-previo {
+    margin-bottom: var(--space-5);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    background: var(--color-surface);
+}
+
+.historial-previo__resumen {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-3);
+    padding: var(--space-4);
+    cursor: pointer;
+    list-style: none;
+}
+
+.historial-previo__resumen::-webkit-details-marker {
+    display: none;
+}
+
+.historial-previo__resumen .material-symbols-outlined {
+    color: var(--color-secondary);
+}
+
+.historial-previo__resumen > span:last-child {
+    display: grid;
+    gap: var(--space-1);
+}
+
+.historial-previo__resumen strong {
+    color: var(--color-primary);
+    font-size: var(--font-size-sm);
+}
+
+.historial-previo__resumen small,
+.historial-previo__nota {
+    color: var(--color-text-muted);
+    font-size: var(--font-size-xs);
+}
+
+.historial-previo__campos {
+    display: grid;
+    gap: var(--space-1) var(--space-4);
+    padding: 0 var(--space-4);
+}
+
+.historial-previo__nota {
+    margin: 0;
+    padding: 0 var(--space-4) var(--space-4);
+}
+
+/* 768 px (--breakpoint-md): dos columnas */
+@media (min-width: 48rem) {
+    .historial-previo__campos {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}

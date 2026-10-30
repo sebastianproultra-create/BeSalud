@@ -2,12 +2,14 @@ package com.gestion.proyectos.controlador;
 
 import static com.gestion.proyectos.util.ValidacionUtil.esVacio;
 
+import com.gestion.proyectos.modelo.Antecedentes;
 import com.gestion.proyectos.modelo.Cita;
 import com.gestion.proyectos.modelo.Doctor;
 import com.gestion.proyectos.modelo.EstadoCita;
 import com.gestion.proyectos.modelo.Paciente;
 import com.gestion.proyectos.modelo.Reserva;
 import com.gestion.proyectos.servicio.CitaService;
+import com.gestion.proyectos.servicio.HistorialClinicoService;
 import com.gestion.proyectos.servicio.PasarelaPagos;
 import com.gestion.proyectos.servicio.ReservaService;
 
@@ -41,11 +43,14 @@ public class CitaController {
     private final CitaService citaService;
     private final ReservaService reservaService;
     private final PasarelaPagos pasarela;
+    private final HistorialClinicoService historialClinicoService;
 
-    public CitaController(CitaService citaService, ReservaService reservaService, PasarelaPagos pasarela) {
+    public CitaController(CitaService citaService, ReservaService reservaService, PasarelaPagos pasarela,
+            HistorialClinicoService historialClinicoService) {
         this.citaService = citaService;
         this.reservaService = reservaService;
         this.pasarela = pasarela;
+        this.historialClinicoService = historialClinicoService;
     }
 
     @GetMapping
@@ -91,10 +96,14 @@ public class CitaController {
         if (doctor == null) return REDIRECT_PACIENTES_LANDING;
 
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        String pacienteId = auth == null ? null
-                : citaService.buscarPacientePorEmail(auth.getName()).map(Paciente::getId).orElse(null);
+        Paciente pacienteActual = auth == null ? null : citaService.buscarPacientePorEmail(auth.getName()).orElse(null);
+        String pacienteId = pacienteActual == null ? null : pacienteActual.getId();
 
         model.addAttribute("doctorSeleccionado", doctor);
+        // El historial previo que ya declaró se muestra lleno para que solo lo actualice
+        model.addAttribute("historialPrevio", pacienteActual != null && pacienteActual.getHistorialPrevio() != null
+                ? pacienteActual.getHistorialPrevio() : new Antecedentes());
+        model.addAttribute("historialPrevioNotas", pacienteActual != null ? pacienteActual.getHistorialPrevioNotas() : null);
         model.addAttribute("cita", null);
         model.addAttribute("actionUrl", "/citas/guardar-paciente");
         model.addAttribute("pageTitle", "Agendar cita médica");
@@ -215,7 +224,14 @@ public class CitaController {
     public String guardarPaciente(@RequestParam(required = false) String doctorId,
             @RequestParam(required = false) String fecha,
             @RequestParam(required = false) String hora,
-            @RequestParam(required = false) String motivo) {
+            @RequestParam(required = false) String motivo,
+            @RequestParam(required = false) String historialEnviado,
+            @RequestParam(required = false) String historialPatologicos,
+            @RequestParam(required = false) String historialQuirurgicos,
+            @RequestParam(required = false) String historialFarmacologicos,
+            @RequestParam(required = false) String historialAlergicos,
+            @RequestParam(required = false) String historialFamiliares,
+            @RequestParam(required = false) String historialNotas) {
         if (esVacio(doctorId)) return "redirect:/pacientes/landing?error=doctor_requerido";
         if (esVacio(fecha)) return "redirect:/citas/nueva?doctorId=" + doctorId + "&error=fecha_requerida";
         if (esVacio(hora)) return "redirect:/citas/nueva?doctorId=" + doctorId + "&error=hora_requerida";
@@ -255,6 +271,18 @@ public class CitaController {
             return "redirect:/citas/nueva?doctorId=" + doctorId + "&error=conflicto_cita";
         if (citaService.pacienteTieneConflicto(paciente.getId(), doctorId, fechaCita, horaCita, null))
             return "redirect:/citas/nueva?doctorId=" + doctorId + "&error=conflicto_paciente";
+
+        // Historial previo opcional que el paciente anexa para que el médico lo tenga presente (queda en su perfil)
+        if (historialEnviado != null) {
+            Antecedentes declarado = new Antecedentes();
+            declarado.setPatologicos(historialPatologicos);
+            declarado.setQuirurgicos(historialQuirurgicos);
+            declarado.setFarmacologicos(historialFarmacologicos);
+            declarado.setAlergicos(historialAlergicos);
+            declarado.setFamiliares(historialFamiliares);
+            if (historialClinicoService.guardarDeclarado(paciente, declarado, historialNotas) != null)
+                return "redirect:/citas/nueva?doctorId=" + doctorId + "&error=historial_largo";
+        }
 
         try {
             // Toda reserva en línea se paga: la cita no existe hasta que se aprueba el abono
