@@ -135,6 +135,17 @@ html[data-tema="oscuro"] select option:disabled {
     color: #8FA79C;
 }
 
+/* Leyenda de la gráfica de demanda (panel del médico): mismos colores que dibuja prediccion.js en oscuro */
+html[data-tema="oscuro"] .demanda-muestra--cupos {
+    background-color: var(--d-highest--b);
+}
+
+html[data-tema="oscuro"] .demanda-muestra--rango {
+    border-top-color: var(--d-on--t);
+    border-bottom-color: var(--d-on--t);
+    background-image: linear-gradient(var(--d-on--t), var(--d-on--t));
+}
+
 /* Imágenes y fotos: un poco menos de brillo para no deslumbrar */
 html[data-tema="oscuro"] img:not([src$=".svg"]) {
     filter: brightness(0.92);

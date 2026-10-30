@@ -35,9 +35,11 @@ MAX_DIAS = 180
 ARCHIVO_MODELOS = RAIZ / 'modelos_entrenados.joblib'
 CORTES = 6          # validación rolling-origin: 6 cortes de 60 días, el último año del historial
 DIAS_TEST = 60      # días de cada corte (split temporal, NO aleatorio)
-# Cuantiles 15/85 de los residuos: como las citas son enteras y el rango se redondea, así cubre
-# ≈80 % de los días hábiles (medido fuera de muestra, ver README).
-P_INTERVALO = 0.15
+# El rango probable debe cubrir al menos el 80 % de los días hábiles. Como las citas son enteras y el rango
+# se redondea, un mismo cuantil cubre más en series pequeñas (médicos) que en grandes (especialidades); por
+# eso cada serie usa el cuantil P más alto (el rango más angosto) que llega al objetivo en la validación.
+COBERTURA_OBJETIVO = 0.80
+P_CANDIDATOS = (0.20, 0.175, 0.15, 0.125, 0.10, 0.075, 0.05)
 COLOMBIA = timezone(timedelta(hours=-5))
 
 app = FastAPI(title='API Predictiva BESalud')
@@ -84,8 +86,9 @@ def modelos_candidatos():
 
 def huella_codigo():
     """Huella de todo lo que define el modelo: si cambia cualquiera, el .joblib quedó viejo."""
-    partes = [sklearn.__version__, inspect.getsource(caracteristicas), inspect.getsource(entrenar),
-              repr(modelos_candidatos()), str(CORTES), str(DIAS_TEST), str(P_INTERVALO)]
+    partes = [sklearn.__version__, *(inspect.getsource(f) for f in (caracteristicas, entrenar, cuantiles_por_grupo,
+                                                                     rango, cobertura_por_cortes)),
+              repr(modelos_candidatos()), str(CORTES), str(DIAS_TEST), str(COBERTURA_OBJETIVO), str(P_CANDIDATOS)]
     return hashlib.sha256('|'.join(partes).encode('utf-8')).hexdigest()
 
 
@@ -109,8 +112,8 @@ def clave_de(especialidad, medico_id):
     return f'medico:{medico_id}' if medico_id else f'especialidad:{especialidad}'
 
 
-def cuantiles_por_grupo(y, yhat, laborable):
-    """Cuantiles (P, 1-P) del residuo relativo (y - ŷ)/(ŷ + 1), aparte para días laborables y no laborables.
+def cuantiles_por_grupo(y, yhat, laborable, p):
+    """Cuantiles (p, 1-p) del residuo relativo (y - ŷ)/(ŷ + 1), aparte para días laborables y no laborables.
 
     Dividir entre ŷ+1 hace que el margen crezca con la demanda: con conteos la variación sube con la
     media, así que octubre (más citas) necesita un rango más ancho que febrero.
@@ -119,7 +122,7 @@ def cuantiles_por_grupo(y, yhat, laborable):
     cuantiles = {}
     for grupo, valor in (('laborable', 1), ('no_laborable', 0)):
         rg = r[laborable == valor]
-        lo, hi = np.quantile(rg if len(rg) >= 10 else r, [P_INTERVALO, 1 - P_INTERVALO])
+        lo, hi = np.quantile(rg if len(rg) >= 10 else r, [p, 1 - p])
         cuantiles[grupo] = (float(lo), float(hi))
     return cuantiles
 
@@ -129,6 +132,20 @@ def rango(yhat, laborable, cuantiles):
     lo = np.where(laborable == 1, cuantiles['laborable'][0], cuantiles['no_laborable'][0])
     hi = np.where(laborable == 1, cuantiles['laborable'][1], cuantiles['no_laborable'][1])
     return np.maximum(0, yhat + lo * (yhat + 1)), yhat + hi * (yhat + 1)
+
+
+def cobertura_por_cortes(y, yhat, laborable, corte_de, p):
+    """Cobertura del rango medida sin trampa: cada corte se evalúa con cuantiles calibrados en los otros.
+
+    Devuelve si cada día quedó dentro del rango (redondeado, como lo muestra la API).
+    """
+    cubre = np.zeros(len(y), dtype=bool)
+    for k in np.unique(corte_de):
+        fuera = corte_de == k
+        q = cuantiles_por_grupo(y[~fuera], yhat[~fuera], laborable[~fuera], p)
+        lo, hi = rango(yhat[fuera], laborable[fuera], q)
+        cubre[fuera] = (y[fuera] >= np.round(lo)) & (y[fuera] <= np.round(hi))
+    return cubre
 
 
 def entrenar(serie, etiqueta):
@@ -163,24 +180,23 @@ def entrenar(serie, etiqueta):
             fuera_de_muestra[nombre].append(pred)
     ganador = min(candidatos, key=lambda nombre: np.mean(maes[nombre]))
 
-    # Rango probable con los residuos fuera de muestra del ganador.
+    # Rango probable con los residuos fuera de muestra del ganador: se usa el cuantil más alto (rango más
+    # angosto) cuya cobertura en días hábiles llega al objetivo; si ninguno llega, el más ancho.
     y_oof, lab_oof = y[inicios[0]:], laborable[inicios[0]:]
     yhat_oof = np.concatenate(fuera_de_muestra[ganador])
-    cuantiles = cuantiles_por_grupo(y_oof, yhat_oof, lab_oof)
-
-    # Cobertura medida sin trampa: cada corte se evalúa con cuantiles calibrados en los otros.
     corte_de = np.repeat(np.arange(CORTES), dias_test)
-    cubre = np.zeros(len(y_oof), dtype=bool)
-    for k in range(CORTES):
-        fuera = corte_de == k
-        q = cuantiles_por_grupo(y_oof[~fuera], yhat_oof[~fuera], lab_oof[~fuera])
-        lo, hi = rango(yhat_oof[fuera], lab_oof[fuera], q)
-        cubre[fuera] = (y_oof[fuera] >= np.round(lo)) & (y_oof[fuera] <= np.round(hi))
-    cobertura = float(cubre[lab_oof == 1].mean()) if (lab_oof == 1).any() else float(cubre.mean())
+    habiles = lab_oof == 1 if (lab_oof == 1).any() else np.ones(len(y_oof), dtype=bool)
+    for p in P_CANDIDATOS:
+        cubre = cobertura_por_cortes(y_oof, yhat_oof, lab_oof, corte_de, p)
+        cobertura = float(cubre[habiles].mean())
+        if cobertura >= COBERTURA_OBJETIVO:
+            break
+    cuantiles = cuantiles_por_grupo(y_oof, yhat_oof, lab_oof, p)
+    cobertura_cortes = [float(cubre[habiles & (corte_de == k)].mean()) for k in range(CORTES)]
 
-    logger.info('entrenar %s | %d cortes de %d días | MAE medio: %s | ganador=%s | cobertura del rango=%.0f%%',
+    logger.info('entrenar %s | %d cortes de %d días | MAE medio: %s | ganador=%s | rango p=%.3f cobertura=%.0f%%',
                 etiqueta, CORTES, dias_test, ', '.join(f'{k}={np.mean(v):.3f}' for k, v in maes.items()),
-                ganador, 100 * cobertura)
+                ganador, p, 100 * cobertura)
 
     return {
         'modelo': clone(candidatos[ganador]).fit(X, y),  # el ganador se reentrena con TODO el histórico
@@ -188,7 +204,9 @@ def entrenar(serie, etiqueta):
         'mae': {nombre: float(np.mean(v)) for nombre, v in maes.items()},
         'mae_desv': {nombre: float(np.std(v)) for nombre, v in maes.items()},
         'cuantiles': cuantiles,
+        'p_intervalo': p,
         'cobertura_habiles': cobertura,
+        'cobertura_cortes': cobertura_cortes,
         'ultima_fecha': serie['ds'].iloc[-1],
         'huella_codigo': huella_codigo(),
         'huella_datos': huella_datos(serie),

@@ -26,7 +26,9 @@ def main():
     for clave, m in modelos.items():
         mae, desv = m['mae'], m['mae_desv']
         detalle = '  '.join(f'{nombre}={mae[nombre]:.2f}±{desv[nombre]:.2f}' for nombre in mae)
-        print(f"{clave:40s} {detalle}  -> {m['ganador']}  cobertura={m['cobertura_habiles']:.0%}")
+        print(f"{clave:40s} {detalle}  -> {m['ganador']}  "
+              f"rango p={m['p_intervalo']:.3f} cobertura={m['cobertura_habiles']:.0%} "
+              f"(cortes {min(m['cobertura_cortes']):.0%}-{max(m['cobertura_cortes']):.0%})")
     ganadores = [m['mae'][m['ganador']] for m in modelos.values()]
     baselines = [m['mae']['baseline'] for m in modelos.values()]
     coberturas = [m['cobertura_habiles'] for m in modelos.values()]
