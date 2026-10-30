@@ -39,16 +39,16 @@ class WhatsappServiceTest {
 
     @Test
     void configurado_requiereTokenYNumeroId() {
-        assertThat(new WhatsappService("", "", "a", "b", "v25.0").configurado()).isFalse();
-        assertThat(new WhatsappService("tok", "", "a", "b", "v25.0").configurado()).isFalse();
-        assertThat(new WhatsappService(null, "123", "a", "b", "v25.0").configurado()).isFalse();
-        assertThat(new WhatsappService("tok", "123", "a", "b", "v25.0").configurado()).isTrue();
+        assertThat(new WhatsappService("", "", "a", "b", "v25.0", "", "").configurado()).isFalse();
+        assertThat(new WhatsappService("tok", "", "a", "b", "v25.0", "", "").configurado()).isFalse();
+        assertThat(new WhatsappService(null, "123", "a", "b", "v25.0", "", "").configurado()).isFalse();
+        assertThat(new WhatsappService("tok", "123", "a", "b", "v25.0", "", "").configurado()).isTrue();
     }
 
     @Test
     void enviar_sinConfigurarOConTelefonoInvalido_noHaceNadaNiFalla() {
-        var sinConfig = new WhatsappService("", "", "a", "b", "v25.0");
-        var configurado = new WhatsappService("tok", "123", "a", "b", "v25.0");
+        var sinConfig = new WhatsappService("", "", "a", "b", "v25.0", "", "");
+        var configurado = new WhatsappService("tok", "123", "a", "b", "v25.0", "", "");
         List<String> p = List.of("Ana", "T", "C", "D", "M");
         assertThatCode(() -> sinConfig.enviar("3001112233", p, "t", List.of())).doesNotThrowAnyException();
         // teléfono inválido: sale antes de intentar cualquier llamada de red
