@@ -104,7 +104,25 @@ async function responderAsistencia(id, telefono) {
   }
 }
 
-client.on('message', msg => atender(msg).catch(e => console.error('Error atendiendo mensaje', e.message)));
+const atendidos = new Set();
+// Algunas versiones de WhatsApp Web solo disparan message_create: se escuchan ambos y se evita responder dos veces
+for (const evento of ['message', 'message_create']) {
+  client.on(evento, msg => {
+    if (msg.fromMe || atendidos.has(msg.id?._serialized)) return;
+    atendidos.add(msg.id?._serialized);
+    if (atendidos.size > 5000) atendidos.clear();
+    atender(msg).catch(e => console.error('Error atendiendo mensaje', e.message));
+  });
+}
+
+client.on('ready', async () => {
+  try {
+    const chats = await client.getChats();
+    console.log(`Chats visibles: ${chats.length}, sin leer: ${chats.filter(c => c.unreadCount > 0).length}`);
+  } catch (e) {
+    console.warn('No se pudieron leer los chats', e.message);
+  }
+});
 
 async function atender(msg) {
   console.log(`mensaje recibido tipo=${msg.type} de=${String(msg.from).slice(-9)}`);
