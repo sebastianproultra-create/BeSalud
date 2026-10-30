@@ -307,7 +307,7 @@ public class NotificacionService {
                 <table role="presentation" width="100%%" cellpadding="0" cellspacing="0" style="max-width:560px;background:#FAFBF9;border:1px solid #EAEFEA;border-radius:4px;overflow:hidden;">
                   <tr><td bgcolor="#082921" style="background:#082921;background-image:linear-gradient(160deg,#0D4738 0%%,#082921 100%%);padding:36px 36px 32px;">
                     <div style="font-family:'Newsreader',Georgia,serif;font-size:24px;font-weight:500;color:#FFFFFF;">
-                      <span style="display:inline-block;width:26px;height:26px;line-height:26px;text-align:center;background:rgba(255,255,255,0.1);border-radius:2px;color:#A9D5C3;font-family:Arial,sans-serif;font-size:20px;">+</span>&nbsp;BeSalud</div>
+                      <img src="{{LOGO}}" width="30" height="32" alt="" style="display:inline-block;vertical-align:-6px;border:0;">&nbsp;BeSalud</div>
                     <div style="margin:28px 0 14px;"><span style="display:inline-block;padding:6px 14px;border:1px solid rgba(169,213,195,0.3);border-radius:3px;background:rgba(13,71,56,0.4);color:#C4E5D7;font-size:10px;font-weight:600;letter-spacing:0.25em;text-transform:uppercase;">Hola, %s</span></div>
                     <h1 style="margin:0;font-family:'Newsreader',Georgia,serif;font-size:32px;line-height:1.15;font-weight:400;color:#FFFFFF;">%s</h1>
                   </td></tr>
@@ -327,7 +327,7 @@ public class NotificacionService {
                     <a href="%s" style="display:inline-block;background:#D99B4B;border:1px solid #D99B4B;color:#171B19;text-decoration:none;padding:14px 28px;border-radius:3px;font-size:11px;font-weight:600;letter-spacing:0.14em;text-transform:uppercase;">%s</a>
                   </td></tr>
                   <tr><td bgcolor="#0D4738" style="background:#0D4738;padding:22px 36px;">
-                    <div style="font-family:'Newsreader',Georgia,serif;font-size:18px;color:#FFFFFF;"><span style="color:#69B493;font-size:22px;">+</span> BeSalud</div>
+                    <div style="font-family:'Newsreader',Georgia,serif;font-size:18px;color:#FFFFFF;"><img src="{{LOGO}}" width="23" height="24" alt="" style="display:inline-block;vertical-align:-4px;border:0;">&nbsp;BeSalud</div>
                     <div style="margin-top:6px;font-size:12px;line-height:1.6;color:rgba(196,229,215,0.7);">Correo automático, no lo respondas. Si es una emergencia, llama al 123.</div>
                   </td></tr>
                 </table></td></tr></table></body></html>
@@ -335,7 +335,9 @@ public class NotificacionService {
                 esc(mensaje), esc(paciente.getNombre()), esc(titulo), esc(mensaje), tachado,
                 esc(capitalizar(fecha)), esc(hora), esc(nombreDoctor), esc(especialidad),
                 esc(cita.getMotivo() == null ? "" : cita.getMotivo()), bloqueExtra,
-                urlApp + "/pacientes/landing", esc(textoBoton));
+                urlApp + "/pacientes/landing", esc(textoBoton))
+                // El logo va por URL absoluta: Gmail no muestra imágenes incrustadas en base64
+                .replace("{{LOGO}}", urlApp + "/images/logo/simbolo-claro.png");
     }
 
     private static String esc(String s) {
