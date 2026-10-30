@@ -170,14 +170,6 @@ html[data-tema="oscuro"] .auth-card-accent {
     background-image: linear-gradient(90deg, var(--portal-primary--f), var(--portal-primary-container--f) 62%, var(--portal-secondary-container--f));
 }
 
-html[data-tema="oscuro"] .auth-logo {
-    display: none;
-}
-
-html[data-tema="oscuro"] .auth-logo--oscuro {
-    display: block;
-}
-
 html[data-tema="oscuro"] .auth-key-icon {
     color: var(--portal-primary--t);
     background-color: var(--portal-container--f);
