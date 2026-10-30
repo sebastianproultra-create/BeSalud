@@ -9,6 +9,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;1,6..72,400;1,6..72,500&amp;family=Plus+Jakarta+Sans:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet">
     <link rel="stylesheet" th:href="@{/css/base/scrollbar.css}" href="/css/base/scrollbar.css" />
     <link rel="stylesheet" th:href="@{/css/publico/index.css}" href="/css/publico/index.css" />
+    <link rel="stylesheet" th:href="@{/css/publico/chatbot-landing.css}" href="/css/publico/chatbot-landing.css" />
 </head>
 <body>
 
@@ -131,6 +132,27 @@
         <p class="footer-copy">&copy; 2026 BeSalud. Todos los derechos reservados. · <a th:href="@{/privacidad}">Política de privacidad</a></p>
     </div>
 </footer>
+
+<button type="button" class="cb-lanzador" data-chatbot-abrir aria-controls="cb-panel" aria-expanded="false">
+    <span class="cb-lanzador-punto" aria-hidden="true"></span> ¿Le ayudo?
+</button>
+<section id="cb-panel" class="cb-panel" data-chatbot-landing hidden aria-label="Asistente de BeSalud"
+         th:attr="data-fuente=@{/data/chatbot-landing.json}" data-fuente="/data/chatbot-landing.json">
+    <div class="cb-cabecera">
+        <div>
+            <strong>Asistente BeSalud</strong>
+            <small>Respuestas al instante</small>
+        </div>
+        <button type="button" class="cb-cerrar" data-chatbot-cerrar aria-label="Cerrar asistente">&times;</button>
+    </div>
+    <div class="cb-mensajes" aria-live="polite"></div>
+    <div class="cb-opciones"></div>
+    <form class="cb-form">
+        <input type="text" maxlength="200" placeholder="Escriba su pregunta…" aria-label="Escriba su pregunta">
+        <button type="submit">Enviar</button>
+    </form>
+</section>
+<script th:src="@{/js/chatbot-landing.js}" src="/js/chatbot-landing.js" defer></script>
 
 <script>
 (function () {

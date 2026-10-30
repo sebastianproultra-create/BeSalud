@@ -1,0 +1,16 @@
+{
+  "name": "besalud-whatsapp-bot",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Bot de WhatsApp de BeSalud (WhatsApp Cloud API) que reutiliza chatbot-landing.json",
+  "main": "bot.js",
+  "scripts": {
+    "start": "node bot.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "mongodb": "^6.21.0"
+  }
+}
