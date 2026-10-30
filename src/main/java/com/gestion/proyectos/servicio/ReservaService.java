@@ -70,8 +70,14 @@ public class ReservaService {
     }
 
     /** Una fila del historial: el intento de pago con su cita y lo que pasó con el dinero. */
+    /** concepto: "Abono", "Pago total" o "Saldo de la consulta", para distinguir los pagos de una misma cita. */
     public record MovimientoPago(String referencia, LocalDateTime fechaPago, String profesional, String especialidad,
-            LocalDate fechaCita, LocalTime horaCita, long montoPesos, String medioPago, EstadoPago estado) {
+            LocalDate fechaCita, LocalTime horaCita, long montoPesos, String medioPago, EstadoPago estado,
+            String concepto) {
+    }
+
+    static String conceptoDe(Reserva r) {
+        return r.isSaldo() ? "Saldo de la consulta" : r.isPagoTotal() ? "Pago total" : "Abono";
     }
 
     /** Resumen del historial: lo pagado (sin lo devuelto) y lo devuelto o por devolver. */
@@ -93,7 +99,7 @@ public class ReservaService {
             movimientos.add(new MovimientoPago(r.getReferencia(), r.getCreadaEn(),
                     d == null ? "Profesional" : "Dr(a). " + d.getNombre() + " " + d.getApellido(),
                     d == null ? null : d.getEspecialidad(), r.getFecha(), r.getHora(), r.getMontoPesos(),
-                    r.getMedioPago(), estado));
+                    r.getMedioPago(), estado, conceptoDe(r)));
         }
         long pagado = movimientos.stream().filter(m -> m.estado() == EstadoPago.PAGADO || m.estado() == EstadoPago.CONSERVADO)
                 .mapToLong(MovimientoPago::montoPesos).sum();
@@ -149,6 +155,8 @@ public class ReservaService {
     public Reserva apartar(Doctor doctor, String pacienteId, LocalDate fecha, LocalTime hora, String motivo) {
         liberarVencidas();
         for (Reserva previa : reservaRepo.findByPacienteIdAndEstado(pacienteId, Reserva.Estado.ESPERANDO_PAGO)) {
+            if (previa.isSaldo())
+                continue; // el pago del saldo de otra cita no bloquea ningún turno
             previa.setEstado(Reserva.Estado.EXPIRADA);
             reservaRepo.save(previa);
         }
@@ -159,8 +167,12 @@ public class ReservaService {
         r.setFecha(fecha);
         r.setHora(hora);
         r.setMotivo(motivo.trim());
-        r.setMontoCentavos(doctor.getAbono() * 100L);
         LocalDateTime ahora = Reloj.ahora();
+        r.setAbonoCentavos(doctor.getAbono() * 100L);
+        r.setPrecioCentavos(doctor.getPrecioEfectivo() * 100L);
+        // Sin tiempo para pagar el resto después, se cobra todo de una vez
+        r.setPagoTotal(r.admiteElegirMonto() && r.debePagarTotal(ahora));
+        r.setMontoCentavos(r.isPagoTotal() ? r.getPrecioCentavos() : r.getAbonoCentavos());
         r.setCreadaEn(ahora);
         r.setExpiraEn(ahora.plusMinutes(minutosParaPagar));
         try {
@@ -180,8 +192,103 @@ public class ReservaService {
     public java.util.List<Reserva> pendientesDe(String pacienteId) {
         LocalDateTime ahora = Reloj.ahora();
         return reservaRepo.findByPacienteIdAndEstado(pacienteId, Reserva.Estado.ESPERANDO_PAGO).stream()
-                .filter(r -> !r.vencida(ahora))
+                .filter(r -> !r.isSaldo() && !r.vencida(ahora))
                 .toList();
+    }
+
+    // ── Pago del saldo: el resto de la consulta, cuando el paciente quiera antes de la cita ──
+
+    /** Lo que se puede pagar en línea para dejar la cita pagada por completo; null si no aplica. */
+    public static Long saldoPorPagar(Cita cita, Doctor doctor, LocalDateTime ahora) {
+        if (cita == null || doctor == null || cita.getEstado() != com.gestion.proyectos.modelo.EstadoCita.PENDIENTE
+                || cita.getAbonoCentavos() == null || cita.isPagadaCompleta()
+                || cita.getFecha() == null || cita.getHora() == null
+                || !ahora.isBefore(LocalDateTime.of(cita.getFecha(), cita.getHora()))
+                || cita.saldoVencido(ahora))
+            return null;
+        long saldo = doctor.getPrecioEfectivo() - cita.getAbonoPesos();
+        return saldo > 0 ? saldo : null;
+    }
+
+    /** Saldo por pagar de cada cita (solo las que lo tienen), para el botón "Pagar el resto". */
+    public Map<String, Long> saldosPorPagar(List<Cita> citas) {
+        Map<String, Long> saldos = new HashMap<>();
+        if (citas == null)
+            return saldos;
+        Map<String, Doctor> doctores = new HashMap<>();
+        LocalDateTime ahora = Reloj.ahora();
+        for (Cita c : citas) {
+            Doctor d = doctores.computeIfAbsent(c.getDoctorId(), id -> citaService.buscarDoctorPorId(id).orElse(null));
+            Long saldo = saldoPorPagar(c, d, ahora);
+            if (saldo != null)
+                saldos.put(c.getId(), saldo);
+        }
+        return saldos;
+    }
+
+    /** La cita no admite el pago del saldo (ya está pagada, cancelada, pasó o no es del paciente). */
+    public static class SaldoNoDisponibleException extends RuntimeException {
+        public SaldoNoDisponibleException(String mensaje) {
+            super(mensaje);
+        }
+    }
+
+    /**
+     * Prepara el pago del saldo de una cita. Si ya hay uno vigente o en proceso para esa cita se reutiliza,
+     * para que el paciente no pague dos veces.
+     */
+    public Reserva apartarSaldo(String citaId, String pacienteId) {
+        Cita cita = citaService.buscarPorId(citaId)
+                .filter(c -> pacienteId.equals(c.getPacienteId()))
+                .orElseThrow(() -> new SaldoNoDisponibleException("Cita no encontrada: " + citaId));
+        Doctor doctor = citaService.buscarDoctorPorId(cita.getDoctorId()).orElse(null);
+        LocalDateTime ahora = Reloj.ahora();
+        Long saldo = saldoPorPagar(cita, doctor, ahora);
+        if (saldo == null)
+            throw new SaldoNoDisponibleException("La cita " + citaId + " no tiene saldo por pagar");
+        for (Reserva previa : reservaRepo.findByCitaIdAndTipo(citaId, Reserva.Tipo.SALDO)) {
+            boolean enCurso = previa.getEstado() == Reserva.Estado.PROCESANDO
+                    || previa.getEstado() == Reserva.Estado.ESPERANDO_PAGO
+                            && (previa.getTransaccionId() != null || !previa.vencida(ahora))
+                    || previa.getEstado() == Reserva.Estado.EXPIRADA && previa.getTransaccionId() != null;
+            if (enCurso && previa.getMontoCentavos() == saldo * 100)
+                return previa;
+        }
+        Reserva r = new Reserva();
+        r.setTipo(Reserva.Tipo.SALDO);
+        r.setReferencia("BS-" + UUID.randomUUID().toString().replace("-", "").substring(0, 16).toUpperCase());
+        r.setDoctorId(cita.getDoctorId());
+        r.setPacienteId(pacienteId);
+        r.setCitaId(cita.getId());
+        r.setFecha(cita.getFecha());
+        r.setHora(cita.getHora());
+        r.setMotivo(cita.getMotivo());
+        r.setMontoCentavos(saldo * 100);
+        r.setCreadaEn(ahora);
+        r.setExpiraEn(ahora.plusMinutes(minutosParaPagar));
+        Reserva guardada = reservaRepo.save(r);
+        log.info("Pago del saldo iniciado: referencia={} cita={}", guardada.getReferencia(), citaId);
+        return guardada;
+    }
+
+    /**
+     * El paciente elige si paga solo el abono o el valor total antes de ir a la pasarela. Devuelve false si ya
+     * no se puede cambiar (pago en curso, reserva vencida) o si la cita es tan pronto que debe pagar todo.
+     */
+    public boolean elegirMonto(String referencia, String pacienteId, boolean total) {
+        Reserva r = reservaRepo.findByReferencia(referencia)
+                .filter(x -> pacienteId.equals(x.getPacienteId()))
+                .orElse(null);
+        LocalDateTime ahora = Reloj.ahora();
+        if (r == null || !r.admiteElegirMonto() || r.getEstado() != Reserva.Estado.ESPERANDO_PAGO
+                || r.getTransaccionId() != null || r.vencida(ahora))
+            return false;
+        if (!total && r.debePagarTotal(ahora))
+            return false;
+        r.setPagoTotal(total);
+        r.setMontoCentavos(total ? r.getPrecioCentavos() : r.getAbonoCentavos());
+        reservaRepo.save(r);
+        return true;
     }
 
     /** El paciente desiste antes de pagar: el horario queda libre de inmediato. */
@@ -228,14 +335,33 @@ public class ReservaService {
                     .map(r -> r.getEstado() == Reserva.Estado.APROBADA ? Resultado.APROBADA : Resultado.PENDIENTE)
                     .orElse(Resultado.NO_EXISTE);
 
+        // El pago del saldo ya tiene su cita: se conserva el vínculo pase lo que pase
+        String citaPrevia = tomada.isSaldo() ? tomada.getCitaId() : null;
         if (!"APPROVED".equals(estado)) {
-            terminar(tomada, Reserva.Estado.RECHAZADA, null);
+            terminar(tomada, Reserva.Estado.RECHAZADA, citaPrevia);
             return Resultado.RECHAZADA;
+        }
+        // Si cambió entre abono y total con la pasarela ya abierta, vale el monto que realmente pagó
+        if (montoCentavos != tomada.getMontoCentavos() && "COP".equals(moneda) && tomada.admiteElegirMonto()) {
+            if (montoCentavos == tomada.getPrecioCentavos()
+                    || montoCentavos == tomada.getAbonoCentavos() && !tomada.debePagarTotal(Reloj.ahora())) {
+                tomada.setPagoTotal(montoCentavos == tomada.getPrecioCentavos());
+                tomada.setMontoCentavos(montoCentavos);
+            }
         }
         if (montoCentavos != tomada.getMontoCentavos() || !"COP".equals(moneda)) {
             log.error("Pago con monto o moneda distintos a la reserva {}: {} {}", referencia, montoCentavos, moneda);
-            terminar(tomada, Reserva.Estado.CONFLICTO, null);
+            terminar(tomada, Reserva.Estado.CONFLICTO, citaPrevia);
             return Resultado.CONFLICTO;
+        }
+        if (tomada.isSaldo()) {
+            if (!citaService.registrarSaldo(tomada)) {
+                log.error("Saldo pagado para una cita que ya no lo admite (requiere devolución): referencia={}", referencia);
+                terminar(tomada, Reserva.Estado.CONFLICTO, citaPrevia);
+                return Resultado.CONFLICTO;
+            }
+            terminar(tomada, Reserva.Estado.APROBADA, citaPrevia);
+            return Resultado.APROBADA;
         }
         // Pagó: si el turno sigue libre se crea la cita aunque haya pagado después de vencer el apartado.
         if (citaService.hayConflicto(tomada.getDoctorId(), tomada.getFecha(), tomada.getHora(), null,
@@ -313,6 +439,31 @@ public class ReservaService {
         r.setEstado(estado);
         r.setCitaId(citaId);
         reservaRepo.save(r);
+    }
+
+    /** ¿Hay un pago del saldo de esta cita que la pasarela aún no resuelve (PSE, Nequi)? */
+    boolean saldoEnCurso(String citaId) {
+        return reservaRepo.findByCitaIdAndTipo(citaId, Reserva.Tipo.SALDO).stream()
+                .anyMatch(r -> r.getEstado() == Reserva.Estado.PROCESANDO
+                        || r.getTransaccionId() != null && (r.getEstado() == Reserva.Estado.ESPERANDO_PAGO
+                                || r.getEstado() == Reserva.Estado.EXPIRADA));
+    }
+
+    /**
+     * Cancela las citas cuyo plazo para pagar el resto venció. Si hay un pago del saldo en curso se espera a
+     * que la pasarela lo resuelva.
+     */
+    @Scheduled(fixedDelay = 600_000, initialDelay = 60_000)
+    public int cancelarCitasSinPago() {
+        LocalDateTime ahora = Reloj.ahora();
+        int canceladas = 0;
+        for (Cita cita : citaService.citasConSaldoPendiente()) {
+            if (cita.saldoVencido(ahora) && !saldoEnCurso(cita.getId()) && citaService.cancelarPorFaltaDePago(cita))
+                canceladas++;
+        }
+        if (canceladas > 0)
+            log.info("Citas canceladas por no pagar el resto a tiempo: {}", canceladas);
+        return canceladas;
     }
 
     /** Libera los turnos cuyo tiempo para pagar se acabó. */

@@ -11,11 +11,16 @@ import org.springframework.data.mongodb.core.mapping.Document;
 /**
  * Turno apartado mientras el paciente paga el abono. La cita solo se crea cuando la pasarela
  * confirma el pago; si no paga a tiempo, el turno se libera.
+ *
+ * Una reserva de tipo SALDO es el pago del resto de la consulta para una cita que ya existe (citaId):
+ * no aparta turno y, si no se paga, la cita sigue igual con su abono.
  */
 @Document(collection = "reservas")
 public class Reserva {
 
     public enum Estado { ESPERANDO_PAGO, PROCESANDO, APROBADA, RECHAZADA, EXPIRADA, CONFLICTO }
+
+    public enum Tipo { ABONO, SALDO }
 
     @Id
     private String id;
@@ -29,7 +34,17 @@ public class Reserva {
     private LocalTime hora;
     private String motivo;
     private long montoCentavos;
+    /**
+     * Al reservar: el abono y el valor total de la consulta, para que el paciente elija cuánto paga. null en las
+     * reservas anteriores (pagaban solo el abono, que es montoCentavos).
+     */
+    private Long abonoCentavos;
+    private Long precioCentavos;
+    /** El paciente eligió pagar todo al reservar (o la cita es tan pronto que no hay tiempo de pagar después). */
+    private boolean pagoTotal;
     private Estado estado = Estado.ESPERANDO_PAGO;
+    /** null en las reservas anteriores a este campo: eran todas de abono. */
+    private Tipo tipo;
     private LocalDateTime creadaEn;
     private LocalDateTime expiraEn;
     private String transaccionId;
@@ -49,8 +64,58 @@ public class Reserva {
     private String turno;
 
     public void actualizarTurno() {
-        turno = estado == Estado.ESPERANDO_PAGO && doctorId != null && fecha != null && hora != null
+        turno = !isSaldo() && estado == Estado.ESPERANDO_PAGO && doctorId != null && fecha != null && hora != null
                 ? Cita.claveTurno(doctorId, fecha, hora) : null;
+    }
+
+    public Long getAbonoCentavos() {
+        return abonoCentavos;
+    }
+
+    public void setAbonoCentavos(Long abonoCentavos) {
+        this.abonoCentavos = abonoCentavos;
+    }
+
+    public Long getPrecioCentavos() {
+        return precioCentavos;
+    }
+
+    public void setPrecioCentavos(Long precioCentavos) {
+        this.precioCentavos = precioCentavos;
+    }
+
+    public boolean isPagoTotal() {
+        return pagoTotal;
+    }
+
+    public void setPagoTotal(boolean pagoTotal) {
+        this.pagoTotal = pagoTotal;
+    }
+
+    /** ¿Se puede elegir entre abono y total? Solo al reservar y si el total es mayor que el abono. */
+    public boolean admiteElegirMonto() {
+        return !isSaldo() && abonoCentavos != null && precioCentavos != null && precioCentavos > abonoCentavos;
+    }
+
+    /** ¿La cita es tan pronto que el resto ya no se podría pagar a tiempo? Entonces se paga todo al reservar. */
+    public boolean debePagarTotal(LocalDateTime ahora) {
+        LocalDateTime limite = Cita.limitePagoSaldo(fecha, hora);
+        return limite != null && !ahora.plusHours(HORAS_MARGEN_TOTAL).isBefore(limite);
+    }
+
+    /** Margen antes del plazo del resto: si quedan menos horas que esto, se cobra todo al reservar. */
+    public static final int HORAS_MARGEN_TOTAL = 2;
+
+    public Tipo getTipo() {
+        return tipo == null ? Tipo.ABONO : tipo;
+    }
+
+    public void setTipo(Tipo tipo) {
+        this.tipo = tipo;
+    }
+
+    public boolean isSaldo() {
+        return tipo == Tipo.SALDO;
     }
 
     public boolean vencida(LocalDateTime ahora) {

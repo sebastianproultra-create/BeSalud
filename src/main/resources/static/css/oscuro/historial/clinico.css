@@ -22,6 +22,27 @@ html[data-tema="oscuro"] .hc-datos {
     color: var(--color-text-muted--t);
 }
 
+html[data-tema="oscuro"] .hc-documento {
+    background-color: var(--color-surface-muted--f);
+    background-image: none;
+}
+
+html[data-tema="oscuro"] .hc-documento__icono {
+    color: var(--color-secondary--t);
+}
+
+html[data-tema="oscuro"] .hc-documento__datos a {
+    color: var(--color-primary--t);
+}
+
+html[data-tema="oscuro"] .hc-documento__datos small {
+    color: var(--color-text-muted--t);
+}
+
+html[data-tema="oscuro"] .hc-subir {
+    border-top: 1px solid var(--color-border--b);
+}
+
 html[data-tema="oscuro"] .hc-alergias {
     color: var(--color-danger--t);
     background-color: var(--color-surface--f);

@@ -2004,6 +2004,44 @@ body.patient-catalog-page {
     font-weight: 600;
 }
 
+/* Nuevas reglas con tokens del sistema de diseño */
+.cita-abono.is-completa {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    color: var(--color-success);
+}
+
+/* Pagar el resto de la consulta en línea */
+.cita-saldo {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-2) var(--space-3);
+    margin-top: var(--space-2);
+    padding: var(--space-2) var(--space-3);
+    color: var(--color-text-muted);
+    background: var(--color-surface-muted);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    font-size: var(--font-size-xs);
+}
+
+.cita-saldo .bs-btn {
+    gap: var(--space-2);
+}
+
+/* Lleva a "Mi historial" con la consulta abierta, para descargar el dictamen */
+.cita-dictamen__descargar {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    margin-bottom: var(--space-2);
+    color: var(--color-primary);
+    font-size: var(--font-size-xs);
+    font-weight: 600;
+}
+
 .doctor-profile-link {
     display: inline-flex;
     align-items: center;

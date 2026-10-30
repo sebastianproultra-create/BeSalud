@@ -8,11 +8,20 @@
     <th:block th:replace="~{fragments/layout :: design-system}"></th:block>
     <link rel="stylesheet" th:href="@{/css/base/tema-oscuro.css}">
     <script th:src="@{/js/tema.js}"></script>
+    <script th:src="@{/js/historial.js}" defer></script>
 </head>
 <body class="hc-page">
 <header th:replace="~{fragments/navbar :: navbar}"></header>
 
 <main class="bs-container hc-main">
+
+    <!-- Solo al imprimir o guardar en PDF: encabezado del documento -->
+    <div class="hc-impreso" aria-hidden="true">
+        <strong>BeSalud · Historia clínica</strong>
+        <span th:text="${pac.nombre + ' ' + pac.apellido + (pac.identificacion != null ? ' · Doc. ' + pac.identificacion : '')}">Paciente</span>
+        <span th:text="${'Emitido el ' + #temporals.format(T(com.gestion.proyectos.util.Reloj).ahora(), 'dd/MM/yyyy, h:mm a')}">Emitido</span>
+        <small>Documento informativo generado por BeSalud a partir de los dictámenes registrados. El original queda en la cuenta del paciente.</small>
+    </div>
 
     <!-- ── Cabecera ── -->
     <div class="hc-cabecera">
@@ -28,11 +37,16 @@
                 Aquí se reúnen los dictámenes de todas tus consultas, con cualquier profesional de BeSalud.
             </p>
         </div>
-        <a class="bs-btn bs-btn--secondary bs-btn--small hc-volver"
-           th:href="@{${vistaMedico ? '/doctores#citas' : '/pacientes/landing'}}">
-            <span class="material-symbols-outlined" aria-hidden="true">arrow_back</span>
-            <span th:text="${vistaMedico ? 'Volver al panel' : 'Mis citas'}">Volver</span>
-        </a>
+        <div class="hc-acciones">
+            <button type="button" class="bs-btn bs-btn--primary bs-btn--small" data-imprimir th:unless="${h.vacio and !h.tieneDeclarado}">
+                <span class="material-symbols-outlined" aria-hidden="true">download</span>Descargar en PDF
+            </button>
+            <a class="bs-btn bs-btn--secondary bs-btn--small hc-volver"
+               th:href="@{${vistaMedico ? '/doctores#citas' : '/pacientes/landing'}}">
+                <span class="material-symbols-outlined" aria-hidden="true">arrow_back</span>
+                <span th:text="${vistaMedico ? 'Volver al panel' : 'Mis citas'}">Volver</span>
+            </a>
+        </div>
     </div>
 
     <div th:if="${param.success != null and param.success[0] == 'historial_guardado'}" class="bs-alert bs-alert--success hc-aviso" role="status">
@@ -40,6 +54,20 @@
     </div>
     <div th:if="${param.error != null and param.error[0] == 'historial_largo'}" class="bs-alert bs-alert--danger hc-aviso" role="alert">
         No se guardó: cada campo admite hasta 1.000 caracteres.
+    </div>
+    <div th:if="${param.success != null and param.success[0] == 'documento_subido'}" class="bs-alert bs-alert--success hc-aviso" role="status">
+        Adjuntamos tu documento. Lo verán los profesionales que te atiendan.
+    </div>
+    <div th:if="${param.success != null and param.success[0] == 'documento_eliminado'}" class="bs-alert bs-alert--success hc-aviso" role="status">
+        Eliminamos el documento.
+    </div>
+    <div th:if="${param.error != null and #strings.startsWith(param.error[0], 'documento_')}" class="bs-alert bs-alert--danger hc-aviso" role="alert"
+         th:switch="${param.error[0]}">
+        <span th:case="'documento_tamano'">El archivo pesa más de 5 MB. Prueba con un PDF más liviano o una foto de menor tamaño.</span>
+        <span th:case="'documento_tipo'">Solo se pueden adjuntar archivos PDF, JPG o PNG.</span>
+        <span th:case="'documento_limite'">Ya tienes 10 documentos. Elimina alguno para adjuntar otro.</span>
+        <span th:case="'documento_vacio'">Elige un archivo para adjuntar.</span>
+        <span th:case="*">No pudimos adjuntar el documento. Intenta de nuevo.</span>
     </div>
 
     <!-- ── Alergias: lo primero que debe ver el médico ── -->
@@ -110,6 +138,10 @@
             <p class="hc-bloque__ayuda" th:if="${pac.historialPrevioActualizado != null}"
                th:text="${'Actualizado el ' + #temporals.format(pac.historialPrevioActualizado, 'dd/MM/yyyy')}">Actualizado</p>
 
+            <!-- El paciente lo edita en el formulario; en el documento impreso va como lista -->
+            <dl class="hc-lista hc-solo-impreso" th:if="${!vistaMedico and h.tieneDeclarado}">
+                <div th:each="f : ${h.filasDeclarado}" class="hc-lista__fila"><dt th:text="${f.etiqueta()}">Alergias</dt><dd th:text="${f.valor()}"></dd></div>
+            </dl>
             <th:block th:if="${vistaMedico}">
                 <dl class="hc-lista" th:if="${h.tieneDeclarado}">
                     <div th:each="f : ${h.filasDeclarado}" class="hc-lista__fila"><dt th:text="${f.etiqueta()}">Alergias</dt><dd th:text="${f.valor()}"></dd></div>
@@ -162,6 +194,51 @@
                 </button>
             </form>
         </section>
+
+        <!-- Documentos que adjuntó el paciente: dictámenes de otros médicos, exámenes, fórmulas -->
+        <section id="mis-documentos" class="bs-card hc-bloque hc-bloque--documentos" aria-labelledby="hc-documentos"
+                 th:if="${!vistaMedico or !#lists.isEmpty(documentos)}">
+            <h2 id="hc-documentos" class="hc-bloque__titulo">
+                <span class="material-symbols-outlined" aria-hidden="true">attach_file</span>
+                <span th:text="${vistaMedico ? 'Documentos que aportó el paciente' : 'Mis documentos'}">Documentos</span>
+            </h2>
+            <p class="hc-bloque__ayuda" th:unless="${vistaMedico}">
+                Adjunta dictámenes de otros médicos, exámenes o fórmulas (PDF, JPG o PNG de hasta 5 MB). Solo los ven
+                los profesionales con los que tengas cita.
+            </p>
+
+            <ul class="hc-documentos" th:unless="${#lists.isEmpty(documentos)}">
+                <li th:each="doc : ${documentos}" class="hc-documento">
+                    <span class="material-symbols-outlined hc-documento__icono" aria-hidden="true"
+                          th:text="${doc.pdf ? 'picture_as_pdf' : 'image'}">picture_as_pdf</span>
+                    <span class="hc-documento__datos">
+                        <a th:href="@{${vistaMedico ? '/doctores/pacientes/' + pac.id + '/documentos/' + doc.id : '/pacientes/historial/documentos/' + doc.id}}"
+                           target="_blank" rel="noopener" th:text="${doc.nombre}">examen.pdf</a>
+                        <small th:text="${doc.tamanoLegible + ' · subido el ' + #temporals.format(doc.subidoEn, 'dd/MM/yyyy')}">850 KB</small>
+                    </span>
+                    <form th:unless="${vistaMedico}" th:action="@{/pacientes/historial/documentos/{id}/eliminar(id=${doc.id})}"
+                          method="post" class="hc-documento__eliminar" onsubmit="return confirm('¿Eliminar este documento?');">
+                        <button type="submit" class="bs-btn bs-btn--ghost bs-btn--small"
+                                th:attr="aria-label=${'Eliminar ' + doc.nombre}">
+                            <span class="material-symbols-outlined" aria-hidden="true">delete</span>
+                        </button>
+                    </form>
+                </li>
+            </ul>
+            <p class="hc-vacio-texto" th:if="${#lists.isEmpty(documentos)}">Aún no has adjuntado documentos.</p>
+
+            <form th:unless="${vistaMedico}" class="hc-form hc-subir" th:action="@{/pacientes/historial/documentos}"
+                  method="post" enctype="multipart/form-data">
+                <div class="bs-field">
+                    <label class="bs-field__label" for="hcArchivo">Adjuntar un documento</label>
+                    <input class="bs-field__control" id="hcArchivo" type="file" name="archivo" required
+                           accept="application/pdf,image/jpeg,image/png,.pdf,.jpg,.jpeg,.png">
+                </div>
+                <button type="submit" class="bs-btn bs-btn--secondary">
+                    <span class="material-symbols-outlined" aria-hidden="true">upload_file</span>Adjuntar
+                </button>
+            </form>
+        </section>
     </div>
 
     <!-- ── Línea de tiempo de dictámenes ── -->
@@ -176,7 +253,8 @@
         </div>
 
         <ol class="hc-consultas" th:unless="${h.vacio}">
-            <li th:each="e, iter : ${h.entradas()}" class="hc-consulta" th:with="d=${e.dictamen()}">
+            <li th:each="e, iter : ${h.entradas()}" class="hc-consulta" th:with="d=${e.dictamen()}"
+                th:id="${'consulta-' + e.cita().id}">
                 <details class="bs-card hc-consulta__tarjeta" th:open="${iter.first}">
                     <summary class="hc-consulta__resumen">
                         <span class="hc-consulta__fecha" th:text="${e.fecha() != null ? #temporals.format(e.fecha(), 'dd/MM/yyyy') : 'Sin fecha'}">01/10/2026</span>
@@ -237,6 +315,9 @@
                                 </div>
                             </div>
                         </th:block>
+                        <button type="button" class="bs-btn bs-btn--secondary bs-btn--small hc-consulta__descargar" data-imprimir>
+                            <span class="material-symbols-outlined" aria-hidden="true">download</span>Descargar este dictamen
+                        </button>
                     </div>
                 </details>
             </li>

@@ -2,7 +2,7 @@
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Pago del abono · BeSalud</title>
+    <title th:text="${reserva.saldo ? 'Pago del saldo · BeSalud' : 'Pago del abono · BeSalud'}">Pago del abono · BeSalud</title>
     <link rel="stylesheet" th:href="@{/css/base/global.css}">
     <link rel="stylesheet" th:href="@{/css/auth/portal.css}">
     <link rel="stylesheet" th:href="@{/css/publico/pagos.css}">
@@ -24,7 +24,7 @@
 
         <div class="pasarela-cabecera">
             <div>
-                <span class="pasarela-comercio">BeSalud · Abono de cita</span>
+                <span class="pasarela-comercio" th:text="${'BeSalud · ' + concepto}">BeSalud · Abono de cita</span>
                 <h1 id="pasarela-titulo" th:text="${'$' + #numbers.formatInteger(reserva.montoPesos, 1, 'POINT')}">$20.000</h1>
                 <span class="pasarela-ref" th:text="${'Ref. ' + reserva.referencia}">Ref. BS-…</span>
             </div>

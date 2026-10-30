@@ -712,6 +712,21 @@ html[data-tema="oscuro"] .cita-abono {
     color: #F1D19D;
 }
 
+html[data-tema="oscuro"] .cita-abono.is-completa {
+    color: var(--color-success--t);
+}
+
+html[data-tema="oscuro"] .cita-saldo {
+    color: var(--color-text-muted--t);
+    background-color: var(--color-surface-muted--f);
+    background-image: none;
+    border: 1px solid var(--color-border--b);
+}
+
+html[data-tema="oscuro"] .cita-dictamen__descargar {
+    color: var(--color-primary--t);
+}
+
 html[data-tema="oscuro"] .doctor-profile-link {
     color: inherit;
 }

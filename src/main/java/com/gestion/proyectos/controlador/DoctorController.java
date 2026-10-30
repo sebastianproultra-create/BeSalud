@@ -14,6 +14,7 @@ import com.gestion.proyectos.modelo.UserRegistrationDTO;
 import com.gestion.proyectos.modelo.ViaAdministracion;
 import com.gestion.proyectos.servicio.DictamenVista;
 import com.gestion.proyectos.servicio.DoctorService;
+import com.gestion.proyectos.servicio.DocumentoClinicoService;
 import com.gestion.proyectos.servicio.HistorialClinicoService;
 import com.gestion.proyectos.servicio.PanelDoctorService;
 import com.gestion.proyectos.servicio.PerfilPublicoService;
@@ -56,11 +57,14 @@ public class DoctorController {
     private final PanelDoctorService panelDoctorService;
     private final PerfilPublicoService perfilPublicoService;
     private final HistorialClinicoService historialClinicoService;
+    private final DocumentoClinicoService documentoClinicoService;
     private final String urlApp;
 
     public DoctorController(DoctorService doctorService, PanelDoctorService panelDoctorService,
             PerfilPublicoService perfilPublicoService, HistorialClinicoService historialClinicoService,
+            DocumentoClinicoService documentoClinicoService,
             @Value("${app.url:http://localhost:8080}") String urlApp) {
+        this.documentoClinicoService = documentoClinicoService;
         this.doctorService = doctorService;
         this.panelDoctorService = panelDoctorService;
         this.perfilPublicoService = perfilPublicoService;
@@ -188,8 +192,21 @@ public class DoctorController {
         if (historial == null)
             return "redirect:/doctores?error=historial_no_autorizado#citas";
         model.addAttribute("historialClinico", historial);
+        model.addAttribute("documentos", documentoClinicoService.listar(pacienteId));
         model.addAttribute("vistaMedico", true);
         return "historial/clinico";
+    }
+
+    /** Un documento que adjuntó el paciente: con las mismas condiciones que su historial. */
+    @PreAuthorize("hasRole('DOCTOR')")
+    @GetMapping("/pacientes/{pacienteId}/documentos/{documentoId}")
+    public org.springframework.http.ResponseEntity<byte[]> documentoPaciente(@PathVariable String pacienteId,
+            @PathVariable String documentoId) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        Doctor doctor = doctorService.buscarPorEmail(auth.getName()).orElseThrow();
+        if (!historialClinicoService.medicoPuedeVer(doctor.getId(), pacienteId))
+            throw new org.springframework.security.access.AccessDeniedException("Sin cita con el paciente");
+        return PacienteController.archivo(documentoClinicoService.buscar(pacienteId, documentoId).orElseThrow());
     }
 
     @PostMapping("/guardar")

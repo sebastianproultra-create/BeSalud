@@ -1873,6 +1873,10 @@ a.doc-segmento {
     font-size: 13px;
     font-weight: 600;
 }
+/* El paciente pagó en línea toda la consulta: no hay nada que cobrar en el consultorio */
+.cita-abono.is-completa {
+    color: var(--color-success);
+}
 .cita-asistencia {
     display: flex;
     align-items: center;

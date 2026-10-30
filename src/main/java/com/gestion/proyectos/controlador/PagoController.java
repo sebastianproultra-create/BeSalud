@@ -1,6 +1,7 @@
 package com.gestion.proyectos.controlador;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.gestion.proyectos.modelo.Cita;
 import com.gestion.proyectos.modelo.Doctor;
 import com.gestion.proyectos.modelo.Paciente;
 import com.gestion.proyectos.modelo.Reserva;
@@ -66,10 +67,22 @@ public class PagoController {
         model.addAttribute("segundosRestantes", segundosRestantes(reserva));
         model.addAttribute("segundosTotales", reservaService.getMinutosParaPagar() * 60);
         model.addAttribute("saldo", saldo(doctor, reserva));
+        model.addAttribute("abonoPagado", abonoPagado(reserva));
+        model.addAttribute("debePagarTotal", reserva.debePagarTotal(Reloj.ahora()));
+        model.addAttribute("limiteSaldo", Cita.limitePagoSaldo(reserva.getFecha(), reserva.getHora()));
         model.addAttribute("pagoSimulado", pasarela.usaSimulada());
         model.addAttribute("urlPago", pasarela.urlPago(reserva, paciente.getEmail(),
                 paciente.getNombre() + " " + paciente.getApellido(), urlApp + "/pagos/retorno"));
         return "pagos/resumen";
+    }
+
+    /** Antes de pagar, el paciente elige si paga solo el abono o el valor total de la consulta. */
+    @PostMapping("/pagos/{referencia}/monto")
+    public String elegirMonto(@PathVariable String referencia, @RequestParam boolean total, Authentication auth) {
+        Paciente paciente = paciente(auth);
+        reservaDe(referencia, paciente);
+        reservaService.elegirMonto(referencia, paciente.getId(), total);
+        return "redirect:/pagos/" + referencia;
     }
 
     @PostMapping("/pagos/{referencia}/liberar")
@@ -77,7 +90,26 @@ public class PagoController {
         Paciente paciente = paciente(auth);
         Reserva reserva = reservaDe(referencia, paciente);
         reservaService.liberar(referencia, paciente.getId());
+        if (reserva.isSaldo()) // la cita sigue igual, con su abono
+            return "redirect:/pacientes/landing";
         return "redirect:/citas/nueva?doctorId=" + reserva.getDoctorId() + "&info=reserva_liberada";
+    }
+
+    /**
+     * El paciente paga el resto de la consulta cuando quiera antes de la cita, por la misma pasarela que el
+     * abono. Así la cita queda pagada por completo y no tiene que pagar nada en el consultorio.
+     */
+    @PostMapping("/citas/{id}/pagar-saldo")
+    public String pagarSaldo(@PathVariable String id, Authentication auth) {
+        if (!pasarela.pagosDisponibles())
+            return "redirect:/pacientes/landing?error=pagos_no_disponibles";
+        Paciente paciente = paciente(auth);
+        try {
+            Reserva reserva = reservaService.apartarSaldo(id, paciente.getId());
+            return "redirect:/pagos/" + reserva.getReferencia();
+        } catch (ReservaService.SaldoNoDisponibleException e) {
+            return "redirect:/pacientes/landing?error=saldo_no_disponible";
+        }
     }
 
     // ── Pasarela simulada (solo sin llaves de Wompi) ─────────────────────────
@@ -92,6 +124,8 @@ public class PagoController {
         model.addAttribute("segundosRestantes", segundosRestantes(reserva));
         model.addAttribute("segundosTotales", reservaService.getMinutosParaPagar() * 60);
         model.addAttribute("bancos", BANCOS_PRUEBA);
+        model.addAttribute("concepto", reserva.isSaldo() ? "Saldo de la consulta"
+                : reserva.isPagoTotal() ? "Valor total de la cita" : "Abono de cita");
         model.addAttribute("correoPaciente", auth.getName());
         return "pagos/simulado";
     }
@@ -178,17 +212,21 @@ public class PagoController {
         model.addAttribute("reserva", reserva);
         model.addAttribute("doctor", doctor);
         model.addAttribute("saldo", saldo(doctor, reserva));
+        model.addAttribute("abonoPagado", abonoPagado(reserva));
         model.addAttribute("pagoSimulado", pasarela.usaSimulada());
         model.addAttribute("nitComercio", nitComercio.isBlank() ? null : nitComercio);
         model.addAttribute("cancelarHasta", reserva.getFecha().atTime(reserva.getHora())
                 .minusHours(doctor.horasCancelacionEfectivas()));
+        model.addAttribute("limiteSaldo", Cita.limitePagoSaldo(reserva.getFecha(), reserva.getHora()));
         if (vista == Vista.CONFIRMADA && reserva.getCitaId() != null)
             citaService.buscarPorId(reserva.getCitaId()).ifPresent(c -> {
                 model.addAttribute("cita", c);
+                // Si aún le falta el resto, se ofrece pagarlo desde el comprobante
+                model.addAttribute("saldoPorPagar", ReservaService.saldoPorPagar(c, doctor, Reloj.ahora()));
                 model.addAttribute("enlaceGoogle", Calendario.enlaceGoogle(c.getFecha().atTime(c.getHora()), 30,
                         "Cita con Dr(a). " + doctor.getNombre() + " " + doctor.getApellido(),
                         doctor.getDireccionConsultorio(),
-                        "Cita agendada en BeSalud. Referencia del abono: " + reserva.getReferencia() + "."));
+                        "Cita agendada en BeSalud. Referencia del pago: " + reserva.getReferencia() + "."));
             });
         return "pagos/resultado";
     }
@@ -249,8 +287,17 @@ public class PagoController {
         return Math.max(0, Duration.between(Reloj.ahora(), reserva.getExpiraEn()).getSeconds());
     }
 
-    /** Lo que el paciente paga en el consultorio; null si el médico no publicó el valor. */
+    /** Lo que le falta pagar antes de la cita; si pagó todo (o es el pago del saldo) no queda nada. */
     private static Long saldo(Doctor doctor, Reserva reserva) {
+        if (reserva.isSaldo() || reserva.isPagoTotal())
+            return 0L;
         return Math.max(0, doctor.getPrecioEfectivo() - reserva.getMontoPesos());
+    }
+
+    /** En el pago del saldo: el abono que ya se había pagado al reservar (para mostrar las cuentas). */
+    private Long abonoPagado(Reserva reserva) {
+        if (!reserva.isSaldo() || reserva.getCitaId() == null)
+            return null;
+        return citaService.buscarPorId(reserva.getCitaId()).map(Cita::getAbonoPesos).orElse(null);
     }
 }

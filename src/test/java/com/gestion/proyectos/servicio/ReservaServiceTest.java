@@ -228,4 +228,251 @@ class ReservaServiceTest {
         assertThat(ReservaService.EstadoPago.DEVUELTO.getGrupo()).isEqualTo("devoluciones");
         assertThat(ReservaService.EstadoPago.RECHAZADO.getGrupo()).isEqualTo("rechazados");
     }
+
+    // ── Pago del saldo (el resto de la consulta, después de reservar) ───────
+
+    private static com.gestion.proyectos.modelo.Doctor doctorDe80Mil() {
+        com.gestion.proyectos.modelo.Doctor d = new com.gestion.proyectos.modelo.Doctor();
+        d.setId("d1");
+        d.setPrecioConsulta(80_000);
+        return d;
+    }
+
+    private static Cita citaConAbono() {
+        Cita c = new Cita();
+        c.setId("c1");
+        c.setDoctorId("d1");
+        c.setPacienteId("p1");
+        c.setFecha(LocalDate.now().plusDays(3));
+        c.setHora(LocalTime.of(9, 0));
+        c.setAbonoCentavos(2_000_000L);
+        return c;
+    }
+
+    @Test
+    void saldoPorPagar_esElPrecioMenosElAbonoYSoloSiLaCitaSigueAbierta() {
+        var ahora = java.time.LocalDateTime.now();
+        Cita c = citaConAbono();
+        assertThat(ReservaService.saldoPorPagar(c, doctorDe80Mil(), ahora)).isEqualTo(60_000L);
+
+        c.setSaldoCentavos(6_000_000L);
+        assertThat(ReservaService.saldoPorPagar(c, doctorDe80Mil(), ahora)).as("ya pagada").isNull();
+
+        Cita cancelada = citaConAbono();
+        cancelada.setEstado(com.gestion.proyectos.modelo.EstadoCita.CANCELADA);
+        assertThat(ReservaService.saldoPorPagar(cancelada, doctorDe80Mil(), ahora)).isNull();
+
+        Cita pasada = citaConAbono();
+        pasada.setFecha(LocalDate.now().minusDays(1));
+        assertThat(ReservaService.saldoPorPagar(pasada, doctorDe80Mil(), ahora)).isNull();
+
+        Cita sinAbono = citaConAbono();
+        sinAbono.setAbonoCentavos(null);
+        assertThat(ReservaService.saldoPorPagar(sinAbono, doctorDe80Mil(), ahora)).isNull();
+    }
+
+    @Test
+    void apartarSaldo_creaElPagoPorElRestoSinApartarTurno() {
+        when(citaService.buscarPorId("c1")).thenReturn(Optional.of(citaConAbono()));
+        when(citaService.buscarDoctorPorId("d1")).thenReturn(Optional.of(doctorDe80Mil()));
+        when(reservaRepo.findByCitaIdAndTipo("c1", Reserva.Tipo.SALDO)).thenReturn(java.util.List.of());
+        when(reservaRepo.save(any(Reserva.class))).thenAnswer(i -> i.getArgument(0));
+
+        Reserva r = service.apartarSaldo("c1", "p1");
+
+        assertThat(r.isSaldo()).isTrue();
+        assertThat(r.getCitaId()).isEqualTo("c1");
+        assertThat(r.getMontoCentavos()).isEqualTo(6_000_000);
+        r.actualizarTurno();
+        assertThat(r.getTurno()).as("la cita ya ocupa el turno").isNull();
+    }
+
+    @Test
+    void apartarSaldo_reutilizaElPagoQueSigueVigente() {
+        when(citaService.buscarPorId("c1")).thenReturn(Optional.of(citaConAbono()));
+        when(citaService.buscarDoctorPorId("d1")).thenReturn(Optional.of(doctorDe80Mil()));
+        Reserva vigente = new Reserva();
+        vigente.setTipo(Reserva.Tipo.SALDO);
+        vigente.setMontoCentavos(6_000_000);
+        vigente.setExpiraEn(java.time.LocalDateTime.now().plusMinutes(10));
+        when(reservaRepo.findByCitaIdAndTipo("c1", Reserva.Tipo.SALDO)).thenReturn(java.util.List.of(vigente));
+
+        assertThat(service.apartarSaldo("c1", "p1")).isSameAs(vigente);
+        verify(reservaRepo, never()).save(any());
+    }
+
+    @Test
+    void apartarSaldo_rechazaCitasDeOtroPacienteOYaPagadas() {
+        when(citaService.buscarPorId("c1")).thenReturn(Optional.of(citaConAbono()));
+        org.assertj.core.api.Assertions.assertThatThrownBy(() -> service.apartarSaldo("c1", "otro"))
+                .isInstanceOf(ReservaService.SaldoNoDisponibleException.class);
+
+        Cita pagada = citaConAbono();
+        pagada.setSaldoCentavos(6_000_000L);
+        when(citaService.buscarPorId("c1")).thenReturn(Optional.of(pagada));
+        when(citaService.buscarDoctorPorId("d1")).thenReturn(Optional.of(doctorDe80Mil()));
+        org.assertj.core.api.Assertions.assertThatThrownBy(() -> service.apartarSaldo("c1", "p1"))
+                .isInstanceOf(ReservaService.SaldoNoDisponibleException.class);
+    }
+
+    @Test
+    void saldoAprobado_dejaLaCitaPagadaSinCrearOtra() {
+        reserva.setTipo(Reserva.Tipo.SALDO);
+        reserva.setCitaId("c1");
+        laReservaSeToma();
+        when(citaService.registrarSaldo(reserva)).thenReturn(true);
+
+        assertThat(service.confirmarPago("BS-1", "tx1", "APPROVED", 2_000_000, "COP")).isEqualTo(Resultado.APROBADA);
+        assertThat(reserva.getEstado()).isEqualTo(Reserva.Estado.APROBADA);
+        assertThat(reserva.getCitaId()).isEqualTo("c1");
+        verify(citaService, never()).crearCitaConAbono(any());
+    }
+
+    @Test
+    void saldoDeCitaCanceladaMientrasPagaba_quedaParaDevolucion() {
+        reserva.setTipo(Reserva.Tipo.SALDO);
+        reserva.setCitaId("c1");
+        laReservaSeToma();
+        when(citaService.registrarSaldo(reserva)).thenReturn(false);
+
+        assertThat(service.confirmarPago("BS-1", "tx1", "APPROVED", 2_000_000, "COP")).isEqualTo(Resultado.CONFLICTO);
+        assertThat(reserva.getCitaId()).as("el reembolso sigue ligado a su cita").isEqualTo("c1");
+    }
+
+    @Test
+    void saldoRechazado_laCitaSigueConSuAbono() {
+        reserva.setTipo(Reserva.Tipo.SALDO);
+        reserva.setCitaId("c1");
+        laReservaSeToma();
+
+        assertThat(service.confirmarPago("BS-1", "tx1", "DECLINED", 2_000_000, "COP")).isEqualTo(Resultado.RECHAZADA);
+        verify(citaService, never()).registrarSaldo(any());
+    }
+
+    @Test
+    void reservarOtraCita_noAnulaElPagoDelSaldoEnCurso() {
+        Reserva saldo = new Reserva();
+        saldo.setTipo(Reserva.Tipo.SALDO);
+        saldo.setEstado(Reserva.Estado.ESPERANDO_PAGO);
+        when(reservaRepo.findByPacienteIdAndEstado("p1", Reserva.Estado.ESPERANDO_PAGO)).thenReturn(java.util.List.of(saldo));
+        when(mongo.updateMulti(any(Query.class), any(Update.class), eq(Reserva.class)))
+                .thenReturn(com.mongodb.client.result.UpdateResult.acknowledged(0, 0L, null));
+        when(reservaRepo.save(any(Reserva.class))).thenAnswer(i -> i.getArgument(0));
+
+        service.apartar(doctorDe80Mil(), "p1", LocalDate.now().plusDays(2), LocalTime.of(10, 0), "Control");
+
+        assertThat(saldo.getEstado()).isEqualTo(Reserva.Estado.ESPERANDO_PAGO);
+    }
+
+    // ── Abono o total al reservar y plazo del resto ─────────────────────────
+
+    private Reserva apartarPara(LocalDate fecha, LocalTime hora) {
+        when(mongo.updateMulti(any(Query.class), any(Update.class), eq(Reserva.class)))
+                .thenReturn(com.mongodb.client.result.UpdateResult.acknowledged(0, 0L, null));
+        when(reservaRepo.save(any(Reserva.class))).thenAnswer(i -> i.getArgument(0));
+        com.gestion.proyectos.modelo.Doctor d = doctorDe80Mil();
+        d.setPorcentajeAbono(20);
+        return service.apartar(d, "p1", fecha, hora, "Control");
+    }
+
+    @Test
+    void reservarConTiempo_cobraElAbonoYPermiteElegirTodo() {
+        Reserva r = apartarPara(LocalDate.now().plusDays(5), LocalTime.of(9, 0));
+
+        assertThat(r.isPagoTotal()).isFalse();
+        assertThat(r.getMontoCentavos()).isEqualTo(1_600_000L);
+        assertThat(r.admiteElegirMonto()).isTrue();
+    }
+
+    @Test
+    void reservarParaManana_cobraElTotal() {
+        java.time.LocalDateTime pronto = com.gestion.proyectos.util.Reloj.ahora().plusHours(25);
+        Reserva r = apartarPara(pronto.toLocalDate(), pronto.toLocalTime().withSecond(0).withNano(0));
+
+        assertThat(r.isPagoTotal()).isTrue();
+        assertThat(r.getMontoCentavos()).isEqualTo(8_000_000L);
+    }
+
+    @Test
+    void elegirMonto_cambiaEntreAbonoYTotal() {
+        reserva.setAbonoCentavos(1_600_000L);
+        reserva.setPrecioCentavos(8_000_000L);
+        reserva.setFecha(LocalDate.now().plusDays(5));
+        reserva.setExpiraEn(java.time.LocalDateTime.now().plusMinutes(10));
+
+        assertThat(service.elegirMonto("BS-1", "p1", true)).isTrue();
+        assertThat(reserva.getMontoCentavos()).isEqualTo(8_000_000L);
+        assertThat(service.elegirMonto("BS-1", "p1", false)).isTrue();
+        assertThat(reserva.getMontoCentavos()).isEqualTo(1_600_000L);
+        assertThat(service.elegirMonto("BS-1", "otro", true)).as("no es su reserva").isFalse();
+    }
+
+    @Test
+    void elegirMonto_noPermiteSoloAbonoSiLaCitaEsMuyPronto() {
+        java.time.LocalDateTime pronto = com.gestion.proyectos.util.Reloj.ahora().plusHours(20);
+        reserva.setAbonoCentavos(1_600_000L);
+        reserva.setPrecioCentavos(8_000_000L);
+        reserva.setFecha(pronto.toLocalDate());
+        reserva.setHora(pronto.toLocalTime());
+        reserva.setExpiraEn(java.time.LocalDateTime.now().plusMinutes(10));
+
+        assertThat(service.elegirMonto("BS-1", "p1", false)).isFalse();
+    }
+
+    @Test
+    void pagoPorElTotalConLaPasarelaAbiertaEnAbono_seAceptaComoPagoTotal() {
+        reserva.setAbonoCentavos(1_600_000L);
+        reserva.setPrecioCentavos(8_000_000L);
+        reserva.setMontoCentavos(1_600_000L);
+        reserva.setFecha(LocalDate.now().plusDays(5));
+        laReservaSeToma();
+        when(citaService.doctorActivo("d1")).thenReturn(true);
+        Cita cita = new Cita();
+        cita.setId("c1");
+        when(citaService.crearCitaConAbono(reserva)).thenReturn(cita);
+
+        assertThat(service.confirmarPago("BS-1", "tx1", "APPROVED", 8_000_000, "COP")).isEqualTo(Resultado.APROBADA);
+        assertThat(reserva.isPagoTotal()).isTrue();
+    }
+
+    private Cita citaSinPagarElResto(java.time.LocalDateTime inicio) {
+        Cita c = citaConAbono();
+        c.setFecha(inicio.toLocalDate());
+        c.setHora(inicio.toLocalTime());
+        c.setSaldoObligatorio(true);
+        return c;
+    }
+
+    @Test
+    void plazoVencidoSinPagar_cancelaLaCita() {
+        Cita vencida = citaSinPagarElResto(com.gestion.proyectos.util.Reloj.ahora().plusHours(20));
+        Cita aTiempo = citaSinPagarElResto(com.gestion.proyectos.util.Reloj.ahora().plusDays(4));
+        aTiempo.setId("c2");
+        when(citaService.citasConSaldoPendiente()).thenReturn(java.util.List.of(vencida, aTiempo));
+        when(reservaRepo.findByCitaIdAndTipo("c1", Reserva.Tipo.SALDO)).thenReturn(java.util.List.of());
+        when(citaService.cancelarPorFaltaDePago(vencida)).thenReturn(true);
+
+        assertThat(service.cancelarCitasSinPago()).isEqualTo(1);
+        verify(citaService, never()).cancelarPorFaltaDePago(aTiempo);
+    }
+
+    @Test
+    void plazoVencidoConPagoDelRestoEnCurso_esperaALaPasarela() {
+        Cita vencida = citaSinPagarElResto(com.gestion.proyectos.util.Reloj.ahora().plusHours(20));
+        Reserva enCurso = new Reserva();
+        enCurso.setTipo(Reserva.Tipo.SALDO);
+        enCurso.setEstado(Reserva.Estado.EXPIRADA);
+        enCurso.setTransaccionId("tx-pse");
+        when(citaService.citasConSaldoPendiente()).thenReturn(java.util.List.of(vencida));
+        when(reservaRepo.findByCitaIdAndTipo("c1", Reserva.Tipo.SALDO)).thenReturn(java.util.List.of(enCurso));
+
+        assertThat(service.cancelarCitasSinPago()).isZero();
+        verify(citaService, never()).cancelarPorFaltaDePago(any());
+    }
+
+    @Test
+    void conPlazoVencido_yaNoSeOfrecePagarElResto() {
+        Cita vencida = citaSinPagarElResto(java.time.LocalDateTime.now().plusHours(20));
+        assertThat(ReservaService.saldoPorPagar(vencida, doctorDe80Mil(), java.time.LocalDateTime.now())).isNull();
+    }
 }

@@ -150,6 +150,15 @@ html[data-tema="oscuro"] .demanda-muestra--rango {
     background-image: linear-gradient(var(--d-on--t), var(--d-on--t));
 }
 
+/* Logo del login: en oscuro se muestra la versión clara del símbolo */
+html[data-tema="oscuro"] .auth-logo {
+    display: none;
+}
+
+html[data-tema="oscuro"] .auth-logo--oscuro {
+    display: block;
+}
+
 /* Chatbot de la página de inicio: sus cremas y dorados se leen como café en oscuro; se pasan a la paleta verde */
 html[data-tema="oscuro"] .cb-mensajes {
     background-color: #14231D;

@@ -118,7 +118,10 @@ public class CitaService {
         return guardada;
     }
 
-    /** Cita que nace de una reserva con el abono ya pagado. */
+    /**
+     * Cita que nace de una reserva pagada. Si el paciente pagó todo, queda pagada por completo; si pagó el
+     * abono, debe pagar el resto antes del plazo ({@link Cita#HORAS_LIMITE_SALDO} horas antes).
+     */
     public Cita crearCitaConAbono(Reserva reserva) {
         Cita cita = new Cita();
         cita.setDoctorId(reserva.getDoctorId());
@@ -126,14 +129,71 @@ public class CitaService {
         cita.setFecha(reserva.getFecha());
         cita.setHora(reserva.getHora());
         cita.setMotivo(reserva.getMotivo());
-        cita.setAbonoCentavos(reserva.getMontoCentavos());
+        long abono = reserva.getAbonoCentavos() != null && reserva.getAbonoCentavos() < reserva.getMontoCentavos()
+                ? reserva.getAbonoCentavos() : reserva.getMontoCentavos();
+        cita.setAbonoCentavos(abono);
         cita.setReferenciaPago(reserva.getReferencia());
         cita.setMedioPago(reserva.getMedioPago());
         cita.setEstadoAbono(EstadoAbono.PAGADO);
+        cita.setSaldoObligatorio(true);
+        if (reserva.isPagoTotal() && reserva.getMontoCentavos() > abono) {
+            cita.setSaldoCentavos(reserva.getMontoCentavos() - abono);
+            cita.setReferenciaSaldo(reserva.getReferencia());
+            cita.setMedioPagoSaldo(reserva.getMedioPago());
+            cita.setSaldoPagadoEn(Reloj.ahora());
+        }
         Cita guardada = guardarOcupandoTurno(cita);
         log.info("Cita creada con abono: id={} referencia={}", guardada.getId(), reserva.getReferencia());
         eventos.publishEvent(new CitaEvento(CitaEvento.Tipo.CREADA, guardada.getId()));
         return guardada;
+    }
+
+    /**
+     * Registra el pago del saldo de una cita: queda pagada por completo. Devuelve false si la cita ya no
+     * está pendiente o ya tenía el saldo pagado (ese pago hay que devolverlo).
+     */
+    public boolean registrarSaldo(Reserva reserva) {
+        Cita cita = reserva.getCitaId() == null ? null : citaRepo.findById(reserva.getCitaId()).orElse(null);
+        if (cita == null || cita.getEstado() != EstadoCita.PENDIENTE || cita.isPagadaCompleta()
+                || !reserva.getPacienteId().equals(cita.getPacienteId()))
+            return false;
+        cita.setSaldoCentavos(reserva.getMontoCentavos());
+        cita.setReferenciaSaldo(reserva.getReferencia());
+        cita.setMedioPagoSaldo(reserva.getMedioPago());
+        cita.setSaldoPagadoEn(Reloj.ahora());
+        citaRepo.save(cita);
+        log.info("Saldo pagado: cita={} referencia={}", cita.getId(), reserva.getReferencia());
+        eventos.publishEvent(new CitaEvento(CitaEvento.Tipo.SALDO_PAGADO, cita.getId()));
+        return true;
+    }
+
+    /** Citas pendientes a las que todavía les falta pagar el resto. */
+    public List<Cita> citasConSaldoPendiente() {
+        return citaRepo.findByEstadoAndSaldoObligatorioTrueAndSaldoCentavosIsNull(EstadoCita.PENDIENTE);
+    }
+
+    /**
+     * Venció el plazo sin pagar el resto: la cita se cancela, el turno queda libre para otro paciente y el
+     * profesional conserva el abono, como en una cancelación tardía.
+     */
+    public boolean cancelarPorFaltaDePago(Cita cita) {
+        if (cita.getEstado() != EstadoCita.PENDIENTE || cita.isPagadaCompleta())
+            return false;
+        cita.setEstado(EstadoCita.CANCELADA);
+        if (cita.getAbonoCentavos() != null)
+            cita.setEstadoAbono(EstadoAbono.RETENIDO);
+        citaRepo.save(cita);
+        log.info("Cita cancelada por no pagar el resto a tiempo: id={}", cita.getId());
+        eventos.publishEvent(new CitaEvento(CitaEvento.Tipo.CANCELADA_SIN_PAGO, cita.getId()));
+        return true;
+    }
+
+    /** ¿Se puede mover la cita a esa fecha? Si le falta pagar el resto, el nuevo plazo no puede haber vencido. */
+    public static boolean reprogramacionDejaPlazoParaPagar(Cita cita, LocalDate fecha, LocalTime hora, LocalDateTime ahora) {
+        if (!cita.isSaldoObligatorio() || cita.isPagadaCompleta())
+            return true;
+        LocalDateTime limite = Cita.limitePagoSaldo(fecha, hora);
+        return limite != null && ahora.isBefore(limite);
     }
 
     private Cita guardarOcupandoTurno(Cita cita) {
@@ -153,6 +213,7 @@ public class CitaService {
         cita.setFecha(fecha);
         cita.setHora(hora);
         cita.setRecordatorioEnviado(false);
+        cita.setRecordatorioSaldoEnviado(false);
         // Nueva fecha: se vuelve a preguntar si asistirá
         cita.setAsistenciaConfirmada(null);
         cita.setConfirmacionSolicitada(false);
