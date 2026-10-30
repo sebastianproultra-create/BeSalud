@@ -80,6 +80,14 @@ function textoNodo(nodo) {
 
 async function numeroDe(msg) {
   // WhatsApp ya identifica a algunos usuarios con un id privado (@lid): el número real sale del contacto
+  if (msg.from.endsWith('@lid')) {
+    try {
+      const [par] = await client.getContactLidAndPhone([msg.from]);
+      if (par?.pn) return par.pn.replace(/@.*/, '');
+    } catch (e) {
+      console.warn('No se pudo traducir el id privado', e.message);
+    }
+  }
   try {
     const contacto = await msg.getContact();
     if (contacto?.number) return contacto.number;
