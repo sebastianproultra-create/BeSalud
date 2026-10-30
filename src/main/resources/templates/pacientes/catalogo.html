@@ -235,6 +235,9 @@
                         <!-- Dictamen visible para citas completadas -->
                         <div th:if="${cita.estado.name() == 'COMPLETADA' and cita.dictamen != null}" class="cita-dictamen">
                             <div class="dictamen-header"><i class="fa-solid fa-file-medical"></i> Dictamen médico</div>
+                            <a class="cita-dictamen__descargar" th:href="@{'/pacientes/historial#consulta-' + ${cita.id}}">
+                                <i class="fa-solid fa-download" aria-hidden="true"></i> Descargar en PDF o compartir con otro médico
+                            </a>
                             <th:block th:with="dic=${cita.dictamen}">
                             <!-- Formato anterior (texto libre) -->
                             <th:block th:if="${dic.formatoAnterior}">

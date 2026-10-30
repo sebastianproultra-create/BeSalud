@@ -43,6 +43,7 @@ public class SecurityConfig {
                                                 .requestMatchers("/doctores/*/horarios").hasRole("ADMIN")
                                                 .requestMatchers("/pacientes/landing", "/pacientes/asistente", "/pacientes/pagos",
                                                                 "/pacientes/historial", "/pacientes/historial/antecedentes",
+                                                                "/pacientes/historial/documentos", "/pacientes/historial/documentos/**",
                                                                 "/triage", "/triage/agendar", "/citas/nueva",
                                                                 "/citas/guardar-paciente", "/citas/*/reprogramar")
                                                 .hasRole("PACIENTE")

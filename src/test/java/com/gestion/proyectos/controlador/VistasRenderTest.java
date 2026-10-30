@@ -81,6 +81,7 @@ class VistasRenderTest {
     @MockBean private com.gestion.proyectos.servicio.AsistenteService asistenteService;
     @MockBean private org.springframework.security.authentication.AuthenticationManager authenticationManager;
     @MockBean private com.gestion.proyectos.servicio.HistorialClinicoService historialClinicoService;
+    @MockBean private com.gestion.proyectos.servicio.DocumentoClinicoService documentoClinicoService;
     @MockBean private CustomUserDetailsService customUserDetailsService;
     @MockBean private PersonaRepositorio personaRepositorio;
     @MockBean private AdminRepositorio adminRepositorio;
@@ -689,5 +690,105 @@ class VistasRenderTest {
                 .andExpect(content().string(containsString("Tu historial médico previo")))
                 .andExpect(content().string(containsString("name=\"historialEnviado\"")))
                 .andExpect(content().string(containsString(">Penicilina</textarea>")));
+    }
+
+    // ── Documentos adjuntos al historial ────────────────────────────────────
+
+    private static com.gestion.proyectos.modelo.DocumentoClinico documento(String id, String pacienteId) {
+        var d = new com.gestion.proyectos.modelo.DocumentoClinico();
+        d.setId(id);
+        d.setPacienteId(pacienteId);
+        d.setNombre("Examen de sangre.pdf");
+        d.setTipo("application/pdf");
+        d.setTamano(870_000);
+        d.setContenido("%PDF-1.4 prueba".getBytes(java.nio.charset.StandardCharsets.UTF_8));
+        d.setSubidoEn(java.time.LocalDateTime.of(2026, 10, 1, 9, 0));
+        return d;
+    }
+
+    @Test
+    void miHistorial_puedeDescargarseYAdjuntarDocumentos() throws Exception {
+        var h = historialDeAna();
+        when(pacienteService.buscarPorEmail("pac@test.com")).thenReturn(Optional.of(h.paciente()));
+        when(historialClinicoService.historialDe("p1")).thenReturn(Optional.of(h));
+        when(documentoClinicoService.listar("p1")).thenReturn(List.of(documento("doc1", "p1")));
+
+        mockMvc.perform(get("/pacientes/historial").with(user("pac@test.com").roles("PACIENTE")))
+                .andExpect(status().isOk())
+                .andExpect(content().string(containsString("Descargar en PDF")))
+                .andExpect(content().string(containsString("Descargar este dictamen")))
+                .andExpect(content().string(containsString("id=\"consulta-c1\"")))
+                .andExpect(content().string(containsString("enctype=\"multipart/form-data\"")))
+                .andExpect(content().string(containsString("/pacientes/historial/documentos/doc1")))
+                .andExpect(content().string(containsString("Examen de sangre.pdf")))
+                .andExpect(content().string(containsString("/pacientes/historial/documentos/doc1/eliminar")));
+    }
+
+    @Test
+    void elMedicoVeLosDocumentosDelPacienteSinPoderBorrarlos() throws Exception {
+        Doctor doctor = new Doctor();
+        doctor.setId("d1");
+        when(doctorService.buscarPorEmail("doc@test.com")).thenReturn(Optional.of(doctor));
+        when(historialClinicoService.medicoPuedeVer("d1", "p1")).thenReturn(true);
+        when(historialClinicoService.historialDe("p1")).thenReturn(Optional.of(historialDeAna()));
+        when(documentoClinicoService.listar("p1")).thenReturn(List.of(documento("doc1", "p1")));
+
+        mockMvc.perform(get("/doctores/pacientes/p1/historial").with(user("doc@test.com").roles("DOCTOR")))
+                .andExpect(status().isOk())
+                .andExpect(content().string(containsString("Documentos que aportó el paciente")))
+                .andExpect(content().string(containsString("/doctores/pacientes/p1/documentos/doc1")))
+                .andExpect(content().string(not(containsString("/eliminar"))))
+                .andExpect(content().string(not(containsString("multipart/form-data"))));
+    }
+
+    @Test
+    void documento_seEntregaConSuTipoYSinCache() throws Exception {
+        Doctor doctor = new Doctor();
+        doctor.setId("d1");
+        when(doctorService.buscarPorEmail("doc@test.com")).thenReturn(Optional.of(doctor));
+        when(historialClinicoService.medicoPuedeVer("d1", "p1")).thenReturn(true);
+        when(documentoClinicoService.buscar("p1", "doc1")).thenReturn(Optional.of(documento("doc1", "p1")));
+
+        mockMvc.perform(get("/doctores/pacientes/p1/documentos/doc1").with(user("doc@test.com").roles("DOCTOR")))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType("application/pdf"))
+                .andExpect(header().string("Content-Disposition", containsString("inline")))
+                .andExpect(header().string("Cache-Control", containsString("no-store")));
+    }
+
+    @Test
+    void documento_medicoSinCitaConElPaciente_noLoVe() throws Exception {
+        Doctor doctor = new Doctor();
+        doctor.setId("d1");
+        when(doctorService.buscarPorEmail("doc@test.com")).thenReturn(Optional.of(doctor));
+        when(historialClinicoService.medicoPuedeVer("d1", "p9")).thenReturn(false);
+
+        mockMvc.perform(get("/doctores/pacientes/p9/documentos/doc1").with(user("doc@test.com").roles("DOCTOR")))
+                .andExpect(status().isForbidden());
+        verify(documentoClinicoService, org.mockito.Mockito.never()).buscar(any(), any());
+    }
+
+    @Test
+    void documento_deOtroPaciente_noExiste() throws Exception {
+        Paciente p = new Paciente();
+        p.setId("p2");
+        when(pacienteService.buscarPorEmail("pac@test.com")).thenReturn(Optional.of(p));
+        when(documentoClinicoService.buscar("p2", "doc1")).thenReturn(Optional.empty());
+
+        mockMvc.perform(get("/pacientes/historial/documentos/doc1").with(user("pac@test.com").roles("PACIENTE")))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void adjuntarDocumento_avisaSiNoSePudo() throws Exception {
+        Paciente p = new Paciente();
+        p.setId("p1");
+        when(pacienteService.buscarPorEmail("pac@test.com")).thenReturn(Optional.of(p));
+        var archivo = new org.springframework.mock.web.MockMultipartFile("archivo", "virus.exe", "application/pdf", new byte[]{1, 2, 3});
+        when(documentoClinicoService.subir(org.mockito.ArgumentMatchers.eq("p1"), any())).thenReturn("tipo");
+
+        mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart("/pacientes/historial/documentos")
+                        .file(archivo).with(csrf()).with(user("pac@test.com").roles("PACIENTE")))
+                .andExpect(redirectedUrl("/pacientes/historial?error=documento_tipo#mis-documentos"));
     }
 }

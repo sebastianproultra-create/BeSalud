@@ -723,6 +723,10 @@ html[data-tema="oscuro"] .cita-saldo {
     border: 1px solid var(--color-border--b);
 }
 
+html[data-tema="oscuro"] .cita-dictamen__descargar {
+    color: var(--color-primary--t);
+}
+
 html[data-tema="oscuro"] .doctor-profile-link {
     color: inherit;
 }

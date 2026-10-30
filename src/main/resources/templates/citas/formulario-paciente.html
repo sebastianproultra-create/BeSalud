@@ -159,7 +159,8 @@
                                           placeholder="Exámenes recientes, tratamientos, embarazo…" th:text="${historialPrevioNotas}"></textarea>
                             </div>
                         </div>
-                        <p class="historial-previo__nota">Se guarda en tu perfil para tus próximas citas. Puedes cambiarlo en «Mi historial».</p>
+                        <p class="historial-previo__nota">Se guarda en tu perfil para tus próximas citas. Puedes cambiarlo en «Mi historial».
+                            ¿Tienes dictámenes de otros médicos o exámenes? <a th:href="@{/pacientes/historial#mis-documentos}" target="_blank" rel="noopener">Adjúntalos en Mi historial</a> (PDF o foto) y el profesional los verá.</p>
                     </details>
                     <button type="submit" class="btn btn-primary btn-confirm" th:text="${submitLabel != null ? submitLabel : 'Confirmar cita'}">Confirmar cita</button>
                     <button type="button" class="btn btn-link btn-change" onclick="clearSlot()">Cambiar horario</button>

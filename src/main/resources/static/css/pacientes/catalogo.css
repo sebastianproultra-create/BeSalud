@@ -2031,6 +2031,17 @@ body.patient-catalog-page {
     gap: var(--space-2);
 }
 
+/* Lleva a "Mi historial" con la consulta abierta, para descargar el dictamen */
+.cita-dictamen__descargar {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    margin-bottom: var(--space-2);
+    color: var(--color-primary);
+    font-size: var(--font-size-xs);
+    font-weight: 600;
+}
+
 .doctor-profile-link {
     display: inline-flex;
     align-items: center;

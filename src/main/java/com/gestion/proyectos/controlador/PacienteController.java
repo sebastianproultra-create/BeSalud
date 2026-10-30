@@ -1,18 +1,27 @@
 package com.gestion.proyectos.controlador;
 
 import com.gestion.proyectos.modelo.Antecedentes;
+import com.gestion.proyectos.modelo.DocumentoClinico;
 import com.gestion.proyectos.modelo.Paciente;
+import com.gestion.proyectos.servicio.DocumentoClinicoService;
 import com.gestion.proyectos.servicio.HistorialClinicoService;
 import com.gestion.proyectos.servicio.PacienteService;
 import com.gestion.proyectos.servicio.CitaService;
 import com.gestion.proyectos.servicio.ReservaService;
 
+import org.springframework.http.ContentDisposition;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.nio.charset.StandardCharsets;
 
 @Controller
 @RequestMapping("/pacientes")
@@ -22,13 +31,15 @@ public class PacienteController {
     private final ReservaService reservaService;
     private final CitaService citaService;
     private final HistorialClinicoService historialClinicoService;
+    private final DocumentoClinicoService documentoClinicoService;
 
     public PacienteController(PacienteService pacienteService, ReservaService reservaService, CitaService citaService,
-            HistorialClinicoService historialClinicoService) {
+            HistorialClinicoService historialClinicoService, DocumentoClinicoService documentoClinicoService) {
         this.pacienteService = pacienteService;
         this.reservaService = reservaService;
         this.citaService = citaService;
         this.historialClinicoService = historialClinicoService;
+        this.documentoClinicoService = documentoClinicoService;
     }
 
     @GetMapping
@@ -118,8 +129,47 @@ public class PacienteController {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         var paciente = pacienteService.buscarPorEmail(auth.getName()).orElseThrow();
         model.addAttribute("historialClinico", historialClinicoService.historialDe(paciente.getId()).orElseThrow());
+        model.addAttribute("documentos", documentoClinicoService.listar(paciente.getId()));
         model.addAttribute("vistaMedico", false);
         return "historial/clinico";
+    }
+
+    /** El paciente adjunta un PDF o una foto (dictámenes de otros médicos, exámenes) para quienes lo atiendan. */
+    @PostMapping("/historial/documentos")
+    public String subirDocumento(@RequestParam(value = "archivo", required = false) MultipartFile archivo) {
+        var paciente = pacienteActual();
+        String error = documentoClinicoService.subir(paciente.getId(), archivo);
+        return error == null ? "redirect:/pacientes/historial?success=documento_subido#mis-documentos"
+                : "redirect:/pacientes/historial?error=documento_" + error + "#mis-documentos";
+    }
+
+    @GetMapping("/historial/documentos/{id}")
+    public ResponseEntity<byte[]> verDocumento(@PathVariable String id) {
+        return archivo(documentoClinicoService.buscar(pacienteActual().getId(), id).orElseThrow());
+    }
+
+    @PostMapping("/historial/documentos/{id}/eliminar")
+    public String eliminarDocumento(@PathVariable String id) {
+        documentoClinicoService.eliminar(pacienteActual().getId(), id);
+        return "redirect:/pacientes/historial?success=documento_eliminado#mis-documentos";
+    }
+
+    /**
+     * El archivo tal cual, para abrirlo en el navegador. El tipo es el que se comprobó al subirlo y no se guarda en
+     * caché: es información clínica.
+     */
+    static ResponseEntity<byte[]> archivo(DocumentoClinico d) {
+        return ResponseEntity.ok()
+                .contentType(MediaType.parseMediaType(d.getTipo()))
+                .header(HttpHeaders.CONTENT_DISPOSITION, ContentDisposition.inline()
+                        .filename(d.getNombre(), StandardCharsets.UTF_8).build().toString())
+                .header(HttpHeaders.CACHE_CONTROL, "private, no-store")
+                .body(d.getContenido());
+    }
+
+    private Paciente pacienteActual() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        return pacienteService.buscarPorEmail(auth.getName()).orElseThrow();
     }
 
     @PostMapping("/historial/antecedentes")
