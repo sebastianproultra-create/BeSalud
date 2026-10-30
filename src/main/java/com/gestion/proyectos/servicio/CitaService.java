@@ -90,10 +90,11 @@ public class CitaService {
                                                                   String pacienteIdPropio) {
         LinkedHashMap<String, List<String>> slots = new LinkedHashMap<>();
         LocalDate today = Reloj.hoy();
+        List<HorarioAtencion> horarios = horarioRepo.findByDoctorId(doctorId);
         for (int i = 0; i < 30; i++) {
             LocalDate fecha = today.plusDays(i);
-            List<LocalTime> tiempos = calcularSlotsDisponibles(doctorId, fecha, excludeCitaId, fechaActual, horaActual,
-                    pacienteIdPropio);
+            List<LocalTime> tiempos = calcularSlotsDisponibles(horarios, doctorId, fecha, excludeCitaId, fechaActual,
+                    horaActual, pacienteIdPropio);
             if (!tiempos.isEmpty()) {
                 slots.put(fecha.toString(), tiempos.stream().map(t -> t.toString().substring(0, 5)).toList());
             }
@@ -353,12 +354,14 @@ public class CitaService {
         return ocupadas;
     }
 
-    private List<LocalTime> calcularSlotsDisponibles(String doctorId, LocalDate fecha, String excludeCitaId,
-                                                      LocalDate fechaActual, LocalTime horaActual,
+    private List<LocalTime> calcularSlotsDisponibles(List<HorarioAtencion> horarios, String doctorId, LocalDate fecha,
+                                                      String excludeCitaId, LocalDate fechaActual, LocalTime horaActual,
                                                       String pacienteIdPropio) {
-        List<HorarioAtencion> horarios = horarioRepo.findByDoctorId(doctorId);
         List<LocalTime> slots = new ArrayList<>();
         java.time.DayOfWeek dia = fecha.getDayOfWeek();
+        // Sin horario ese día no hace falta consultar sus citas: ahorra dos consultas a Mongo por día libre
+        if (horarios.stream().noneMatch(h -> dia.equals(h.getDiaSemana())))
+            return slots;
         LocalDateTime ahora = Reloj.ahora();
         List<Cita> citasDelDia = ocupadasDelDia(doctorId, fecha, excludeCitaId, pacienteIdPropio);
 
