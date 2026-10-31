@@ -9,6 +9,8 @@ ENV PUPPETEER_SKIP_DOWNLOAD=true \
 
 WORKDIR /app
 COPY package*.json ./
-RUN npm ci --omit=dev
+# whatsapp-web.js viene del repositorio oficial y el lockfile lo pide por SSH: en el contenedor no hay llaves
+RUN git config --global url."https://github.com/".insteadOf ssh://git@github.com/ \
+    && npm ci --omit=dev
 COPY . .
 CMD ["node", "index.js"]
