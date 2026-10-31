@@ -126,7 +126,13 @@ for (const evento of ['message', 'message_create']) {
 client.on('ready', async () => {
   try {
     const chats = await client.getChats();
-    console.log(`Chats visibles: ${chats.length}, sin leer: ${chats.filter(c => c.unreadCount > 0).length}`);
+    const sinLeer = chats.filter(c => c.unreadCount > 0 && !c.isGroup);
+    console.log(`Chats visibles: ${chats.length}, sin leer: ${sinLeer.length}`);
+    // Lo que llegó mientras el bot estaba apagado o reiniciando también se contesta
+    for (const chat of sinLeer) {
+      const [ultimo] = await chat.fetchMessages({ limit: 1 });
+      if (ultimo && !ultimo.fromMe) await atender(ultimo).catch(e => console.error('Error con un pendiente', e.message));
+    }
   } catch (e) {
     console.warn('No se pudieron leer los chats', e.message);
   }
