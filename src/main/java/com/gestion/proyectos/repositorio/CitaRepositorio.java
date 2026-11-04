@@ -23,6 +23,15 @@ public interface CitaRepositorio extends MongoRepository<Cita, String> {
     List<Cita> findByFechaAndEstado(LocalDate fecha, EstadoCita estado);
     /** Citas pendientes que deben pagar el resto antes de la cita y aún no lo han hecho. */
     List<Cita> findByEstadoAndSaldoObligatorioTrueAndSaldoCentavosIsNull(EstadoCita estado);
+    List<Cita> findByFechaBetween(LocalDate desde, LocalDate hasta);
+    java.util.Optional<Cita> findFirstByEstadoInAndFechaLessThanEqualOrderByFechaDesc(List<EstadoCita> estados, LocalDate hasta);
+    List<Cita> findByAbonoCentavosIsNotNullAndLiquidacionIdIsNull();
+
+    /** Marca las citas como pagadas al médico sin reescribirlas; una ya liquidada no se vuelve a tocar. */
+    @Query("{ '_id': { '$in': ?0 }, 'liquidacionId': null }")
+    @org.springframework.data.mongodb.repository.Update("{ '$set': { 'liquidacionId': ?1 } }")
+    long marcarLiquidadas(List<String> ids, String liquidacionId);
+
     List<Cita> findByEstadoAbonoOrderByFechaAsc(com.gestion.proyectos.modelo.EstadoAbono estadoAbono);
     long countByEstadoAbono(com.gestion.proyectos.modelo.EstadoAbono estadoAbono);
     List<Cita> findByDoctorIdAndEstadoAbonoOrderByFechaAsc(String doctorId, com.gestion.proyectos.modelo.EstadoAbono estadoAbono);

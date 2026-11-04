@@ -1,0 +1,129 @@
+/* Generado por scripts/generar_tema_oscuro.py a partir de admin/ganancias.css. No editar a mano:
+   los ajustes van en base/tema-oscuro.css o en el generador. */
+
+html[data-tema="oscuro"] .gan-cabecera h1 {
+    color: var(--color-text--t);
+}
+
+html[data-tema="oscuro"] .gan-cabecera p {
+    color: var(--color-text-muted--t);
+}
+
+html[data-tema="oscuro"] .gan-main h2 {
+    color: var(--color-text--t);
+}
+
+html[data-tema="oscuro"] .gan-main h3 {
+    color: var(--color-text--t);
+}
+
+html[data-tema="oscuro"] .gan-nota {
+    color: var(--color-text-muted--t);
+}
+
+html[data-tema="oscuro"] .gan-saldo span,
+html[data-tema="oscuro"] .gan-saldo small {
+    color: var(--color-text-muted--t);
+}
+
+html[data-tema="oscuro"] .gan-saldo strong {
+    color: var(--color-text--t);
+}
+
+html[data-tema="oscuro"] .bs-card.gan-saldo--destacado {
+    background-color: var(--color-primary-soft--f);
+    background-image: none;
+    border-color: var(--color-primary--b);
+}
+
+html[data-tema="oscuro"] .gan-cuenta span,
+html[data-tema="oscuro"] .gan-cuenta small {
+    color: var(--color-text-muted--t);
+}
+
+html[data-tema="oscuro"] .gan-cuenta strong {
+    color: var(--color-text--t);
+}
+
+html[data-tema="oscuro"] .gan-cuenta__total {
+    border-top: 1px solid var(--color-border--b);
+}
+
+html[data-tema="oscuro"] .gan-barra {
+    fill: var(--color-border-strong--t);
+}
+
+html[data-tema="oscuro"] .gan-barra.is-actual {
+    fill: var(--color-primary--t);
+}
+
+html[data-tema="oscuro"] .gan-grafica__mes {
+    fill: var(--color-text-muted--t);
+}
+
+html[data-tema="oscuro"] .gan-metricas span,
+html[data-tema="oscuro"] .gan-metricas small {
+    color: var(--color-text-muted--t);
+}
+
+html[data-tema="oscuro"] .gan-metricas strong {
+    color: var(--color-text--t);
+}
+
+html[data-tema="oscuro"] .gan-progreso {
+    accent-color: var(--color-primary);
+}
+
+html[data-tema="oscuro"] .gan-pago strong {
+    color: var(--color-text--t);
+}
+
+html[data-tema="oscuro"] .gan-pago small {
+    color: var(--color-text-muted--t);
+}
+
+html[data-tema="oscuro"] .gan-tarjeta__monto {
+    color: var(--color-text--t);
+}
+
+html[data-tema="oscuro"] .gan-datos dt {
+    color: var(--color-text-muted--t);
+}
+
+html[data-tema="oscuro"] .gan-datos dd {
+    color: var(--color-text--t);
+}
+
+html[data-tema="oscuro"] .gan-form {
+    background-color: transparent;
+    background-image: none;
+    border: 0;
+    border-top: 1px solid var(--color-border--b);
+    box-shadow: none;
+}
+
+html[data-tema="oscuro"] .gan-ayuda > summary {
+    color: var(--color-text--t);
+}
+
+html[data-tema="oscuro"] .gan-ayuda ol {
+    color: var(--color-text--t);
+}
+
+html[data-tema="oscuro"] .gan-opo small {
+    color: var(--color-text-muted--t);
+}
+
+html[data-tema="oscuro"] .gan-opo p {
+    color: var(--color-text--t);
+}
+
+html[data-tema="oscuro"] .gan-senales li {
+    color: var(--color-text--t);
+}
+
+@media (min-width: 48rem) {
+html[data-tema="oscuro"] .gan-cuenta__total {
+    border-top: 0;
+}
+}

@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org"
+      th:with="loc=${T(java.util.Locale).forLanguageTag('es-CO')}">
+<head>
+    <meta charset="UTF-8">
+    <title>Mis ganancias - BeSalud</title>
+    <link rel="stylesheet" th:href="@{/css/base/global.css}">
+    <link rel="stylesheet" th:href="@{/css/admin/ganancias.css}">
+    <th:block th:replace="~{fragments/layout :: design-system}"></th:block>
+    <link rel="stylesheet" th:href="@{/css/base/tema-oscuro.css}">
+    <script th:src="@{/js/tema.js}"></script>
+</head>
+<body>
+<header th:replace="~{fragments/navbar :: navbar}"></header>
+
+<main class="bs-container gan-main"
+      th:with="etiquetaMes=${#strings.capitalize(#temporals.format(g.mes().atDay(1), 'MMMM yyyy', loc))}">
+    <div class="gan-cabecera">
+        <div>
+            <h1>Mis ganancias</h1>
+            <p th:text="${'BeSalud recibe los pagos, descuenta su comisión (hoy ' + g.porcentajeVigente() + ' %) y te paga el resto con comprobante.'}">Comisión</p>
+        </div>
+        <a class="bs-btn bs-btn--secondary bs-btn--small" th:href="@{/doctores}">
+            <span class="material-symbols-outlined" aria-hidden="true">arrow_back</span>Mi panel
+        </a>
+    </div>
+
+    <section class="gan-saldos" aria-label="Tu dinero hoy">
+        <div class="bs-card gan-saldo gan-saldo--destacado">
+            <span>Por pagarte</span>
+            <strong th:text="${'$' + #numbers.formatInteger(g.porLiquidarPesos(), 1, 'POINT')}">$0</strong>
+            <small>Ya es tuyo: va en el próximo pago</small>
+        </div>
+        <div class="bs-card gan-saldo">
+            <span>En citas por atender</span>
+            <strong th:text="${'$' + #numbers.formatInteger(g.enCursoPesos(), 1, 'POINT')}">$0</strong>
+            <small>Será tuyo cuando las atiendas</small>
+        </div>
+        <div class="bs-card gan-saldo">
+            <span>Ya pagado</span>
+            <strong th:text="${'$' + #numbers.formatInteger(g.pagadoPesos(), 1, 'POINT')}">$0</strong>
+            <small th:text="${#lists.size(g.liquidaciones()) == 1 ? 'En 1 pago' : 'En ' + #lists.size(g.liquidaciones()) + ' pagos'}">Pagos</small>
+        </div>
+    </section>
+
+    <details class="bs-card gan-ayuda">
+        <summary>¿Cómo funcionan mis pagos?</summary>
+        <ol>
+            <li>El paciente paga en línea y el dinero entra a la cuenta de BeSalud. Aquí solo aparece lo que se paga en línea.</li>
+            <li>Cuando atiendes la cita, o el paciente no asiste, cancela tarde o no paga a tiempo, ese dinero pasa a ser tuyo, menos la comisión.</li>
+            <li>BeSalud te transfiere lo acumulado en “Por pagarte”, te avisa por correo y aquí ves el comprobante.</li>
+        </ol>
+        <p class="gan-nota">Si la cita se cancela a tiempo, el dinero se le devuelve al paciente y no cuenta como ganancia.</p>
+    </details>
+
+    <div class="gan-meses" role="navigation" aria-label="Cambiar de mes">
+        <a class="bs-btn bs-btn--ghost bs-btn--small" th:href="@{/doctores/ganancias(mes=${g.anterior()})}" aria-label="Mes anterior">
+            <span class="material-symbols-outlined" aria-hidden="true">chevron_left</span>
+        </a>
+        <h2 th:text="${etiquetaMes}">Septiembre 2026</h2>
+        <a class="bs-btn bs-btn--ghost bs-btn--small" th:if="${g.siguiente() != null}"
+           th:href="@{/doctores/ganancias(mes=${g.siguiente()})}" aria-label="Mes siguiente">
+            <span class="material-symbols-outlined" aria-hidden="true">chevron_right</span>
+        </a>
+    </div>
+
+    <section class="bs-card gan-bloque" aria-labelledby="gan-cuanto">
+        <h3 id="gan-cuanto">¿Cuánto gané?</h3>
+        <div class="gan-cuenta">
+            <div>
+                <span>Cobrado a pacientes</span>
+                <strong th:text="${'$' + #numbers.formatInteger(g.brutoPesos(), 1, 'POINT')}">$0</strong>
+            </div>
+            <span class="gan-cuenta__signo" aria-hidden="true">−</span>
+            <div>
+                <span>Comisión de BeSalud</span>
+                <strong th:text="${'$' + #numbers.formatInteger(g.comisionPesos(), 1, 'POINT')}">$0</strong>
+            </div>
+            <span class="gan-cuenta__signo" aria-hidden="true">=</span>
+            <div class="gan-cuenta__total">
+                <span>Tu ganancia</span>
+                <strong th:text="${'$' + #numbers.formatInteger(g.netoPesos(), 1, 'POINT')}">$0</strong>
+                <small th:if="${g.variacion() != null}"
+                       th:text="${(g.variacion() >= 0 ? '+' : '') + g.variacion() + ' % frente al mes anterior'}">+10 %</small>
+            </div>
+        </div>
+
+        <svg class="gan-grafica" viewBox="0 0 600 170" role="img" aria-label="Tu ganancia en los últimos 6 meses">
+            <g th:each="m, it : ${g.grafica()}">
+                <title th:text="${m.etiqueta() + ': $' + #numbers.formatInteger(m.netoPesos(), 1, 'POINT')}">Mes</title>
+                <rect width="60" rx="6" th:classappend="${m.actual()} ? 'is-actual'" class="gan-barra"
+                      th:attr="x=${30 + it.index * 95},y=${135 - m.altura()},height=${m.altura()}"></rect>
+                <text class="gan-grafica__mes" text-anchor="middle" th:attr="x=${60 + it.index * 95}" y="158" th:text="${m.etiqueta()}">sep</text>
+            </g>
+        </svg>
+    </section>
+
+    <section class="bs-card gan-bloque" aria-labelledby="gan-renta">
+        <h3 id="gan-renta">¿Me renta?</h3>
+        <div class="gan-metricas">
+            <div>
+                <span>Ocupación</span>
+                <strong th:text="${g.ocupacion() + ' %'}">0 %</strong>
+                <progress class="gan-progreso" max="100" th:value="${g.ocupacion()}" aria-label="Ocupación del mes"></progress>
+                <small th:text="${g.turnosOcupados() + ' de ' + g.turnosOfrecidos() + ' turnos'}">Turnos</small>
+            </div>
+            <div>
+                <span>Ganancia por hora ofrecida</span>
+                <strong th:text="${'$' + #numbers.formatInteger(g.ingresoPorHora(), 1, 'POINT')}">$0</strong>
+                <small th:text="${g.horasOfrecidas() + ' horas en tu horario'}">Horas</small>
+            </div>
+            <div>
+                <span>Cupos vacíos</span>
+                <strong th:text="${g.cuposVacios()}">0</strong>
+                <small th:text="${'Podrían valer $' + #numbers.formatInteger(g.valorCuposVacios(), 1, 'POINT') + ' (estimado)'}">Estimado</small>
+            </div>
+            <div>
+                <span>Atendidas · faltas · canceladas</span>
+                <strong th:text="${g.atendidas() + ' · ' + g.noAsistio() + ' · ' + g.canceladas()}">0</strong>
+                <small>Citas de este mes</small>
+            </div>
+        </div>
+        <p class="gan-nota">La ocupación se calcula con tu horario actual. No incluye tus costos (consultorio, insumos): mira la ganancia por hora frente a lo que te cuesta atender.</p>
+    </section>
+
+    <section class="gan-bloque-plano" aria-labelledby="gan-como">
+        <h3 id="gan-como">¿Cómo lo gané?</h3>
+        <p class="gan-nota" th:if="${#lists.isEmpty(g.lineas())}">No tienes pagos en línea este mes.</p>
+        <div class="bs-table-wrap" th:unless="${#lists.isEmpty(g.lineas())}">
+            <table class="bs-table">
+                <thead>
+                    <tr>
+                        <th scope="col">Cita</th>
+                        <th scope="col">Paciente</th>
+                        <th scope="col">Qué pasó</th>
+                        <th scope="col" class="gan-num">Cobrado</th>
+                        <th scope="col" class="gan-num">Comisión</th>
+                        <th scope="col" class="gan-num">Te queda</th>
+                        <th scope="col">Pago</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="l : ${g.lineas()}">
+                        <td class="gan-nowrap" th:text="${#temporals.format(l.fecha(), 'd MMM', loc)}">9 sep</td>
+                        <td th:text="${l.paciente()}">Paciente</td>
+                        <td><span th:class="${'bs-badge bs-badge--' + l.origen().tono}" th:text="${l.origen().texto}">Atendida</span></td>
+                        <td class="gan-num" th:text="${'$' + #numbers.formatInteger(l.brutoPesos(), 1, 'POINT')}">$0</td>
+                        <td class="gan-num" th:text="${l.origen().ganancia ? '$' + #numbers.formatInteger(l.comisionPesos(), 1, 'POINT') + ' (' + l.porcentaje() + ' %)' : '—'}">$0</td>
+                        <td class="gan-num gan-fuerte" th:text="${l.origen().ganancia ? '$' + #numbers.formatInteger(l.netoPesos(), 1, 'POINT') : '—'}">$0</td>
+                        <td class="gan-nowrap" th:text="${l.liquidacionCodigo() != null ? l.liquidacionCodigo() : (l.origen().ganancia ? 'Por pagarte' : '—')}">Por pagarte</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <section class="gan-bloque-plano" aria-labelledby="gan-pagos">
+        <h3 id="gan-pagos">Pagos que te ha hecho BeSalud</h3>
+        <p class="gan-nota" th:if="${#lists.isEmpty(g.liquidaciones())}">Aún no te han hecho pagos.</p>
+        <ul class="gan-lista" th:unless="${#lists.isEmpty(g.liquidaciones())}">
+            <li th:each="l : ${g.liquidaciones()}" class="bs-card gan-pago">
+                <div>
+                    <strong th:text="${'$' + #numbers.formatInteger(l.netoPesos, 1, 'POINT')}">$0</strong>
+                    <small th:text="${l.codigo + ' · ' + #temporals.format(l.registradaEn, 'd MMM yyyy', loc) + ' · ' + #lists.size(l.citaIds) + ' citas'}">LIQ</small>
+                    <small th:text="${l.medio + ', operación ' + l.numeroOperacion}">Medio</small>
+                </div>
+                <a class="bs-btn bs-btn--secondary bs-btn--small" th:href="@{/doctores/ganancias/liquidaciones/{c}/comprobante(c=${l.codigo})}"
+                   target="_blank" rel="noopener">
+                    <span class="material-symbols-outlined" aria-hidden="true" th:text="${l.comprobantePdf ? 'picture_as_pdf' : 'image'}">image</span>Ver comprobante
+                </a>
+            </li>
+        </ul>
+    </section>
+</main>
+
+<footer th:replace="~{fragments/layout :: app-footer}"></footer>
+</body>
+</html>

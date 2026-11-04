@@ -624,15 +624,16 @@
                     <p th:text="${'Resumen de ' + #temporals.format(hoy, 'MMMM', loc) + ' y devoluciones pendientes'}">Resumen del mes</p>
                 </div>
             </div>
+            <a class="bs-btn bs-btn--secondary bs-btn--small" th:href="@{/doctores/ganancias}">Ver mis ganancias</a>
         </div>
 
         <div th:if="${exitoAbonos}" class="alert alert-success" role="status" th:text="${exitoAbonos}"></div>
 
         <div class="abonos-resumen">
             <div class="abonos-dato">
-                <span>Recibidos este mes</span>
+                <span>Pagados este mes</span>
                 <strong th:text="${'$' + #numbers.formatInteger(abonos.cobradosMes, 1, 'POINT')}">$0</strong>
-                <small>Citas pagadas del mes</small>
+                <small>Por tus pacientes, antes de la comisión</small>
             </div>
             <div class="abonos-dato">
                 <span>Conservados</span>

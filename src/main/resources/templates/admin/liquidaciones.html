@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org"
+      th:with="loc=${T(java.util.Locale).forLanguageTag('es-CO')}">
+<head>
+    <meta charset="UTF-8">
+    <title>Pagos a médicos - BeSalud</title>
+    <link rel="stylesheet" th:href="@{/css/base/global.css}">
+    <link rel="stylesheet" th:href="@{/css/admin/ganancias.css}">
+    <th:block th:replace="~{fragments/layout :: design-system}"></th:block>
+    <link rel="stylesheet" th:href="@{/css/base/tema-oscuro.css}">
+    <script th:src="@{/js/tema.js}"></script>
+</head>
+<body>
+<header th:replace="~{fragments/navbar :: navbar}"></header>
+
+<main class="bs-container gan-main">
+    <div class="gan-cabecera">
+        <div>
+            <h1>Pagos a médicos</h1>
+            <p th:text="${'Primero transfiere el monto desde el banco; BeSalud no mueve el dinero. Después regístralo aquí con su comprobante para que el médico lo vea. La comisión de las citas nuevas es del ' + comision + ' %; cada cita conserva la que tenía al reservarse.'}">Comisión</p>
+        </div>
+    </div>
+
+    <div th:if="${param.registrada != null}" class="bs-alert bs-alert--success" role="status">
+        Registramos el pago. El médico ya lo ve en Mis ganancias con su comprobante y le avisamos por correo.
+    </div>
+    <div th:if="${param.error != null and param.error[0] == 'archivo_tamano'}" class="bs-alert bs-alert--danger" role="alert">
+        El comprobante pesa más de 5 MB. No se registró el pago.
+    </div>
+    <div th:if="${param.error != null and param.error[0] == 'sin_saldo'}" class="bs-alert bs-alert--danger" role="alert">
+        Ese médico ya no tiene saldo por pagar.
+    </div>
+
+    <section class="gan-bloque-plano" aria-labelledby="gan-deuda">
+        <h2 id="gan-deuda">Por pagar <span class="bs-badge bs-badge--warning" th:text="${#lists.size(porLiquidar)}">0</span></h2>
+        <p class="gan-nota" th:if="${#lists.isEmpty(porLiquidar)}">No hay pagos pendientes.</p>
+
+        <article th:each="p : ${porLiquidar}" class="bs-card gan-tarjeta" th:id="${'medico-' + p.doctorId()}">
+            <div class="gan-tarjeta__cabeza">
+                <div>
+                    <h3 th:text="${p.medico()}">Médico</h3>
+                    <p class="gan-nota" th:text="${(p.especialidad() ?: 'Sin especialidad') + (p.email() != null ? ' · ' + p.email() : '')}">Especialidad</p>
+                </div>
+                <strong class="gan-tarjeta__monto" th:text="${'$' + #numbers.formatInteger(p.netoPesos(), 1, 'POINT')}">$0</strong>
+            </div>
+            <dl class="gan-datos">
+                <div><dt>Citas</dt><dd th:text="${p.citas()}">0</dd></div>
+                <div><dt>Periodo</dt><dd th:text="${#temporals.format(p.desde(), 'd MMM yyyy', loc) + ' – ' + #temporals.format(p.hasta(), 'd MMM yyyy', loc)}">Periodo</dd></div>
+                <div><dt>Cobrado a pacientes</dt><dd th:text="${'$' + #numbers.formatInteger(p.brutoPesos(), 1, 'POINT')}">$0</dd></div>
+                <div><dt>Comisión de BeSalud</dt><dd th:text="${'$' + #numbers.formatInteger(p.comisionPesos(), 1, 'POINT')}">$0</dd></div>
+            </dl>
+
+            <div th:if="${param.doctor != null and param.doctor[0] == p.doctorId() and param.error != null}"
+                 class="bs-alert bs-alert--danger" role="alert" th:switch="${param.error[0]}">
+                <span th:case="'medio'">Elige por dónde hiciste el pago.</span>
+                <span th:case="'numero'">Escribe el número de operación: de 4 a 60 letras o números.</span>
+                <span th:case="'numero_usado'">Ese número de operación ya está en otro pago. Revisa que sea el correcto.</span>
+                <span th:case="'monto'" th:text="${'El monto debe ser exactamente $' + #numbers.formatInteger(p.netoPesos(), 1, 'POINT') + '. Si acaba de cambiar, es porque entró otra cita: paga la diferencia antes de registrar.'}">Monto</span>
+                <span th:case="'archivo_vacio'">Adjunta el comprobante del pago.</span>
+                <span th:case="'archivo_tipo'">El comprobante debe ser un PDF, JPG o PNG.</span>
+                <span th:case="'archivo_usado'">Ese mismo archivo ya se usó en otro pago. Adjunta el comprobante de este.</span>
+                <span th:case="*">No pudimos registrar el pago. Intenta de nuevo.</span>
+            </div>
+
+            <details class="gan-registrar" th:with="conError=${param.doctor != null and param.doctor[0] == p.doctorId()}" th:attr="open=${conError ? 'open' : null}">
+                <summary class="bs-btn bs-btn--primary bs-btn--small">Ya le pagué: registrar pago</summary>
+            <form class="gan-form" th:action="@{/admin/liquidaciones/{id}/registrar(id=${p.doctorId()})}" method="post"
+                  enctype="multipart/form-data"
+                  th:attr="data-confirmar=${'¿Ya le pagaste $' + #numbers.formatInteger(p.netoPesos(), 1, 'POINT') + ' a ' + p.medico() + '?'}"
+                  onsubmit="return confirm(this.dataset.confirmar);">
+                <div class="bs-field">
+                    <label class="bs-field__label" th:for="${'medio-' + p.doctorId()}">Medio del pago</label>
+                    <select class="bs-field__control" th:id="${'medio-' + p.doctorId()}" name="medio" required>
+                        <option value="">Elige…</option>
+                        <option th:each="m : ${medios}" th:value="${m}" th:text="${m}">Nequi</option>
+                    </select>
+                </div>
+                <div class="bs-field">
+                    <label class="bs-field__label" th:for="${'numero-' + p.doctorId()}">Número de operación</label>
+                    <input class="bs-field__control" th:id="${'numero-' + p.doctorId()}" type="text" name="numeroOperacion"
+                           required minlength="4" maxlength="60" autocomplete="off">
+                </div>
+                <div class="bs-field">
+                    <label class="bs-field__label" th:for="${'monto-' + p.doctorId()}">Monto pagado</label>
+                    <input class="bs-field__control" th:id="${'monto-' + p.doctorId()}" type="text" name="monto" inputmode="numeric"
+                           required autocomplete="off" th:placeholder="${#numbers.formatInteger(p.netoPesos(), 1, 'POINT')}">
+                </div>
+                <div class="bs-field">
+                    <label class="bs-field__label" th:for="${'archivo-' + p.doctorId()}">Comprobante (PDF, JPG o PNG)</label>
+                    <input class="bs-field__control" th:id="${'archivo-' + p.doctorId()}" type="file" name="comprobante" required
+                           accept="application/pdf,image/jpeg,image/png,.pdf,.jpg,.jpeg,.png">
+                </div>
+                <button type="submit" class="bs-btn bs-btn--primary gan-form__enviar">
+                    <span class="material-symbols-outlined" aria-hidden="true">verified</span>Registrar pago
+                </button>
+            </form>
+            </details>
+        </article>
+    </section>
+
+    <section class="gan-bloque-plano" id="registradas" aria-labelledby="gan-registradas">
+        <h2 id="gan-registradas">Pagos registrados</h2>
+        <p class="gan-nota" th:if="${#lists.isEmpty(registradas)}">Aún no se ha registrado ningún pago.</p>
+        <ul class="gan-lista" th:unless="${#lists.isEmpty(registradas)}">
+            <li th:each="r : ${registradas}" th:with="l=${r.liquidacion()}" class="bs-card gan-pago">
+                <div>
+                    <strong th:text="${r.medico() + ' · $' + #numbers.formatInteger(l.netoPesos, 1, 'POINT')}">Médico</strong>
+                    <small th:text="${l.codigo + ' · ' + #temporals.format(l.registradaEn, 'd MMM yyyy, h:mm a', loc) + ' · ' + #lists.size(l.citaIds) + ' citas · comisión $' + #numbers.formatInteger(l.comisionPesos, 1, 'POINT')}">LIQ</small>
+                    <small th:text="${l.medio + ', operación ' + l.numeroOperacion + ' · registró ' + l.registradaPor}">Medio</small>
+                    <small class="gan-huella" th:text="${'Huella del comprobante (cambia si alguien altera el archivo): ' + l.comprobanteHash}">Huella</small>
+                </div>
+                <a class="bs-btn bs-btn--secondary bs-btn--small" th:href="@{/admin/liquidaciones/{c}/comprobante(c=${l.codigo})}"
+                   target="_blank" rel="noopener">
+                    <span class="material-symbols-outlined" aria-hidden="true" th:text="${l.comprobantePdf ? 'picture_as_pdf' : 'image'}">image</span>Ver comprobante
+                </a>
+            </li>
+        </ul>
+    </section>
+</main>
+
+<footer th:replace="~{fragments/layout :: app-footer}"></footer>
+</body>
+</html>

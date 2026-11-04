@@ -33,11 +33,13 @@
     const currentPath = window.location.pathname.replace(/\/+$/, "") || "/";
     menu.querySelectorAll("[data-route]").forEach((link) => {
         const route = link.dataset.route;
-        const matches = link.hasAttribute("data-route-exact")
+        const except = link.dataset.routeExcept;
+        const excluded = except && (currentPath === except || currentPath.startsWith(`${except}/`));
+        const matches = !excluded && (link.hasAttribute("data-route-exact")
             ? currentPath === route
             : route === "/"
             ? currentPath === "/"
-            : currentPath === route || currentPath.startsWith(`${route}/`);
+            : currentPath === route || currentPath.startsWith(`${route}/`));
         if (matches) {
             link.classList.add("is-active");
             link.setAttribute("aria-current", "page");

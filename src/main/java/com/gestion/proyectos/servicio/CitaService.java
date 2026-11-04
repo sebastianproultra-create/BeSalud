@@ -46,6 +46,9 @@ public class CitaService {
     private final HorarioAtencionRepositorio horarioRepo;
     private final ApplicationEventPublisher eventos;
     private final ReservaRepositorio reservaRepo;
+    /** Comisión de BeSalud para las citas que se reservan desde ahora; cada cita conserva la suya. */
+    @org.springframework.beans.factory.annotation.Value("${besalud.comision.porcentaje:10}")
+    private int comisionPorcentaje;
 
     /** El turno lo tomó otra cita o una reserva en pago (lo detecta el índice único de Mongo). */
     public static class TurnoOcupadoException extends RuntimeException {
@@ -135,6 +138,7 @@ public class CitaService {
         cita.setReferenciaPago(reserva.getReferencia());
         cita.setMedioPago(reserva.getMedioPago());
         cita.setEstadoAbono(EstadoAbono.PAGADO);
+        cita.setComisionPorcentaje(comisionPorcentaje);
         cita.setSaldoObligatorio(true);
         if (reserva.isPagoTotal() && reserva.getMontoCentavos() > abono) {
             cita.setSaldoCentavos(reserva.getMontoCentavos() - abono);

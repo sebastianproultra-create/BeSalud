@@ -7,6 +7,7 @@ import com.gestion.proyectos.modelo.DevolucionSinCitaEvento;
 import com.gestion.proyectos.modelo.Doctor;
 import com.gestion.proyectos.modelo.EstadoAbono;
 import com.gestion.proyectos.modelo.EstadoCita;
+import com.gestion.proyectos.modelo.LiquidacionRegistradaEvento;
 import com.gestion.proyectos.modelo.Paciente;
 import com.gestion.proyectos.modelo.Reserva;
 import com.gestion.proyectos.repositorio.CitaRepositorio;
@@ -48,6 +49,23 @@ public class NotificacionService {
         this.correo = correo;
         this.whatsapp = whatsapp;
         this.urlApp = urlApp.replaceAll("/+$", "");
+    }
+
+    /** BeSalud le pagó al médico: se le avisa para que revise el comprobante en Mis ganancias. */
+    @Async
+    @EventListener
+    public void alRegistrarLiquidacion(LiquidacionRegistradaEvento evento) {
+        Doctor doctor = personaRepo.findById(evento.doctorId()).filter(Doctor.class::isInstance).map(Doctor.class::cast).orElse(null);
+        if (doctor == null)
+            return;
+        String nombre = doctor.getNombre() + " " + doctor.getApellido();
+        String html = "<p>Hola, " + HtmlUtils.htmlEscape(nombre) + ".</p><p>BeSalud registró un pago a tu favor por <strong>"
+                + pesos(evento.netoPesos()) + "</strong>, correspondiente a " + evento.citas()
+                + (evento.citas() == 1 ? " cita" : " citas") + ".</p><p>Medio: " + HtmlUtils.htmlEscape(evento.medio())
+                + "<br>Operación: " + HtmlUtils.htmlEscape(evento.numeroOperacion()) + "<br>Código: "
+                + HtmlUtils.htmlEscape(evento.codigo()) + "</p><p><a href=\"" + urlApp
+                + "/doctores/ganancias\">Ver el comprobante en Mis ganancias</a></p>";
+        correo.enviar(doctor.getEmail(), nombre, "Registramos un pago a tu favor · BeSalud", html);
     }
 
     /** El pago nunca tuvo cita: se avisa con los datos del turno que se quería reservar. */

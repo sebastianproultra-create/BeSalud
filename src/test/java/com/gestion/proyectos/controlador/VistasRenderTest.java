@@ -62,7 +62,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 /** Comprueba que las plantillas con mensajes de error y botones nuevos renderizan sin fallar. */
-@WebMvcTest({DevolucionController.class, DoctorController.class, PacienteController.class, CitaController.class, LoginController.class,
+@WebMvcTest({GananciasController.class, DevolucionController.class, DoctorController.class, PacienteController.class, CitaController.class, LoginController.class,
         RolSelectionController.class, TriageController.class, PerfilPublicoController.class, HomeController.class})
 @Import(SecurityConfig.class)
 class VistasRenderTest {
@@ -83,6 +83,8 @@ class VistasRenderTest {
     @MockBean private com.gestion.proyectos.servicio.HistorialClinicoService historialClinicoService;
     @MockBean private com.gestion.proyectos.servicio.DocumentoClinicoService documentoClinicoService;
     @MockBean private com.gestion.proyectos.servicio.DevolucionService devolucionService;
+    @MockBean private com.gestion.proyectos.servicio.GananciasService gananciasService;
+    @MockBean private com.gestion.proyectos.servicio.OportunidadesService oportunidadesService;
     @MockBean private CustomUserDetailsService customUserDetailsService;
     @MockBean private PersonaRepositorio personaRepositorio;
     @MockBean private AdminRepositorio adminRepositorio;
@@ -855,6 +857,82 @@ class VistasRenderTest {
         mockMvc.perform(get("/pacientes/devoluciones/DEV-1").with(user("paciente@test.com").roles("PACIENTE")))
                 .andExpect(status().isOk())
                 .andExpect(content().string(not(containsString("Sí, me llegó"))));
+    }
+
+    @Test
+    void ganancias_elMedicoVeCuantoGanoComoLoGanoYSusPagos() throws Exception {
+        var doctor = new com.gestion.proyectos.modelo.Doctor();
+        doctor.setId("d1");
+        when(doctorService.buscarPorEmail("doc@test.com")).thenReturn(java.util.Optional.of(doctor));
+        var mes = java.time.YearMonth.of(2026, 9);
+        var pago = new com.gestion.proyectos.modelo.Liquidacion();
+        pago.setCodigo("LIQ-1");
+        pago.setNetoPesos(72_000);
+        pago.setMedio("Nequi");
+        pago.setNumeroOperacion("NEQ123456");
+        pago.setRegistradaEn(java.time.LocalDateTime.of(2026, 10, 1, 9, 0));
+        pago.setComprobanteTipo("image/png");
+        var linea = new com.gestion.proyectos.servicio.GananciasService.Linea(mes.atDay(9), java.time.LocalTime.of(9, 0), "Ana Ruiz",
+                com.gestion.proyectos.servicio.GananciasService.Origen.ATENDIDA, 80_000, 10, 8_000, 72_000, "LIQ-1");
+        when(gananciasService.panel(eq("d1"), eq(mes))).thenReturn(new com.gestion.proyectos.servicio.GananciasService.Panel(
+                mes, mes.minusMonths(1), mes.plusMonths(1), 10, 80_000, 8_000, 72_000, 20, 5_000, 18_000, 72_000, 1, 0, 0,
+                100, 40, 60, 40, 50, 1_440, 4_320_000, java.util.List.of(linea),
+                java.util.List.of(new com.gestion.proyectos.servicio.GananciasService.MesGrafica("sep", 72_000, 120, true)),
+                java.util.List.of(pago)));
+
+        mockMvc.perform(get("/doctores/ganancias").param("mes", "2026-09").with(user("doc@test.com").roles("DOCTOR")))
+                .andExpect(status().isOk())
+                .andExpect(content().string(containsString("Septiembre 2026")))
+                .andExpect(content().string(containsString("$72.000")))
+                .andExpect(content().string(containsString("+20 % frente al mes anterior")))
+                .andExpect(content().string(containsString("Consulta atendida")))
+                .andExpect(content().string(containsString("NEQ123456")));
+    }
+
+    @Test
+    void liquidaciones_elAdminVeLoQueDebeYLosErrores() throws Exception {
+        when(gananciasService.porLiquidar()).thenReturn(java.util.List.of(new com.gestion.proyectos.servicio.GananciasService.PorLiquidar(
+                "d1", "Luis Paz", "Pediatría", "luis@x.co", 3, 240_000, 24_000, 216_000,
+                java.time.LocalDate.of(2026, 9, 1), java.time.LocalDate.of(2026, 9, 20))));
+
+        mockMvc.perform(get("/admin/liquidaciones").param("error", "monto").param("doctor", "d1")
+                        .with(user("admin@besalud.com").roles("ADMIN")))
+                .andExpect(status().isOk())
+                .andExpect(content().string(containsString("$216.000")))
+                .andExpect(content().string(containsString("El monto debe ser exactamente $216.000")))
+                .andExpect(content().string(containsString("/admin/liquidaciones/d1/registrar")));
+    }
+
+    @Test
+    void oportunidades_muestraLaSenalYLaAccionSugerida() throws Exception {
+        var senal = new com.gestion.proyectos.servicio.OportunidadesService.Senal("Baja ocupación", "warning", "Revisar la causa");
+        var pediatria = new com.gestion.proyectos.servicio.OportunidadesService.Especialidad("Pediatría", 2, 50, 100, 50,
+                new com.gestion.proyectos.servicio.OportunidadesService.Senal("Faltan médicos", "warning", "Atraer médicos"));
+        var medico = new com.gestion.proyectos.servicio.OportunidadesService.Medico("Luis Paz", "Pediatría", "luis@x.co", "300",
+                10, 100, 10, 5, java.util.List.of(senal));
+        when(oportunidadesService.calcular()).thenReturn(new com.gestion.proyectos.servicio.OportunidadesService.Panel(
+                java.time.LocalDate.of(2026, 8, 17), java.time.LocalDate.of(2026, 10, 15), 30, pediatria, pediatria,
+                java.util.List.of(pediatria), java.util.List.of(medico), java.util.List.of(medico), 3));
+
+        mockMvc.perform(get("/admin/oportunidades").with(user("admin@besalud.com").roles("ADMIN")))
+                .andExpect(status().isOk())
+                .andExpect(content().string(containsString("Faltan médicos")))
+                .andExpect(content().string(containsString("Especialidad más usada")))
+                .andExpect(content().string(containsString("Médicos más usados")))
+                .andExpect(content().string(containsString("Baja ocupación")))
+                .andExpect(content().string(containsString("Revisar la causa")));
+    }
+
+    @Test
+    void ganancias_cadaPantallaSoloParaSuRol() throws Exception {
+        mockMvc.perform(get("/admin/liquidaciones").with(user("doc@test.com").roles("DOCTOR")))
+                .andExpect(status().isForbidden());
+        mockMvc.perform(get("/admin/oportunidades").with(user("doc@test.com").roles("DOCTOR")))
+                .andExpect(status().isForbidden());
+        mockMvc.perform(get("/doctores/ganancias").with(user("p@test.com").roles("PACIENTE")))
+                .andExpect(status().isForbidden());
+        mockMvc.perform(get("/doctores/ganancias").with(user("admin@besalud.com").roles("ADMIN")))
+                .andExpect(status().isForbidden());
     }
 
     @Test

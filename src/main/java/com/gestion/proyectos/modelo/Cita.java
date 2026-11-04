@@ -51,6 +51,10 @@ public class Cita {
     public static final String CANCELO_ADMIN = "ADMIN";
     private String canceladaPor;
     private LocalDateTime reembolsoSolicitadoEn;
+    /** Comisión de BeSalud pactada al reservar; null en las citas anteriores (se usa la vigente). */
+    private Integer comisionPorcentaje;
+    /** Liquidación con la que BeSalud ya le pagó esta cita al médico; null mientras no se haya pagado. */
+    private String liquidacionId;
     /** Medio y número de operación de la devolución, para los avisos al paciente (el detalle está en Devolucion). */
     private String medioDevolucion;
     private String numeroDevolucion;
@@ -71,6 +75,22 @@ public class Cita {
     private String referenciaSaldo;
     private String medioPagoSaldo;
     private LocalDateTime saldoPagadoEn;
+
+    public Integer getComisionPorcentaje() {
+        return comisionPorcentaje;
+    }
+
+    public void setComisionPorcentaje(Integer comisionPorcentaje) {
+        this.comisionPorcentaje = comisionPorcentaje;
+    }
+
+    public String getLiquidacionId() {
+        return liquidacionId;
+    }
+
+    public void setLiquidacionId(String liquidacionId) {
+        this.liquidacionId = liquidacionId;
+    }
 
     public String getCanceladaPor() {
         return canceladaPor;

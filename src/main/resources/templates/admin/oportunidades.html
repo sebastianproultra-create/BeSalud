@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org"
+      th:with="loc=${T(java.util.Locale).forLanguageTag('es-CO')}">
+<head>
+    <meta charset="UTF-8">
+    <title>Oportunidades - BeSalud</title>
+    <link rel="stylesheet" th:href="@{/css/base/global.css}">
+    <link rel="stylesheet" th:href="@{/css/admin/ganancias.css}">
+    <th:block th:replace="~{fragments/layout :: design-system}"></th:block>
+    <link rel="stylesheet" th:href="@{/css/base/tema-oscuro.css}">
+    <script th:src="@{/js/tema.js}"></script>
+</head>
+<body>
+<header th:replace="~{fragments/navbar :: navbar}"></header>
+
+<main class="bs-container gan-main">
+    <div class="gan-cabecera">
+        <div>
+            <h1>Oportunidades</h1>
+            <p th:text="${'Qué especialidades y médicos necesitan algo, según las citas del ' + #temporals.format(o.desde(), 'd MMM', loc) + ' al ' + #temporals.format(o.hasta(), 'd MMM yyyy', loc) + ' y los horarios actuales. Son sugerencias: la decisión es tuya.'}">Periodo</p>
+        </div>
+    </div>
+
+    <section class="gan-saldos" aria-label="Resumen">
+        <div class="bs-card gan-saldo">
+            <span>Ocupación de la plataforma</span>
+            <strong th:text="${o.ocupacionGlobal() + ' %'}">0 %</strong>
+            <small>Citas sobre los turnos ofrecidos</small>
+        </div>
+        <div class="bs-card gan-saldo" th:if="${o.masUsada() != null}">
+            <span>Especialidad más usada</span>
+            <strong th:text="${o.masUsada().nombre()}">Especialidad</strong>
+            <small th:text="${o.masUsada().ocupacion() + ' % de ocupación · ' + o.masUsada().citas() + ' citas'}">Datos</small>
+        </div>
+        <div class="bs-card gan-saldo" th:if="${o.menosUsada() != null}">
+            <span>Especialidad menos usada</span>
+            <strong th:text="${o.menosUsada().nombre()}">Especialidad</strong>
+            <small th:text="${o.menosUsada().ocupacion() + ' % de ocupación · ' + o.menosUsada().citas() + ' citas'}">Datos</small>
+        </div>
+    </section>
+
+    <section class="gan-bloque-plano" aria-labelledby="opo-especialidades">
+        <h2 id="opo-especialidades">Especialidades</h2>
+        <p class="gan-nota" th:if="${#lists.isEmpty(o.especialidades())}">Aún no hay médicos activos.</p>
+        <ul class="gan-lista gan-lista--rejilla" th:unless="${#lists.isEmpty(o.especialidades())}">
+            <li th:each="e : ${o.especialidades()}" class="bs-card gan-opo">
+                <div class="gan-opo__cabeza">
+                    <h3 th:text="${e.nombre()}">Especialidad</h3>
+                    <span th:class="${'bs-badge bs-badge--' + e.senal().tono()}" th:text="${e.senal().texto()}">Faltan médicos</span>
+                </div>
+                <progress class="gan-progreso" max="100" th:value="${e.ocupacion()}"
+                          th:attr="aria-label=${'Ocupación de ' + e.nombre()}"></progress>
+                <small th:text="${e.ocupacion() + ' % de ocupación · ' + e.citas() + ' citas de ' + e.capacidad() + ' turnos · ' + e.medicos() + (e.medicos() == 1 ? ' médico' : ' médicos')}">Datos</small>
+                <p th:text="${e.senal().accion()}">Acción</p>
+            </li>
+        </ul>
+    </section>
+
+    <section class="gan-bloque-plano" aria-labelledby="opo-usados" th:unless="${#lists.isEmpty(o.masUsados())}">
+        <h2 id="opo-usados">Médicos más usados</h2>
+        <div class="bs-table-wrap">
+            <table class="bs-table">
+                <thead>
+                    <tr>
+                        <th scope="col">Médico</th>
+                        <th scope="col">Especialidad</th>
+                        <th scope="col" class="gan-num">Citas</th>
+                        <th scope="col" class="gan-num">Ocupación</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="m : ${o.masUsados()}">
+                        <td th:text="${m.nombre()}">Médico</td>
+                        <td th:text="${m.especialidad()}">Especialidad</td>
+                        <td class="gan-num" th:text="${m.citas()}">0</td>
+                        <td class="gan-num" th:text="${m.ocupacion() + ' %'}">0 %</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <section class="gan-bloque-plano" aria-labelledby="opo-medicos">
+        <h2 id="opo-medicos">Médicos por revisar <span class="bs-badge bs-badge--warning" th:text="${#lists.size(o.porRevisar())}">0</span></h2>
+        <p class="gan-nota" th:text="${'Primero los más urgentes. Una ocupación baja no dice nada de la calidad de un médico: puede ser nuevo, tener pocos horarios o un precio alto. ' + o.sinNovedad() + (o.sinNovedad() == 1 ? ' médico activo va' : ' médicos activos van') + ' sin novedades.'}">Nota</p>
+        <ul class="gan-lista">
+            <li th:each="m : ${o.porRevisar()}" class="bs-card gan-opo">
+                <div class="gan-opo__cabeza">
+                    <div>
+                        <h3 th:text="${m.nombre()}">Médico</h3>
+                        <small th:text="${(m.especialidad() ?: 'Sin especialidad') + ' · ' + m.ocupacion() + ' % de ocupación · ' + m.cancelacion() + ' % de cancelaciones y faltas'}">Datos</small>
+                    </div>
+                    <a class="bs-btn bs-btn--secondary bs-btn--small" th:if="${m.email() != null}" th:href="${'mailto:' + m.email()}">
+                        <span class="material-symbols-outlined" aria-hidden="true">mail</span>Escribirle
+                    </a>
+                </div>
+                <ul class="gan-senales">
+                    <li th:each="s : ${m.senales()}">
+                        <span th:class="${'bs-badge bs-badge--' + s.tono()}" th:text="${s.texto()}">Señal</span>
+                        <span th:text="${s.accion()}">Acción</span>
+                    </li>
+                </ul>
+            </li>
+        </ul>
+    </section>
+</main>
+
+<footer th:replace="~{fragments/layout :: app-footer}"></footer>
+</body>
+</html>
