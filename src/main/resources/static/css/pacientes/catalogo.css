@@ -1968,9 +1968,18 @@ body.patient-catalog-page {
         order: -1;
     }
 
+    /* En celular el panel plegado sigue a la vista: anula el visibility/pointer-events del escritorio */
     .patient-catalog-page .patient-sidebar .sidebar-inner,
     .patient-catalog-page .patient-sidebar.collapsed .sidebar-inner {
         max-height: 420px;
+        visibility: visible;
+        opacity: 1;
+        pointer-events: auto;
+        transform: none;
+    }
+
+    .patient-catalog-page .patient-sidebar .sidebar-header {
+        cursor: pointer;
     }
 
     .patient-catalog-page .patient-sidebar.collapsed .sidebar-body {

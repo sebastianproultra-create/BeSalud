@@ -383,6 +383,10 @@ function toggleSidebar() {
     if (celular.matches) sidebar.classList.toggle('collapsed');
 }
 if (celular.matches) sidebar.classList.add('collapsed');
+// Toda la barra "Mis citas" abre y cierra el panel, no solo la flecha
+sidebar.querySelector('.sidebar-header').addEventListener('click', e => {
+    if (!e.target.closest('.sidebar-close')) toggleSidebar();
+});
 </script>
 <script th:src="@{/js/custom-select.js}"></script>
 <script th:src="@{/js/asistente.js}" defer></script>
