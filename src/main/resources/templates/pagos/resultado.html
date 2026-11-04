@@ -218,12 +218,15 @@
         <p class="resultado-texto" th:if="${esSaldo}">
             La cita ya no admitía el pago del saldo (se canceló, ya estaba pagada o el monto no coincidía). Tu pago de
             <strong th:text="${'$' + #numbers.formatInteger(reserva.montoPesos, 1, 'POINT')}">$60.000</strong>
-            queda marcado para <strong>devolución</strong>. Escríbenos con la referencia y te ayudamos.
+            queda marcado para <strong>devolución</strong>. BeSalud te lo devuelve en un plazo de
+            <th:block th:text="${T(com.gestion.proyectos.servicio.DevolucionService).DIAS_PLAZO}">5</th:block> días y verás el comprobante en Mis pagos.
         </p>
         <p class="resultado-texto" th:unless="${esSaldo}">
             El horario ya no estaba disponible o el monto no coincidía. Tu abono de
             <strong th:text="${'$' + #numbers.formatInteger(reserva.montoPesos, 1, 'POINT')}">$20.000</strong>
-            queda marcado para <strong>devolución</strong>. Escríbenos con la referencia y te ayudamos a reagendar.
+            queda marcado para <strong>devolución</strong>. BeSalud te lo devuelve en un plazo de
+            <th:block th:text="${T(com.gestion.proyectos.servicio.DevolucionService).DIAS_PLAZO}">5</th:block> días y verás el comprobante en Mis pagos.
+            Si aún necesitas la consulta, puedes elegir otro horario.
         </p>
         <p class="resultado-ref" th:text="${'Referencia ' + reserva.referencia}">Referencia</p>
         <div class="resultado-acciones">

@@ -246,7 +246,10 @@ public class CitaService {
         if (cita.getAbonoCentavos() != null) {
             boolean aTiempo = !porPaciente || cancelaConAnticipacion(cita);
             cita.setEstadoAbono(aTiempo ? EstadoAbono.A_REEMBOLSAR : EstadoAbono.RETENIDO);
+            if (aTiempo)
+                cita.setReembolsoSolicitadoEn(Reloj.ahora());
         }
+        cita.setCanceladaPor(porPaciente ? Cita.CANCELO_PACIENTE : Cita.CANCELO_ADMIN);
         cita.setEstado(EstadoCita.CANCELADA);
         citaRepo.save(cita);
         log.info("Cita cancelada: id={}", cita.getId());

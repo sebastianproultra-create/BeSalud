@@ -3,9 +3,12 @@ package com.gestion.proyectos.servicio;
 import com.gestion.proyectos.util.Reloj;
 import com.gestion.proyectos.modelo.Cita;
 import com.gestion.proyectos.modelo.CitaEvento;
+import com.gestion.proyectos.modelo.DevolucionSinCitaEvento;
 import com.gestion.proyectos.modelo.Doctor;
+import com.gestion.proyectos.modelo.EstadoAbono;
 import com.gestion.proyectos.modelo.EstadoCita;
 import com.gestion.proyectos.modelo.Paciente;
+import com.gestion.proyectos.modelo.Reserva;
 import com.gestion.proyectos.repositorio.CitaRepositorio;
 import com.gestion.proyectos.repositorio.PersonaRepositorio;
 import org.slf4j.Logger;
@@ -47,6 +50,24 @@ public class NotificacionService {
         this.urlApp = urlApp.replaceAll("/+$", "");
     }
 
+    /** El pago nunca tuvo cita: se avisa con los datos del turno que se quería reservar. */
+    @Async
+    @EventListener
+    public void alDevolverSinCita(DevolucionSinCitaEvento evento) {
+        Reserva r = evento.reserva();
+        Cita turno = new Cita();
+        turno.setPacienteId(r.getPacienteId());
+        turno.setDoctorId(r.getDoctorId());
+        turno.setFecha(r.getFecha());
+        turno.setHora(r.getHora());
+        turno.setEstado(EstadoCita.CANCELADA);
+        enviar(turno, "Te devolvimos tu pago", "Te devolvimos tu pago",
+                "No pudimos confirmar esta cita, así que BeSalud te devolvió " + pesos(r.getMontoPesos()) + " por "
+                        + evento.medio() + ", operación " + evento.numeroOperacion()
+                        + ". Según tu banco, puede tardar unos días hábiles en verse reflejado. "
+                        + "En Mis pagos puedes ver el comprobante y confirmarnos si te llegó.", "Ver mis citas");
+    }
+
     @Async
     @EventListener
     public void alCambiarCita(CitaEvento evento) {
@@ -62,15 +83,23 @@ public class NotificacionService {
                 case REPROGRAMADA -> enviar(cita, "Tu cita fue reprogramada", "Cambiamos la fecha de tu cita",
                         "Estos son los nuevos datos de tu cita.", "Ver mis citas");
                 case CANCELADA -> enviar(cita, "Tu cita fue cancelada", "Tu cita fue cancelada",
-                        "Si todavía necesitas la consulta, puedes agendar un nuevo turno cuando quieras.", "Agendar otra cita");
+                        (cita.getEstadoAbono() == EstadoAbono.A_REEMBOLSAR
+                                ? "Te devolveremos " + pesos(cita.getPagadoPesos() == null ? 0 : cita.getPagadoPesos())
+                                        + " en un plazo de " + DevolucionService.DIAS_PLAZO
+                                        + " días y te enviaremos el comprobante. "
+                                : "")
+                                + "Si todavía necesitas la consulta, puedes agendar un nuevo turno cuando quieras.", "Agendar otra cita");
                 // Sin datos clínicos en el correo: la historia clínica es reservada y solo se consulta dentro de la app.
                 case DICTAMEN -> enviar(cita, "Tu dictamen médico está disponible", "Tu dictamen médico está disponible",
                         "Tu médico registró el resultado de la consulta. Ingresa a BeSalud para verlo.", "Ver mi dictamen");
                 case ABONO_DEVUELTO -> enviar(cita, cita.isPagadaCompleta() ? "Te devolvimos el pago" : "Te devolvimos el abono",
                         cita.isPagadaCompleta() ? "Te devolvimos el pago" : "Te devolvimos el abono",
-                        "El profesional registró la devolución de " + (cita.isPagadaCompleta() ? "lo que pagaste" : "tu abono") + " ("
-                                + pesos(cita.getPagadoPesos() == null ? 0 : cita.getPagadoPesos())
-                                + "). Según tu banco, puede tardar unos días hábiles en verse reflejado.", "Ver mis citas");
+                        "BeSalud te devolvió " + (cita.isPagadaCompleta() ? "lo que pagaste" : "tu abono") + " ("
+                                + pesos(cita.getPagadoPesos() == null ? 0 : cita.getPagadoPesos()) + ")"
+                                + (cita.getNumeroDevolucion() != null
+                                        ? " por " + cita.getMedioDevolucion() + ", operación " + cita.getNumeroDevolucion() : "")
+                                + ". Según tu banco, puede tardar unos días hábiles en verse reflejado. "
+                                + "En Mis pagos puedes ver el comprobante y confirmarnos si te llegó.", "Ver mis citas");
                 case SALDO_PAGADO -> enviar(cita, "Tu cita quedó pagada por completo", "Tu cita quedó pagada por completo",
                         "Recibimos el pago del saldo de " + pesos(cita.getSaldoPesos() == null ? 0 : cita.getSaldoPesos())
                                 + " (referencia " + cita.getReferenciaSaldo() + "). Ya no tienes que pagar nada en el consultorio. "

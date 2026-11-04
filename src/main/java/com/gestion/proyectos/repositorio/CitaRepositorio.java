@@ -23,6 +23,8 @@ public interface CitaRepositorio extends MongoRepository<Cita, String> {
     List<Cita> findByFechaAndEstado(LocalDate fecha, EstadoCita estado);
     /** Citas pendientes que deben pagar el resto antes de la cita y aún no lo han hecho. */
     List<Cita> findByEstadoAndSaldoObligatorioTrueAndSaldoCentavosIsNull(EstadoCita estado);
+    List<Cita> findByEstadoAbonoOrderByFechaAsc(com.gestion.proyectos.modelo.EstadoAbono estadoAbono);
+    long countByEstadoAbono(com.gestion.proyectos.modelo.EstadoAbono estadoAbono);
     List<Cita> findByDoctorIdAndEstadoAbonoOrderByFechaAsc(String doctorId, com.gestion.proyectos.modelo.EstadoAbono estadoAbono);
     List<Cita> findByDoctorIdAndFechaBetweenAndAbonoCentavosIsNotNull(String doctorId, LocalDate desde, LocalDate hasta);
 

@@ -2,6 +2,7 @@ package com.gestion.proyectos.controlador;
 
 import com.gestion.proyectos.servicio.AdminService;
 import com.gestion.proyectos.servicio.AyudaService;
+import com.gestion.proyectos.servicio.DevolucionService;
 import com.gestion.proyectos.servicio.EstadisticasService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -19,12 +20,14 @@ public class AdminController {
     private final AdminService adminService;
     private final EstadisticasService estadisticasService;
     private final AyudaService ayudaService;
+    private final DevolucionService devolucionService;
 
     public AdminController(AdminService adminService, EstadisticasService estadisticasService,
-            AyudaService ayudaService) {
+            AyudaService ayudaService, DevolucionService devolucionService) {
         this.adminService = adminService;
         this.estadisticasService = estadisticasService;
         this.ayudaService = ayudaService;
+        this.devolucionService = devolucionService;
     }
 
     @GetMapping
@@ -45,6 +48,7 @@ public class AdminController {
         model.addAttribute("admins", adminService.listarAdmins());
         model.addAttribute("mensajesAyuda", ayudaService.pendientes());
         model.addAttribute("temasAyuda", AyudaService.TEMAS);
+        model.addAttribute("devolucionesPendientes", devolucionService.contarPendientes());
         model.addAttribute("size", size);
         model.addAttribute("search", search == null ? "" : search);
         model.addAttribute("especialidad", especialidad == null ? "" : especialidad);

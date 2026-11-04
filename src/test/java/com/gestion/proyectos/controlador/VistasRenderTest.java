@@ -62,7 +62,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 /** Comprueba que las plantillas con mensajes de error y botones nuevos renderizan sin fallar. */
-@WebMvcTest({DoctorController.class, PacienteController.class, CitaController.class, LoginController.class,
+@WebMvcTest({DevolucionController.class, DoctorController.class, PacienteController.class, CitaController.class, LoginController.class,
         RolSelectionController.class, TriageController.class, PerfilPublicoController.class, HomeController.class})
 @Import(SecurityConfig.class)
 class VistasRenderTest {
@@ -82,6 +82,7 @@ class VistasRenderTest {
     @MockBean private org.springframework.security.authentication.AuthenticationManager authenticationManager;
     @MockBean private com.gestion.proyectos.servicio.HistorialClinicoService historialClinicoService;
     @MockBean private com.gestion.proyectos.servicio.DocumentoClinicoService documentoClinicoService;
+    @MockBean private com.gestion.proyectos.servicio.DevolucionService devolucionService;
     @MockBean private CustomUserDetailsService customUserDetailsService;
     @MockBean private PersonaRepositorio personaRepositorio;
     @MockBean private AdminRepositorio adminRepositorio;
@@ -790,5 +791,79 @@ class VistasRenderTest {
         mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart("/pacientes/historial/documentos")
                         .file(archivo).with(csrf()).with(user("pac@test.com").roles("PACIENTE")))
                 .andExpect(redirectedUrl("/pacientes/historial?error=documento_tipo#mis-documentos"));
+    }
+    private com.gestion.proyectos.modelo.Devolucion devolucionDePrueba() {
+        var d = new com.gestion.proyectos.modelo.Devolucion();
+        d.setCodigo("DEV-1");
+        d.setCitaId("c1");
+        d.setPacienteId("p1");
+        d.setMontoCentavos(8_000_000L);
+        d.setMedio("Nequi");
+        d.setNumeroOperacion("NEQ123456");
+        d.setRegistradaEn(java.time.LocalDateTime.of(2026, 11, 4, 10, 0));
+        d.setRegistradaPor("admin@besalud.com");
+        d.setComprobanteHash("abc");
+        d.setComprobanteTipo("image/png");
+        d.setComprobanteNombre("recibo.png");
+        d.setComprobante(new byte[] {1});
+        d.getReferencias().add("BS-1");
+        d.getEventos().add(new com.gestion.proyectos.modelo.Devolucion.Evento(d.getRegistradaEn(), "admin@besalud.com", "Registró la devolución"));
+        return d;
+    }
+
+    @Test
+    void devoluciones_panelDelAdminMuestraPendientesReclamosYRegistradas() throws Exception {
+        var fecha = java.time.LocalDate.of(2026, 11, 9);
+        var hora = java.time.LocalTime.of(9, 0);
+        var reclamada = devolucionDePrueba();
+        reclamada.setEstado(com.gestion.proyectos.modelo.Devolucion.Estado.RECLAMADA);
+        reclamada.setNotaReclamo("No veo nada");
+        when(devolucionService.pendientes()).thenReturn(java.util.List.of(
+                new com.gestion.proyectos.servicio.DevolucionService.Pendiente("cita-c1", "Ana Ruiz", "123", "300", "ana@x.co",
+                        "Luis Paz", "Canceló el médico", 80_000L, fecha, hora, java.util.List.of("BS-1"), 7L, true, null),
+                new com.gestion.proyectos.servicio.DevolucionService.Pendiente("reserva-BS-9", "Eva Sol", null, null, null,
+                        "Luis Paz", "Pagó, pero el horario ya no estaba disponible", 20_000L, fecha, hora,
+                        java.util.List.of("BS-9"), null, false, reclamada)));
+        when(devolucionService.registradas()).thenReturn(java.util.List.of(
+                new com.gestion.proyectos.servicio.DevolucionService.Registrada(devolucionDePrueba(), "Ana Ruiz", "Luis Paz")));
+
+        mockMvc.perform(get("/admin/devoluciones").param("error", "monto").param("origen", "cita-c1")
+                        .with(user("admin@besalud.com").roles("ADMIN")))
+                .andExpect(status().isOk())
+                .andExpect(content().string(containsString("Vencida: 7 días")))
+                .andExpect(content().string(containsString("No veo nada")))
+                .andExpect(content().string(containsString("/admin/devoluciones/reserva-BS-9/registrar")))
+                .andExpect(content().string(containsString("El monto debe ser exactamente $80.000")))
+                .andExpect(content().string(containsString("NEQ123456")))
+                .andExpect(content().string(containsString("enctype=\"multipart/form-data\"")));
+    }
+
+    @Test
+    void devoluciones_elPacienteConfirmaOAvisaSoloSiEstaPorConfirmar() throws Exception {
+        var paciente = new com.gestion.proyectos.modelo.Paciente("A", "B", "300", "1", "paciente@test.com", "x");
+        paciente.setId("p1");
+        when(pacienteService.buscarPorEmail("paciente@test.com")).thenReturn(java.util.Optional.of(paciente));
+        var d = devolucionDePrueba();
+        when(devolucionService.buscarDelPaciente("DEV-1", "p1")).thenReturn(java.util.Optional.of(d));
+
+        mockMvc.perform(get("/pacientes/devoluciones/DEV-1").with(user("paciente@test.com").roles("PACIENTE")))
+                .andExpect(status().isOk())
+                .andExpect(content().string(containsString("NEQ123456")))
+                .andExpect(content().string(containsString("Sí, me llegó")));
+
+        d.setEstado(com.gestion.proyectos.modelo.Devolucion.Estado.CONFIRMADA);
+        mockMvc.perform(get("/pacientes/devoluciones/DEV-1").with(user("paciente@test.com").roles("PACIENTE")))
+                .andExpect(status().isOk())
+                .andExpect(content().string(not(containsString("Sí, me llegó"))));
+    }
+
+    @Test
+    void devoluciones_elMedicoYElPacienteNoEntranAlPanelDelAdmin() throws Exception {
+        mockMvc.perform(get("/admin/devoluciones").with(user("doc@test.com").roles("DOCTOR")))
+                .andExpect(status().isForbidden());
+        mockMvc.perform(get("/admin/devoluciones/DEV-1/comprobante").with(user("p@test.com").roles("PACIENTE")))
+                .andExpect(status().isForbidden());
+        mockMvc.perform(get("/pacientes/devoluciones/DEV-1").with(user("doc@test.com").roles("DOCTOR")))
+                .andExpect(status().isForbidden());
     }
 }

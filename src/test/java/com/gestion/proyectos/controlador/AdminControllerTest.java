@@ -45,6 +45,7 @@ class AdminControllerTest {
     @MockBean private AdminService adminService;
     @MockBean private EstadisticasService estadisticasService;
     @MockBean private AyudaService ayudaService;
+    @MockBean private com.gestion.proyectos.servicio.DevolucionService devolucionService;
     @MockBean private RateLimiter rateLimiter;
     @MockBean private CustomUserDetailsService customUserDetailsService;
     @MockBean private PersonaRepositorio personaRepositorio;

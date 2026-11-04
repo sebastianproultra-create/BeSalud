@@ -111,7 +111,7 @@ public class ReservaService {
     EstadoPago estadoPagoDe(Reserva r) {
         return switch (r.getEstado()) {
             case RECHAZADA -> EstadoPago.RECHAZADO;
-            case CONFLICTO -> EstadoPago.POR_DEVOLVER; // pagó pero el turno ya no estaba
+            case CONFLICTO -> r.isDevuelta() ? EstadoPago.DEVUELTO : EstadoPago.POR_DEVOLVER; // pagó pero el turno ya no estaba
             case PROCESANDO -> EstadoPago.EN_PROCESO;
             case ESPERANDO_PAGO, EXPIRADA -> r.getTransaccionId() != null ? EstadoPago.EN_PROCESO : null;
             case APROBADA -> {
@@ -351,12 +351,17 @@ public class ReservaService {
         }
         if (montoCentavos != tomada.getMontoCentavos() || !"COP".equals(moneda)) {
             log.error("Pago con monto o moneda distintos a la reserva {}: {} {}", referencia, montoCentavos, moneda);
+            // Se devuelve lo que de verdad pagó, no lo que se esperaba
+            if ("COP".equals(moneda))
+                tomada.setMontoCentavos(montoCentavos);
+            tomada.setMotivoConflicto("El monto pagado no coincidió con el de la reserva");
             terminar(tomada, Reserva.Estado.CONFLICTO, citaPrevia);
             return Resultado.CONFLICTO;
         }
         if (tomada.isSaldo()) {
             if (!citaService.registrarSaldo(tomada)) {
                 log.error("Saldo pagado para una cita que ya no lo admite (requiere devolución): referencia={}", referencia);
+                tomada.setMotivoConflicto("Saldo pagado para una cita que ya no lo admitía");
                 terminar(tomada, Reserva.Estado.CONFLICTO, citaPrevia);
                 return Resultado.CONFLICTO;
             }
@@ -367,6 +372,7 @@ public class ReservaService {
         if (citaService.hayConflicto(tomada.getDoctorId(), tomada.getFecha(), tomada.getHora(), null,
                 tomada.getPacienteId()) || !citaService.doctorActivo(tomada.getDoctorId())) {
             log.error("Pago aprobado sin turno disponible (requiere devolución): referencia={}", referencia);
+            tomada.setMotivoConflicto("Pagó, pero el horario ya no estaba disponible");
             terminar(tomada, Reserva.Estado.CONFLICTO, null);
             return Resultado.CONFLICTO;
         }
@@ -376,6 +382,7 @@ public class ReservaService {
             return Resultado.APROBADA;
         } catch (CitaService.TurnoOcupadoException e) {
             log.error("Pago aprobado pero el turno se ocupó (requiere devolución): referencia={}", referencia);
+            tomada.setMotivoConflicto("Pagó, pero el horario ya no estaba disponible");
             terminar(tomada, Reserva.Estado.CONFLICTO, null);
             return Resultado.CONFLICTO;
         }
@@ -434,7 +441,8 @@ public class ReservaService {
     }
 
     private void terminar(Reserva r, Reserva.Estado estado, String citaId) {
-        if (estado == Reserva.Estado.APROBADA && r.getPagadaEn() == null)
+        // En conflicto el pago también se aprobó: desde ahí corre el plazo para devolverlo
+        if ((estado == Reserva.Estado.APROBADA || estado == Reserva.Estado.CONFLICTO) && r.getPagadaEn() == null)
             r.setPagadaEn(Reloj.ahora());
         r.setEstado(estado);
         r.setCitaId(citaId);

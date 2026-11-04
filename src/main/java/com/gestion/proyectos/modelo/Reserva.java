@@ -59,6 +59,9 @@ public class Reserva {
     /** Código de autorización del banco y momento en que se aprobó el pago, para el comprobante. */
     private String codigoAutorizacion;
     private LocalDateTime pagadaEn;
+    /** Solo en CONFLICTO: por qué el pago no pudo aplicarse y si BeSalud ya registró su devolución. */
+    private String motivoConflicto;
+    private boolean devuelta;
     /** Igual que en la cita: "doctorId|fecha|hora" solo mientras espera el pago, con índice único. */
     @Indexed(unique = true, sparse = true)
     private String turno;
@@ -66,6 +69,22 @@ public class Reserva {
     public void actualizarTurno() {
         turno = !isSaldo() && estado == Estado.ESPERANDO_PAGO && doctorId != null && fecha != null && hora != null
                 ? Cita.claveTurno(doctorId, fecha, hora) : null;
+    }
+
+    public String getMotivoConflicto() {
+        return motivoConflicto;
+    }
+
+    public void setMotivoConflicto(String motivoConflicto) {
+        this.motivoConflicto = motivoConflicto;
+    }
+
+    public boolean isDevuelta() {
+        return devuelta;
+    }
+
+    public void setDevuelta(boolean devuelta) {
+        this.devuelta = devuelta;
     }
 
     public Long getAbonoCentavos() {

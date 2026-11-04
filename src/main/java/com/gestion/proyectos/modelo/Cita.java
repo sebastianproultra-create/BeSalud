@@ -43,8 +43,17 @@ public class Cita {
     private String referenciaPago;
     private String medioPago;
     private EstadoAbono estadoAbono;
-    /** Cuándo el profesional registró que devolvió el abono. */
+    /** Cuándo BeSalud registró que devolvió lo pagado. */
     private LocalDateTime abonoDevueltoEn;
+    /** Quién canceló (CANCELO_*) y desde cuándo espera el paciente su devolución; null en citas anteriores. */
+    public static final String CANCELO_MEDICO = "MEDICO";
+    public static final String CANCELO_PACIENTE = "PACIENTE";
+    public static final String CANCELO_ADMIN = "ADMIN";
+    private String canceladaPor;
+    private LocalDateTime reembolsoSolicitadoEn;
+    /** Medio y número de operación de la devolución, para los avisos al paciente (el detalle está en Devolucion). */
+    private String medioDevolucion;
+    private String numeroDevolucion;
     /** Horas antes de la cita en que vence el pago del resto: después la cita se cancela y se conserva el abono. */
     public static final int HORAS_LIMITE_SALDO = 24;
 
@@ -62,6 +71,38 @@ public class Cita {
     private String referenciaSaldo;
     private String medioPagoSaldo;
     private LocalDateTime saldoPagadoEn;
+
+    public String getCanceladaPor() {
+        return canceladaPor;
+    }
+
+    public void setCanceladaPor(String canceladaPor) {
+        this.canceladaPor = canceladaPor;
+    }
+
+    public LocalDateTime getReembolsoSolicitadoEn() {
+        return reembolsoSolicitadoEn;
+    }
+
+    public void setReembolsoSolicitadoEn(LocalDateTime reembolsoSolicitadoEn) {
+        this.reembolsoSolicitadoEn = reembolsoSolicitadoEn;
+    }
+
+    public String getMedioDevolucion() {
+        return medioDevolucion;
+    }
+
+    public void setMedioDevolucion(String medioDevolucion) {
+        this.medioDevolucion = medioDevolucion;
+    }
+
+    public String getNumeroDevolucion() {
+        return numeroDevolucion;
+    }
+
+    public void setNumeroDevolucion(String numeroDevolucion) {
+        this.numeroDevolucion = numeroDevolucion;
+    }
 
     public String getId() {
         return id;

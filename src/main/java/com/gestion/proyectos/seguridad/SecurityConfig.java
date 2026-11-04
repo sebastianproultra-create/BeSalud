@@ -44,6 +44,7 @@ public class SecurityConfig {
                                                 .requestMatchers("/pacientes/landing", "/pacientes/asistente", "/pacientes/pagos",
                                                                 "/pacientes/historial", "/pacientes/historial/antecedentes",
                                                                 "/pacientes/historial/documentos", "/pacientes/historial/documentos/**",
+                                                                "/pacientes/devoluciones/**",
                                                                 "/triage", "/triage/agendar", "/citas/nueva",
                                                                 "/citas/guardar-paciente", "/citas/*/reprogramar")
                                                 .hasRole("PACIENTE")

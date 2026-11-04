@@ -648,8 +648,8 @@
 
         <div th:unless="${abonos.pendientes.isEmpty()}" class="abonos-pendientes">
             <h3 class="doc-bloque-titulo">Devoluciones pendientes</h3>
-            <p class="abonos-ayuda">Estas citas se cancelaron a tiempo. Devuelve lo que pagó el paciente (el abono y, si lo pagó, el saldo) por el mismo medio
-                (desde tu cuenta de Wompi) o por transferencia, y márcalo aquí: le avisamos al paciente.</p>
+            <p class="abonos-ayuda">Estas citas se cancelaron a tiempo. BeSalud le devuelve al paciente lo que pagó (el abono y, si lo pagó, el saldo)
+                desde la cuenta de la plataforma: tú no tienes que hacer nada.</p>
             <ul>
                 <li th:each="c : ${abonos.pendientes}">
                     <div>
@@ -658,12 +658,7 @@
                         <span class="abonos-ref" th:if="${c.referenciaPago != null}" th:text="${'Ref. ' + c.referenciaPago + (c.medioPago != null ? ' · ' + c.medioPago : '')}">Ref.</span>
                     </div>
                     <strong class="abonos-monto" th:text="${'$' + #numbers.formatInteger(c.pagadoPesos, 1, 'POINT')}">$0</strong>
-                    <form th:action="@{/doctores/citas/{id}/abono-devuelto(id=${c.id})}" method="post"
-                          onsubmit="return confirm('¿Ya le devolviste el pago a este paciente?');">
-                        <button type="submit" class="doc-btn doc-btn--primary">
-                            <span class="material-symbols-outlined" aria-hidden="true">check</span>Marcar como devuelto
-                        </button>
-                    </form>
+                    <span class="bs-badge bs-badge--warning">BeSalud la está gestionando</span>
                 </li>
             </ul>
         </div>

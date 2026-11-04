@@ -171,8 +171,12 @@ public class PasarelaPagos {
     }
 
     static String sha256(String texto) {
+        return sha256(texto.getBytes(StandardCharsets.UTF_8));
+    }
+
+    static String sha256(byte[] contenido) {
         try {
-            byte[] hash = MessageDigest.getInstance("SHA-256").digest(texto.getBytes(StandardCharsets.UTF_8));
+            byte[] hash = MessageDigest.getInstance("SHA-256").digest(contenido);
             return HexFormat.of().formatHex(hash);
         } catch (NoSuchAlgorithmException e) {
             throw new IllegalStateException(e);

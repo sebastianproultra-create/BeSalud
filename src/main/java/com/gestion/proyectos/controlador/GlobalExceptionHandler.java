@@ -33,6 +33,8 @@ public class GlobalExceptionHandler {
             return "redirect:/doctores?fotoError=tamano#perfil";
         if (request.getRequestURI().endsWith("/pacientes/historial/documentos"))
             return "redirect:/pacientes/historial?error=documento_tamano#mis-documentos";
+        if (request.getRequestURI().startsWith("/admin/devoluciones/"))
+            return "redirect:/admin/devoluciones?error=archivo_tamano";
         response.setStatus(HttpStatus.PAYLOAD_TOO_LARGE.value());
         model.addAttribute("status", 413);
         model.addAttribute("mensaje", "El archivo supera el tamaño máximo permitido.");

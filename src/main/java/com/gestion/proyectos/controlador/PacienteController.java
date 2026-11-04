@@ -3,6 +3,7 @@ package com.gestion.proyectos.controlador;
 import com.gestion.proyectos.modelo.Antecedentes;
 import com.gestion.proyectos.modelo.DocumentoClinico;
 import com.gestion.proyectos.modelo.Paciente;
+import com.gestion.proyectos.servicio.DevolucionService;
 import com.gestion.proyectos.servicio.DocumentoClinicoService;
 import com.gestion.proyectos.servicio.HistorialClinicoService;
 import com.gestion.proyectos.servicio.PacienteService;
@@ -32,14 +33,17 @@ public class PacienteController {
     private final CitaService citaService;
     private final HistorialClinicoService historialClinicoService;
     private final DocumentoClinicoService documentoClinicoService;
+    private final DevolucionService devolucionService;
 
     public PacienteController(PacienteService pacienteService, ReservaService reservaService, CitaService citaService,
-            HistorialClinicoService historialClinicoService, DocumentoClinicoService documentoClinicoService) {
+            HistorialClinicoService historialClinicoService, DocumentoClinicoService documentoClinicoService,
+            DevolucionService devolucionService) {
         this.pacienteService = pacienteService;
         this.reservaService = reservaService;
         this.citaService = citaService;
         this.historialClinicoService = historialClinicoService;
         this.documentoClinicoService = documentoClinicoService;
+        this.devolucionService = devolucionService;
     }
 
     @GetMapping
@@ -120,6 +124,9 @@ public class PacienteController {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         var paciente = pacienteService.buscarPorEmail(auth.getName()).orElseThrow();
         model.addAttribute("historial", reservaService.historialDe(paciente.getId()));
+        model.addAttribute("codigosDevolucion", devolucionService.codigosPorReferencia(paciente.getId()));
+        model.addAttribute("devolucionesPorConfirmar", devolucionService.porConfirmar(paciente.getId()));
+        model.addAttribute("diasPlazo", DevolucionService.DIAS_PLAZO);
         return "pacientes/pagos";
     }
 
@@ -159,12 +166,16 @@ public class PacienteController {
      * caché: es información clínica.
      */
     static ResponseEntity<byte[]> archivo(DocumentoClinico d) {
+        return archivo(d.getNombre(), d.getTipo(), d.getContenido());
+    }
+
+    static ResponseEntity<byte[]> archivo(String nombre, String tipo, byte[] contenido) {
         return ResponseEntity.ok()
-                .contentType(MediaType.parseMediaType(d.getTipo()))
+                .contentType(MediaType.parseMediaType(tipo))
                 .header(HttpHeaders.CONTENT_DISPOSITION, ContentDisposition.inline()
-                        .filename(d.getNombre(), StandardCharsets.UTF_8).build().toString())
+                        .filename(nombre, StandardCharsets.UTF_8).build().toString())
                 .header(HttpHeaders.CACHE_CONTROL, "private, no-store")
-                .body(d.getContenido());
+                .body(contenido);
     }
 
     private Paciente pacienteActual() {

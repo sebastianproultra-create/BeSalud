@@ -359,16 +359,6 @@ public class DoctorController {
     }
 
     @PreAuthorize("hasRole('DOCTOR')")
-    @PostMapping("/citas/{id}/abono-devuelto")
-    public String marcarAbonoDevuelto(@PathVariable String id, RedirectAttributes redirectAttributes) {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        Doctor doctor = doctorService.buscarPorEmail(auth.getName()).orElseThrow();
-        if (doctorService.marcarAbonoDevuelto(id, doctor.getId()))
-            redirectAttributes.addFlashAttribute("exitoAbonos", "Listo: le avisamos al paciente que le devolviste el abono.");
-        return REDIRECT_DOCTORES + "#abonos";
-    }
-
-    @PreAuthorize("hasRole('DOCTOR')")
     @PostMapping("/citas/{id}/cancelar")
     public String cancelarCita(@PathVariable String id) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();

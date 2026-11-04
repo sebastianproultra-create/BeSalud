@@ -36,6 +36,11 @@
         </div>
     </div>
 
+    <div class="bs-alert bs-alert--warning" role="status" th:if="${devolucionesPendientes > 0}">
+        <strong th:text="${devolucionesPendientes == 1 ? 'Hay 1 devolución pendiente.' : 'Hay ' + devolucionesPendientes + ' devoluciones pendientes.'}">Pendientes</strong>
+        <a th:href="@{/admin/devoluciones}">Revisarlas</a>
+    </div>
+
     <section id="ayuda" class="card" aria-labelledby="ayuda-title">
         <h2 id="ayuda-title">Mensajes del Centro de ayuda
             <span class="mensajes-contador" th:text="${#lists.size(mensajesAyuda)}">0</span></h2>

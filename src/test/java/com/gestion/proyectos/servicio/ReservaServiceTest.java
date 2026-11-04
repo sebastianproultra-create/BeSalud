@@ -82,6 +82,10 @@ class ReservaServiceTest {
 
         assertThat(service.confirmarPago("BS-1", "tx1", "APPROVED", 100, "COP")).isEqualTo(Resultado.CONFLICTO);
         verify(citaService, never()).crearCitaConAbono(any());
+        // Se devuelve lo que de verdad pagó
+        assertThat(reserva.getMontoCentavos()).isEqualTo(100);
+        assertThat(reserva.getMotivoConflicto()).isNotNull();
+        assertThat(reserva.getPagadaEn()).isNotNull();
     }
 
     @Test
@@ -219,6 +223,9 @@ class ReservaServiceTest {
 
         assertThat(service.estadoPagoDe(enProceso)).isEqualTo(ReservaService.EstadoPago.EN_PROCESO);
         assertThat(service.estadoPagoDe(sinCupo)).isEqualTo(ReservaService.EstadoPago.POR_DEVOLVER);
+
+        sinCupo.setDevuelta(true);
+        assertThat(service.estadoPagoDe(sinCupo)).isEqualTo(ReservaService.EstadoPago.DEVUELTO);
     }
 
     @Test

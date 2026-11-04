@@ -1,0 +1,325 @@
+/* ==============================================
+   DEVOLUCIONES: panel del administrador y constancia del paciente
+   ============================================== */
+@import url('../oscuro/admin/devoluciones.css');
+
+.dev-main {
+    display: grid;
+    gap: var(--space-6);
+    padding-block: var(--space-8);
+}
+
+.dev-cabecera h1 {
+    margin: 0 0 var(--space-2);
+    font-family: var(--font-heading);
+    font-size: var(--font-size-2xl);
+    color: var(--color-text);
+}
+
+.dev-cabecera p {
+    max-width: 44rem;
+    margin: 0;
+    color: var(--color-text-muted);
+}
+
+.dev-seccion {
+    display: grid;
+    gap: var(--space-4);
+    min-width: 0;
+}
+
+.dev-seccion > h2 {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    margin: 0;
+    font-family: var(--font-heading);
+    font-size: var(--font-size-xl);
+    color: var(--color-text);
+}
+
+.dev-vacio,
+.dev-sutil {
+    margin: 0;
+    color: var(--color-text-muted);
+    font-size: var(--font-size-sm);
+    overflow-wrap: anywhere;
+}
+
+.dev-tarjeta {
+    display: grid;
+    gap: var(--space-4);
+    min-width: 0;
+    scroll-margin-top: var(--space-12);
+}
+
+.dev-tarjeta__cabeza {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: var(--space-3);
+}
+
+.dev-tarjeta__cabeza h3 {
+    margin: 0;
+    font-family: var(--font-body);
+    font-size: var(--font-size-lg);
+    color: var(--color-text);
+}
+
+.dev-monto {
+    display: grid;
+    justify-items: end;
+    gap: var(--space-1);
+}
+
+.dev-monto strong {
+    font-size: var(--font-size-xl);
+    color: var(--color-text);
+    white-space: nowrap;
+}
+
+.dev-reclamo {
+    display: grid;
+    gap: var(--space-1);
+}
+
+.dev-datos {
+    display: grid;
+    gap: var(--space-3);
+    margin: 0;
+}
+
+.dev-datos > div {
+    min-width: 0;
+}
+
+.dev-datos dt {
+    color: var(--color-text-muted);
+    font-size: var(--font-size-xs);
+}
+
+.dev-datos dd {
+    margin: 0;
+    color: var(--color-text);
+    font-size: var(--font-size-sm);
+    font-weight: 600;
+    overflow-wrap: anywhere;
+}
+
+.dev-bloque {
+    display: block;
+}
+
+.dev-partir {
+    overflow-wrap: anywhere;
+}
+
+.dev-huella {
+    font-family: var(--font-mono);
+    font-size: var(--font-size-xs);
+    font-weight: 400;
+}
+
+.dev-form {
+    display: grid;
+    gap: var(--space-3);
+    margin: 0;
+    padding: var(--space-4) 0 0;
+    background: none;
+    border: 0;
+    border-top: 1px solid var(--color-border);
+    border-radius: 0;
+    box-shadow: none;
+}
+
+.dev-form .bs-field {
+    min-width: 0;
+}
+
+.dev-form__enviar {
+    justify-self: stretch;
+    text-transform: none;
+    letter-spacing: normal;
+}
+
+.dev-lista {
+    display: grid;
+    gap: var(--space-3);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.dev-registro {
+    display: grid;
+    gap: var(--space-4);
+    min-width: 0;
+}
+
+.dev-registro summary {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-2) var(--space-4);
+    min-height: 2.75rem;
+    cursor: pointer;
+}
+
+.dev-registro[open] summary {
+    margin-bottom: var(--space-4);
+}
+
+.dev-registro .dev-datos {
+    margin-bottom: var(--space-4);
+}
+
+.dev-registro__quien {
+    display: grid;
+    flex: 1 1 12rem;
+    min-width: 0;
+    color: var(--color-text);
+}
+
+.dev-registro__quien small {
+    color: var(--color-text-muted);
+    font-size: var(--font-size-xs);
+}
+
+.dev-registro__monto {
+    color: var(--color-text);
+    white-space: nowrap;
+}
+
+.dev-linea {
+    display: grid;
+    gap: var(--space-3);
+    margin: var(--space-4) 0 0;
+    padding: 0 0 0 var(--space-4);
+    list-style: none;
+    border-left: 2px solid var(--color-border);
+}
+
+.dev-linea time {
+    display: block;
+    color: var(--color-text-muted);
+    font-size: var(--font-size-xs);
+}
+
+.dev-linea span {
+    color: var(--color-text);
+    font-size: var(--font-size-sm);
+    overflow-wrap: anywhere;
+}
+
+/* Constancia del paciente */
+.dev-constancia__cabeza {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-2);
+}
+
+.dev-constancia__cabeza h1 {
+    margin: 0;
+}
+
+.dev-constancia__cabeza + .bs-alert {
+    margin-top: var(--space-4);
+}
+
+.pago-page .dev-constancia__reclamo .bs-btn--danger {
+    color: var(--color-surface);
+    background: var(--color-danger);
+    border-color: var(--color-danger);
+}
+
+.dev-constancia__monto {
+    margin: var(--space-4) 0;
+    font-family: var(--font-heading);
+    font-size: var(--font-size-2xl);
+    color: var(--color-text);
+}
+
+.dev-constancia__archivo {
+    width: 100%;
+    margin-top: var(--space-4);
+}
+
+.dev-constancia__pregunta {
+    display: grid;
+    gap: var(--space-3);
+    margin-top: var(--space-6);
+    padding-top: var(--space-4);
+    border-top: 1px solid var(--color-border);
+}
+
+.dev-constancia__pregunta h2 {
+    margin: 0;
+    font-size: var(--font-size-lg);
+    color: var(--color-text);
+}
+
+.dev-constancia__pregunta p {
+    margin: 0;
+    color: var(--color-text-muted);
+    font-size: var(--font-size-sm);
+}
+
+.pago-page .dev-constancia__pregunta form {
+    display: grid;
+    gap: var(--space-3);
+    margin: 0;
+    padding: 0;
+    background: none;
+    border: 0;
+    box-shadow: none;
+}
+
+.dev-constancia__pregunta .bs-btn {
+    width: 100%;
+    text-transform: none;
+    letter-spacing: normal;
+}
+
+.dev-constancia__reclamo summary {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 2.75rem;
+    color: var(--color-danger);
+    font-size: var(--font-size-sm);
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.dev-constancia__reclamo[open] summary {
+    margin-bottom: var(--space-3);
+}
+
+.pago-page .dev-linea {
+    margin-block: var(--space-6);
+}
+
+/* Aviso en "Mis pagos" */
+.historial-aviso {
+    display: block;
+    margin-bottom: var(--space-4);
+}
+
+@media (min-width: 48rem) {
+    .dev-datos {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .dev-form {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .dev-form__enviar {
+        grid-column: 1 / -1;
+        justify-self: end;
+    }
+}
