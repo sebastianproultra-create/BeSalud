@@ -18,7 +18,7 @@ public class CorreoService {
     private static final Logger log = LoggerFactory.getLogger(CorreoService.class);
 
     // Cuentas de prueba con correos inventados: enviarles rebota y daña la reputación del remitente.
-    private static final List<String> DOMINIOS_FICTICIOS = List.of("@demo.besalud.com", "@besalud.com", "@example.com");
+    private static final List<String> DOMINIOS_FICTICIOS = List.of("@demo.besalud.com", "@sim.besalud.com", "@besalud.com", "@example.com");
 
     private final RestClient http;
     private final String apiKey;
@@ -41,6 +41,16 @@ public class CorreoService {
         return !apiKey.isBlank() && !remitente.isBlank();
     }
 
+    /** ¿Se intentaría enviarle un correo a esta dirección? No confirma que le llegue. */
+    public boolean puedeEnviarA(String destinatario) {
+        return configurado() && destinatario != null && !destinatario.isBlank() && !esFicticio(destinatario.trim().toLowerCase());
+    }
+
+    /** Los dominios .test no existen: son las cuentas de prueba locales */
+    private static boolean esFicticio(String email) {
+        return DOMINIOS_FICTICIOS.stream().anyMatch(email::endsWith) || email.endsWith(".test");
+    }
+
     public void enviar(String destinatario, String nombre, String asunto, String html) {
         enviar(destinatario, nombre, asunto, html, Map.of());
     }
@@ -49,8 +59,7 @@ public class CorreoService {
     public void enviar(String destinatario, String nombre, String asunto, String html, Map<String, byte[]> adjuntos) {
         if (destinatario == null || destinatario.isBlank()) return;
         String email = destinatario.trim().toLowerCase();
-        // Los dominios .test no existen: son las cuentas de prueba locales
-        if (DOMINIOS_FICTICIOS.stream().anyMatch(email::endsWith) || email.endsWith(".test")) {
+        if (esFicticio(email)) {
             log.debug("Correo omitido (cuenta de prueba): {}", email);
             return;
         }

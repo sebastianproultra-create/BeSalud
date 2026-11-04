@@ -890,6 +890,26 @@ class VistasRenderTest {
     }
 
     @Test
+    void registrarPago_soloDiceQueAvisoPorCorreoSiSeVaAEnviar() throws Exception {
+        org.springframework.mock.web.MockMultipartFile archivo = new org.springframework.mock.web.MockMultipartFile("comprobante", "r.png", "image/png", new byte[] {1});
+        when(gananciasService.avisaPorCorreo("d1")).thenReturn(true);
+        mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart("/admin/liquidaciones/d1/registrar").file(archivo)
+                        .with(org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf()).with(user("a@test.com").roles("ADMIN")))
+                .andExpect(org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl("/admin/liquidaciones?registrada=1&aviso=1#registradas"));
+        when(gananciasService.avisaPorCorreo("d1")).thenReturn(false);
+        mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart("/admin/liquidaciones/d1/registrar").file(archivo)
+                        .with(org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf()).with(user("a@test.com").roles("ADMIN")))
+                .andExpect(org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl("/admin/liquidaciones?registrada=1#registradas"));
+
+        mockMvc.perform(get("/admin/liquidaciones").param("registrada", "1").param("aviso", "1").with(user("a@test.com").roles("ADMIN")))
+                .andExpect(content().string(containsString("Le estamos enviando un aviso por correo.")))
+                .andExpect(content().string(org.hamcrest.Matchers.not(containsString("No se le envió correo"))));
+        mockMvc.perform(get("/admin/liquidaciones").param("registrada", "1").with(user("a@test.com").roles("ADMIN")))
+                .andExpect(content().string(containsString("No se le envió correo: avísale directamente.")))
+                .andExpect(content().string(org.hamcrest.Matchers.not(containsString("Le estamos enviando"))));
+    }
+
+    @Test
     void liquidaciones_elAdminVeLoQueDebeYLosErrores() throws Exception {
         when(gananciasService.porLiquidar()).thenReturn(java.util.List.of(new com.gestion.proyectos.servicio.GananciasService.PorLiquidar(
                 "d1", "Luis Paz", "Pediatría", "luis@x.co", 3, 240_000, 24_000, 216_000,

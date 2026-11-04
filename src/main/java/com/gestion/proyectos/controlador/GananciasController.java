@@ -68,7 +68,7 @@ public class GananciasController {
         if (error != null)
             return "redirect:" + UriComponentsBuilder.fromPath("/admin/liquidaciones").queryParam("error", error)
                     .queryParam("doctor", doctorId).fragment("medico-" + doctorId).encode().build().toUriString();
-        return "redirect:/admin/liquidaciones?registrada=1#registradas";
+        return "redirect:/admin/liquidaciones?registrada=1" + (gananciasService.avisaPorCorreo(doctorId) ? "&aviso=1" : "") + "#registradas";
     }
 
     @GetMapping("/admin/liquidaciones/{codigo}/comprobante")

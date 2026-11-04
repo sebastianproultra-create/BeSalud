@@ -22,7 +22,9 @@
     </div>
 
     <div th:if="${param.registrada != null}" class="bs-alert bs-alert--success" role="status">
-        Registramos el pago. El médico ya lo ve en Mis ganancias con su comprobante y le avisamos por correo.
+        Registramos el pago. El médico ya lo ve en Mis ganancias con su comprobante.
+        <span th:if="${param.aviso != null}">Le estamos enviando un aviso por correo.</span>
+        <span th:unless="${param.aviso != null}">No se le envió correo: avísale directamente.</span>
     </div>
     <div th:if="${param.error != null and param.error[0] == 'archivo_tamano'}" class="bs-alert bs-alert--danger" role="alert">
         El comprobante pesa más de 5 MB. No se registró el pago.

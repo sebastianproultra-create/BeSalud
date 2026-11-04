@@ -47,12 +47,13 @@ class GananciasServiceTest {
     @Mock PersonaRepositorio personaRepo;
     @Mock HorarioAtencionRepositorio horarioRepo;
     @Mock org.springframework.context.ApplicationEventPublisher eventos;
+    @Mock CorreoService correo;
 
     GananciasService service;
 
     @BeforeEach
     void preparar() {
-        service = new GananciasService(citaRepo, liquidacionRepo, personaRepo, horarioRepo, eventos, 10);
+        service = new GananciasService(citaRepo, liquidacionRepo, personaRepo, horarioRepo, eventos, correo, 10);
     }
 
     private static Cita cita(String id, LocalDate fecha, EstadoCita estado, EstadoAbono abono, long pesos) {

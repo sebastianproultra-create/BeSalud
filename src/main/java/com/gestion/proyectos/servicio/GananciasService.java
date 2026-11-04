@@ -119,16 +119,18 @@ public class GananciasService {
     private final PersonaRepositorio personaRepo;
     private final HorarioAtencionRepositorio horarioRepo;
     private final ApplicationEventPublisher eventos;
+    private final CorreoService correo;
     private final int comisionVigente;
 
     public GananciasService(CitaRepositorio citaRepo, LiquidacionRepositorio liquidacionRepo,
-            PersonaRepositorio personaRepo, HorarioAtencionRepositorio horarioRepo, ApplicationEventPublisher eventos,
+            PersonaRepositorio personaRepo, HorarioAtencionRepositorio horarioRepo, ApplicationEventPublisher eventos, CorreoService correo,
             @Value("${besalud.comision.porcentaje:10}") int comisionVigente) {
         this.citaRepo = citaRepo;
         this.liquidacionRepo = liquidacionRepo;
         this.personaRepo = personaRepo;
         this.horarioRepo = horarioRepo;
         this.eventos = eventos;
+        this.correo = correo;
         this.comisionVigente = comisionVigente;
     }
 
@@ -365,6 +367,11 @@ public class GananciasService {
         eventos.publishEvent(new LiquidacionRegistradaEvento(doctorId, l.getCodigo(), neto, ids.size(), medio, operacion));
         log.info("Liquidación {} registrada por {}: médico={} neto={}", l.getCodigo(), admin, doctorId, neto);
         return null;
+    }
+
+    /** ¿Se le intentará avisar por correo a este médico cuando le registren un pago? */
+    public boolean avisaPorCorreo(String doctorId) {
+        return personaRepo.findById(doctorId).map(p -> correo.puedeEnviarA(p.getEmail())).orElse(false);
     }
 
     public Optional<Liquidacion> buscar(String codigo) {
