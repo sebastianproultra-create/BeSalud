@@ -1,0 +1,116 @@
+/* Generado por scripts/generar_tema_oscuro.py a partir de publico/desarrolladores.css. No editar a mano:
+   los ajustes van en base/tema-oscuro.css o en el generador. */
+
+html[data-tema="oscuro"] .dev-eyebrow {
+    color: var(--color-primary--t);
+    background-color: var(--color-primary-soft--f);
+    background-image: none;
+}
+
+html[data-tema="oscuro"] .dev-titulo {
+    color: var(--color-primary--t);
+}
+
+html[data-tema="oscuro"] .dev-lead {
+    color: var(--color-text-muted--t);
+}
+
+html[data-tema="oscuro"] .dev-h2 {
+    color: var(--color-primary--t);
+}
+
+html[data-tema="oscuro"] .dev-nota {
+    color: var(--color-text-muted--t);
+}
+
+html[data-tema="oscuro"] .dev-main :not(pre) > code {
+    background-color: var(--color-surface-muted--f);
+    background-image: none;
+}
+
+html[data-tema="oscuro"] .dev-paso p {
+    color: var(--color-text-muted--t);
+}
+
+html[data-tema="oscuro"] .dev-paso__icono {
+    color: var(--color-primary--t);
+    background-color: var(--color-primary-soft--f);
+    background-image: none;
+}
+
+html[data-tema="oscuro"] .dev-codigo {
+    border: 1px solid var(--color-border--b);
+}
+
+html[data-tema="oscuro"] .dev-codigo__barra {
+    color: var(--color-text-muted--t);
+    background-color: var(--color-surface-muted--f);
+    background-image: none;
+    border-bottom: 1px solid var(--color-border--b);
+}
+
+html[data-tema="oscuro"] .dev-main pre {
+    color: var(--color-primary-soft--t);
+    background-color: var(--color-primary--f);
+    background-image: none;
+}
+
+html[data-tema="oscuro"] .dev-datos {
+    background-color: var(--color-surface--f);
+    background-image: none;
+    border: 1px solid var(--color-border--b);
+}
+
+html[data-tema="oscuro"] .dev-datos dt {
+    color: var(--color-text-muted--t);
+}
+
+html[data-tema="oscuro"] .dev-metodo--get {
+    color: var(--color-info--t);
+    background-color: var(--color-surface-muted--f);
+    background-image: none;
+}
+
+html[data-tema="oscuro"] .dev-metodo--post {
+    color: var(--color-success--t);
+    background-color: var(--color-primary-soft--f);
+    background-image: none;
+}
+
+html[data-tema="oscuro"] .dev-ejemplo {
+    background-color: var(--color-surface--f);
+    background-image: none;
+    border: 1px solid var(--color-border--b);
+}
+
+html[data-tema="oscuro"] .dev-page {
+    --bsw-primario--f: var(--color-primary--f);
+    --bsw-primario--t: var(--color-primary--t);
+    --bsw-primario--b: var(--color-primary--b);
+    --bsw-primario--s: var(--color-primary--s);
+    --bsw-primario-texto--f: var(--color-surface--f);
+    --bsw-primario-texto--t: var(--color-surface--t);
+    --bsw-primario-texto--b: var(--color-surface--b);
+    --bsw-primario-texto--s: var(--color-surface--s);
+    --bsw-fondo--f: var(--color-surface--f);
+    --bsw-fondo--t: var(--color-surface--t);
+    --bsw-fondo--b: var(--color-surface--b);
+    --bsw-fondo--s: var(--color-surface--s);
+    --bsw-texto--f: var(--color-text--f);
+    --bsw-texto--t: var(--color-text--t);
+    --bsw-texto--b: var(--color-text--b);
+    --bsw-texto--s: var(--color-text--s);
+    --bsw-suave--f: var(--color-surface-muted--f);
+    --bsw-suave--t: var(--color-surface-muted--t);
+    --bsw-suave--b: var(--color-surface-muted--b);
+    --bsw-suave--s: var(--color-surface-muted--s);
+    --bsw-borde--f: var(--color-border--f);
+    --bsw-borde--t: var(--color-border--t);
+    --bsw-borde--b: var(--color-border--b);
+    --bsw-borde--s: var(--color-border--s);
+}
+
+html[data-tema="oscuro"] .dev-cta {
+    background-color: var(--color-primary-soft--f);
+    background-image: none;
+}

@@ -1,0 +1,400 @@
+/* Páginas web de los médicos en el admin (/admin/sitios). Solo tokens del Design System; las muestras de
+   plantilla y color toman su paleta de css/sitio/sitio.css (las clases sitio--*). */
+@import url('../oscuro/admin/sitios.css');
+
+.sit-main {
+    display: grid;
+    gap: var(--space-6);
+    padding-block: var(--space-6) var(--space-12);
+}
+
+.sit-cabecera {
+    display: grid;
+    gap: var(--space-3);
+}
+
+.sit-volver {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    width: fit-content;
+    min-height: 2.75rem;
+    color: var(--color-text-muted);
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.sit-volver:hover {
+    color: var(--color-primary);
+}
+
+.sit-cabecera__fila {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: var(--space-3);
+}
+
+.sit-titulo {
+    margin: 0;
+    color: var(--color-primary);
+    font-family: var(--font-heading);
+    font-size: var(--font-size-2xl);
+}
+
+.sit-lead {
+    margin: var(--space-1) 0 0;
+    max-width: 44rem;
+    color: var(--color-text-muted);
+}
+
+.sit-enlace {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    margin: 0;
+    min-width: 0;
+    font-weight: 600;
+    overflow-wrap: anywhere;
+}
+
+.sit-enlace a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 2.75rem;
+}
+
+.sit-enlace .material-symbols-outlined {
+    color: var(--color-success);
+}
+
+/* ── Columnas: formulario y vista previa ── */
+.sit-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);
+    align-items: start;
+    gap: var(--space-6);
+}
+
+.sit-columna {
+    display: grid;
+    gap: var(--space-4);
+    min-width: 0;
+}
+
+.sit-form {
+    display: grid;
+    gap: var(--space-6);
+}
+
+.sit-grupo {
+    display: grid;
+    gap: var(--space-4);
+    min-width: 0;
+    margin: 0;
+    padding: 0;
+    border: 0;
+}
+
+.sit-grupo legend {
+    margin-bottom: var(--space-3);
+    padding: 0;
+    color: var(--color-primary);
+    font-family: var(--font-heading);
+    font-size: var(--font-size-lg);
+    font-weight: 600;
+}
+
+.sit-ayuda {
+    margin: 0;
+    color: var(--color-text-muted);
+    font-size: var(--font-size-sm);
+}
+
+.sit-campos {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));
+    gap: var(--space-4);
+}
+
+/* Radios visuales: el input queda accesible pero oculto, la tarjeta muestra el estado */
+.sit-plantilla input,
+.sit-color input {
+    position: absolute;
+    opacity: 0;
+    width: 1px;
+    height: 1px;
+}
+
+.sit-plantillas {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--space-3);
+}
+
+.sit-plantilla {
+    position: relative;
+    display: grid;
+    gap: var(--space-2);
+    padding: var(--space-2);
+    border: 2px solid var(--color-border);
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    transition: border-color var(--transition-fast);
+}
+
+.sit-plantilla:hover,
+.sit-color:hover {
+    border-color: var(--color-border-strong);
+}
+
+.sit-plantilla:has(input:checked),
+.sit-color:has(input:checked) {
+    border-color: var(--color-primary);
+    background: var(--color-primary-soft);
+}
+
+.sit-plantilla:has(input:focus-visible),
+.sit-color:has(input:focus-visible) {
+    outline: 3px solid var(--color-accent);
+    outline-offset: 2px;
+}
+
+.sit-plantilla__nombre {
+    font-weight: 600;
+    text-align: center;
+}
+
+/* Miniatura dibujada con la paleta de la plantilla */
+.sit-mini {
+    display: grid;
+    align-content: start;
+    gap: var(--space-1);
+    aspect-ratio: 4 / 3;
+    padding: var(--space-2);
+    overflow: hidden;
+    background: var(--sitio-fondo);
+    border: 1px solid var(--sitio-borde);
+    border-radius: var(--sitio-radio);
+}
+
+.sit-mini__barra {
+    height: 0.5rem;
+    margin-bottom: var(--space-1);
+    background: var(--sitio-alterno);
+    border-radius: var(--radius-sm);
+}
+
+.sit-mini__titulo {
+    width: 80%;
+    height: 0.6rem;
+    background: var(--sitio-texto);
+    border-radius: var(--radius-sm);
+}
+
+.sit-mini__linea {
+    width: 60%;
+    height: 0.35rem;
+    background: var(--sitio-borde);
+    border-radius: var(--radius-sm);
+}
+
+.sit-mini__boton {
+    width: 45%;
+    height: 0.7rem;
+    margin-top: var(--space-1);
+    background: var(--sitio-primario);
+    border-radius: var(--sitio-radio-boton);
+}
+
+.sit-colores {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+}
+
+.sit-color {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    min-height: 2.75rem;
+    padding: var(--space-1) var(--space-3) var(--space-1) var(--space-2);
+    border: 2px solid var(--color-border);
+    border-radius: var(--radius-pill);
+    font-size: var(--font-size-sm);
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.sit-color__muestra {
+    width: 1.5rem;
+    height: 1.5rem;
+    background: var(--sitio-primario);
+    border-radius: 50%;
+}
+
+.sit-acciones {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: var(--space-3);
+    padding-top: var(--space-4);
+    border-top: 1px solid var(--color-border);
+}
+
+.sit-despublicar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-3);
+    padding-inline: var(--space-2);
+    color: var(--color-text-muted);
+    font-size: var(--font-size-sm);
+}
+
+.sit-despublicar .bs-btn {
+    min-height: 2.75rem;
+}
+
+/* ── Vista previa ── */
+.sit-vista {
+    position: sticky;
+    top: var(--space-6);
+    display: grid;
+    gap: var(--space-3);
+    min-width: 0;
+}
+
+.sit-vista__barra {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-2);
+}
+
+.sit-vista__titulo {
+    margin: 0;
+    font-size: var(--font-size-base);
+}
+
+.sit-dispositivos {
+    display: flex;
+    gap: var(--space-2);
+}
+
+.sit-dispositivos .bs-btn {
+    min-height: 2.75rem;
+}
+
+.sit-dispositivos .bs-btn[aria-pressed="true"] {
+    color: var(--color-surface);
+    background: var(--color-primary);
+    border-color: var(--color-primary);
+}
+
+.sit-vista__marco {
+    position: relative;
+    height: min(78vh, 46rem);
+    overflow: hidden;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-md);
+}
+
+.sit-vista__marco iframe {
+    display: block;
+    width: 100%;
+    height: 100%;
+    border: 0;
+}
+
+/* En "Escritorio" la página se dibuja al doble de ancho y se reduce a la mitad */
+.sit-vista__marco--escritorio iframe {
+    width: 200%;
+    height: 200%;
+    transform: scale(0.5);
+    transform-origin: 0 0;
+}
+
+/* ── Lista de páginas ── */
+/* Contiene el .visually-hidden (absoluto) de la cabecera dentro del scroll de la tabla. En celular la tabla
+   conserva su ancho y se desplaza dentro de .bs-table-wrap en vez de partir los nombres letra por letra. */
+.sit-tabla {
+    position: relative;
+    min-width: 46rem;
+}
+
+.sit-tabla td {
+    vertical-align: middle;
+}
+
+.sit-tabla strong {
+    display: block;
+}
+
+/* Estados ("Publicada", "Inactiva") en una sola línea aunque la columna sea angosta */
+.sit-tabla .bs-badge {
+    white-space: nowrap;
+}
+
+.sit-tabla__sub {
+    display: block;
+    color: var(--color-text-muted);
+    font-size: var(--font-size-sm);
+}
+
+.sit-tabla__enlace {
+    display: inline-flex;
+    align-items: center;
+    min-height: 2.75rem;
+    font-weight: 600;
+    overflow-wrap: anywhere;
+}
+
+.sit-tabla__accion {
+    text-align: end;
+    white-space: nowrap;
+}
+
+.sit-tabla__accion .bs-btn {
+    min-height: 2.75rem;
+}
+
+/* 1024 px (--breakpoint-lg) */
+@media (max-width: 63.999rem) {
+    .sit-grid {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .sit-vista {
+        position: static;
+    }
+}
+
+/* 768 px (--breakpoint-md) */
+@media (max-width: 47.999rem) {
+    .sit-acciones .bs-btn {
+        flex: 1 1 100%;
+    }
+}
+
+/* 480 px (--breakpoint-sm) */
+@media (max-width: 29.999rem) {
+    .sit-plantillas {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .sit-plantilla {
+        grid-template-columns: 6rem minmax(0, 1fr);
+        align-items: center;
+    }
+
+    .sit-plantilla__nombre {
+        text-align: start;
+    }
+}

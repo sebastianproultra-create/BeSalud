@@ -33,8 +33,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
 @Controller
 public class PagoController {
 
-    /** Qué ve el paciente en la página de resultado. */
-    enum Vista { CONFIRMADA, RECHAZADA, PROCESANDO, CONFLICTO, EXPIRADA }
+    /** Qué ve el paciente en la página de resultado (también lo usa la API de consultorios). */
+    public enum Vista { CONFIRMADA, RECHAZADA, PROCESANDO, CONFLICTO, EXPIRADA }
 
     private final ReservaService reservaService;
     private final PasarelaPagos pasarela;
@@ -256,7 +256,7 @@ public class PagoController {
         return reservaService.buscarPorReferencia(r.getReferencia()).orElse(r);
     }
 
-    static Vista vistaDe(Reserva r) {
+    public static Vista vistaDe(Reserva r) {
         return switch (r.getEstado()) {
             case APROBADA -> Vista.CONFIRMADA;
             case RECHAZADA -> Vista.RECHAZADA;

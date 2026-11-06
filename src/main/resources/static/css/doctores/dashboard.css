@@ -1995,6 +1995,164 @@ a.doc-segmento {
     margin-top: auto;
 }
 
+/* ═══════════════ MI PÁGINA WEB (API de consultorios) — solo tokens ═══════════════ */
+.doc-page #mi-web .doc-card-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-3);
+    flex-wrap: wrap;
+}
+
+.web-vacia,
+.web-activa {
+    display: grid;
+    gap: var(--space-4);
+    min-width: 0;
+}
+
+.web-vacia p {
+    margin: 0;
+    max-width: 48rem;
+    color: var(--color-text-muted);
+}
+
+.web-acciones {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-3);
+}
+
+.web-acciones .doc-btn {
+    min-height: 2.75rem;
+}
+
+.web-resumen {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
+    gap: var(--space-4);
+    padding: var(--space-4) var(--space-5);
+    background: var(--color-surface-muted);
+    border-radius: var(--radius-md);
+}
+
+.web-dominios {
+    display: grid;
+    gap: var(--space-1);
+    margin: var(--space-1) 0 0;
+    padding: 0;
+    list-style: none;
+    overflow-wrap: anywhere;
+}
+
+.web-dominios a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 2.75rem;
+}
+
+.web-id {
+    display: inline-block;
+    margin-top: var(--space-1);
+    font-family: var(--font-mono);
+    font-weight: 600;
+}
+
+.web-metrica {
+    display: grid;
+    align-content: center;
+}
+
+.web-metrica strong {
+    color: var(--color-primary);
+    font-family: var(--font-heading);
+    font-size: var(--font-size-2xl);
+    line-height: 1;
+}
+
+.web-metrica span {
+    color: var(--color-text-muted);
+    font-size: var(--font-size-sm);
+}
+
+.web-codigo {
+    display: grid;
+    gap: var(--space-3);
+    min-width: 0;
+}
+
+.web-codigo pre {
+    margin: 0;
+    padding: var(--space-4);
+    overflow-x: auto;
+    color: var(--color-primary-soft);
+    background: var(--color-primary);
+    border-radius: var(--radius-md);
+    font-family: var(--font-mono);
+    font-size: var(--font-size-sm);
+    line-height: 1.6;
+    overscroll-behavior-inline: contain;
+}
+
+.web-activa > .doc-enlace-ayuda code {
+    font-family: var(--font-mono);
+}
+
+.web-resumen > div {
+    display: grid;
+    align-content: start;
+    gap: var(--space-1);
+    min-width: 0;
+}
+
+.web-url {
+    display: inline-flex;
+    align-items: center;
+    min-height: 2.75rem;
+    font-weight: 600;
+    overflow-wrap: anywhere;
+}
+
+.web-pendiente {
+    color: var(--color-text-muted);
+}
+
+/* Web propia: el código del widget queda plegado, como opción secundaria */
+.web-dev {
+    margin-top: var(--space-5);
+    padding-top: var(--space-3);
+    border-top: 1px solid var(--color-border);
+}
+
+.web-dev > summary {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    min-height: 2.75rem;
+    color: var(--color-text-muted);
+    font-size: var(--font-size-sm);
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.web-dev > summary:hover,
+.web-dev[open] > summary {
+    color: var(--color-primary);
+}
+
+.web-dev > .web-vacia,
+.web-dev > .web-activa {
+    margin-top: var(--space-3);
+}
+
+/* 480 px (--breakpoint-sm) */
+@media (max-width: 29.999rem) {
+    .web-acciones .doc-btn {
+        flex: 1 1 100%;
+        justify-content: center;
+    }
+}
+
 /* Controles táctiles: en celular y tableta miden al menos 44 px (DESIGN_SYSTEM.md) */
 @media (max-width: 48rem) {
     .doc-segmento {

@@ -45,6 +45,7 @@ class AdminControllerTest {
     @MockBean private AdminService adminService;
     @MockBean private EstadisticasService estadisticasService;
     @MockBean private AyudaService ayudaService;
+    @MockBean private com.gestion.proyectos.servicio.ConsultorioService consultorioService;
     @MockBean private com.gestion.proyectos.servicio.DevolucionService devolucionService;
     @MockBean private RateLimiter rateLimiter;
     @MockBean private CustomUserDetailsService customUserDetailsService;
@@ -103,5 +104,34 @@ class AdminControllerTest {
         mockMvc.perform(post("/admin/ayuda/m2/atendido").with(csrf()).with(user("p@test.com").roles("PACIENTE")))
                 .andExpect(status().isForbidden());
         org.mockito.Mockito.verify(ayudaService, org.mockito.Mockito.never()).marcarAtendido("m2");
+    }
+
+    @Test
+    void activar_conApiDeConsultoriosApagada_ignoraElSitioWeb() throws Exception {
+        mockMvc.perform(post("/admin/doctores/d1/activar").param("sitioWeb", "https://anaruiz.com")
+                        .with(csrf()).with(user("admin@test.com").roles("ADMIN")))
+                .andExpect(redirectedUrl("/admin"));
+        org.mockito.Mockito.verify(adminService).activarDoctor("d1");
+        org.mockito.Mockito.verifyNoInteractions(consultorioService);
+    }
+
+    @Test
+    void dashboard_conApiDeConsultoriosApagada_noMuestraLaColumnaSitioWeb() throws Exception {
+        Doctor doctor = new Doctor();
+        doctor.setId("d1");
+        doctor.setNombre("Ana");
+        doctor.setApellido("Ruiz");
+        doctor.setEstado("ACTIVO");
+        when(adminService.listarDoctoresPaginated(anyInt(), anyInt(), any(), any()))
+                .thenReturn(new org.springframework.data.domain.PageImpl<>(List.of(doctor)));
+        when(adminService.listarPacientesPaginated(anyInt(), anyInt()))
+                .thenReturn(new org.springframework.data.domain.PageImpl<>(List.<com.gestion.proyectos.modelo.Paciente>of()));
+        when(adminService.listarAdmins()).thenReturn(List.of());
+
+        mockMvc.perform(get("/admin").with(user("admin@test.com").roles("ADMIN")))
+                .andExpect(status().isOk())
+                .andExpect(content().string(org.hamcrest.Matchers.not(containsString(">Sitio web<"))))
+                .andExpect(content().string(org.hamcrest.Matchers.not(containsString("Sitio web (opcional)"))));
+        org.mockito.Mockito.verifyNoInteractions(consultorioService);
     }
 }
