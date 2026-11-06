@@ -69,11 +69,11 @@
 <!-- ── Footer de la app. Se llama app-footer y no footer: el selector ":: footer" también
      toma cualquier <footer> del archivo y la página saldría con dos pies. ── -->
 <footer th:fragment="app-footer" class="bs-footer">
-    <p>&copy; 2026 BeSalud - Sistema de citas médicas. Todos los derechos reservados. · <a th:href="@{/privacidad}">Política de privacidad</a></p>
+    <p>&copy; 2026 BeSalud - Sistema de citas médicas. Todos los derechos reservados. · <a th:href="@{/privacidad}">Política de privacidad</a><th:block th:if="${portalDesarrolladores}"> · <a th:href="@{/desarrolladores}">Desarrolladores</a></th:block></p>
 </footer>
 
 <footer th:fragment="auth-footer" class="bs-footer" role="contentinfo">
-    <p>&copy; 2026 BeSalud · Sistema de Gestión de Citas Médicas · Privacidad y Seguridad · <a th:href="@{/privacidad}">Política de privacidad</a></p>
+    <p>&copy; 2026 BeSalud · Sistema de Gestión de Citas Médicas · Privacidad y Seguridad · <a th:href="@{/privacidad}">Política de privacidad</a><th:block th:if="${portalDesarrolladores}"> · <a th:href="@{/desarrolladores}">Desarrolladores</a></th:block></p>
 </footer>
 
 </html>

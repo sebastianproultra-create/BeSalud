@@ -1600,3 +1600,20 @@ footer a:hover {
         font-size: 32px;
     }
 }
+
+/* Controles táctiles: en celular y tableta miden al menos 44 px (DESIGN_SYSTEM.md) */
+@media (max-width: 48rem) {
+    .btn-sm {
+        min-height: 2.75rem;
+    }
+
+    /* Tarjetas de médicos del administrador: los botones bajan de línea en vez de partir las palabras */
+    .person-card-foot {
+        flex-wrap: wrap;
+    }
+
+    .person-card-foot .btn,
+    .person-card-foot .status-dot {
+        white-space: nowrap;
+    }
+}

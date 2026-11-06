@@ -483,4 +483,11 @@ class CitaControllerTest {
 
         verify(historialClinicoService, never()).guardarDeclarado(any(), any(), any());
     }
+
+    @Test
+    void nueva_sinMedico_vuelveAlInicioDelPaciente() throws Exception {
+        mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get("/citas/nueva")
+                        .with(user("paciente@test.com").roles("PACIENTE")))
+                .andExpect(redirectedUrl("/pacientes/landing"));
+    }
 }

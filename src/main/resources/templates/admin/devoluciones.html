@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org"
+      th:with="loc=${T(java.util.Locale).forLanguageTag('es-CO')}">
+<head>
+    <meta charset="UTF-8">
+    <title>Devoluciones - BeSalud</title>
+    <link rel="stylesheet" th:href="@{/css/base/global.css}">
+    <link rel="stylesheet" th:href="@{/css/admin/devoluciones.css}">
+    <th:block th:replace="~{fragments/layout :: design-system}"></th:block>
+    <link rel="stylesheet" th:href="@{/css/base/tema-oscuro.css}">
+    <script th:src="@{/js/tema.js}"></script>
+</head>
+<body>
+<header th:replace="~{fragments/navbar :: navbar}"></header>
+
+<main class="bs-container dev-main">
+    <div class="dev-cabecera">
+        <h1>Devoluciones</h1>
+        <p>El dinero de las citas entra a la cuenta de BeSalud, así que aquí se devuelve. Primero haz la devolución desde
+            Wompi o el banco; después regístrala con su comprobante. El paciente la revisa y confirma si le llegó.</p>
+    </div>
+
+    <div th:if="${param.registrada != null}" class="bs-alert bs-alert--success" role="status">
+        Registramos la devolución y le avisamos al paciente. Queda por confirmar hasta que responda.
+    </div>
+    <div th:if="${param.error != null and param.error[0] == 'no_pendiente'}" class="bs-alert bs-alert--danger" role="alert">
+        Esa devolución ya no está pendiente.
+    </div>
+    <div th:if="${param.error != null and param.error[0] == 'archivo_tamano'}" class="bs-alert bs-alert--danger" role="alert">
+        El comprobante pesa más de 5 MB. No se registró la devolución.
+    </div>
+
+    <section class="dev-seccion" aria-labelledby="dev-pendientes">
+        <h2 id="dev-pendientes">Por devolver
+            <span class="bs-badge bs-badge--warning" th:text="${#lists.size(pendientes)}">0</span></h2>
+        <p class="dev-vacio" th:if="${#lists.isEmpty(pendientes)}">No hay devoluciones pendientes.</p>
+
+        <article th:each="p : ${pendientes}" class="bs-card dev-tarjeta" th:id="${p.origen()}"
+                 th:with="reclamo=${p.anterior() != null and p.anterior().estado.name() == 'RECLAMADA'}">
+            <div class="dev-tarjeta__cabeza">
+                <div>
+                    <h3 th:text="${p.paciente()}">Paciente</h3>
+                    <p class="dev-sutil" th:text="${(p.documento() != null ? 'Doc. ' + p.documento() + ' · ' : '') + (p.telefono() ?: '') + (p.email() != null ? ' · ' + p.email() : '')}">Contacto</p>
+                </div>
+                <div class="dev-monto">
+                    <strong th:text="${'$' + #numbers.formatInteger(p.montoPesos(), 1, 'POINT')}">$80.000</strong>
+                    <span th:if="${reclamo}" class="bs-badge bs-badge--danger">Reclamada</span>
+                    <span th:if="${!reclamo and p.vencida()}" class="bs-badge bs-badge--danger"
+                          th:text="${'Vencida: ' + p.diasEspera() + ' días'}">Vencida</span>
+                    <span th:if="${!reclamo and !p.vencida() and p.diasEspera() != null}" class="bs-badge bs-badge--warning"
+                          th:text="${p.diasEspera() == 0 ? 'Hoy · plazo ' + diasPlazo + ' días' : p.diasEspera() + ' de ' + diasPlazo + ' días'}">1 de 5 días</span>
+                </div>
+            </div>
+
+            <div th:if="${reclamo}" class="bs-alert bs-alert--danger dev-reclamo" role="status">
+                <strong>El paciente dice que no le llegó.</strong>
+                <span th:if="${p.anterior().notaReclamo != null}" th:text="${'«' + p.anterior().notaReclamo + '»'}">Nota</span>
+                <span th:text="${'Registro anterior: ' + p.anterior().medio + ', operación ' + p.anterior().numeroOperacion + '.'}">Registro anterior</span>
+                <a th:href="@{/admin/devoluciones/{c}/comprobante(c=${p.anterior().codigo})}" target="_blank" rel="noopener">Ver comprobante anterior</a>
+            </div>
+
+            <dl class="dev-datos">
+                <div><dt>Motivo</dt><dd th:text="${p.motivo()}">Canceló el médico</dd></div>
+                <div><dt>Profesional</dt><dd th:text="${p.profesional()}">Profesional</dd></div>
+                <div><dt>Cita</dt><dd th:text="${#temporals.format(p.fecha(), 'd MMM yyyy', loc) + ' · ' + #temporals.format(p.hora(), 'h:mm a', loc)}">Fecha</dd></div>
+                <div>
+                    <dt>Pago original</dt>
+                    <dd>
+                        <span class="dev-bloque" th:each="pago : ${p.pagos()}" th:text="${pago}">BS-1</span>
+                    </dd>
+                </div>
+            </dl>
+
+            <div th:if="${param.origen != null and param.origen[0] == p.origen() and param.error != null}"
+                 class="bs-alert bs-alert--danger" role="alert" th:switch="${param.error[0]}">
+                <span th:case="'medio'">Elige por dónde hiciste la devolución.</span>
+                <span th:case="'numero'">Escribe el número de operación: de 4 a 60 letras o números.</span>
+                <span th:case="'numero_usado'">Ese número de operación ya está en otra devolución. Revisa que sea el correcto.</span>
+                <span th:case="'monto'" th:text="${'El monto debe ser exactamente $' + #numbers.formatInteger(p.montoPesos(), 1, 'POINT') + '. No se registran devoluciones parciales.'}">Monto</span>
+                <span th:case="'archivo_vacio'">Adjunta el comprobante de la devolución.</span>
+                <span th:case="'archivo_tipo'">El comprobante debe ser un PDF, JPG o PNG.</span>
+                <span th:case="'archivo_usado'">Ese mismo archivo ya se usó en otra devolución. Adjunta el comprobante de esta.</span>
+                <span th:case="*">No pudimos registrar la devolución. Intenta de nuevo.</span>
+            </div>
+
+            <form class="dev-form" th:action="@{/admin/devoluciones/{origen}/registrar(origen=${p.origen()})}" method="post"
+                  enctype="multipart/form-data"
+                  th:attr="data-confirmar=${'¿Ya le devolviste $' + #numbers.formatInteger(p.montoPesos(), 1, 'POINT') + ' a ' + p.paciente() + '? Se le avisará con este comprobante.'}"
+                  onsubmit="return confirm(this.dataset.confirmar);">
+                <div class="bs-field">
+                    <label class="bs-field__label" th:for="${'medio-' + p.origen()}">Medio de la devolución</label>
+                    <select class="bs-field__control" th:id="${'medio-' + p.origen()}" name="medio" required>
+                        <option value="">Elige…</option>
+                        <option th:each="m : ${medios}" th:value="${m}" th:text="${m}">Nequi</option>
+                    </select>
+                </div>
+                <div class="bs-field">
+                    <label class="bs-field__label" th:for="${'numero-' + p.origen()}">Número de operación</label>
+                    <input class="bs-field__control" th:id="${'numero-' + p.origen()}" type="text" name="numeroOperacion"
+                           required minlength="4" maxlength="60" autocomplete="off">
+                </div>
+                <div class="bs-field">
+                    <label class="bs-field__label" th:for="${'monto-' + p.origen()}">Monto devuelto</label>
+                    <input class="bs-field__control" th:id="${'monto-' + p.origen()}" type="text" name="monto" inputmode="numeric"
+                           required autocomplete="off" th:placeholder="${#numbers.formatInteger(p.montoPesos(), 1, 'POINT')}">
+                </div>
+                <div class="bs-field">
+                    <label class="bs-field__label" th:for="${'archivo-' + p.origen()}">Comprobante (PDF, JPG o PNG)</label>
+                    <input class="bs-field__control" th:id="${'archivo-' + p.origen()}" type="file" name="comprobante" required
+                           accept="application/pdf,image/jpeg,image/png,.pdf,.jpg,.jpeg,.png">
+                </div>
+                <button type="submit" class="bs-btn bs-btn--primary dev-form__enviar">
+                    <span class="material-symbols-outlined" aria-hidden="true">verified</span>Registrar devolución
+                </button>
+            </form>
+        </article>
+    </section>
+
+    <section class="dev-seccion" id="registradas" aria-labelledby="dev-registradas">
+        <h2 id="dev-registradas">Registradas</h2>
+        <p class="dev-vacio" th:if="${#lists.isEmpty(registradas)}">Aún no se ha registrado ninguna devolución.</p>
+        <ul class="dev-lista" th:unless="${#lists.isEmpty(registradas)}">
+            <li th:each="r : ${registradas}" th:with="d=${r.devolucion()}">
+                <details class="bs-card dev-registro">
+                    <summary>
+                        <span class="dev-registro__quien">
+                            <strong th:text="${r.paciente()}">Paciente</strong>
+                            <small th:text="${d.codigo + ' · ' + #temporals.format(d.registradaEn, 'd MMM yyyy', loc)}">DEV-1</small>
+                        </span>
+                        <strong class="dev-registro__monto" th:text="${'$' + #numbers.formatInteger(d.montoPesos, 1, 'POINT')}">$80.000</strong>
+                        <span th:class="${'bs-badge bs-badge--' + d.estado.tono}" th:text="${d.estado.texto}">Por confirmar</span>
+                    </summary>
+                    <dl class="dev-datos">
+                        <div><dt>Profesional</dt><dd th:text="${r.profesional()}">Profesional</dd></div>
+                        <div><dt>Medio</dt><dd th:text="${d.medio}">Nequi</dd></div>
+                        <div><dt>Número de operación</dt><dd class="dev-partir" th:text="${d.numeroOperacion}">123</dd></div>
+                        <div><dt>Registró</dt><dd class="dev-partir" th:text="${d.registradaPor}">admin</dd></div>
+                        <div><dt>Pagos devueltos</dt><dd class="dev-partir" th:text="${#strings.listJoin(d.referencias, ', ')}">BS-1</dd></div>
+                        <div><dt>Huella del comprobante (SHA-256)</dt><dd class="dev-partir dev-huella" th:text="${d.comprobanteHash}">abc</dd></div>
+                    </dl>
+                    <a class="bs-btn bs-btn--secondary bs-btn--small" th:href="@{/admin/devoluciones/{c}/comprobante(c=${d.codigo})}"
+                       target="_blank" rel="noopener">
+                        <span class="material-symbols-outlined" aria-hidden="true" th:text="${d.comprobantePdf ? 'picture_as_pdf' : 'image'}">image</span>Ver comprobante
+                    </a>
+                    <ol class="dev-linea" aria-label="Trazabilidad">
+                        <li th:each="e : ${d.eventos}">
+                            <time th:text="${#temporals.format(e.fecha(), 'd MMM yyyy, h:mm a', loc)}">Fecha</time>
+                            <span th:text="${e.quien() + ': ' + e.texto()}">Evento</span>
+                        </li>
+                    </ol>
+                </details>
+            </li>
+        </ul>
+    </section>
+</main>
+
+<footer th:replace="~{fragments/layout :: app-footer}"></footer>
+</body>
+</html>

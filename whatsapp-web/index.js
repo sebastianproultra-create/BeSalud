@@ -21,10 +21,14 @@ try { pendientes = JSON.parse(fs.readFileSync(PENDIENTES, 'utf8')); } catch { }
 const guardarPendientes = () => fs.writeFile(PENDIENTES, JSON.stringify(pendientes), () => { });
 
 let qrActual = null;
+let codigoActual = null;
+const VINCULAR = (process.env.PAIR_PHONE || '').replace(/\D/g, '');
 let listo = false;
 
 const client = new Client({
   authStrategy: new LocalAuth({ dataPath: path.join(DATOS, 'sesion') }),
+  // Con PAIR_PHONE se vincula con un código de 8 caracteres en vez del QR (sirve si el celular no está al lado)
+  ...(VINCULAR && { pairWithPhoneNumber: { phoneNumber: VINCULAR, showNotification: true, intervalMs: 180000 } }),
   puppeteer: {
     headless: true,
     executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || undefined,
@@ -33,7 +37,8 @@ const client = new Client({
 });
 
 client.on('qr', qr => { qrActual = qr; listo = false; console.log('Hay un QR nuevo para vincular el número: abra /qr'); });
-client.on('ready', () => { qrActual = null; listo = true; console.log('WhatsApp Web conectado'); });
+client.on('code', codigo => { codigoActual = codigo; listo = false; console.log('Hay un código nuevo para vincular el número: abra /qr'); });
+client.on('ready', () => { qrActual = null; codigoActual = null; listo = true; console.log('WhatsApp Web conectado'); });
 client.on('disconnected', motivo => { listo = false; console.warn('WhatsApp desconectado:', motivo); client.initialize(); });
 client.on('auth_failure', m => console.error('Falló la autenticación:', m));
 
@@ -75,8 +80,21 @@ function textoNodo(nodo) {
 
 async function numeroDe(msg) {
   // WhatsApp ya identifica a algunos usuarios con un id privado (@lid): el número real sale del contacto
-  const contacto = await msg.getContact();
-  return contacto.number || msg.from.replace(/@.*/, '');
+  if (msg.from.endsWith('@lid')) {
+    try {
+      const [par] = await client.getContactLidAndPhone([msg.from]);
+      if (par?.pn) return par.pn.replace(/@.*/, '');
+    } catch (e) {
+      console.warn('No se pudo traducir el id privado', e.message);
+    }
+  }
+  try {
+    const contacto = await msg.getContact();
+    if (contacto?.number) return contacto.number;
+  } catch (e) {
+    console.warn('No se pudo leer el contacto', e.message);
+  }
+  return msg.from.replace(/@.*/, '');
 }
 
 async function responderAsistencia(id, telefono) {
@@ -94,7 +112,34 @@ async function responderAsistencia(id, telefono) {
   }
 }
 
-client.on('message', async msg => {
+const atendidos = new Set();
+// Algunas versiones de WhatsApp Web solo disparan message_create: se escuchan ambos y se evita responder dos veces
+for (const evento of ['message', 'message_create']) {
+  client.on(evento, msg => {
+    if (msg.fromMe || atendidos.has(msg.id?._serialized)) return;
+    atendidos.add(msg.id?._serialized);
+    if (atendidos.size > 5000) atendidos.clear();
+    atender(msg).catch(e => console.error('Error atendiendo mensaje', e.message));
+  });
+}
+
+client.on('ready', async () => {
+  try {
+    const chats = await client.getChats();
+    const sinLeer = chats.filter(c => c.unreadCount > 0 && !c.isGroup);
+    console.log(`Chats visibles: ${chats.length}, sin leer: ${sinLeer.length}`);
+    // Lo que llegó mientras el bot estaba apagado o reiniciando también se contesta
+    for (const chat of sinLeer) {
+      const [ultimo] = await chat.fetchMessages({ limit: 1 });
+      if (ultimo && !ultimo.fromMe) await atender(ultimo).catch(e => console.error('Error con un pendiente', e.message));
+    }
+  } catch (e) {
+    console.warn('No se pudieron leer los chats', e.message);
+  }
+});
+
+async function atender(msg) {
+  console.log(`mensaje recibido tipo=${msg.type} de=${String(msg.from).slice(-9)}`);
   if (msg.fromMe || msg.isStatus || msg.from.endsWith('@g.us') || msg.from === 'status@broadcast') return;
   if (msg.type !== 'chat') return;
   const texto = (msg.body || '').trim();
@@ -117,7 +162,7 @@ client.on('message', async msg => {
   nodoActual.set(msg.from, nodo.id);
   console.log(`...${telefono.slice(-4)} -> ${nodo.id}`);
   await msg.reply(textoNodo(nodo));
-});
+}
 
 async function enviar({ telefono, texto, opciones = [] }) {
   const digitos = String(telefono || '').replace(/\D/g, '');
@@ -147,10 +192,11 @@ http.createServer(async (req, res) => {
   const url = new URL(req.url, 'http://localhost');
 
   if (req.method === 'GET' && url.pathname === '/qr') {
-    if (!autorizado(url.searchParams.get('clave'))) { res.writeHead(401); return res.end(); }
+    if (!autorizado(req.headers['x-bot-secret'])) { res.writeHead(401); return res.end(); }
     res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
     if (listo) return res.end('<h2>✅ El número ya está vinculado a BeSalud.</h2>');
-    if (!qrActual) return res.end('<meta http-equiv="refresh" content="3"><h2>Generando el código QR…</h2>');
+    if (codigoActual) return res.end(`<h2>Código para vincular</h2><p style="font-size:48px;letter-spacing:6px;font-weight:bold">${codigoActual}</p><p>WhatsApp → Dispositivos vinculados → Vincular un dispositivo → Vincular con número de teléfono</p>`);
+    if (!qrActual) return res.end('<meta http-equiv="refresh" content="3"><h2>Generando el código…</h2>');
     const img = await QRCode.toDataURL(qrActual, { width: 360, margin: 2 });
     return res.end(`<meta http-equiv="refresh" content="20"><h2>Escanee con WhatsApp → Dispositivos vinculados</h2><img src="${img}">`);
   }
@@ -172,5 +218,16 @@ http.createServer(async (req, res) => {
   res.end(url.pathname === '/' ? `Bot de WhatsApp Web de BeSalud: ${listo ? 'conectado' : 'sin vincular'}` : '');
 }).listen(PORT, () => console.log(`Escuchando en ${PORT}`));
 
+// Al redesplegar, el contenedor anterior deja el perfil de Chromium "bloqueado" en el disco y el nuevo no arranca
+function quitarBloqueos(dir) {
+  if (!fs.existsSync(dir)) return;
+  for (const f of fs.readdirSync(dir, { withFileTypes: true })) {
+    const ruta = path.join(dir, f.name);
+    if (f.name.startsWith('Singleton')) fs.rmSync(ruta, { force: true });
+    else if (f.isDirectory()) quitarBloqueos(ruta);
+  }
+}
+
 fs.mkdirSync(DATOS, { recursive: true });
+quitarBloqueos(path.join(DATOS, 'sesion'));
 client.initialize();

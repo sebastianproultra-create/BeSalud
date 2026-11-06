@@ -242,13 +242,14 @@
                 .map(p => ({ fecha: aFecha(p.fecha), valor: p.volumenProyectado, min: p.margenMinimo, max: p.margenMaximo }))
                 .filter(d => d.fecha >= hoy);
             if (!datos.length) { mostrar('vacio', 'Todavía no hay un pronóstico disponible para los próximos días.'); return; }
+            $('demandaRespaldo').hidden = !json.respaldo;
             mostrar('listo');
             // Las etiquetas de los ejes se miden con la fuente: esperar a que cargue para no cortarlas.
             document.fonts.ready.then(() => pintar(Number(document.querySelector('.demanda-rango.is-active').dataset.dias)));
         })
         .catch(function (e) {
             mostrar('vacio', e.message === 'sin-historial'
-                ? 'Aún no hay suficiente historial de citas para proyectar tu demanda.'
+                ? 'Tu especialidad todavía no está en el modelo predictivo, así que no hay una proyección de demanda para ti.'
                 : 'El modelo predictivo no está disponible en este momento. Intenta de nuevo más tarde.');
         });
 })();

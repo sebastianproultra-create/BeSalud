@@ -46,7 +46,7 @@ html.tema-cambiando *::after {
     border-radius: 50%;
     box-shadow: 0 0 0 1px rgba(0, 47, 36, 0.25), 0 8px 22px -8px rgba(0, 47, 36, 0.55);
     cursor: pointer;
-    transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+    transition: transform 0.2s ease, opacity 0.2s ease, box-shadow 0.15s ease, background 0.15s ease;
 }
 
 .tema-boton:hover {
@@ -93,13 +93,28 @@ html[data-tema="oscuro"] .tema-boton:focus-visible {
     .tema-boton {
         bottom: 16px;
         left: 16px;
-        width: 38px;
-        height: 38px;
+        width: 44px;
+        height: 44px;
     }
 
     .tema-boton svg {
         width: 18px;
         height: 18px;
+    }
+}
+
+/* En el celular se aparta mientras la persona baja y vuelve al subir, para no tapar contenido */
+@media (max-width: 768px) {
+    .tema-boton.is-apartado {
+        opacity: 0;
+        pointer-events: none;
+        transform: translateY(calc(100% + 24px));
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .tema-boton {
+        transition: none;
     }
 }
 
@@ -148,6 +163,15 @@ html[data-tema="oscuro"] .demanda-muestra--rango {
     border-top-color: var(--d-on--t);
     border-bottom-color: var(--d-on--t);
     background-image: linear-gradient(var(--d-on--t), var(--d-on--t));
+}
+
+/* Logo del login: en oscuro se muestra la versión clara del símbolo */
+html[data-tema="oscuro"] .auth-logo {
+    display: none;
+}
+
+html[data-tema="oscuro"] .auth-logo--oscuro {
+    display: block;
 }
 
 /* Chatbot de la página de inicio: sus cremas y dorados se leen como café en oscuro; se pasan a la paleta verde */

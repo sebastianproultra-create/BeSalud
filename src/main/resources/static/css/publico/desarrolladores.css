@@ -1,0 +1,276 @@
+/* Portal para desarrolladores (/desarrolladores). Solo tokens del Design System. */
+@import url('../oscuro/publico/desarrolladores.css');
+
+.dev-main {
+    display: grid;
+    gap: var(--space-10);
+    padding-block: var(--space-8) var(--space-12);
+}
+
+/* ── Presentación ── */
+.dev-hero {
+    display: grid;
+    gap: var(--space-4);
+    max-width: 52rem;
+}
+
+.dev-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    width: fit-content;
+    margin: 0;
+    padding: var(--space-1) var(--space-3);
+    color: var(--color-primary);
+    background: var(--color-primary-soft);
+    border-radius: var(--radius-pill);
+    font-size: var(--font-size-sm);
+    font-weight: 600;
+}
+
+.dev-eyebrow .material-symbols-outlined {
+    font-size: var(--font-size-lg);
+}
+
+.dev-titulo {
+    margin: 0;
+    color: var(--color-primary);
+    font-family: var(--font-heading);
+    font-size: var(--font-size-2xl);
+    line-height: 1.15;
+}
+
+.dev-lead {
+    margin: 0;
+    color: var(--color-text-muted);
+    font-size: var(--font-size-lg);
+}
+
+.dev-acciones {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-3);
+}
+
+/* ── Secciones ── */
+.dev-seccion {
+    display: grid;
+    gap: var(--space-4);
+    min-width: 0;
+}
+
+.dev-seccion > p {
+    margin: 0;
+    max-width: 52rem;
+}
+
+.dev-h2 {
+    margin: 0;
+    color: var(--color-primary);
+    font-family: var(--font-heading);
+    font-size: var(--font-size-xl);
+}
+
+.dev-h3 {
+    margin: var(--space-4) 0 0;
+    font-size: var(--font-size-base);
+}
+
+.dev-nota {
+    margin: 0;
+    color: var(--color-text-muted);
+    font-size: var(--font-size-sm);
+}
+
+.dev-main code {
+    font-family: var(--font-mono);
+    font-size: 0.92em;
+}
+
+.dev-main :not(pre) > code {
+    padding: 0 var(--space-1);
+    background: var(--color-surface-muted);
+    border-radius: var(--radius-sm);
+    overflow-wrap: anywhere;
+}
+
+/* ── Pasos ── */
+.dev-pasos {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+    gap: var(--space-4);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.dev-paso {
+    display: grid;
+    gap: var(--space-2);
+    align-content: start;
+}
+
+.dev-paso h3,
+.dev-paso p {
+    margin: 0;
+}
+
+.dev-paso p {
+    color: var(--color-text-muted);
+    font-size: var(--font-size-sm);
+}
+
+.dev-paso__icono {
+    display: grid;
+    place-items: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    color: var(--color-primary);
+    background: var(--color-primary-soft);
+    border-radius: var(--radius-md);
+}
+
+/* ── Bloques de código ── */
+.dev-codigo {
+    min-width: 0;
+    overflow: hidden;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+}
+
+.dev-codigo__barra {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-3);
+    padding: var(--space-2) var(--space-2) var(--space-2) var(--space-4);
+    color: var(--color-text-muted);
+    background: var(--color-surface-muted);
+    border-bottom: 1px solid var(--color-border);
+    font-size: var(--font-size-xs);
+    font-weight: 600;
+    letter-spacing: 0.06em;
+}
+
+.dev-main pre {
+    margin: 0;
+    padding: var(--space-4);
+    overflow-x: auto;
+    color: var(--color-primary-soft);
+    background: var(--color-primary);
+    font-size: var(--font-size-sm);
+    line-height: 1.6;
+    overscroll-behavior-inline: contain;
+}
+
+.dev-ejemplo pre {
+    border-radius: 0 0 var(--radius-md) var(--radius-md);
+}
+
+/* ── Referencia ── */
+.dev-datos {
+    display: grid;
+    grid-template-columns: max-content minmax(0, 1fr);
+    gap: var(--space-2) var(--space-5);
+    margin: 0;
+    padding: var(--space-4) var(--space-5);
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+}
+
+.dev-datos dt {
+    color: var(--color-text-muted);
+    font-weight: 600;
+}
+
+.dev-datos dd {
+    margin: 0;
+    min-width: 0;
+}
+
+.dev-endpoints td:nth-child(2) {
+    white-space: nowrap;
+}
+
+.dev-metodo {
+    font-family: var(--font-mono);
+}
+
+.dev-metodo--get {
+    color: var(--color-info);
+    background: var(--color-surface-muted);
+}
+
+.dev-metodo--post {
+    color: var(--color-success);
+    background: var(--color-primary-soft);
+}
+
+.dev-ejemplo {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+}
+
+.dev-ejemplo summary {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    min-height: 2.75rem;
+    padding: var(--space-2) var(--space-4);
+    cursor: pointer;
+}
+
+.dev-ejemplo .dev-nota {
+    padding: var(--space-3) var(--space-4);
+}
+
+/* ── Seguridad ── */
+.dev-lista {
+    display: grid;
+    gap: var(--space-3);
+    margin: 0;
+    padding-inline-start: var(--space-5);
+    max-width: 52rem;
+}
+
+/* ── Demo y acceso ── */
+/* El widget se monta en <body>: sus colores = los de BeSalud */
+.dev-page {
+    --bsw-primario: var(--color-primary);
+    --bsw-primario-texto: var(--color-surface);
+    --bsw-fondo: var(--color-surface);
+    --bsw-texto: var(--color-text);
+    --bsw-suave: var(--color-surface-muted);
+    --bsw-borde: var(--color-border);
+    --bsw-radio: var(--radius-lg);
+    --bsw-fuente: var(--font-body);
+    --bsw-fuente-titulo: var(--font-heading);
+}
+
+.dev-cta {
+    justify-items: start;
+    padding: var(--space-8) var(--space-6);
+    background: var(--color-primary-soft);
+    border-radius: var(--radius-lg);
+}
+
+/* 768 px (--breakpoint-md) */
+@media (max-width: 47.999rem) {
+    .dev-datos {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .dev-datos dd {
+        margin-bottom: var(--space-2);
+    }
+
+    .dev-endpoints td:nth-child(2) {
+        white-space: normal;
+    }
+
+    .dev-acciones .bs-btn {
+        flex: 1 1 100%;
+    }
+}

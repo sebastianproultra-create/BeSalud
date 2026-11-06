@@ -197,4 +197,89 @@ class CitaServiceTest {
         assertThat(service.responderAsistencia(cita, false)).isTrue();
         assertThat(cita.getEstadoAbono()).isEqualTo(com.gestion.proyectos.modelo.EstadoAbono.RETENIDO);
     }
+
+    // ── Pago completo antes de la cita ──────────────────────────────────────
+
+    private static com.gestion.proyectos.modelo.Reserva reservaPagada(boolean total) {
+        var r = new com.gestion.proyectos.modelo.Reserva();
+        r.setReferencia("BS-T");
+        r.setDoctorId("d1");
+        r.setPacienteId("p1");
+        r.setFecha(LocalDate.now().plusDays(5));
+        r.setHora(LocalTime.of(9, 0));
+        r.setMotivo("Control");
+        r.setAbonoCentavos(1_600_000L);
+        r.setPrecioCentavos(8_000_000L);
+        r.setPagoTotal(total);
+        r.setMontoCentavos(total ? 8_000_000L : 1_600_000L);
+        r.setMedioPago("Visa •••• 4242");
+        return r;
+    }
+
+    @Test
+    void citaPagadaConTodo_quedaPagadaPorCompleto() {
+        when(citaRepo.save(any(Cita.class))).thenAnswer(i -> i.getArgument(0));
+
+        Cita cita = service.crearCitaConAbono(reservaPagada(true));
+
+        assertThat(cita.getAbonoCentavos()).isEqualTo(1_600_000L);
+        assertThat(cita.getSaldoCentavos()).isEqualTo(6_400_000L);
+        assertThat(cita.isPagadaCompleta()).isTrue();
+        assertThat(cita.getPagadoPesos()).isEqualTo(80_000L);
+    }
+
+    @Test
+    void citaConSoloAbono_debePagarElRestoAntesDelPlazo() {
+        when(citaRepo.save(any(Cita.class))).thenAnswer(i -> i.getArgument(0));
+
+        Cita cita = service.crearCitaConAbono(reservaPagada(false));
+
+        assertThat(cita.isPagadaCompleta()).isFalse();
+        assertThat(cita.isSaldoObligatorio()).isTrue();
+        assertThat(cita.getLimitePagoSaldo()).isEqualTo(cita.getFecha().atTime(9, 0).minusHours(24));
+    }
+
+    @Test
+    void sinPagarElRestoATiempo_seCancelaYSeConservaElAbono() {
+        Cita cita = new Cita();
+        cita.setId("c1");
+        cita.setEstado(EstadoCita.PENDIENTE);
+        cita.setAbonoCentavos(1_600_000L);
+        cita.setSaldoObligatorio(true);
+
+        assertThat(service.cancelarPorFaltaDePago(cita)).isTrue();
+        assertThat(cita.getEstado()).isEqualTo(EstadoCita.CANCELADA);
+        assertThat(cita.getEstadoAbono()).isEqualTo(com.gestion.proyectos.modelo.EstadoAbono.RETENIDO);
+        verify(eventos).publishEvent(new com.gestion.proyectos.modelo.CitaEvento(
+                com.gestion.proyectos.modelo.CitaEvento.Tipo.CANCELADA_SIN_PAGO, "c1"));
+    }
+
+    @Test
+    void citaYaPagada_noSeCancelaPorFaltaDePago() {
+        Cita cita = new Cita();
+        cita.setEstado(EstadoCita.PENDIENTE);
+        cita.setSaldoObligatorio(true);
+        cita.setSaldoCentavos(6_400_000L);
+
+        assertThat(service.cancelarPorFaltaDePago(cita)).isFalse();
+        assertThat(cita.getEstado()).isEqualTo(EstadoCita.PENDIENTE);
+    }
+
+    @Test
+    void reprogramarSinPagar_noPuedeQuedarDentroDelPlazo() {
+        var ahora = java.time.LocalDateTime.of(2026, 11, 2, 10, 0);
+        Cita cita = new Cita();
+        cita.setSaldoObligatorio(true);
+
+        assertThat(CitaService.reprogramacionDejaPlazoParaPagar(cita, LocalDate.of(2026, 11, 3), LocalTime.of(9, 0), ahora))
+                .as("faltan 23 horas").isFalse();
+        assertThat(CitaService.reprogramacionDejaPlazoParaPagar(cita, LocalDate.of(2026, 11, 4), LocalTime.of(9, 0), ahora))
+                .isTrue();
+        cita.setSaldoCentavos(6_400_000L);
+        assertThat(CitaService.reprogramacionDejaPlazoParaPagar(cita, LocalDate.of(2026, 11, 3), LocalTime.of(9, 0), ahora))
+                .as("ya pagó todo").isTrue();
+        Cita antigua = new Cita();
+        assertThat(CitaService.reprogramacionDejaPlazoParaPagar(antigua, LocalDate.of(2026, 11, 2), LocalTime.of(11, 0), ahora))
+                .as("citas anteriores a la regla").isTrue();
+    }
 }

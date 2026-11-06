@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org"
+      th:with="loc=${T(java.util.Locale).forLanguageTag('es-CO')}">
+<head>
+    <meta charset="UTF-8">
+    <title>Constancia de devolución · BeSalud</title>
+    <link rel="stylesheet" th:href="@{/css/base/global.css}">
+    <link rel="stylesheet" th:href="@{/css/auth/portal.css}">
+    <link rel="stylesheet" th:href="@{/css/publico/pagos.css}">
+    <link rel="stylesheet" th:href="@{/css/admin/devoluciones.css}">
+    <th:block th:replace="~{fragments/layout :: design-system}"></th:block>
+    <link rel="stylesheet" th:href="@{/css/base/tema-oscuro.css}">
+    <script th:src="@{/js/tema.js}"></script>
+</head>
+<body class="auth-page pago-page">
+<header th:replace="~{fragments/navbar :: navbar}"></header>
+
+<main class="auth-main pago-main">
+    <section class="pago-tarjeta" aria-labelledby="dev-titulo" th:with="d=${devolucion}">
+        <div class="dev-constancia__cabeza">
+            <h1 id="dev-titulo">Constancia de devolución</h1>
+            <span th:class="${'bs-badge bs-badge--' + d.estado.tono}"
+                  th:text="${d.estado.name() == 'CONFIRMADA' ? 'Confirmada por ti' : (d.estado.name() == 'RECLAMADA' ? 'En revisión' : 'Por confirmar')}">Por confirmar</span>
+        </div>
+
+        <div th:if="${param.confirmada != null}" class="bs-alert bs-alert--success" role="status">Gracias por confirmar. La devolución quedó cerrada.</div>
+        <div th:if="${param.reclamada != null}" class="bs-alert bs-alert--warning" role="status">
+            Recibimos tu aviso. BeSalud revisará la devolución y te escribirá con la solución.
+        </div>
+
+        <p class="dev-constancia__monto" th:text="${'$' + #numbers.formatInteger(d.montoPesos, 1, 'POINT')}">$80.000</p>
+
+        <div class="comprobante">
+            <div class="comprobante-fila"><span>Código de la devolución</span><strong th:text="${d.codigo}">DEV-1</strong></div>
+            <div class="comprobante-fila"><span>Medio</span><strong th:text="${d.medio}">Nequi</strong></div>
+            <div class="comprobante-fila"><span>Número de operación</span><strong th:text="${d.numeroOperacion}">123</strong></div>
+            <div class="comprobante-fila"><span>Fecha</span><strong th:text="${#temporals.format(d.registradaEn, 'd ''de'' MMMM yyyy, h:mm a', loc)}">Fecha</strong></div>
+            <div class="comprobante-fila is-tenue"><span>Pagos devueltos</span><strong th:text="${#strings.listJoin(d.referencias, ', ')}">BS-1</strong></div>
+        </div>
+
+        <a class="bs-btn bs-btn--secondary dev-constancia__archivo" th:href="@{/pacientes/devoluciones/{c}/comprobante(c=${d.codigo})}"
+           target="_blank" rel="noopener">
+            <span class="material-symbols-outlined" aria-hidden="true" th:text="${d.comprobantePdf ? 'picture_as_pdf' : 'image'}">image</span>Ver comprobante
+        </a>
+
+        <div class="dev-constancia__pregunta" th:if="${d.porConfirmar}">
+            <h2>¿Ya ves el dinero en tu cuenta?</h2>
+            <p>Busca el número de operación en tu banco o billetera. Según tu banco, puede tardar unos días hábiles.</p>
+            <form th:action="@{/pacientes/devoluciones/{c}/confirmar(c=${d.codigo})}" method="post">
+                <button type="submit" class="bs-btn bs-btn--primary">
+                    <span class="material-symbols-outlined" aria-hidden="true">check_circle</span>Sí, me llegó
+                </button>
+            </form>
+            <details class="dev-constancia__reclamo">
+                <summary>No me ha llegado</summary>
+                <form th:action="@{/pacientes/devoluciones/{c}/reclamar(c=${d.codigo})}" method="post">
+                    <div class="bs-field">
+                        <label class="bs-field__label" for="devNota">Cuéntanos qué ves (opcional)</label>
+                        <textarea class="bs-field__control" id="devNota" name="nota" rows="3" maxlength="300"></textarea>
+                    </div>
+                    <button type="submit" class="bs-btn bs-btn--danger">Avisar a BeSalud</button>
+                </form>
+            </details>
+        </div>
+
+        <ol class="dev-linea" aria-label="Historial de la devolución">
+            <li th:each="e : ${d.eventos}">
+                <time th:text="${#temporals.format(e.fecha(), 'd MMM yyyy, h:mm a', loc)}">Fecha</time>
+                <span th:text="${e.texto()}">Evento</span>
+            </li>
+        </ol>
+
+        <a class="historial-volver" th:href="@{/pacientes/pagos}">
+            <span class="material-symbols-outlined" aria-hidden="true">arrow_back</span>Mis pagos
+        </a>
+    </section>
+</main>
+
+<footer th:replace="~{fragments/layout :: app-footer}"></footer>
+</body>
+</html>

@@ -371,32 +371,21 @@ public class DoctorService {
     }
 
     private static long sumar(List<Cita> citas) {
-        return citas.stream().mapToLong(c -> c.getAbonoPesos() == null ? 0 : c.getAbonoPesos()).sum();
+        // Lo pagado en línea: el abono y, si el paciente lo pagó, también el saldo
+        return citas.stream().mapToLong(c -> c.getPagadoPesos() == null ? 0 : c.getPagadoPesos()).sum();
     }
 
-    /** El médico registra que ya le devolvió el abono al paciente (por Wompi o transferencia). */
-    public boolean marcarAbonoDevuelto(String citaId, String doctorId) {
-        Cita cita = citaRepo.findById(citaId).orElseThrow();
-        if (!cita.getDoctorId().equals(doctorId))
-            throw new AccessDeniedException("No autorizado");
-        if (cita.getEstadoAbono() != EstadoAbono.A_REEMBOLSAR)
-            return false;
-        cita.setEstadoAbono(EstadoAbono.DEVUELTO);
-        cita.setAbonoDevueltoEn(Reloj.ahora());
-        citaRepo.save(cita);
-        log.info("Abono de la cita {} devuelto por doctor {}", citaId, doctorId);
-        eventos.publishEvent(new CitaEvento(CitaEvento.Tipo.ABONO_DEVUELTO, citaId));
-        return true;
-    }
-
-    /** Si cancela el profesional, el abono siempre se devuelve. */
+    /** Si cancela el profesional, todo lo pagado se devuelve; la devolución la hace BeSalud. */
     public boolean cancelarCita(String citaId, String doctorId) {
         Cita cita = citaPendienteDe(citaId, doctorId);
         if (cita == null)
             return false;
         cita.setEstado(EstadoCita.CANCELADA);
-        if (cita.getAbonoCentavos() != null)
+        cita.setCanceladaPor(Cita.CANCELO_MEDICO);
+        if (cita.getAbonoCentavos() != null) {
             cita.setEstadoAbono(EstadoAbono.A_REEMBOLSAR);
+            cita.setReembolsoSolicitadoEn(Reloj.ahora());
+        }
         citaRepo.save(cita);
         log.info("Cita {} CANCELADA por doctor {}", citaId, doctorId);
         eventos.publishEvent(new CitaEvento(CitaEvento.Tipo.CANCELADA, citaId));

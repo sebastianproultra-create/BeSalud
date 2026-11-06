@@ -1220,6 +1220,10 @@ html[data-tema="oscuro"] .cita-abono {
     color: var(--d-amber--t);
 }
 
+html[data-tema="oscuro"] .cita-abono.is-completa {
+    color: var(--color-success--t);
+}
+
 html[data-tema="oscuro"] .cita-asistencia {
     color: #B3B9B6;
 }
@@ -1318,4 +1322,44 @@ html[data-tema="oscuro"] .doc-page .abonos-pendientes form {
     background-image: none;
     border: 0;
     box-shadow: none;
+}
+
+html[data-tema="oscuro"] .web-vacia p {
+    color: var(--color-text-muted--t);
+}
+
+html[data-tema="oscuro"] .web-resumen {
+    background-color: var(--color-surface-muted--f);
+    background-image: none;
+}
+
+html[data-tema="oscuro"] .web-metrica strong {
+    color: var(--color-primary--t);
+}
+
+html[data-tema="oscuro"] .web-metrica span {
+    color: var(--color-text-muted--t);
+}
+
+html[data-tema="oscuro"] .web-codigo pre {
+    color: var(--color-primary-soft--t);
+    background-color: var(--color-primary--f);
+    background-image: none;
+}
+
+html[data-tema="oscuro"] .web-pendiente {
+    color: var(--color-text-muted--t);
+}
+
+html[data-tema="oscuro"] .web-dev {
+    border-top: 1px solid var(--color-border--b);
+}
+
+html[data-tema="oscuro"] .web-dev > summary {
+    color: var(--color-text-muted--t);
+}
+
+html[data-tema="oscuro"] .web-dev > summary:hover,
+html[data-tema="oscuro"] .web-dev[open] > summary {
+    color: var(--color-primary--t);
 }

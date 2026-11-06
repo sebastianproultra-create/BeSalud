@@ -222,4 +222,20 @@ class NotificacionServiceTest {
         service.alCambiarCita(new CitaEvento(CitaEvento.Tipo.CANCELADA, "x"));
         verify(correo, never()).enviar(any(), any(), any(), any());
     }
+
+    @org.junit.jupiter.api.Test
+    void alRegistrarLiquidacion_leAvisaAlMedicoConElMontoYElEnlace() {
+        com.gestion.proyectos.modelo.Doctor d = new com.gestion.proyectos.modelo.Doctor();
+        d.setNombre("Ana");
+        d.setApellido("Paz");
+        d.setEmail("ana@test.com");
+        org.mockito.Mockito.when(personaRepo.findById("d1")).thenReturn(java.util.Optional.of(d));
+
+        service.alRegistrarLiquidacion(new com.gestion.proyectos.modelo.LiquidacionRegistradaEvento("d1", "LIQ-1", 90_000, 2, "Nequi", "NEQ123"));
+
+        org.mockito.ArgumentCaptor<String> html = org.mockito.ArgumentCaptor.forClass(String.class);
+        org.mockito.Mockito.verify(correo).enviar(org.mockito.ArgumentMatchers.eq("ana@test.com"), org.mockito.ArgumentMatchers.eq("Ana Paz"),
+                org.mockito.ArgumentMatchers.anyString(), html.capture());
+        org.assertj.core.api.Assertions.assertThat(html.getValue()).contains("$90.000", "2 citas", "NEQ123", "https://besalud.test/doctores/ganancias");
+    }
 }

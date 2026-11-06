@@ -3,9 +3,13 @@ package com.gestion.proyectos.servicio;
 import com.gestion.proyectos.util.Reloj;
 import com.gestion.proyectos.modelo.Cita;
 import com.gestion.proyectos.modelo.CitaEvento;
+import com.gestion.proyectos.modelo.DevolucionSinCitaEvento;
 import com.gestion.proyectos.modelo.Doctor;
+import com.gestion.proyectos.modelo.EstadoAbono;
 import com.gestion.proyectos.modelo.EstadoCita;
+import com.gestion.proyectos.modelo.LiquidacionRegistradaEvento;
 import com.gestion.proyectos.modelo.Paciente;
+import com.gestion.proyectos.modelo.Reserva;
 import com.gestion.proyectos.repositorio.CitaRepositorio;
 import com.gestion.proyectos.repositorio.PersonaRepositorio;
 import org.slf4j.Logger;
@@ -47,6 +51,41 @@ public class NotificacionService {
         this.urlApp = urlApp.replaceAll("/+$", "");
     }
 
+    /** BeSalud le pagó al médico: se le avisa para que revise el comprobante en Mis ganancias. */
+    @Async
+    @EventListener
+    public void alRegistrarLiquidacion(LiquidacionRegistradaEvento evento) {
+        Doctor doctor = personaRepo.findById(evento.doctorId()).filter(Doctor.class::isInstance).map(Doctor.class::cast).orElse(null);
+        if (doctor == null)
+            return;
+        String nombre = doctor.getNombre() + " " + doctor.getApellido();
+        String html = "<p>Hola, " + HtmlUtils.htmlEscape(nombre) + ".</p><p>BeSalud registró un pago a tu favor por <strong>"
+                + pesos(evento.netoPesos()) + "</strong>, correspondiente a " + evento.citas()
+                + (evento.citas() == 1 ? " cita" : " citas") + ".</p><p>Medio: " + HtmlUtils.htmlEscape(evento.medio())
+                + "<br>Operación: " + HtmlUtils.htmlEscape(evento.numeroOperacion()) + "<br>Código: "
+                + HtmlUtils.htmlEscape(evento.codigo()) + "</p><p><a href=\"" + urlApp
+                + "/doctores/ganancias\">Ver el comprobante en Mis ganancias</a></p>";
+        correo.enviar(doctor.getEmail(), nombre, "Registramos un pago a tu favor · BeSalud", html);
+    }
+
+    /** El pago nunca tuvo cita: se avisa con los datos del turno que se quería reservar. */
+    @Async
+    @EventListener
+    public void alDevolverSinCita(DevolucionSinCitaEvento evento) {
+        Reserva r = evento.reserva();
+        Cita turno = new Cita();
+        turno.setPacienteId(r.getPacienteId());
+        turno.setDoctorId(r.getDoctorId());
+        turno.setFecha(r.getFecha());
+        turno.setHora(r.getHora());
+        turno.setEstado(EstadoCita.CANCELADA);
+        enviar(turno, "Te devolvimos tu pago", "Te devolvimos tu pago",
+                "No pudimos confirmar esta cita, así que BeSalud te devolvió " + pesos(r.getMontoPesos()) + " por "
+                        + evento.medio() + ", operación " + evento.numeroOperacion()
+                        + ". Según tu banco, puede tardar unos días hábiles en verse reflejado. "
+                        + "En Mis pagos puedes ver el comprobante y confirmarnos si te llegó.", "Ver mis citas");
+    }
+
     @Async
     @EventListener
     public void alCambiarCita(CitaEvento evento) {
@@ -62,13 +101,32 @@ public class NotificacionService {
                 case REPROGRAMADA -> enviar(cita, "Tu cita fue reprogramada", "Cambiamos la fecha de tu cita",
                         "Estos son los nuevos datos de tu cita.", "Ver mis citas");
                 case CANCELADA -> enviar(cita, "Tu cita fue cancelada", "Tu cita fue cancelada",
-                        "Si todavía necesitas la consulta, puedes agendar un nuevo turno cuando quieras.", "Agendar otra cita");
+                        (cita.getEstadoAbono() == EstadoAbono.A_REEMBOLSAR
+                                ? "Te devolveremos " + pesos(cita.getPagadoPesos() == null ? 0 : cita.getPagadoPesos())
+                                        + " en un plazo de " + DevolucionService.DIAS_PLAZO
+                                        + " días y te enviaremos el comprobante. "
+                                : "")
+                                + "Si todavía necesitas la consulta, puedes agendar un nuevo turno cuando quieras.", "Agendar otra cita");
                 // Sin datos clínicos en el correo: la historia clínica es reservada y solo se consulta dentro de la app.
                 case DICTAMEN -> enviar(cita, "Tu dictamen médico está disponible", "Tu dictamen médico está disponible",
                         "Tu médico registró el resultado de la consulta. Ingresa a BeSalud para verlo.", "Ver mi dictamen");
-                case ABONO_DEVUELTO -> enviar(cita, "Te devolvimos el abono", "Te devolvimos el abono",
-                        "El profesional registró la devolución de tu abono de " + pesos(cita.getAbonoPesos() == null ? 0 : cita.getAbonoPesos())
-                                + ". Según tu banco, puede tardar unos días hábiles en verse reflejado.", "Ver mis citas");
+                case ABONO_DEVUELTO -> enviar(cita, cita.isPagadaCompleta() ? "Te devolvimos el pago" : "Te devolvimos el abono",
+                        cita.isPagadaCompleta() ? "Te devolvimos el pago" : "Te devolvimos el abono",
+                        "BeSalud te devolvió " + (cita.isPagadaCompleta() ? "lo que pagaste" : "tu abono") + " ("
+                                + pesos(cita.getPagadoPesos() == null ? 0 : cita.getPagadoPesos()) + ")"
+                                + (cita.getNumeroDevolucion() != null
+                                        ? " por " + cita.getMedioDevolucion() + ", operación " + cita.getNumeroDevolucion() : "")
+                                + ". Según tu banco, puede tardar unos días hábiles en verse reflejado. "
+                                + "En Mis pagos puedes ver el comprobante y confirmarnos si te llegó.", "Ver mis citas");
+                case SALDO_PAGADO -> enviar(cita, "Tu cita quedó pagada por completo", "Tu cita quedó pagada por completo",
+                        "Recibimos el pago del saldo de " + pesos(cita.getSaldoPesos() == null ? 0 : cita.getSaldoPesos())
+                                + " (referencia " + cita.getReferenciaSaldo() + "). Ya no tienes que pagar nada en el consultorio. "
+                                + "Si cancelas a tiempo te devolvemos todo lo pagado.", "Ver mis citas");
+                case CANCELADA_SIN_PAGO -> enviar(cita, "Cancelamos tu cita por falta de pago", "Cancelamos tu cita",
+                        "No recibimos el pago del resto de la consulta antes del plazo (" + Cita.HORAS_LIMITE_SALDO
+                                + " horas antes de la cita), así que el horario quedó libre. Como en una cancelación tardía, "
+                                + "el abono no es reembolsable. Si todavía necesitas la consulta, puedes agendar de nuevo.",
+                        "Agendar otra cita");
             }
         });
     }
@@ -87,6 +145,29 @@ public class NotificacionService {
             enviados++;
         }
         if (enviados > 0) log.info("Recordatorios procesados para {}: {}", manana, enviados);
+    }
+
+    // Cada hora: aviso a quien aún no paga el resto, cuando falta un día para el plazo.
+    @Scheduled(cron = "0 10 * * * *", zone = "America/Bogota")
+    public void recordarPagoSaldo() {
+        var ahora = Reloj.ahora();
+        int enviados = 0;
+        for (Cita cita : citaRepo.findByEstadoAndSaldoObligatorioTrueAndSaldoCentavosIsNull(EstadoCita.PENDIENTE)) {
+            var limite = cita.getLimitePagoSaldo();
+            if (cita.isRecordatorioSaldoEnviado() || limite == null || !ahora.isBefore(limite)
+                    || ahora.isBefore(limite.minusHours(24)))
+                continue;
+            Doctor doctor = personaRepo.findById(cita.getDoctorId())
+                    .filter(p -> p instanceof Doctor).map(p -> (Doctor) p).orElse(null);
+            String falta = doctor == null || cita.getAbonoPesos() == null ? "el resto de la consulta"
+                    : pesos(Math.max(0, doctor.getPrecioEfectivo() - cita.getAbonoPesos()));
+            enviar(cita, "Paga el resto de tu cita", "Falta pagar el resto de tu cita",
+                    "Te falta pagar " + falta + ". Hazlo desde BeSalud antes del " + limite.format(FECHA_HORA)
+                            + "; si no, cancelaremos la cita y el abono no será reembolsable.", "Pagar ahora");
+            citaRepo.marcarRecordatorioSaldo(cita.getId());
+            enviados++;
+        }
+        if (enviados > 0) log.info("Recordatorios de pago del resto: {}", enviados);
     }
 
     // Cada hora: se pregunta "¿Vas a ir?" a las citas que entraron en la ventana de confirmación.
@@ -117,7 +198,7 @@ public class NotificacionService {
         if (cita.getAbonoCentavos() == null || !ahora.isBefore(limite))
             return "Confírmanos si asistirás. Si no puedes ir, avísanos para liberar el turno a otro paciente.";
         return "Confírmanos si asistirás. Si no puedes ir y nos avisas antes del " + limite.format(FECHA_HORA)
-                + ", cancelamos la cita y te devolvemos el abono.";
+                + ", cancelamos la cita y te devolvemos lo que pagaste.";
     }
 
     private void enviar(Cita cita, String asunto, String titulo, String mensaje, String textoBoton) {
@@ -144,12 +225,14 @@ public class NotificacionService {
         Doctor doctor = personaRepo.findById(cita.getDoctorId())
                 .filter(p -> p instanceof Doctor).map(p -> (Doctor) p).orElse(null);
         String html = plantilla(paciente, doctor, cita, "¡Tu cita está confirmada!",
-                "Recibimos el pago de tu abono. Guarda este correo como comprobante.", "Ver mis citas",
+                (cita.isPagadaCompleta() ? "Recibimos el pago total de tu consulta." : "Recibimos el pago de tu abono.")
+                        + " Guarda este correo como comprobante.", "Ver mis citas",
                 bloqueComprobante(doctor, cita));
         correo.enviar(paciente.getEmail(), paciente.getNombre() + " " + paciente.getApellido(),
                 "Cita confirmada · comprobante de pago · BeSalud", html);
         enviarWhatsapp(paciente, doctor, cita, "¡Tu cita está confirmada!",
-                "Recibimos el pago de tu abono. Guarda este mensaje como comprobante.", "Ver mis citas",
+                (cita.isPagadaCompleta() ? "Recibimos el pago total de tu consulta." : "Recibimos el pago de tu abono.")
+                        + " Guarda este mensaje como comprobante.", "Ver mis citas",
                 lineasComprobante(doctor, cita), List.of());
     }
 
@@ -177,15 +260,22 @@ public class NotificacionService {
     List<String> lineasComprobante(Doctor doctor, Cita cita) {
         long abono = cita.getAbonoPesos() == null ? 0 : cita.getAbonoPesos();
         var lineas = new java.util.ArrayList<String>();
-        lineas.add("💳 Abono pagado: " + pesos(abono));
-        if (doctor != null && doctor.getPrecioEfectivo() > abono)
-            lineas.add("💵 Pagas en el consultorio: " + pesos(doctor.getPrecioEfectivo() - abono));
+        if (cita.isPagadaCompleta()) {
+            lineas.add("💳 Pagaste el total: " + pesos(cita.getPagadoPesos()));
+        } else {
+            lineas.add("💳 Abono pagado: " + pesos(abono));
+            if (doctor != null && doctor.getPrecioEfectivo() > abono)
+                lineas.add("💵 " + (cita.isSaldoObligatorio() && cita.getLimitePagoSaldo() != null
+                        ? "Pagas en línea antes del " + cita.getLimitePagoSaldo().format(FECHA_HORA) : "Pagas en el consultorio")
+                        + ": " + pesos(doctor.getPrecioEfectivo() - abono));
+        }
         if (doctor != null && doctor.getDireccionConsultorio() != null)
             lineas.add("📍 Lugar: " + doctor.getDireccionConsultorio());
         lineas.add("🧾 Referencia: " + cita.getReferenciaPago());
         if (doctor != null && cita.getFecha() != null && cita.getHora() != null)
             lineas.add("Si no puedes ir, cancela antes del " + cita.getFecha().atTime(cita.getHora())
-                    .minusHours(doctor.horasCancelacionEfectivas()).format(FECHA_HORA) + " y te devolvemos el abono.");
+                    .minusHours(doctor.horasCancelacionEfectivas()).format(FECHA_HORA) + " y te devolvemos "
+                    + (cita.isPagadaCompleta() ? "todo lo pagado." : "el abono."));
         return lineas;
     }
 
@@ -193,9 +283,15 @@ public class NotificacionService {
     String bloqueComprobante(Doctor doctor, Cita cita) {
         long abono = cita.getAbonoPesos() == null ? 0 : cita.getAbonoPesos();
         StringBuilder filas = new StringBuilder();
-        filas.append(fila("Abono pagado", pesos(abono)));
-        if (doctor != null && doctor.getPrecioEfectivo() > abono)
-            filas.append(fila("Pagas en el consultorio", pesos(doctor.getPrecioEfectivo() - abono)));
+        if (cita.isPagadaCompleta()) {
+            filas.append(fila("Pagaste el total", pesos(cita.getPagadoPesos())));
+        } else {
+            filas.append(fila("Abono pagado", pesos(abono)));
+            if (doctor != null && doctor.getPrecioEfectivo() > abono)
+                filas.append(fila(cita.isSaldoObligatorio() && cita.getLimitePagoSaldo() != null
+                        ? "Pagas antes del " + cita.getLimitePagoSaldo().format(FECHA_HORA) : "Pagas en el consultorio",
+                        pesos(doctor.getPrecioEfectivo() - abono)));
+        }
         if (doctor != null && doctor.getDireccionConsultorio() != null)
             filas.append(fila("Lugar", doctor.getDireccionConsultorio()));
         if (cita.getMedioPago() != null)
@@ -205,7 +301,7 @@ public class NotificacionService {
         if (doctor != null && cita.getFecha() != null && cita.getHora() != null) {
             var limite = cita.getFecha().atTime(cita.getHora()).minusHours(doctor.horasCancelacionEfectivas());
             politica = "<p style=\"margin:16px 0 0;font-size:13px;line-height:1.6;color:#5F6662;\">Si no puedes ir, cancela antes del "
-                    + "<strong style=\"color:#171B19;\">" + esc(limite.format(FECHA_HORA)) + "</strong> y te devolvemos el abono. "
+                    + "<strong style=\"color:#171B19;\">" + esc(limite.format(FECHA_HORA)) + "</strong> y te devolvemos " + (cita.isPagadaCompleta() ? "todo lo pagado" : "el abono") + ". "
                     + "Después de esa hora, el profesional lo conserva.</p>";
             String google = Calendario.enlaceGoogle(cita.getFecha().atTime(cita.getHora()), 30,
                     "Cita con Dr(a). " + doctor.getNombre() + " " + doctor.getApellido(),

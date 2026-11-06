@@ -1,6 +1,6 @@
 package com.gestion.proyectos.modelo;
 
-/** Qué pasa con el abono de una cita. El reembolso lo hace el profesional; aquí solo queda indicado. */
+/** Qué pasa con lo pagado por una cita. La devolución la hace BeSalud y queda probada en Devolucion. */
 public enum EstadoAbono {
     PAGADO("Abono pagado"),
     A_REEMBOLSAR("Abono a reembolsar"),

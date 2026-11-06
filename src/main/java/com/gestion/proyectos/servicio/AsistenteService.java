@@ -470,7 +470,7 @@ public class AsistenteService {
     String textoPrecio(Doctor d) {
         return "La consulta con " + nombre(d) + " vale " + pesos(d.getPrecioEfectivo()) + ". Para reservar pagas en "
                 + "línea un abono del " + d.porcentajeAbonoEfectivo() + " % (" + pesos(d.getAbono())
-                + ") y el resto en el consultorio.";
+                + ") y el resto en línea a más tardar 24 horas antes de la cita (o todo de una vez).";
     }
 
     String textoAbono(Doctor d) {

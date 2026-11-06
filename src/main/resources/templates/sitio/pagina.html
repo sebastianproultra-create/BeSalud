@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org"
+      th:with="s=${pagina.sitio}, d=${pagina.doctor}, nombreDoctor=${'Dr. ' + pagina.doctor.nombre + ' ' + pagina.doctor.apellido}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title th:text="${s.titulo}">Consultorio</title>
+    <meta name="description" th:content="${s.frase ?: s.titulo}">
+    <meta th:if="${vistaPrevia}" name="robots" content="noindex">
+    <link rel="stylesheet" th:href="@{/css/tokens.css}">
+    <link rel="stylesheet" th:href="@{/vendor/fonts/fonts.css}">
+    <link rel="stylesheet" th:href="@{/css/sitio/sitio.css}">
+    <script th:src="@{/js/sitio.js}" defer></script>
+    <!-- Agenda, pago y "Mis citas" de BeSalud dentro de la página (no en la vista previa del editor) -->
+    <script th:unless="${vistaPrevia}" th:src="@{/widget/besalud-widget.js}"
+            th:attr="data-consultorio=${s.consultorioId},data-doctor=${d.id},data-titulo=${s.titulo}" defer></script>
+</head>
+<body th:class="|sitio sitio--${s.plantilla} sitio--color-${s.color}|" th:attr="data-vista-previa=${vistaPrevia}">
+
+<p th:if="${vistaPrevia}" class="sitio-aviso" role="status">
+    <span class="material-symbols-outlined" aria-hidden="true">visibility</span>
+    Vista previa: así verán la página los pacientes
+</p>
+
+<header class="sitio-barra">
+    <div class="sitio-contenedor sitio-barra__fila">
+        <a href="#inicio" class="sitio-marca">
+            <span class="sitio-marca__icono" aria-hidden="true"
+                  th:text="${#strings.substring(d.nombre,0,1) + #strings.substring(d.apellido,0,1)}">DR</span>
+            <span class="sitio-marca__nombre" th:text="${s.titulo}">Consultorio</span>
+        </a>
+        <button type="button" class="sitio-menu-boton" aria-expanded="false" aria-controls="sitio-menu" data-sitio-menu>
+            <span class="material-symbols-outlined" aria-hidden="true">menu</span>
+            <span class="sitio-oculto">Abrir menú</span>
+        </button>
+        <nav id="sitio-menu" class="sitio-menu" aria-label="Secciones">
+            <a th:if="${!s.servicios.isEmpty()}" href="#servicios">Servicios</a>
+            <a href="#sobre-mi">Sobre mí</a>
+            <a th:if="${s.direccion != null or pagina.whatsappUrl != null}" href="#contacto">Contacto</a>
+            <a href="#" data-besalud="mis-citas">Mis citas</a>
+            <a href="#" class="sitio-btn sitio-btn--primario" data-besalud="agendar">Agendar cita</a>
+        </nav>
+    </div>
+</header>
+
+<main>
+    <!-- ── Portada ── -->
+    <section id="inicio" class="sitio-portada">
+        <div class="sitio-contenedor sitio-portada__grid">
+            <div class="sitio-portada__texto">
+                <p class="sitio-etiqueta">
+                    <span th:text="${d.especialidad ?: 'Consulta médica'}">Especialidad</span><th:block th:if="${s.ciudad}"> · <span th:text="${s.ciudad}">Ciudad</span></th:block>
+                </p>
+                <h1 th:text="${s.frase ?: s.titulo}">Atención cercana</h1>
+                <p class="sitio-portada__sub">
+                    <strong th:text="${nombreDoctor}">Dr.</strong>
+                    te atiende con cita previa. Elige tu horario en línea y paga el abono de forma segura.
+                </p>
+                <div class="sitio-acciones">
+                    <a href="#" class="sitio-btn sitio-btn--primario sitio-btn--grande" data-besalud="agendar">
+                        <span class="material-symbols-outlined" aria-hidden="true">calendar_add_on</span>Agendar cita
+                    </a>
+                    <a th:if="${pagina.whatsappUrl}" th:href="${pagina.whatsappUrl}" class="sitio-btn sitio-btn--secundario sitio-btn--grande"
+                       target="_blank" rel="noopener">
+                        <span class="material-symbols-outlined" aria-hidden="true">chat</span>WhatsApp
+                    </a>
+                </div>
+            </div>
+
+            <figure class="sitio-doctor">
+                <img th:if="${d.foto}" th:src="${d.foto}" th:alt="${'Foto de ' + nombreDoctor}" class="sitio-doctor__foto">
+                <span th:unless="${d.foto}" class="sitio-doctor__iniciales" aria-hidden="true"
+                      th:text="${#strings.substring(d.nombre,0,1) + #strings.substring(d.apellido,0,1)}">DR</span>
+                <figcaption>
+                    <strong th:text="${nombreDoctor}">Dr.</strong>
+                    <span th:text="${d.especialidad}">Especialidad</span>
+                    <span class="sitio-doctor__agenda"><span class="sitio-punto" aria-hidden="true"></span>Agenda abierta</span>
+                </figcaption>
+            </figure>
+        </div>
+    </section>
+
+    <!-- ── Servicios ── -->
+    <section id="servicios" class="sitio-seccion" th:if="${!s.servicios.isEmpty()}" aria-labelledby="servicios-titulo">
+        <div class="sitio-contenedor">
+            <p class="sitio-etiqueta">Servicios</p>
+            <h2 id="servicios-titulo">¿En qué te puedo ayudar?</h2>
+            <ul class="sitio-servicios">
+                <li th:each="servicio, i : ${s.servicios}" class="sitio-servicio">
+                    <span class="material-symbols-outlined sitio-servicio__icono" aria-hidden="true"
+                          th:text="${ {'stethoscope','monitor_heart','lab_profile','vaccines','healing','favorite'}[i.index % 6] }">stethoscope</span>
+                    <span th:text="${servicio}">Servicio</span>
+                </li>
+            </ul>
+        </div>
+    </section>
+
+    <!-- ── Sobre mí ── -->
+    <section id="sobre-mi" class="sitio-seccion sitio-seccion--alterna" aria-labelledby="sobre-titulo">
+        <div class="sitio-contenedor sitio-sobre">
+            <div>
+                <p class="sitio-etiqueta">Sobre mí</p>
+                <h2 id="sobre-titulo" th:text="${nombreDoctor}">Dr.</h2>
+                <p class="sitio-sobre__texto" th:text="${s.presentacion}">Presentación</p>
+            </div>
+            <dl class="sitio-datos">
+                <div>
+                    <dt>Consulta particular</dt>
+                    <dd th:text="${'$' + #numbers.formatInteger(d.precioEfectivo, 1, 'POINT')}">$50.000</dd>
+                </div>
+                <div>
+                    <dt>Abono para reservar</dt>
+                    <dd th:text="${'$' + #numbers.formatInteger(d.abono, 1, 'POINT')}">$10.000</dd>
+                </div>
+                <div>
+                    <dt>Cancelación con devolución</dt>
+                    <dd th:text="${'Hasta ' + d.horasCancelacionEfectivas() + ' h antes'}">Hasta 24 h antes</dd>
+                </div>
+            </dl>
+        </div>
+    </section>
+
+    <!-- ── Contacto ── -->
+    <section id="contacto" class="sitio-seccion" th:if="${s.direccion != null or pagina.whatsappUrl != null}" aria-labelledby="contacto-titulo">
+        <div class="sitio-contenedor sitio-contacto">
+            <div>
+                <p class="sitio-etiqueta">Contacto</p>
+                <h2 id="contacto-titulo">Te esperamos</h2>
+                <ul class="sitio-contacto__lista">
+                    <li th:if="${s.direccion}">
+                        <span class="material-symbols-outlined" aria-hidden="true">location_on</span>
+                        <span><span th:text="${s.direccion}">Dirección</span><th:block th:if="${s.ciudad}">, <span th:text="${s.ciudad}">Ciudad</span></th:block>
+                            · <a th:href="${pagina.mapaUrl}" target="_blank" rel="noopener">Ver en el mapa</a></span>
+                    </li>
+                    <li th:if="${pagina.whatsappUrl}">
+                        <span class="material-symbols-outlined" aria-hidden="true">chat</span>
+                        <a th:href="${pagina.whatsappUrl}" target="_blank" rel="noopener">Escríbenos por WhatsApp</a>
+                    </li>
+                </ul>
+            </div>
+            <div class="sitio-cta">
+                <h3>¿Listo para tu cita?</h3>
+                <p>Elige día y hora. Recibirás la confirmación en tu correo.</p>
+                <a href="#" class="sitio-btn sitio-btn--primario sitio-btn--grande" data-besalud="agendar">Agendar ahora</a>
+            </div>
+        </div>
+    </section>
+</main>
+
+<footer class="sitio-pie">
+    <div class="sitio-contenedor sitio-pie__fila">
+        <span>&copy; <span th:text="${#temporals.year(#temporals.createNow())}">2026</span> <span th:text="${s.titulo}">Consultorio</span></span>
+        <span class="sitio-pie__marca">Agenda y pagos con BeSalud</span>
+    </div>
+</footer>
+
+<p class="sitio-toast" role="status" hidden data-sitio-toast>En tu página publicada este botón abre la agenda.</p>
+</body>
+</html>

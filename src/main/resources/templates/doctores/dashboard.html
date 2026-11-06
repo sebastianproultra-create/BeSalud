@@ -96,6 +96,7 @@
     <nav class="section-nav" aria-label="Secciones del panel">
         <div class="section-nav-links">
             <a href="#perfil" class="section-nav-link">Mi perfil</a>
+            <a href="#mi-web" class="section-nav-link" th:if="${integracionWebDisponible}">Mi página web</a>
             <a href="#horarios" class="section-nav-link">Horarios de atención</a>
             <a href="#disponibilidad" class="section-nav-link">Disponibilidad semanal</a>
             <a href="#demanda" class="section-nav-link">Demanda proyectada</a>
@@ -255,13 +256,127 @@
                         </select>
                     </label>
                 </div>
-                <p class="doc-enlace-ayuda">Todas las citas se reservan pagando el abono en línea; el resto se paga en el consultorio.</p>
+                <p class="doc-enlace-ayuda">El paciente reserva pagando el abono (o todo) en línea y paga el resto a más tardar 24 horas antes; si no, la cita se cancela y conservas el abono. No cobras nada en el consultorio.</p>
 
                 <button type="submit" class="doc-btn doc-btn--amber">
                     <span class="material-symbols-outlined" aria-hidden="true">save</span><span>Guardar cambios</span>
                 </button>
             </form>
         </div>
+    </section>
+
+    <!-- ═══════════════ MI PÁGINA WEB (solo con la API de consultorios) ═══════════════ -->
+    <section id="mi-web" class="doc-card" aria-labelledby="miweb-title" th:if="${integracionWebDisponible}">
+        <div class="doc-card-head">
+            <div class="doc-card-title">
+                <span class="doc-card-ico material-symbols-outlined" aria-hidden="true">language</span>
+                <div>
+                    <h2 id="miweb-title">Mi página web</h2>
+                    <p>Tu web con agenda y pagos; nosotros la armamos por ti</p>
+                </div>
+            </div>
+            <span th:if="${sitioWeb != null and sitioWeb.publicado}" class="bs-badge bs-badge--success">Publicada</span>
+            <span th:if="${sitioWeb != null and !sitioWeb.publicado}" class="bs-badge bs-badge--warning">En preparación</span>
+        </div>
+
+        <!-- Página creada y alojada por BeSalud -->
+        <div th:if="${sitioWeb == null}" class="web-vacia">
+            <p>¿No tienes página web? El equipo de BeSalud te arma una con tu perfil, tus servicios y tus datos de contacto, y la publica por ti. Tus pacientes ven tu información, agendan y pagan el abono ahí mismo.</p>
+            <div class="web-acciones">
+                <a th:href="|@{/ayuda(tema='pagina-web')}#contacto|" class="doc-btn doc-btn--primary">
+                    <span class="material-symbols-outlined" aria-hidden="true">add_circle</span><span>Solicitar mi página</span>
+                </a>
+            </div>
+        </div>
+
+        <div th:if="${sitioWeb != null}" class="web-activa">
+            <div class="web-resumen">
+                <div>
+                    <span class="doc-label">Dirección de tu página</span>
+                    <a th:if="${sitioWeb.publicado}" th:href="${urlSitio}" th:text="${urlSitio}" class="web-url" target="_blank" rel="noopener">enlace</a>
+                    <span th:unless="${sitioWeb.publicado}" class="web-pendiente">La estamos preparando</span>
+                </div>
+                <div>
+                    <span class="doc-label">Estilo</span>
+                    <span th:text="${plantillasSitio[sitioWeb.plantilla]}">Clínica</span>
+                </div>
+                <div class="web-metrica" th:if="${integracionWeb != null}">
+                    <strong th:text="${integracionWeb.pacientesWeb}">0</strong>
+                    <span th:text="${integracionWeb.pacientesWeb == 1 ? 'paciente se registró desde tu web' : 'pacientes se registraron desde tu web'}">pacientes se registraron desde tu web</span>
+                </div>
+            </div>
+            <p th:if="${integracionWeb != null and !integracionWeb.consultorio.activo}" class="bs-alert bs-alert--warning">Tu página está pausada: los pacientes no pueden agendar desde ella. Escríbenos desde el Centro de ayuda para reactivarla.</p>
+            <div class="web-acciones">
+                <a th:if="${sitioWeb.publicado}" th:href="${urlSitio}" class="doc-btn doc-btn--primary" target="_blank" rel="noopener">
+                    <span class="material-symbols-outlined" aria-hidden="true">open_in_new</span><span>Ver mi página</span>
+                </a>
+                <a th:href="|@{/ayuda(tema='pagina-web')}#contacto|" class="doc-btn doc-btn--glass">
+                    <span class="material-symbols-outlined" aria-hidden="true">edit_note</span><span>Pedir cambios</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- Web propia del médico: código del widget (servicio para desarrolladores) -->
+        <details class="web-dev" th:open="${dominiosPropios != null and !dominiosPropios.isEmpty()}">
+            <summary>
+                <span class="material-symbols-outlined" aria-hidden="true">code</span>
+                <span>¿Ya tienes tu propia web? Conéctala con código</span>
+            </summary>
+
+            <div th:if="${dominiosPropios == null or dominiosPropios.isEmpty()}" class="web-vacia">
+                <p>Si tu página la hizo tu programador, puede agregarle la agenda y los pagos de BeSalud con dos líneas de código.</p>
+                <div class="web-acciones">
+                    <a th:href="|@{/ayuda(tema='integracion')}#contacto|" class="doc-btn doc-btn--glass">
+                        <span class="material-symbols-outlined" aria-hidden="true">send</span><span>Solicitar activación</span>
+                    </a>
+                    <a th:href="@{/desarrolladores}" class="doc-btn doc-btn--glass">
+                        <span class="material-symbols-outlined" aria-hidden="true">menu_book</span><span>Cómo funciona</span>
+                    </a>
+                </div>
+            </div>
+
+            <div th:if="${dominiosPropios != null and !dominiosPropios.isEmpty()}" class="web-activa" th:with="c=${integracionWeb.consultorio}">
+                <div class="web-resumen">
+                    <div>
+                        <span class="doc-label">Sitios autorizados</span>
+                        <ul class="web-dominios">
+                            <li th:each="d : ${dominiosPropios}"><a th:href="${d}" th:text="${d}" target="_blank" rel="noopener">sitio</a></li>
+                        </ul>
+                    </div>
+                    <div>
+                        <span class="doc-label">Identificador del consultorio</span>
+                        <code class="web-id" th:text="${c.id}">mi-consultorio</code>
+                    </div>
+                    <div class="web-metrica" th:if="${sitioWeb == null}">
+                        <strong th:text="${integracionWeb.pacientesWeb}">0</strong>
+                        <span th:text="${integracionWeb.pacientesWeb == 1 ? 'paciente se registró desde tu web' : 'pacientes se registraron desde tu web'}">pacientes se registraron desde tu web</span>
+                    </div>
+                    <div>
+                        <span class="doc-label">Estado</span>
+                        <span th:if="${c.activo}" class="bs-badge bs-badge--success">Activa</span>
+                        <span th:unless="${c.activo}" class="bs-badge bs-badge--warning">Pausada</span>
+                    </div>
+                </div>
+
+                <h3 class="doc-bloque-titulo">Código para tu web</h3>
+                <p class="doc-enlace-ayuda">Pégalo en tu página antes de cerrar <code>&lt;/body&gt;</code>. Los botones con <code>data-besalud</code> abren la agenda.</p>
+                <div class="web-codigo">
+<pre><code id="codigoMiWeb">&lt;script src="<span th:text="${urlApi}">https://api.besalud.co</span>/widget/besalud-widget.js"
+        data-consultorio="<span th:text="${c.id}">mi-consultorio</span>" data-doctor="<span th:text="${doctor.id}">id</span>" defer&gt;&lt;/script&gt;
+
+&lt;a href="#" data-besalud="agendar"&gt;Agendar cita&lt;/a&gt;
+&lt;a href="#" data-besalud="mis-citas"&gt;Mis citas&lt;/a&gt;</code></pre>
+                    <div class="web-acciones">
+                        <button type="button" class="doc-btn doc-btn--primary" data-copiar="#codigoMiWeb">
+                            <span class="material-symbols-outlined" aria-hidden="true">content_copy</span><span>Copiar código</span>
+                        </button>
+                        <a th:href="@{/desarrolladores}" class="doc-btn doc-btn--glass" target="_blank" rel="noopener">
+                            <span class="material-symbols-outlined" aria-hidden="true">menu_book</span><span>Guía para tu programador</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </details>
     </section>
 
     <!-- ═══════════════ HORARIOS ═══════════════ -->
@@ -503,6 +618,7 @@
                     <li>Los <strong>fines de semana y festivos</strong> casi no tienen citas; por eso esos días la barra no aparece.</li>
                 </ul>
             </details>
+            <p class="doc-nota" id="demandaRespaldo" hidden><strong>Aún no tienes historial de citas:</strong> esta estimación es la de un médico promedio de tu especialidad. Cuando acumules citas propias, el pronóstico se ajustará a tu agenda.</p>
             <p class="text-muted doc-nota" id="demandaResumen"></p>
         </div>
     </section>
@@ -560,9 +676,9 @@
                               th:text="${cita.estado.descripcion}"></span>
                     </div>
                     <p class="cita-motivo"><strong>Motivo:</strong> <span th:text="${cita.motivo}" th:title="${cita.motivo}"></span></p>
-                    <p th:if="${cita.abonoPesos != null}" class="cita-abono">
-                        <span class="material-symbols-outlined" aria-hidden="true">payments</span>
-                        <span th:text="${'Abono $' + #numbers.formatInteger(cita.abonoPesos, 1, 'POINT') + (cita.estadoAbono != null ? ' · ' + cita.estadoAbono.descripcion : '')}">Abono</span>
+                    <p th:if="${cita.abonoPesos != null}" class="cita-abono" th:classappend="${cita.pagadaCompleta} ? 'is-completa'">
+                        <span class="material-symbols-outlined" aria-hidden="true" th:text="${cita.pagadaCompleta ? 'verified' : 'payments'}">payments</span>
+                        <span th:text="${(cita.pagadaCompleta ? 'Pagada por completo $' + #numbers.formatInteger(cita.pagadoPesos, 1, 'POINT') : 'Abono $' + #numbers.formatInteger(cita.abonoPesos, 1, 'POINT')) + (cita.estadoAbono != null and (!cita.pagadaCompleta or cita.estadoAbono.name() != 'PAGADO') ? ' · ' + cita.estadoAbono.descripcion : '') + (cita.saldoObligatorio and !cita.pagadaCompleta and cita.estado.name() == 'PENDIENTE' ? ' · el resto vence el ' + #temporals.format(cita.limitePagoSaldo, 'd MMM, h:mm a', loc) : '')}">Abono</span>
                     </p>
                     <p th:if="${cita.estado.name() == 'PENDIENTE' and (cita.asistenciaConfirmada != null or cita.confirmacionSolicitada)}"
                        class="cita-asistencia" th:classappend="${cita.asistenciaConfirmada != null} ? 'is-confirmada'">
@@ -623,15 +739,16 @@
                     <p th:text="${'Resumen de ' + #temporals.format(hoy, 'MMMM', loc) + ' y devoluciones pendientes'}">Resumen del mes</p>
                 </div>
             </div>
+            <a class="bs-btn bs-btn--secondary bs-btn--small" th:href="@{/doctores/ganancias}">Ver mis ganancias</a>
         </div>
 
         <div th:if="${exitoAbonos}" class="alert alert-success" role="status" th:text="${exitoAbonos}"></div>
 
         <div class="abonos-resumen">
             <div class="abonos-dato">
-                <span>Recibidos este mes</span>
+                <span>Pagados este mes</span>
                 <strong th:text="${'$' + #numbers.formatInteger(abonos.cobradosMes, 1, 'POINT')}">$0</strong>
-                <small>Citas pagadas del mes</small>
+                <small>Por tus pacientes, antes de la comisión</small>
             </div>
             <div class="abonos-dato">
                 <span>Conservados</span>
@@ -647,8 +764,8 @@
 
         <div th:unless="${abonos.pendientes.isEmpty()}" class="abonos-pendientes">
             <h3 class="doc-bloque-titulo">Devoluciones pendientes</h3>
-            <p class="abonos-ayuda">Estas citas se cancelaron a tiempo. Devuelve el abono por el mismo medio
-                (desde tu cuenta de Wompi) o por transferencia, y márcalo aquí: le avisamos al paciente.</p>
+            <p class="abonos-ayuda">Estas citas se cancelaron a tiempo. BeSalud le devuelve al paciente lo que pagó (el abono y, si lo pagó, el saldo)
+                desde la cuenta de la plataforma: tú no tienes que hacer nada.</p>
             <ul>
                 <li th:each="c : ${abonos.pendientes}">
                     <div>
@@ -656,13 +773,8 @@
                         <span th:text="${'Cita del ' + #temporals.format(c.fecha, 'd ''de'' MMMM', loc) + ' · ' + #temporals.format(c.hora, 'h:mm a', loc)}">Cita</span>
                         <span class="abonos-ref" th:if="${c.referenciaPago != null}" th:text="${'Ref. ' + c.referenciaPago + (c.medioPago != null ? ' · ' + c.medioPago : '')}">Ref.</span>
                     </div>
-                    <strong class="abonos-monto" th:text="${'$' + #numbers.formatInteger(c.abonoPesos, 1, 'POINT')}">$0</strong>
-                    <form th:action="@{/doctores/citas/{id}/abono-devuelto(id=${c.id})}" method="post"
-                          onsubmit="return confirm('¿Ya le devolviste el abono a este paciente?');">
-                        <button type="submit" class="doc-btn doc-btn--primary">
-                            <span class="material-symbols-outlined" aria-hidden="true">check</span>Marcar como devuelto
-                        </button>
-                    </form>
+                    <strong class="abonos-monto" th:text="${'$' + #numbers.formatInteger(c.pagadoPesos, 1, 'POINT')}">$0</strong>
+                    <span class="bs-badge bs-badge--warning">BeSalud la está gestionando</span>
                 </li>
             </ul>
         </div>
@@ -1076,5 +1188,6 @@ document.getElementById('copiarEnlace')?.addEventListener('click', function () {
 <script th:src="@{/js/form-submit.js}"></script>
 <script th:src="@{/vendor/chart/chart.umd.js}"></script>
 <script th:src="@{/js/prediccion.js}"></script>
+<script th:if="${integracionWebDisponible}" th:src="@{/js/copiar-codigo.js}"></script>
 </body>
 </html>

@@ -21,6 +21,16 @@
         </div>
     </section>
 
+    <th:block th:if="${apiConsultorios}">
+        <div th:if="${param.error != null and param.error[0] == 'urlInvalida'}" class="bs-alert bs-alert--danger" role="alert">
+            La URL del sitio web no es válida. Usa el formato https://consultorio.com
+        </div>
+        <div th:if="${param.sitioVinculado}" class="bs-alert bs-alert--success" role="status">
+            Sitio web vinculado. En el <code>config.js</code> de esa web usa
+            <code th:text="'id: &quot;' + ${param.sitioVinculado[0]} + '&quot;'"></code> y el id del médico.
+        </div>
+    </th:block>
+
     <div class="stats-grid">
         <div class="stat-card">
             <h2>Total doctores</h2>
@@ -34,6 +44,11 @@
             <h2>Total administradores</h2>
             <div class="stat-number" th:text="${#lists.size(admins)}"></div>
         </div>
+    </div>
+
+    <div class="bs-alert bs-alert--warning" role="status" th:if="${devolucionesPendientes > 0}">
+        <strong th:text="${devolucionesPendientes == 1 ? 'Hay 1 devolución pendiente.' : 'Hay ' + devolucionesPendientes + ' devoluciones pendientes.'}">Pendientes</strong>
+        <a th:href="@{/admin/devoluciones}">Revisarlas</a>
     </div>
 
     <section id="ayuda" class="card" aria-labelledby="ayuda-title">
@@ -78,6 +93,7 @@
                     <th scope="col">Email</th>
                     <th scope="col">Especialidad</th>
                     <th scope="col">Estado</th>
+                    <th scope="col" th:if="${apiConsultorios}">Sitio web</th>
                     <th scope="col" class="table-actions">Acciones</th>
                 </tr>
             </thead>
@@ -90,9 +106,34 @@
                             <span th:if="${doctor.estado == 'ACTIVO'}" class="status-badge status-activo">Activo</span>
                             <span th:if="${doctor.estado == 'INACTIVO'}" class="status-badge status-inactivo">Inactivo</span>
                         </td>
+                        <td th:if="${apiConsultorios}" class="sitio-web" th:with="c=${consultorios[doctor.id]}">
+                            <th:block th:if="${c != null}">
+                                <a th:each="d : ${c.dominios}" th:unless="${#strings.contains(d, '127.0.0.1')}"
+                                   th:href="${d}" th:text="${d}" target="_blank" rel="noopener" class="sitio-web__dominio"></a>
+                                <small class="sitio-web__config">
+                                    config.js → id: <code th:text="${c.id}"></code> · doctorId: <code th:text="${doctor.id}"></code>
+                                    <span th:unless="${c.activo}"> (consultorio inactivo)</span>
+                                </small>
+                            </th:block>
+                            <span th:if="${c == null}" class="sitio-web__vacio">—</span>
+                            <a th:href="@{/admin/sitios/{id}(id=${doctor.id})}" class="sitio-web__pagina">Página alojada</a>
+                            <details th:if="${doctor.estado == 'ACTIVO'}" class="sitio-web__vincular">
+                                <summary th:text="${c == null} ? 'Vincular sitio' : 'Agregar otro sitio'">Vincular sitio</summary>
+                                <form th:action="@{/admin/doctores/{id}/sitio(id=${doctor.id})}" method="post" class="sitio-web__form">
+                                    <label class="visually-hidden" th:for="'sitio-' + ${doctor.id}">URL del sitio web</label>
+                                    <input th:id="'sitio-' + ${doctor.id}" class="bs-field__control" type="url" name="sitioWeb" required placeholder="https://consultorio.com">
+                                    <button type="submit" class="bs-btn bs-btn--primary bs-btn--small">Guardar</button>
+                                </form>
+                            </details>
+                        </td>
                         <td class="table-actions">
                             <a th:href="@{/doctores/{id}/horarios(id=${doctor.id})}" class="btn btn-secondary btn-sm">Ver horarios</a>
-                            <form th:if="${doctor.estado == 'INACTIVO'}" th:action="@{/admin/doctores/{id}/activar(id=${doctor.id})}" method="post" class="form-inline">
+                            <form th:if="${doctor.estado == 'INACTIVO'}" th:action="@{/admin/doctores/{id}/activar(id=${doctor.id})}" method="post"
+                                  th:classappend="${apiConsultorios} ? 'sitio-web__form'" class="form-inline">
+                                <th:block th:if="${apiConsultorios}">
+                                    <label class="visually-hidden" th:for="'activar-sitio-' + ${doctor.id}">URL del sitio web (opcional)</label>
+                                    <input th:id="'activar-sitio-' + ${doctor.id}" class="bs-field__control" type="url" name="sitioWeb" placeholder="Sitio web (opcional)">
+                                </th:block>
                                 <button type="submit" class="btn btn-sm btn-success">Activar</button>
                             </form>
                             <form th:if="${doctor.estado == 'ACTIVO'}" th:action="@{/admin/doctores/{id}/desactivar(id=${doctor.id})}" method="post" class="form-inline">

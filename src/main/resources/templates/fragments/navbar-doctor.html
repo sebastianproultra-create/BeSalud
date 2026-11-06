@@ -16,7 +16,8 @@
         </button>
         <nav id="bs-primary-navigation" class="bs-navbar__menu"
              aria-label="Navegación del profesional médico" data-navbar-menu>
-            <a class="bs-navbar__link" th:href="@{/doctores}" data-route="/doctores">Mi panel médico</a>
+            <a class="bs-navbar__link" th:href="@{/doctores}" data-route="/doctores" data-route-except="/doctores/ganancias">Mi panel médico</a>
+            <a class="bs-navbar__link" th:href="@{/doctores/ganancias}" data-route="/doctores/ganancias">Mis ganancias</a>
             <a class="bs-navbar__link" th:href="@{/ayuda}" data-route="/ayuda">Ayuda</a>
             <div class="bs-navbar__account">
                 <span class="bs-navbar__username" sec:authentication="name">Usuario</span>

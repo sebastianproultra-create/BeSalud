@@ -46,6 +46,7 @@
         <span th:case="'horario_invalido'">El horario seleccionado ya no está disponible. Por favor, elige otro.</span>
         <span th:case="'conflicto_cita'">Ese horario ya fue reservado por otro paciente. Por favor elige otro.</span>
         <span th:case="'conflicto_paciente'">Ya tienes otra cita a esa hora. Elige un horario distinto.</span>
+        <span th:case="'saldo_requerido'">Para mover la cita a menos de 24 horas primero paga el resto de la consulta desde Mis citas.</span>
         <span th:case="'doctor_invalido'">No puedes agendar una cita contigo mismo. Elige otro doctor.</span>
         <span th:case="'fecha_pasada'">Esa fecha y hora ya pasaron. Elige un horario futuro.</span>
         <span th:case="'estado_invalido'">Solo se pueden reprogramar citas pendientes.</span>
@@ -94,7 +95,8 @@
                     <p>
                         Para confirmar pagas en línea un abono de
                         <strong th:text="${'$' + #numbers.formatInteger(doctorSeleccionado.abono, 1, 'POINT') + ' (' + doctorSeleccionado.porcentajeAbonoEfectivo() + ' % de la consulta)'}">$16.000</strong>;
-                        el resto lo pagas en el consultorio.
+                        el resto lo pagas en línea cuando quieras, a más tardar 24 horas antes de la cita
+                        (también puedes pagar todo de una vez).
                         Apartamos el horario <span th:text="${minutosParaPagar + ' minutos'}">15 minutos</span> mientras pagas.
                     </p>
                     <p>
@@ -157,7 +159,8 @@
                                           placeholder="Exámenes recientes, tratamientos, embarazo…" th:text="${historialPrevioNotas}"></textarea>
                             </div>
                         </div>
-                        <p class="historial-previo__nota">Se guarda en tu perfil para tus próximas citas. Puedes cambiarlo en «Mi historial».</p>
+                        <p class="historial-previo__nota">Se guarda en tu perfil para tus próximas citas. Puedes cambiarlo en «Mi historial».
+                            ¿Tienes dictámenes de otros médicos o exámenes? <a th:href="@{/pacientes/historial#mis-documentos}" target="_blank" rel="noopener">Adjúntalos en Mi historial</a> (PDF o foto) y el profesional los verá.</p>
                     </details>
                     <button type="submit" class="btn btn-primary btn-confirm" th:text="${submitLabel != null ? submitLabel : 'Confirmar cita'}">Confirmar cita</button>
                     <button type="button" class="btn btn-link btn-change" onclick="clearSlot()">Cambiar horario</button>

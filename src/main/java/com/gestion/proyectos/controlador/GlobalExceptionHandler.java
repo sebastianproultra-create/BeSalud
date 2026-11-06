@@ -31,9 +31,15 @@ public class GlobalExceptionHandler {
     public String handleMaxUpload(HttpServletRequest request, HttpServletResponse response, Model model) {
         if (request.getRequestURI().endsWith("/perfil/foto"))
             return "redirect:/doctores?fotoError=tamano#perfil";
+        if (request.getRequestURI().endsWith("/pacientes/historial/documentos"))
+            return "redirect:/pacientes/historial?error=documento_tamano#mis-documentos";
+        if (request.getRequestURI().startsWith("/admin/devoluciones/"))
+            return "redirect:/admin/devoluciones?error=archivo_tamano";
+        if (request.getRequestURI().startsWith("/admin/liquidaciones/"))
+            return "redirect:/admin/liquidaciones?error=archivo_tamano";
         response.setStatus(HttpStatus.PAYLOAD_TOO_LARGE.value());
         model.addAttribute("status", 413);
-        model.addAttribute("mensaje", "La imagen supera el máximo permitido de 2 MB.");
+        model.addAttribute("mensaje", "El archivo supera el tamaño máximo permitido.");
         return "error/error";
     }
 

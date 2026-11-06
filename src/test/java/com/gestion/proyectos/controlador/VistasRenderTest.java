@@ -62,7 +62,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 /** Comprueba que las plantillas con mensajes de error y botones nuevos renderizan sin fallar. */
-@WebMvcTest({DoctorController.class, PacienteController.class, CitaController.class, LoginController.class,
+@WebMvcTest({GananciasController.class, DevolucionController.class, DoctorController.class, PacienteController.class, CitaController.class, LoginController.class,
         RolSelectionController.class, TriageController.class, PerfilPublicoController.class, HomeController.class})
 @Import(SecurityConfig.class)
 class VistasRenderTest {
@@ -81,6 +81,10 @@ class VistasRenderTest {
     @MockBean private com.gestion.proyectos.servicio.AsistenteService asistenteService;
     @MockBean private org.springframework.security.authentication.AuthenticationManager authenticationManager;
     @MockBean private com.gestion.proyectos.servicio.HistorialClinicoService historialClinicoService;
+    @MockBean private com.gestion.proyectos.servicio.DocumentoClinicoService documentoClinicoService;
+    @MockBean private com.gestion.proyectos.servicio.DevolucionService devolucionService;
+    @MockBean private com.gestion.proyectos.servicio.GananciasService gananciasService;
+    @MockBean private com.gestion.proyectos.servicio.OportunidadesService oportunidadesService;
     @MockBean private CustomUserDetailsService customUserDetailsService;
     @MockBean private PersonaRepositorio personaRepositorio;
     @MockBean private AdminRepositorio adminRepositorio;
@@ -121,6 +125,21 @@ class VistasRenderTest {
                         .with(user("doc@test.com").roles("DOCTOR")))
                 .andExpect(status().isOk())
                 .andExpect(content().string(containsString("480 minutos")));
+    }
+
+    @Test
+    void dashboardDoctor_sinApiDeConsultorios_quedaComoAntes() throws Exception {
+        Doctor d = new Doctor();
+        d.setId("d1");
+        d.setNombre("Ana");
+        d.setApellido("Ruiz");
+        when(doctorService.buscarPorEmail("doc@test.com")).thenReturn(Optional.of(d));
+        when(doctorService.dailySlotCounts(any())).thenReturn(Map.of());
+
+        mockMvc.perform(get("/doctores").with(user("doc@test.com").roles("DOCTOR")))
+                .andExpect(status().isOk())
+                .andExpect(content().string(not(containsString("id=\"mi-web\""))))
+                .andExpect(content().string(not(containsString("Desarrolladores"))));
     }
 
     @Test
@@ -332,6 +351,41 @@ class VistasRenderTest {
     }
 
     @Test
+    void landingPaciente_ofrecePagarElRestoYMarcaLasPagadasCompletas() throws Exception {
+        Paciente p = new Paciente();
+        p.setId("p1");
+        Cita conAbono = new Cita();
+        conAbono.setId("c1");
+        conAbono.setDoctorId("d1");
+        conAbono.setFecha(LocalDate.now().plusDays(2));
+        conAbono.setHora(LocalTime.of(9, 0));
+        conAbono.setEstado(EstadoCita.PENDIENTE);
+        conAbono.setAbonoCentavos(2_000_000L);
+        Cita pagada = new Cita();
+        pagada.setId("c2");
+        pagada.setDoctorId("d1");
+        pagada.setFecha(LocalDate.now().plusDays(3));
+        pagada.setHora(LocalTime.of(10, 0));
+        pagada.setEstado(EstadoCita.PENDIENTE);
+        pagada.setAbonoCentavos(2_000_000L);
+        pagada.setSaldoCentavos(6_000_000L);
+        pagada.setEstadoAbono(com.gestion.proyectos.modelo.EstadoAbono.PAGADO);
+        when(pacienteService.listarDoctoresPaginated(anyInt(), anyInt(), any(), any())).thenReturn(new PageImpl<>(List.of()));
+        when(pacienteService.especialidadesDisponibles()).thenReturn(List.of());
+        when(pacienteService.buscarPorEmail("pac@test.com")).thenReturn(Optional.of(p));
+        when(pacienteService.citasDelPaciente("p1")).thenReturn(List.of(conAbono, pagada));
+        when(pacienteService.mapDoctores()).thenReturn(Map.of("d1", "Dr. X"));
+        when(reservaService.saldosPorPagar(any())).thenReturn(Map.of("c1", 60_000L));
+
+        mockMvc.perform(get("/pacientes/landing").with(user("pac@test.com").roles("PACIENTE")))
+                .andExpect(status().isOk())
+                .andExpect(content().string(containsString("/citas/c1/pagar-saldo")))
+                .andExpect(content().string(containsString("Pagar ahora $60.000")))
+                .andExpect(content().string(org.hamcrest.Matchers.not(containsString("/citas/c2/pagar-saldo"))))
+                .andExpect(content().string(containsString("Pagada por completo $80.000")));
+    }
+
+    @Test
     void reprogramar_noPideMotivoYMuestraError() throws Exception {
         Paciente p = new Paciente();
         p.setId("p1");
@@ -466,8 +520,11 @@ class VistasRenderTest {
     void rutaInexistenteYParametroFaltante_noSonError500() throws Exception {
         mockMvc.perform(get("/no-existe").with(user("a@test.com").roles("ADMIN")))
                 .andExpect(status().isNotFound());
-        mockMvc.perform(get("/citas/nueva").with(user("p@test.com").roles("PACIENTE")))
+        mockMvc.perform(post("/triage/agendar").with(csrf()).with(user("p@test.com").roles("PACIENTE")))
                 .andExpect(status().isBadRequest());
+        // Sin médico elegido, agendar no es un error: vuelve al inicio para elegir uno
+        mockMvc.perform(get("/citas/nueva").with(user("p@test.com").roles("PACIENTE")))
+                .andExpect(redirectedUrl("/pacientes/landing"));
         mockMvc.perform(get("/doctores").param("page", "abc").with(user("d@test.com").roles("DOCTOR")))
                 .andExpect(status().isBadRequest());
         mockMvc.perform(put("/citas/nueva").param("doctorId", "x").with(csrf()).with(user("p@test.com").roles("PACIENTE")))
@@ -483,11 +540,11 @@ class VistasRenderTest {
         var pago = new com.gestion.proyectos.servicio.ReservaService.MovimientoPago("BS-1",
                 java.time.LocalDateTime.of(2026, 10, 20, 9, 0), "Dr(a). Ana Ruiz", "Psicología",
                 java.time.LocalDate.of(2026, 11, 4), java.time.LocalTime.of(8, 0), 12_000, "Visa •••• 4242",
-                com.gestion.proyectos.servicio.ReservaService.EstadoPago.PAGADO);
+                com.gestion.proyectos.servicio.ReservaService.EstadoPago.PAGADO, "Abono");
         var rechazado = new com.gestion.proyectos.servicio.ReservaService.MovimientoPago("BS-2",
                 java.time.LocalDateTime.of(2026, 10, 19, 9, 0), "Dr(a). Ana Ruiz", "Psicología",
                 java.time.LocalDate.of(2026, 11, 4), java.time.LocalTime.of(8, 0), 12_000, null,
-                com.gestion.proyectos.servicio.ReservaService.EstadoPago.RECHAZADO);
+                com.gestion.proyectos.servicio.ReservaService.EstadoPago.RECHAZADO, "Abono");
         when(reservaService.historialDe("p1")).thenReturn(
                 new com.gestion.proyectos.servicio.ReservaService.HistorialPagos(List.of(pago, rechazado), 12_000, 0));
 
@@ -654,5 +711,275 @@ class VistasRenderTest {
                 .andExpect(content().string(containsString("Tu historial médico previo")))
                 .andExpect(content().string(containsString("name=\"historialEnviado\"")))
                 .andExpect(content().string(containsString(">Penicilina</textarea>")));
+    }
+
+    // ── Documentos adjuntos al historial ────────────────────────────────────
+
+    private static com.gestion.proyectos.modelo.DocumentoClinico documento(String id, String pacienteId) {
+        var d = new com.gestion.proyectos.modelo.DocumentoClinico();
+        d.setId(id);
+        d.setPacienteId(pacienteId);
+        d.setNombre("Examen de sangre.pdf");
+        d.setTipo("application/pdf");
+        d.setTamano(870_000);
+        d.setContenido("%PDF-1.4 prueba".getBytes(java.nio.charset.StandardCharsets.UTF_8));
+        d.setSubidoEn(java.time.LocalDateTime.of(2026, 10, 1, 9, 0));
+        return d;
+    }
+
+    @Test
+    void miHistorial_puedeDescargarseYAdjuntarDocumentos() throws Exception {
+        var h = historialDeAna();
+        when(pacienteService.buscarPorEmail("pac@test.com")).thenReturn(Optional.of(h.paciente()));
+        when(historialClinicoService.historialDe("p1")).thenReturn(Optional.of(h));
+        when(documentoClinicoService.listar("p1")).thenReturn(List.of(documento("doc1", "p1")));
+
+        mockMvc.perform(get("/pacientes/historial").with(user("pac@test.com").roles("PACIENTE")))
+                .andExpect(status().isOk())
+                .andExpect(content().string(containsString("Descargar en PDF")))
+                .andExpect(content().string(containsString("Descargar este dictamen")))
+                .andExpect(content().string(containsString("id=\"consulta-c1\"")))
+                .andExpect(content().string(containsString("enctype=\"multipart/form-data\"")))
+                .andExpect(content().string(containsString("/pacientes/historial/documentos/doc1")))
+                .andExpect(content().string(containsString("Examen de sangre.pdf")))
+                .andExpect(content().string(containsString("/pacientes/historial/documentos/doc1/eliminar")));
+    }
+
+    @Test
+    void elMedicoVeLosDocumentosDelPacienteSinPoderBorrarlos() throws Exception {
+        Doctor doctor = new Doctor();
+        doctor.setId("d1");
+        when(doctorService.buscarPorEmail("doc@test.com")).thenReturn(Optional.of(doctor));
+        when(historialClinicoService.medicoPuedeVer("d1", "p1")).thenReturn(true);
+        when(historialClinicoService.historialDe("p1")).thenReturn(Optional.of(historialDeAna()));
+        when(documentoClinicoService.listar("p1")).thenReturn(List.of(documento("doc1", "p1")));
+
+        mockMvc.perform(get("/doctores/pacientes/p1/historial").with(user("doc@test.com").roles("DOCTOR")))
+                .andExpect(status().isOk())
+                .andExpect(content().string(containsString("Documentos que aportó el paciente")))
+                .andExpect(content().string(containsString("/doctores/pacientes/p1/documentos/doc1")))
+                .andExpect(content().string(not(containsString("/eliminar"))))
+                .andExpect(content().string(not(containsString("multipart/form-data"))));
+    }
+
+    @Test
+    void documento_seEntregaConSuTipoYSinCache() throws Exception {
+        Doctor doctor = new Doctor();
+        doctor.setId("d1");
+        when(doctorService.buscarPorEmail("doc@test.com")).thenReturn(Optional.of(doctor));
+        when(historialClinicoService.medicoPuedeVer("d1", "p1")).thenReturn(true);
+        when(documentoClinicoService.buscar("p1", "doc1")).thenReturn(Optional.of(documento("doc1", "p1")));
+
+        mockMvc.perform(get("/doctores/pacientes/p1/documentos/doc1").with(user("doc@test.com").roles("DOCTOR")))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType("application/pdf"))
+                .andExpect(header().string("Content-Disposition", containsString("inline")))
+                .andExpect(header().string("Cache-Control", containsString("no-store")));
+    }
+
+    @Test
+    void documento_medicoSinCitaConElPaciente_noLoVe() throws Exception {
+        Doctor doctor = new Doctor();
+        doctor.setId("d1");
+        when(doctorService.buscarPorEmail("doc@test.com")).thenReturn(Optional.of(doctor));
+        when(historialClinicoService.medicoPuedeVer("d1", "p9")).thenReturn(false);
+
+        mockMvc.perform(get("/doctores/pacientes/p9/documentos/doc1").with(user("doc@test.com").roles("DOCTOR")))
+                .andExpect(status().isForbidden());
+        verify(documentoClinicoService, org.mockito.Mockito.never()).buscar(any(), any());
+    }
+
+    @Test
+    void documento_deOtroPaciente_noExiste() throws Exception {
+        Paciente p = new Paciente();
+        p.setId("p2");
+        when(pacienteService.buscarPorEmail("pac@test.com")).thenReturn(Optional.of(p));
+        when(documentoClinicoService.buscar("p2", "doc1")).thenReturn(Optional.empty());
+
+        mockMvc.perform(get("/pacientes/historial/documentos/doc1").with(user("pac@test.com").roles("PACIENTE")))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void adjuntarDocumento_avisaSiNoSePudo() throws Exception {
+        Paciente p = new Paciente();
+        p.setId("p1");
+        when(pacienteService.buscarPorEmail("pac@test.com")).thenReturn(Optional.of(p));
+        var archivo = new org.springframework.mock.web.MockMultipartFile("archivo", "virus.exe", "application/pdf", new byte[]{1, 2, 3});
+        when(documentoClinicoService.subir(org.mockito.ArgumentMatchers.eq("p1"), any())).thenReturn("tipo");
+
+        mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart("/pacientes/historial/documentos")
+                        .file(archivo).with(csrf()).with(user("pac@test.com").roles("PACIENTE")))
+                .andExpect(redirectedUrl("/pacientes/historial?error=documento_tipo#mis-documentos"));
+    }
+    private com.gestion.proyectos.modelo.Devolucion devolucionDePrueba() {
+        var d = new com.gestion.proyectos.modelo.Devolucion();
+        d.setCodigo("DEV-1");
+        d.setCitaId("c1");
+        d.setPacienteId("p1");
+        d.setMontoCentavos(8_000_000L);
+        d.setMedio("Nequi");
+        d.setNumeroOperacion("NEQ123456");
+        d.setRegistradaEn(java.time.LocalDateTime.of(2026, 11, 4, 10, 0));
+        d.setRegistradaPor("admin@besalud.com");
+        d.setComprobanteHash("abc");
+        d.setComprobanteTipo("image/png");
+        d.setComprobanteNombre("recibo.png");
+        d.setComprobante(new byte[] {1});
+        d.getReferencias().add("BS-1");
+        d.getEventos().add(new com.gestion.proyectos.modelo.Devolucion.Evento(d.getRegistradaEn(), "admin@besalud.com", "Registró la devolución"));
+        return d;
+    }
+
+    @Test
+    void devoluciones_panelDelAdminMuestraPendientesReclamosYRegistradas() throws Exception {
+        var fecha = java.time.LocalDate.of(2026, 11, 9);
+        var hora = java.time.LocalTime.of(9, 0);
+        var reclamada = devolucionDePrueba();
+        reclamada.setEstado(com.gestion.proyectos.modelo.Devolucion.Estado.RECLAMADA);
+        reclamada.setNotaReclamo("No veo nada");
+        when(devolucionService.pendientes()).thenReturn(java.util.List.of(
+                new com.gestion.proyectos.servicio.DevolucionService.Pendiente("cita-c1", "Ana Ruiz", "123", "300", "ana@x.co",
+                        "Luis Paz", "Canceló el médico", 80_000L, fecha, hora, java.util.List.of("BS-1"), 7L, true, null),
+                new com.gestion.proyectos.servicio.DevolucionService.Pendiente("reserva-BS-9", "Eva Sol", null, null, null,
+                        "Luis Paz", "Pagó, pero el horario ya no estaba disponible", 20_000L, fecha, hora,
+                        java.util.List.of("BS-9"), null, false, reclamada)));
+        when(devolucionService.registradas()).thenReturn(java.util.List.of(
+                new com.gestion.proyectos.servicio.DevolucionService.Registrada(devolucionDePrueba(), "Ana Ruiz", "Luis Paz")));
+
+        mockMvc.perform(get("/admin/devoluciones").param("error", "monto").param("origen", "cita-c1")
+                        .with(user("admin@besalud.com").roles("ADMIN")))
+                .andExpect(status().isOk())
+                .andExpect(content().string(containsString("Vencida: 7 días")))
+                .andExpect(content().string(containsString("No veo nada")))
+                .andExpect(content().string(containsString("/admin/devoluciones/reserva-BS-9/registrar")))
+                .andExpect(content().string(containsString("El monto debe ser exactamente $80.000")))
+                .andExpect(content().string(containsString("NEQ123456")))
+                .andExpect(content().string(containsString("enctype=\"multipart/form-data\"")));
+    }
+
+    @Test
+    void devoluciones_elPacienteConfirmaOAvisaSoloSiEstaPorConfirmar() throws Exception {
+        var paciente = new com.gestion.proyectos.modelo.Paciente("A", "B", "300", "1", "paciente@test.com", "x");
+        paciente.setId("p1");
+        when(pacienteService.buscarPorEmail("paciente@test.com")).thenReturn(java.util.Optional.of(paciente));
+        var d = devolucionDePrueba();
+        when(devolucionService.buscarDelPaciente("DEV-1", "p1")).thenReturn(java.util.Optional.of(d));
+
+        mockMvc.perform(get("/pacientes/devoluciones/DEV-1").with(user("paciente@test.com").roles("PACIENTE")))
+                .andExpect(status().isOk())
+                .andExpect(content().string(containsString("NEQ123456")))
+                .andExpect(content().string(containsString("Sí, me llegó")));
+
+        d.setEstado(com.gestion.proyectos.modelo.Devolucion.Estado.CONFIRMADA);
+        mockMvc.perform(get("/pacientes/devoluciones/DEV-1").with(user("paciente@test.com").roles("PACIENTE")))
+                .andExpect(status().isOk())
+                .andExpect(content().string(not(containsString("Sí, me llegó"))));
+    }
+
+    @Test
+    void ganancias_elMedicoVeCuantoGanoComoLoGanoYSusPagos() throws Exception {
+        var doctor = new com.gestion.proyectos.modelo.Doctor();
+        doctor.setId("d1");
+        when(doctorService.buscarPorEmail("doc@test.com")).thenReturn(java.util.Optional.of(doctor));
+        var mes = java.time.YearMonth.of(2026, 9);
+        var pago = new com.gestion.proyectos.modelo.Liquidacion();
+        pago.setCodigo("LIQ-1");
+        pago.setNetoPesos(72_000);
+        pago.setMedio("Nequi");
+        pago.setNumeroOperacion("NEQ123456");
+        pago.setRegistradaEn(java.time.LocalDateTime.of(2026, 10, 1, 9, 0));
+        pago.setComprobanteTipo("image/png");
+        var linea = new com.gestion.proyectos.servicio.GananciasService.Linea(mes.atDay(9), java.time.LocalTime.of(9, 0), "Ana Ruiz",
+                com.gestion.proyectos.servicio.GananciasService.Origen.ATENDIDA, 80_000, 10, 8_000, 72_000, "LIQ-1");
+        when(gananciasService.panel(eq("d1"), eq(mes))).thenReturn(new com.gestion.proyectos.servicio.GananciasService.Panel(
+                mes, mes.minusMonths(1), mes.plusMonths(1), 10, 80_000, 8_000, 72_000, 20, 5_000, 18_000, 72_000, 1, 0, 0,
+                100, 40, 60, 40, 50, 1_440, 4_320_000, java.util.List.of(linea),
+                java.util.List.of(new com.gestion.proyectos.servicio.GananciasService.MesGrafica("sep", 72_000, 120, true)),
+                java.util.List.of(pago)));
+
+        mockMvc.perform(get("/doctores/ganancias").param("mes", "2026-09").with(user("doc@test.com").roles("DOCTOR")))
+                .andExpect(status().isOk())
+                .andExpect(content().string(containsString("Septiembre 2026")))
+                .andExpect(content().string(containsString("$72.000")))
+                .andExpect(content().string(containsString("+20 % frente al mes anterior")))
+                .andExpect(content().string(containsString("Consulta atendida")))
+                .andExpect(content().string(containsString("NEQ123456")));
+    }
+
+    @Test
+    void registrarPago_soloDiceQueAvisoPorCorreoSiSeVaAEnviar() throws Exception {
+        org.springframework.mock.web.MockMultipartFile archivo = new org.springframework.mock.web.MockMultipartFile("comprobante", "r.png", "image/png", new byte[] {1});
+        when(gananciasService.avisaPorCorreo("d1")).thenReturn(true);
+        mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart("/admin/liquidaciones/d1/registrar").file(archivo)
+                        .with(org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf()).with(user("a@test.com").roles("ADMIN")))
+                .andExpect(org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl("/admin/liquidaciones?registrada=1&aviso=1#registradas"));
+        when(gananciasService.avisaPorCorreo("d1")).thenReturn(false);
+        mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart("/admin/liquidaciones/d1/registrar").file(archivo)
+                        .with(org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf()).with(user("a@test.com").roles("ADMIN")))
+                .andExpect(org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl("/admin/liquidaciones?registrada=1#registradas"));
+
+        mockMvc.perform(get("/admin/liquidaciones").param("registrada", "1").param("aviso", "1").with(user("a@test.com").roles("ADMIN")))
+                .andExpect(content().string(containsString("Le estamos enviando un aviso por correo.")))
+                .andExpect(content().string(org.hamcrest.Matchers.not(containsString("No se le envió correo"))));
+        mockMvc.perform(get("/admin/liquidaciones").param("registrada", "1").with(user("a@test.com").roles("ADMIN")))
+                .andExpect(content().string(containsString("No se le envió correo: avísale directamente.")))
+                .andExpect(content().string(org.hamcrest.Matchers.not(containsString("Le estamos enviando"))));
+    }
+
+    @Test
+    void liquidaciones_elAdminVeLoQueDebeYLosErrores() throws Exception {
+        when(gananciasService.porLiquidar()).thenReturn(java.util.List.of(new com.gestion.proyectos.servicio.GananciasService.PorLiquidar(
+                "d1", "Luis Paz", "Pediatría", "luis@x.co", 3, 240_000, 24_000, 216_000,
+                java.time.LocalDate.of(2026, 9, 1), java.time.LocalDate.of(2026, 9, 20))));
+
+        mockMvc.perform(get("/admin/liquidaciones").param("error", "monto").param("doctor", "d1")
+                        .with(user("admin@besalud.com").roles("ADMIN")))
+                .andExpect(status().isOk())
+                .andExpect(content().string(containsString("$216.000")))
+                .andExpect(content().string(containsString("El monto debe ser exactamente $216.000")))
+                .andExpect(content().string(containsString("/admin/liquidaciones/d1/registrar")));
+    }
+
+    @Test
+    void oportunidades_muestraLaSenalYLaAccionSugerida() throws Exception {
+        var senal = new com.gestion.proyectos.servicio.OportunidadesService.Senal("Baja ocupación", "warning", "Revisar la causa");
+        var pediatria = new com.gestion.proyectos.servicio.OportunidadesService.Especialidad("Pediatría", 2, 50, 100, 50,
+                new com.gestion.proyectos.servicio.OportunidadesService.Senal("Faltan médicos", "warning", "Atraer médicos"));
+        var medico = new com.gestion.proyectos.servicio.OportunidadesService.Medico("Luis Paz", "Pediatría", "luis@x.co", "300",
+                10, 100, 10, 5, java.util.List.of(senal));
+        when(oportunidadesService.calcular()).thenReturn(new com.gestion.proyectos.servicio.OportunidadesService.Panel(
+                java.time.LocalDate.of(2026, 8, 17), java.time.LocalDate.of(2026, 10, 15), 30, pediatria, pediatria,
+                java.util.List.of(pediatria), java.util.List.of(medico), java.util.List.of(medico), 3));
+
+        mockMvc.perform(get("/admin/oportunidades").with(user("admin@besalud.com").roles("ADMIN")))
+                .andExpect(status().isOk())
+                .andExpect(content().string(containsString("Faltan médicos")))
+                .andExpect(content().string(containsString("Especialidad más usada")))
+                .andExpect(content().string(containsString("Médicos más usados")))
+                .andExpect(content().string(containsString("Baja ocupación")))
+                .andExpect(content().string(containsString("Revisar la causa")));
+    }
+
+    @Test
+    void ganancias_cadaPantallaSoloParaSuRol() throws Exception {
+        mockMvc.perform(get("/admin/liquidaciones").with(user("doc@test.com").roles("DOCTOR")))
+                .andExpect(status().isForbidden());
+        mockMvc.perform(get("/admin/oportunidades").with(user("doc@test.com").roles("DOCTOR")))
+                .andExpect(status().isForbidden());
+        mockMvc.perform(get("/doctores/ganancias").with(user("p@test.com").roles("PACIENTE")))
+                .andExpect(status().isForbidden());
+        mockMvc.perform(get("/doctores/ganancias").with(user("admin@besalud.com").roles("ADMIN")))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    void devoluciones_elMedicoYElPacienteNoEntranAlPanelDelAdmin() throws Exception {
+        mockMvc.perform(get("/admin/devoluciones").with(user("doc@test.com").roles("DOCTOR")))
+                .andExpect(status().isForbidden());
+        mockMvc.perform(get("/admin/devoluciones/DEV-1/comprobante").with(user("p@test.com").roles("PACIENTE")))
+                .andExpect(status().isForbidden());
+        mockMvc.perform(get("/pacientes/devoluciones/DEV-1").with(user("doc@test.com").roles("DOCTOR")))
+                .andExpect(status().isForbidden());
     }
 }

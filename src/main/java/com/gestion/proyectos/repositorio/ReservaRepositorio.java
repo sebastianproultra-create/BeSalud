@@ -11,4 +11,12 @@ public interface ReservaRepositorio extends MongoRepository<Reserva, String> {
     List<Reserva> findByDoctorIdAndFechaAndEstado(String doctorId, LocalDate fecha, Reserva.Estado estado);
     List<Reserva> findByPacienteIdAndEstado(String pacienteId, Reserva.Estado estado);
     List<Reserva> findByPacienteIdOrderByCreadaEnDesc(String pacienteId);
+    List<Reserva> findByCitaIdAndTipo(String citaId, Reserva.Tipo tipo);
+
+    /** Pagos aprobados que no pudieron aplicarse (el turno ya no estaba, por ejemplo) y aún no se han devuelto. */
+    @org.springframework.data.mongodb.repository.Query("{ 'estado': 'CONFLICTO', 'devuelta': { $ne: true } }")
+    List<Reserva> listarPagosPorDevolver();
+
+    @org.springframework.data.mongodb.repository.Query(value = "{ 'estado': 'CONFLICTO', 'devuelta': { $ne: true } }", count = true)
+    long contarPagosPorDevolver();
 }

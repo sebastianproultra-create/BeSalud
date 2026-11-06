@@ -43,8 +43,86 @@ public class Cita {
     private String referenciaPago;
     private String medioPago;
     private EstadoAbono estadoAbono;
-    /** Cuándo el profesional registró que devolvió el abono. */
+    /** Cuándo BeSalud registró que devolvió lo pagado. */
     private LocalDateTime abonoDevueltoEn;
+    /** Quién canceló (CANCELO_*) y desde cuándo espera el paciente su devolución; null en citas anteriores. */
+    public static final String CANCELO_MEDICO = "MEDICO";
+    public static final String CANCELO_PACIENTE = "PACIENTE";
+    public static final String CANCELO_ADMIN = "ADMIN";
+    private String canceladaPor;
+    private LocalDateTime reembolsoSolicitadoEn;
+    /** Comisión de BeSalud pactada al reservar; null en las citas anteriores (se usa la vigente). */
+    private Integer comisionPorcentaje;
+    /** Liquidación con la que BeSalud ya le pagó esta cita al médico; null mientras no se haya pagado. */
+    private String liquidacionId;
+    /** Medio y número de operación de la devolución, para los avisos al paciente (el detalle está en Devolucion). */
+    private String medioDevolucion;
+    private String numeroDevolucion;
+    /** Horas antes de la cita en que vence el pago del resto: después la cita se cancela y se conserva el abono. */
+    public static final int HORAS_LIMITE_SALDO = 24;
+
+    /**
+     * Resto de la consulta pagado en línea (en centavos); null mientras falte. Con él la cita queda pagada por
+     * completo y el estado del abono aplica a todo lo pagado.
+     */
+    private Long saldoCentavos;
+    /**
+     * true en las citas reservadas con la regla de pagar todo antes de la cita: si el resto no se paga antes del
+     * plazo, la cita se cancela. Las citas anteriores (null) siguen pagando el resto en el consultorio.
+     */
+    private Boolean saldoObligatorio;
+    private boolean recordatorioSaldoEnviado;
+    private String referenciaSaldo;
+    private String medioPagoSaldo;
+    private LocalDateTime saldoPagadoEn;
+
+    public Integer getComisionPorcentaje() {
+        return comisionPorcentaje;
+    }
+
+    public void setComisionPorcentaje(Integer comisionPorcentaje) {
+        this.comisionPorcentaje = comisionPorcentaje;
+    }
+
+    public String getLiquidacionId() {
+        return liquidacionId;
+    }
+
+    public void setLiquidacionId(String liquidacionId) {
+        this.liquidacionId = liquidacionId;
+    }
+
+    public String getCanceladaPor() {
+        return canceladaPor;
+    }
+
+    public void setCanceladaPor(String canceladaPor) {
+        this.canceladaPor = canceladaPor;
+    }
+
+    public LocalDateTime getReembolsoSolicitadoEn() {
+        return reembolsoSolicitadoEn;
+    }
+
+    public void setReembolsoSolicitadoEn(LocalDateTime reembolsoSolicitadoEn) {
+        this.reembolsoSolicitadoEn = reembolsoSolicitadoEn;
+    }
+
+    public String getMedioDevolucion() {
+        return medioDevolucion;
+    }
+
+    public void setMedioDevolucion(String medioDevolucion) {
+        this.medioDevolucion = medioDevolucion;
+    }
+
+    public String getNumeroDevolucion() {
+        return numeroDevolucion;
+    }
+
+    public void setNumeroDevolucion(String numeroDevolucion) {
+        this.numeroDevolucion = numeroDevolucion;
+    }
 
     public String getId() {
         return id;
@@ -194,6 +272,86 @@ public class Cita {
 
     public void setAbonoDevueltoEn(LocalDateTime abonoDevueltoEn) {
         this.abonoDevueltoEn = abonoDevueltoEn;
+    }
+
+    public Long getSaldoCentavos() {
+        return saldoCentavos;
+    }
+
+    public void setSaldoCentavos(Long saldoCentavos) {
+        this.saldoCentavos = saldoCentavos;
+    }
+
+    public Long getSaldoPesos() {
+        return saldoCentavos == null ? null : saldoCentavos / 100;
+    }
+
+    public boolean isSaldoObligatorio() {
+        return Boolean.TRUE.equals(saldoObligatorio);
+    }
+
+    public void setSaldoObligatorio(Boolean saldoObligatorio) {
+        this.saldoObligatorio = saldoObligatorio;
+    }
+
+    public boolean isRecordatorioSaldoEnviado() {
+        return recordatorioSaldoEnviado;
+    }
+
+    public void setRecordatorioSaldoEnviado(boolean recordatorioSaldoEnviado) {
+        this.recordatorioSaldoEnviado = recordatorioSaldoEnviado;
+    }
+
+    /** Hasta cuándo se puede pagar el resto de una cita en la fecha y hora dadas. */
+    public static LocalDateTime limitePagoSaldo(LocalDate fecha, LocalTime hora) {
+        return fecha == null || hora == null ? null : fecha.atTime(hora).minusHours(HORAS_LIMITE_SALDO);
+    }
+
+    public LocalDateTime getLimitePagoSaldo() {
+        return limitePagoSaldo(fecha, hora);
+    }
+
+    /** ¿Le falta pagar el resto y ya pasó el plazo? Entonces la cita se cancela. */
+    public boolean saldoVencido(LocalDateTime ahora) {
+        LocalDateTime limite = getLimitePagoSaldo();
+        return isSaldoObligatorio() && !isPagadaCompleta() && estado == EstadoCita.PENDIENTE
+                && limite != null && !ahora.isBefore(limite);
+    }
+
+    /** ¿El paciente ya pagó en línea el valor total de la consulta? */
+    public boolean isPagadaCompleta() {
+        return saldoCentavos != null;
+    }
+
+    /** Todo lo que el paciente pagó en línea (abono más saldo), en pesos; null si no pagó nada. */
+    public Long getPagadoPesos() {
+        if (abonoCentavos == null && saldoCentavos == null)
+            return null;
+        return ((abonoCentavos == null ? 0 : abonoCentavos) + (saldoCentavos == null ? 0 : saldoCentavos)) / 100;
+    }
+
+    public String getReferenciaSaldo() {
+        return referenciaSaldo;
+    }
+
+    public void setReferenciaSaldo(String referenciaSaldo) {
+        this.referenciaSaldo = referenciaSaldo;
+    }
+
+    public String getMedioPagoSaldo() {
+        return medioPagoSaldo;
+    }
+
+    public void setMedioPagoSaldo(String medioPagoSaldo) {
+        this.medioPagoSaldo = medioPagoSaldo;
+    }
+
+    public LocalDateTime getSaldoPagadoEn() {
+        return saldoPagadoEn;
+    }
+
+    public void setSaldoPagadoEn(LocalDateTime saldoPagadoEn) {
+        this.saldoPagadoEn = saldoPagadoEn;
     }
 
     public LocalDateTime getInicioAtencion() {

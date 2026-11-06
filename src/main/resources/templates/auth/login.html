@@ -56,6 +56,7 @@
                 <div th:if="${param.bloqueado}" class="alert alert-error">Demasiados intentos fallidos. Espera 15 minutos e intenta de nuevo.</div>
                 <div th:if="${param.sessionExpired}" class="alert alert-error">Tu sesión ha expirado o necesitas iniciar sesión para ver esa página.</div>
                 <div th:if="${param.logout}" class="alert alert-success">Sesión cerrada correctamente.</div>
+                <div th:if="${param.enlaceVencido}" class="alert alert-error">Tu enlace expiró. Inicia sesión para continuar con tu cita.</div>
 
                 <div th:if="${continuar != null and param.error == null and param.bloqueado == null}" class="alert alert-info">Inicia sesión o regístrate para terminar tu reserva.</div>
                 <form th:action="@{/login}" method="post" class="auth-form">

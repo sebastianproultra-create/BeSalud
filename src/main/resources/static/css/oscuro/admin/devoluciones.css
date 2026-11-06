@@ -1,0 +1,101 @@
+/* Generado por scripts/generar_tema_oscuro.py a partir de admin/devoluciones.css. No editar a mano:
+   los ajustes van en base/tema-oscuro.css o en el generador. */
+
+html[data-tema="oscuro"] .dev-cabecera h1 {
+    color: var(--color-text--t);
+}
+
+html[data-tema="oscuro"] .dev-cabecera p {
+    color: var(--color-text-muted--t);
+}
+
+html[data-tema="oscuro"] .dev-seccion > h2 {
+    color: var(--color-text--t);
+}
+
+html[data-tema="oscuro"] .dev-vacio,
+html[data-tema="oscuro"] .dev-sutil {
+    color: var(--color-text-muted--t);
+}
+
+html[data-tema="oscuro"] .dev-tarjeta__cabeza h3 {
+    color: var(--color-text--t);
+}
+
+html[data-tema="oscuro"] .dev-monto strong {
+    color: var(--color-text--t);
+}
+
+html[data-tema="oscuro"] .dev-datos dt {
+    color: var(--color-text-muted--t);
+}
+
+html[data-tema="oscuro"] .dev-datos dd {
+    color: var(--color-text--t);
+}
+
+html[data-tema="oscuro"] .dev-form {
+    background-color: transparent;
+    background-image: none;
+    border: 0;
+    border-top: 1px solid var(--color-border--b);
+    box-shadow: none;
+}
+
+html[data-tema="oscuro"] .dev-registro__quien {
+    color: var(--color-text--t);
+}
+
+html[data-tema="oscuro"] .dev-registro__quien small {
+    color: var(--color-text-muted--t);
+}
+
+html[data-tema="oscuro"] .dev-registro__monto {
+    color: var(--color-text--t);
+}
+
+html[data-tema="oscuro"] .dev-linea {
+    border-left: 2px solid var(--color-border--b);
+}
+
+html[data-tema="oscuro"] .dev-linea time {
+    color: var(--color-text-muted--t);
+}
+
+html[data-tema="oscuro"] .dev-linea span {
+    color: var(--color-text--t);
+}
+
+html[data-tema="oscuro"] .pago-page .dev-constancia__reclamo .bs-btn--danger {
+    color: var(--color-surface--t);
+    background-color: var(--color-danger--f);
+    background-image: none;
+    border-color: var(--color-danger--b);
+}
+
+html[data-tema="oscuro"] .dev-constancia__monto {
+    color: var(--color-text--t);
+}
+
+html[data-tema="oscuro"] .dev-constancia__pregunta {
+    border-top: 1px solid var(--color-border--b);
+}
+
+html[data-tema="oscuro"] .dev-constancia__pregunta h2 {
+    color: var(--color-text--t);
+}
+
+html[data-tema="oscuro"] .dev-constancia__pregunta p {
+    color: var(--color-text-muted--t);
+}
+
+html[data-tema="oscuro"] .pago-page .dev-constancia__pregunta form {
+    background-color: transparent;
+    background-image: none;
+    border: 0;
+    box-shadow: none;
+}
+
+html[data-tema="oscuro"] .dev-constancia__reclamo summary {
+    color: var(--color-danger--t);
+}

@@ -9,6 +9,7 @@ import com.gestion.proyectos.modelo.EstadoCita;
 import com.gestion.proyectos.modelo.Paciente;
 import com.gestion.proyectos.modelo.Reserva;
 import com.gestion.proyectos.servicio.CitaService;
+import com.gestion.proyectos.util.Reloj;
 import com.gestion.proyectos.servicio.HistorialClinicoService;
 import com.gestion.proyectos.servicio.PasarelaPagos;
 import com.gestion.proyectos.servicio.ReservaService;
@@ -88,10 +89,11 @@ public class CitaController {
 
     /** fecha y hora (opcionales) llegan desde la página del profesional o su asistente para dejar el turno elegido. */
     @GetMapping("/nueva")
-    public String nueva(@RequestParam String doctorId,
+    public String nueva(@RequestParam(required = false) String doctorId,
                         @RequestParam(required = false) String fecha,
                         @RequestParam(required = false) String hora,
                         Model model) {
+        if (doctorId == null || doctorId.isBlank()) return REDIRECT_PACIENTES_LANDING;
         Doctor doctor = citaService.buscarDoctorPorId(doctorId).orElse(null);
         if (doctor == null) return REDIRECT_PACIENTES_LANDING;
 
@@ -175,6 +177,9 @@ public class CitaController {
             return "redirect:/citas/" + id + "/reprogramar?error=conflicto_cita";
         if (citaService.pacienteTieneConflicto(cita.getPacienteId(), cita.getDoctorId(), fechaCita, horaCita, cita.getId()))
             return "redirect:/citas/" + id + "/reprogramar?error=conflicto_paciente";
+        // Con el resto sin pagar, la nueva fecha debe dejar tiempo para pagarlo antes del plazo
+        if (!CitaService.reprogramacionDejaPlazoParaPagar(cita, fechaCita, horaCita, Reloj.ahora()))
+            return "redirect:/citas/" + id + "/reprogramar?error=saldo_requerido";
 
         try {
             citaService.reprogramar(cita, fechaCita, horaCita);

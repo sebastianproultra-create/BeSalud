@@ -271,4 +271,20 @@ class SecurityRulesTest {
         mockMvc.perform(post("/citas/guardar-paciente").with(csrf()))
                 .andExpect(status().isForbidden());
     }
+    @Test
+    @WithMockUser(roles = "DOCTOR")
+    void pagarSaldo_soloElPaciente() throws Exception {
+        mockMvc.perform(post("/citas/c1/pagar-saldo").with(csrf()))
+                .andExpect(status().isForbidden());
+    }
+
+
+    @Test
+    @WithMockUser(roles = "DOCTOR")
+    void adjuntarDocumentosAlHistorial_soloElPaciente() throws Exception {
+        mockMvc.perform(post("/pacientes/historial/documentos").with(csrf()))
+                .andExpect(status().isForbidden());
+        mockMvc.perform(get("/pacientes/historial/documentos/doc1"))
+                .andExpect(status().isForbidden());
+    }
 }

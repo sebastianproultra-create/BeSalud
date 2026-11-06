@@ -1,0 +1,441 @@
+/* ==============================================
+   GANANCIAS: Mis ganancias del médico, pagos a médicos y oportunidades del administrador
+   ============================================== */
+@import url('../oscuro/admin/ganancias.css');
+
+.gan-main {
+    display: grid;
+    gap: var(--space-6);
+    padding-block: var(--space-8);
+}
+
+.gan-main > * {
+    min-width: 0;
+}
+
+.gan-cabecera {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: var(--space-3);
+}
+
+.gan-cabecera h1 {
+    margin: 0 0 var(--space-2);
+    font-family: var(--font-heading);
+    font-size: var(--font-size-2xl);
+    color: var(--color-text);
+}
+
+.gan-cabecera p {
+    max-width: 44rem;
+    margin: 0;
+    color: var(--color-text-muted);
+}
+
+.gan-main h2 {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    margin: 0;
+    font-family: var(--font-heading);
+    font-size: var(--font-size-xl);
+    color: var(--color-text);
+}
+
+.gan-main h3 {
+    margin: 0;
+    font-family: var(--font-body);
+    font-size: var(--font-size-lg);
+    font-weight: 600;
+    color: var(--color-text);
+}
+
+.gan-nota {
+    margin: 0;
+    color: var(--color-text-muted);
+    font-size: var(--font-size-sm);
+    overflow-wrap: anywhere;
+}
+
+.gan-saldos {
+    display: grid;
+    gap: var(--space-3);
+}
+
+.gan-saldo {
+    display: grid;
+    gap: var(--space-1);
+}
+
+.gan-saldo span,
+.gan-saldo small {
+    color: var(--color-text-muted);
+    font-size: var(--font-size-sm);
+}
+
+.gan-saldo strong {
+    font-size: var(--font-size-xl);
+    color: var(--color-text);
+}
+
+.bs-card.gan-saldo--destacado {
+    background: var(--color-primary-soft);
+    border-color: var(--color-primary);
+}
+
+.gan-meses {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+}
+
+.gan-bloque {
+    display: grid;
+    gap: var(--space-4);
+}
+
+.gan-bloque-plano {
+    display: grid;
+    gap: var(--space-3);
+}
+
+.gan-cuenta {
+    display: grid;
+    gap: var(--space-2);
+}
+
+.gan-cuenta > div {
+    display: grid;
+    gap: var(--space-1);
+}
+
+.gan-cuenta span,
+.gan-cuenta small {
+    color: var(--color-text-muted);
+    font-size: var(--font-size-sm);
+}
+
+.gan-cuenta strong {
+    font-size: var(--font-size-lg);
+    color: var(--color-text);
+}
+
+.gan-cuenta__signo {
+    display: none;
+}
+
+.gan-cuenta__total {
+    padding-top: var(--space-2);
+    border-top: 1px solid var(--color-border);
+}
+
+.gan-cuenta__total strong {
+    font-size: var(--font-size-xl);
+}
+
+.gan-grafica {
+    display: block;
+    width: 100%;
+    max-width: 40rem;
+    height: auto;
+}
+
+.gan-barra {
+    fill: var(--color-border-strong);
+}
+
+.gan-barra.is-actual {
+    fill: var(--color-primary);
+}
+
+.gan-grafica__mes {
+    fill: var(--color-text-muted);
+    font-size: 16px;
+}
+
+.gan-metricas {
+    display: grid;
+    gap: var(--space-4);
+}
+
+.gan-metricas > div {
+    display: grid;
+    gap: var(--space-1);
+    min-width: 0;
+}
+
+.gan-metricas span,
+.gan-metricas small {
+    color: var(--color-text-muted);
+    font-size: var(--font-size-sm);
+}
+
+.gan-metricas strong {
+    font-size: var(--font-size-lg);
+    color: var(--color-text);
+}
+
+.gan-progreso {
+    display: block;
+    width: 100%;
+    height: var(--space-2);
+    accent-color: var(--color-primary);
+}
+
+.gan-num {
+    text-align: right;
+    white-space: nowrap;
+}
+
+.gan-nowrap {
+    white-space: nowrap;
+}
+
+.gan-fuerte {
+    font-weight: 600;
+}
+
+.gan-lista {
+    display: grid;
+    gap: var(--space-3);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.gan-pago {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-3);
+}
+
+.gan-pago > div {
+    display: grid;
+    flex: 1 1 14rem;
+    gap: var(--space-1);
+    min-width: 0;
+}
+
+.gan-pago strong {
+    color: var(--color-text);
+}
+
+.gan-pago small {
+    color: var(--color-text-muted);
+    font-size: var(--font-size-xs);
+    overflow-wrap: anywhere;
+}
+
+.gan-huella {
+    font-family: var(--font-mono);
+}
+
+.gan-tarjeta {
+    display: grid;
+    gap: var(--space-4);
+    min-width: 0;
+    scroll-margin-top: var(--space-12);
+}
+
+.gan-tarjeta__cabeza {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: var(--space-3);
+}
+
+.gan-tarjeta__cabeza > div {
+    flex: 1 1 14rem;
+    min-width: 0;
+}
+
+.gan-tarjeta__monto {
+    font-size: var(--font-size-xl);
+    color: var(--color-text);
+    white-space: nowrap;
+}
+
+.gan-datos {
+    display: grid;
+    gap: var(--space-3);
+    margin: 0;
+}
+
+.gan-datos dt {
+    color: var(--color-text-muted);
+    font-size: var(--font-size-xs);
+}
+
+.gan-datos dd {
+    margin: 0;
+    color: var(--color-text);
+    font-size: var(--font-size-sm);
+    font-weight: 600;
+}
+
+.gan-form {
+    display: grid;
+    gap: var(--space-3);
+    margin: 0;
+    padding: var(--space-4) 0 0;
+    background: none;
+    border: 0;
+    border-top: 1px solid var(--color-border);
+    border-radius: 0;
+    box-shadow: none;
+}
+
+.gan-form .bs-field {
+    min-width: 0;
+}
+
+.gan-form__enviar {
+    text-transform: none;
+    letter-spacing: normal;
+}
+
+.gan-registrar {
+    display: grid;
+    gap: var(--space-4);
+    min-width: 0;
+}
+
+.gan-registrar > summary {
+    width: fit-content;
+    cursor: pointer;
+    list-style: none;
+}
+
+.gan-registrar > summary::-webkit-details-marker {
+    display: none;
+}
+
+.bs-card.gan-ayuda {
+    display: grid;
+    gap: var(--space-3);
+    min-width: 0;
+}
+
+.gan-ayuda > summary {
+    display: flex;
+    align-items: center;
+    min-height: 44px;
+    color: var(--color-text);
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.gan-ayuda ol {
+    display: grid;
+    gap: var(--space-2);
+    margin: 0;
+    padding-left: var(--space-6);
+    color: var(--color-text);
+    font-size: var(--font-size-sm);
+}
+
+.gan-opo {
+    display: grid;
+    align-content: start;
+    gap: var(--space-2);
+    min-width: 0;
+}
+
+.gan-opo__cabeza {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: var(--space-2);
+}
+
+.gan-opo__cabeza > div {
+    flex: 1 1 14rem;
+    min-width: 0;
+    overflow-wrap: anywhere;
+}
+
+.gan-opo small {
+    color: var(--color-text-muted);
+    font-size: var(--font-size-xs);
+}
+
+.gan-opo p {
+    margin: 0;
+    color: var(--color-text);
+    font-size: var(--font-size-sm);
+}
+
+.gan-senales {
+    display: grid;
+    gap: var(--space-2);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.gan-senales li {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-2);
+    color: var(--color-text);
+    font-size: var(--font-size-sm);
+}
+
+@media (min-width: 48rem) {
+    .gan-saldos {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .gan-cuenta {
+        grid-template-columns: 1fr auto 1fr auto 1fr;
+        align-items: center;
+    }
+
+    .gan-cuenta .gan-cuenta__signo {
+        display: block;
+        font-size: var(--font-size-xl);
+    }
+
+    .gan-cuenta__total {
+        padding-top: 0;
+        border-top: 0;
+    }
+
+    .gan-metricas {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .gan-datos {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .gan-form {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .gan-form__enviar {
+        grid-column: 1 / -1;
+        justify-self: end;
+    }
+
+    .gan-lista--rejilla {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (min-width: 64rem) {
+    .gan-metricas {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+
+    .gan-lista--rejilla {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+}

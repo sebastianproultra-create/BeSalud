@@ -128,6 +128,8 @@ Cada vista debe conservar su `<head>` y contenido, incluir el fragmento de dise�
 
 El selector incluye la navbar correspondiente al rol, y usa la variante pública para usuarios anónimos. Cada navbar de rol incluye la marca, navegación y cierre de sesión por POST con CSRF. Todas comparten estilos y comportamiento responsive; `navbar.js` actualiza `aria-current="page"` y gestiona cada menú. Para agregar un enlace:
 
+En escritorio, la barra ocupa el ancho disponible; los enlaces, el nombre de usuario y el cierre de sesión usan el mismo tamaño de texto y permanecen en una sola línea. La marca conserva una separación uniforme respecto al menú. En pantallas de hasta 1280 px, la navegación se presenta en el menú colapsable.
+
 1. Confirma el endpoint en un controlador existente y el rol autorizado.
 2. Añade el `<a>` al fragmento correspondiente (`navbar-admin`, `navbar-doctor` o `navbar-paciente`) usando `th:href="@{/ruta}"`.
 3. Añade `data-route="/ruta"` para el estado activo; usa `data-route-exact` cuando la ruta raíz sea prefijo de otras.

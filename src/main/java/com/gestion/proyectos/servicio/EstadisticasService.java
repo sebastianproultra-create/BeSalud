@@ -10,7 +10,6 @@ import com.gestion.proyectos.repositorio.HorarioAtencionRepositorio;
 import com.gestion.proyectos.repositorio.PersonaRepositorio;
 import org.springframework.stereotype.Service;
 
-import java.time.Duration;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -147,14 +146,7 @@ public class EstadisticasService {
         List<OcupacionDoctor> lista = new ArrayList<>();
         for (Doctor d : doctores) {
             if (!"ACTIVO".equals(d.getEstado())) continue;
-            long capacidad = 0;
-            for (LocalDate dia = hoy; dia.isBefore(fin); dia = dia.plusDays(1)) {
-                for (HorarioAtencion h : horariosPorDoctor.getOrDefault(d.getId(), List.of())) {
-                    if (h.getDiaSemana() != dia.getDayOfWeek() || h.getHoraInicio() == null || h.getHoraFin() == null) continue;
-                    int duracion = h.getDuracionCitaMinutos() > 0 ? h.getDuracionCitaMinutos() : 30;
-                    capacidad += Duration.between(h.getHoraInicio(), h.getHoraFin()).toMinutes() / duracion;
-                }
-            }
+            long capacidad = GananciasService.turnos(horariosPorDoctor.getOrDefault(d.getId(), List.of()), hoy, fin);
             if (capacidad == 0) continue;
             long agendadas = citasPorDoctor.getOrDefault(d.getId(), 0L);
             lista.add(new OcupacionDoctor(d.getNombre() + " " + d.getApellido(), d.getEspecialidad(),

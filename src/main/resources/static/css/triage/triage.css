@@ -1150,3 +1150,16 @@
         gap: 4px;
     }
 }
+
+/* Controles táctiles: en celular y tableta miden al menos 44 px (DESIGN_SYSTEM.md) */
+@media (max-width: 48rem) {
+    .triage-page .triage-chip {
+        min-height: 2.75rem;
+    }
+
+    .triage-emergency-banner > a {
+        display: inline-flex;
+        align-items: center;
+        min-height: 2.75rem;
+    }
+}

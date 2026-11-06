@@ -1,0 +1,120 @@
+/* Generado por scripts/generar_tema_oscuro.py a partir de admin/sitios.css. No editar a mano:
+   los ajustes van en base/tema-oscuro.css o en el generador. */
+
+html[data-tema="oscuro"] .sit-volver {
+    color: var(--color-text-muted--t);
+}
+
+html[data-tema="oscuro"] .sit-volver:hover {
+    color: var(--color-primary--t);
+}
+
+html[data-tema="oscuro"] .sit-titulo {
+    color: var(--color-primary--t);
+}
+
+html[data-tema="oscuro"] .sit-lead {
+    color: var(--color-text-muted--t);
+}
+
+html[data-tema="oscuro"] .sit-enlace .material-symbols-outlined {
+    color: var(--color-success--t);
+}
+
+html[data-tema="oscuro"] .sit-grupo {
+    border: 0;
+}
+
+html[data-tema="oscuro"] .sit-grupo legend {
+    color: var(--color-primary--t);
+}
+
+html[data-tema="oscuro"] .sit-ayuda {
+    color: var(--color-text-muted--t);
+}
+
+html[data-tema="oscuro"] .sit-plantilla {
+    border: 2px solid var(--color-border--b);
+}
+
+html[data-tema="oscuro"] .sit-plantilla:hover,
+html[data-tema="oscuro"] .sit-color:hover {
+    border-color: var(--color-border-strong--b);
+}
+
+html[data-tema="oscuro"] .sit-plantilla:has(input:checked),
+html[data-tema="oscuro"] .sit-color:has(input:checked) {
+    border-color: var(--color-primary--b);
+    background-color: var(--color-primary-soft--f);
+    background-image: none;
+}
+
+html[data-tema="oscuro"] .sit-plantilla:has(input:focus-visible),
+html[data-tema="oscuro"] .sit-color:has(input:focus-visible) {
+    outline: 3px solid var(--color-accent--b);
+}
+
+html[data-tema="oscuro"] .sit-mini {
+    background-color: var(--sitio-fondo--f);
+    background-image: none;
+    border: 1px solid var(--sitio-borde--b);
+}
+
+html[data-tema="oscuro"] .sit-mini__barra {
+    background-color: var(--sitio-alterno--f);
+    background-image: none;
+}
+
+html[data-tema="oscuro"] .sit-mini__titulo {
+    background-color: var(--sitio-texto--f);
+    background-image: none;
+}
+
+html[data-tema="oscuro"] .sit-mini__linea {
+    background-color: var(--sitio-borde--f);
+    background-image: none;
+}
+
+html[data-tema="oscuro"] .sit-mini__boton {
+    background-color: var(--sitio-primario--f);
+    background-image: none;
+}
+
+html[data-tema="oscuro"] .sit-color {
+    border: 2px solid var(--color-border--b);
+}
+
+html[data-tema="oscuro"] .sit-color__muestra {
+    background-color: var(--sitio-primario--f);
+    background-image: none;
+}
+
+html[data-tema="oscuro"] .sit-acciones {
+    border-top: 1px solid var(--color-border--b);
+}
+
+html[data-tema="oscuro"] .sit-despublicar {
+    color: var(--color-text-muted--t);
+}
+
+html[data-tema="oscuro"] .sit-dispositivos .bs-btn[aria-pressed="true"] {
+    color: var(--color-surface--t);
+    background-color: var(--color-primary--f);
+    background-image: none;
+    border-color: var(--color-primary--b);
+}
+
+html[data-tema="oscuro"] .sit-vista__marco {
+    background-color: var(--color-surface--f);
+    background-image: none;
+    border: 1px solid var(--color-border--b);
+    box-shadow: var(--shadow-md--s);
+}
+
+html[data-tema="oscuro"] .sit-vista__marco iframe {
+    border: 0;
+}
+
+html[data-tema="oscuro"] .sit-tabla__sub {
+    color: var(--color-text-muted--t);
+}
