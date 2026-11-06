@@ -493,7 +493,8 @@ public class ConsultorioApiController {
     }
 
     private static long saldo(Doctor doctor, Reserva reserva) {
-        return Math.max(0, doctor.getPrecioEfectivo() - reserva.getMontoPesos());
+        return Math.max(0, (reserva.getPrecioCentavos() != null ? reserva.getPrecioCentavos() / 100 : doctor.getPrecioEfectivo())
+                - reserva.getMontoPesos());
     }
 
     private static long segundosRestantes(Reserva reserva) {

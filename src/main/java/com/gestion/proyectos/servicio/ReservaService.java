@@ -206,7 +206,7 @@ public class ReservaService {
                 || !ahora.isBefore(LocalDateTime.of(cita.getFecha(), cita.getHora()))
                 || cita.saldoVencido(ahora))
             return null;
-        long saldo = doctor.getPrecioEfectivo() - cita.getAbonoPesos();
+        long saldo = cita.precioPesos(doctor) - cita.getAbonoPesos();
         return saldo > 0 ? saldo : null;
     }
 
@@ -465,7 +465,11 @@ public class ReservaService {
     public int cancelarCitasSinPago() {
         LocalDateTime ahora = Reloj.ahora();
         int canceladas = 0;
+        Map<String, Doctor> doctores = new HashMap<>();
         for (Cita cita : citaService.citasConSaldoPendiente()) {
+            Doctor d = doctores.computeIfAbsent(cita.getDoctorId(), id -> citaService.buscarDoctorPorId(id).orElse(null));
+            if (d != null && cita.getAbonoPesos() != null && cita.precioPesos(d) <= cita.getAbonoPesos())
+                continue; // con el abono ya cubrió el precio: no hay resto que cobrar
             if (cita.saldoVencido(ahora) && !saldoEnCurso(cita.getId()) && citaService.cancelarPorFaltaDePago(cita))
                 canceladas++;
         }

@@ -324,8 +324,8 @@ public class DoctorService {
 
     public boolean marcarAsistio(String citaId, String doctorId) {
         Cita cita = citaPendienteDe(citaId, doctorId);
-        if (cita == null)
-            return false;
+        if (cita == null || cita.getFecha() == null || cita.getFecha().isAfter(Reloj.ahora().toLocalDate()))
+            return false; // como en el panel: solo desde el día de la cita (el no asistió retiene el abono)
         cita.setEstado(EstadoCita.ASISTIO);
         cita.setInicioAtencion(Reloj.ahora());
         citaRepo.save(cita);
@@ -336,8 +336,8 @@ public class DoctorService {
     /** El paciente no llegó: si había pagado abono, el profesional lo conserva. */
     public boolean marcarNoAsistio(String citaId, String doctorId) {
         Cita cita = citaPendienteDe(citaId, doctorId);
-        if (cita == null)
-            return false;
+        if (cita == null || cita.getFecha() == null || cita.getFecha().isAfter(Reloj.ahora().toLocalDate()))
+            return false; // como en el panel: solo desde el día de la cita (el no asistió retiene el abono)
         cita.setEstado(EstadoCita.NO_ASISTIO);
         if (cita.getAbonoCentavos() != null)
             cita.setEstadoAbono(EstadoAbono.RETENIDO);

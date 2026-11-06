@@ -40,6 +40,8 @@ public class Cita {
 
     /** Abono pagado al reservar (en centavos, como lo maneja la pasarela); null si la cita no tuvo abono. */
     private Long abonoCentavos;
+    /** Precio de la consulta al reservar: el saldo se calcula con este, aunque el médico cambie su precio después. */
+    private Long precioCentavos;
     private String referenciaPago;
     private String medioPago;
     private EstadoAbono estadoAbono;
@@ -246,6 +248,19 @@ public class Cita {
     }
 
     /** Abono en pesos para mostrar en las vistas. */
+    public Long getPrecioCentavos() {
+        return precioCentavos;
+    }
+
+    public void setPrecioCentavos(Long precioCentavos) {
+        this.precioCentavos = precioCentavos;
+    }
+
+    /** Precio acordado al reservar; las citas anteriores a este campo usan el precio actual del médico. */
+    public long precioPesos(Doctor doctor) {
+        return precioCentavos != null ? precioCentavos / 100 : doctor.getPrecioEfectivo();
+    }
+
     public Long getAbonoPesos() {
         return abonoCentavos == null ? null : abonoCentavos / 100;
     }

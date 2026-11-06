@@ -482,4 +482,13 @@ class ReservaServiceTest {
         Cita vencida = citaSinPagarElResto(java.time.LocalDateTime.now().plusHours(20));
         assertThat(ReservaService.saldoPorPagar(vencida, doctorDe80Mil(), java.time.LocalDateTime.now())).isNull();
     }
+
+    @Test
+    void saldoPorPagar_usaElPrecioAcordadoAunqueElMedicoLoCambie() {
+        Cita c = citaConAbono();
+        c.setPrecioCentavos(8_000_000L);
+        var subio = doctorDe80Mil();
+        subio.setPrecioConsulta(120_000);
+        assertThat(ReservaService.saldoPorPagar(c, subio, java.time.LocalDateTime.now())).isEqualTo(60_000L);
+    }
 }

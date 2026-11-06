@@ -291,7 +291,8 @@ public class PagoController {
     private static Long saldo(Doctor doctor, Reserva reserva) {
         if (reserva.isSaldo() || reserva.isPagoTotal())
             return 0L;
-        return Math.max(0, doctor.getPrecioEfectivo() - reserva.getMontoPesos());
+        return Math.max(0, (reserva.getPrecioCentavos() != null ? reserva.getPrecioCentavos() / 100 : doctor.getPrecioEfectivo())
+                - reserva.getMontoPesos());
     }
 
     /** En el pago del saldo: el abono que ya se había pagado al reservar (para mostrar las cuentas). */

@@ -135,6 +135,7 @@ public class CitaService {
         long abono = reserva.getAbonoCentavos() != null && reserva.getAbonoCentavos() < reserva.getMontoCentavos()
                 ? reserva.getAbonoCentavos() : reserva.getMontoCentavos();
         cita.setAbonoCentavos(abono);
+        cita.setPrecioCentavos(reserva.getPrecioCentavos());
         cita.setReferenciaPago(reserva.getReferencia());
         cita.setMedioPago(reserva.getMedioPago());
         cita.setEstadoAbono(EstadoAbono.PAGADO);

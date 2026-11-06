@@ -160,7 +160,7 @@ public class NotificacionService {
             Doctor doctor = personaRepo.findById(cita.getDoctorId())
                     .filter(p -> p instanceof Doctor).map(p -> (Doctor) p).orElse(null);
             String falta = doctor == null || cita.getAbonoPesos() == null ? "el resto de la consulta"
-                    : pesos(Math.max(0, doctor.getPrecioEfectivo() - cita.getAbonoPesos()));
+                    : pesos(Math.max(0, cita.precioPesos(doctor) - cita.getAbonoPesos()));
             enviar(cita, "Paga el resto de tu cita", "Falta pagar el resto de tu cita",
                     "Te falta pagar " + falta + ". Hazlo desde BeSalud antes del " + limite.format(FECHA_HORA)
                             + "; si no, cancelaremos la cita y el abono no será reembolsable.", "Pagar ahora");
@@ -264,10 +264,10 @@ public class NotificacionService {
             lineas.add("💳 Pagaste el total: " + pesos(cita.getPagadoPesos()));
         } else {
             lineas.add("💳 Abono pagado: " + pesos(abono));
-            if (doctor != null && doctor.getPrecioEfectivo() > abono)
+            if (doctor != null && cita.precioPesos(doctor) > abono)
                 lineas.add("💵 " + (cita.isSaldoObligatorio() && cita.getLimitePagoSaldo() != null
                         ? "Pagas en línea antes del " + cita.getLimitePagoSaldo().format(FECHA_HORA) : "Pagas en el consultorio")
-                        + ": " + pesos(doctor.getPrecioEfectivo() - abono));
+                        + ": " + pesos(cita.precioPesos(doctor) - abono));
         }
         if (doctor != null && doctor.getDireccionConsultorio() != null)
             lineas.add("📍 Lugar: " + doctor.getDireccionConsultorio());
@@ -287,10 +287,10 @@ public class NotificacionService {
             filas.append(fila("Pagaste el total", pesos(cita.getPagadoPesos())));
         } else {
             filas.append(fila("Abono pagado", pesos(abono)));
-            if (doctor != null && doctor.getPrecioEfectivo() > abono)
+            if (doctor != null && cita.precioPesos(doctor) > abono)
                 filas.append(fila(cita.isSaldoObligatorio() && cita.getLimitePagoSaldo() != null
                         ? "Pagas antes del " + cita.getLimitePagoSaldo().format(FECHA_HORA) : "Pagas en el consultorio",
-                        pesos(doctor.getPrecioEfectivo() - abono)));
+                        pesos(cita.precioPesos(doctor) - abono)));
         }
         if (doctor != null && doctor.getDireccionConsultorio() != null)
             filas.append(fila("Lugar", doctor.getDireccionConsultorio()));
