@@ -2244,3 +2244,19 @@ body.sin-scroll {
 .verificacion-caja.is-bancolombia .verificacion-cabecera .material-symbols-outlined {
     color: #FDDA24;
 }
+
+/* Controles táctiles: en celular y tableta miden al menos 44 px (DESIGN_SYSTEM.md) */
+@media (max-width: 48rem) {
+    .historial-ver {
+        min-height: 2.75rem;
+    }
+
+    /* El estado baja bajo el monto cuando no cabe al lado, en vez de quedar encima del enlace */
+    .historial-monto {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: var(--space-1) var(--space-2);
+        min-width: 0;
+    }
+}

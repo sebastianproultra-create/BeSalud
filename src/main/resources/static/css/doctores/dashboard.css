@@ -1994,3 +1994,16 @@ a.doc-segmento {
     align-self: flex-start;
     margin-top: auto;
 }
+
+/* Controles táctiles: en celular y tableta miden al menos 44 px (DESIGN_SYSTEM.md) */
+@media (max-width: 48rem) {
+    .doc-segmento {
+        display: inline-flex;
+        align-items: center;
+        min-height: 2.75rem;
+    }
+
+    .doc-hero-actions .doc-btn {
+        min-height: 2.75rem;
+    }
+}

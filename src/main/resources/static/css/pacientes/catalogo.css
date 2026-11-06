@@ -2216,3 +2216,27 @@ body.patient-catalog-page {
         width: 100%;
     }
 }
+
+/* Controles táctiles: en celular y tableta miden al menos 44 px (DESIGN_SYSTEM.md) */
+@media (max-width: 48rem) {
+    .doctor-profile-link {
+        display: inline-flex;
+        align-items: center;
+        min-height: 2.75rem;
+    }
+
+    .patient-catalog-page .pagination a {
+        min-width: 2.75rem;
+        min-height: 2.75rem;
+    }
+
+    .patient-catalog-page .patient-sidebar .sidebar-close {
+        width: 2.75rem;
+        height: 2.75rem;
+    }
+
+    .patient-welcome-action,
+    .doctor-book-link {
+        min-height: 2.75rem;
+    }
+}

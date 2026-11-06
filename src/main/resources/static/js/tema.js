@@ -43,6 +43,24 @@
             setTimeout(function () { raiz.classList.remove('tema-cambiando'); }, 350);
         });
         document.body.appendChild(boton);
+
+        // En pantallas angostas se aparta al bajar y vuelve al subir o al llegar arriba
+        const angosta = window.matchMedia('(max-width: 768px)');
+        let ultimo = window.scrollY;
+        let pendiente = false;
+        window.addEventListener('scroll', function () {
+            if (pendiente) return;
+            pendiente = true;
+            window.requestAnimationFrame(function () {
+                const actual = window.scrollY;
+                const bajando = actual > ultimo + 4;
+                const subiendo = actual < ultimo - 4;
+                if (!angosta.matches || actual < 80 || subiendo) boton.classList.remove('is-apartado');
+                else if (bajando && document.activeElement !== boton) boton.classList.add('is-apartado');
+                if (bajando || subiendo) ultimo = actual;
+                pendiente = false;
+            });
+        }, { passive: true });
     });
 
     // Si cambia en otra pestaña, esta se pone igual

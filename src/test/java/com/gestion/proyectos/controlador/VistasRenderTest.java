@@ -505,8 +505,11 @@ class VistasRenderTest {
     void rutaInexistenteYParametroFaltante_noSonError500() throws Exception {
         mockMvc.perform(get("/no-existe").with(user("a@test.com").roles("ADMIN")))
                 .andExpect(status().isNotFound());
-        mockMvc.perform(get("/citas/nueva").with(user("p@test.com").roles("PACIENTE")))
+        mockMvc.perform(post("/triage/agendar").with(csrf()).with(user("p@test.com").roles("PACIENTE")))
                 .andExpect(status().isBadRequest());
+        // Sin médico elegido, agendar no es un error: vuelve al inicio para elegir uno
+        mockMvc.perform(get("/citas/nueva").with(user("p@test.com").roles("PACIENTE")))
+                .andExpect(redirectedUrl("/pacientes/landing"));
         mockMvc.perform(get("/doctores").param("page", "abc").with(user("d@test.com").roles("DOCTOR")))
                 .andExpect(status().isBadRequest());
         mockMvc.perform(put("/citas/nueva").param("doctorId", "x").with(csrf()).with(user("p@test.com").roles("PACIENTE")))

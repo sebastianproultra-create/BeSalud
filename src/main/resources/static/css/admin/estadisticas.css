@@ -175,3 +175,18 @@
         display: none;
     }
 }
+
+/* Controles táctiles: en celular y tableta miden al menos 44 px (DESIGN_SYSTEM.md) */
+@media (max-width: 48rem) {
+    .grafica-tabla summary {
+        display: flex;
+        align-items: center;
+        min-height: 2.75rem;
+    }
+
+    .kpi-enlace {
+        display: inline-flex;
+        align-items: center;
+        min-height: 2.75rem;
+    }
+}
