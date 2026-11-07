@@ -59,12 +59,3 @@ html[data-tema="oscuro"] .mensaje-ayuda-tema {
 html[data-tema="oscuro"] .mensaje-ayuda-cabecera time {
     color: var(--text-light--t);
 }
-
-html[data-tema="oscuro"] .sitio-web__config,
-html[data-tema="oscuro"] .sitio-web__vacio {
-    color: var(--color-text-muted--t);
-}
-
-html[data-tema="oscuro"] .sitio-web__vincular summary {
-    color: var(--color-primary--t);
-}

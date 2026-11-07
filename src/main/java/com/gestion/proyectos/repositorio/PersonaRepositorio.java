@@ -22,10 +22,6 @@ public interface PersonaRepositorio extends MongoRepository<Persona, String> {
     @Query("{ 'email': ?0, 'role': 'DOCTOR' }")
     Optional<Doctor> findDoctorByEmail(String email);
 
-    /** Pacientes que se registraron desde la web de un consultorio (API de consultorios). */
-    @Query(value = "{ 'consultorioOrigen': ?0, 'role': 'PACIENTE' }", count = true)
-    long contarPacientesDeConsultorio(String consultorioId);
-
     @Query("{ 'email': ?0, 'role': 'PACIENTE' }")
     Optional<Paciente> findPacienteByEmail(String email);
 

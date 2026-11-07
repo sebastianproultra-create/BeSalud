@@ -1,6 +1,5 @@
 package com.gestion.proyectos.modelo;
 
-import org.springframework.data.mongodb.core.index.Indexed;
 import java.time.LocalDateTime;
 
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -18,13 +17,6 @@ public class Paciente extends Persona {
     /** Otros datos que quiera contar: enfermedades crónicas, exámenes recientes, tratamientos en curso. */
     private String historialPrevioNotas;
     private LocalDateTime historialPrevioActualizado;
-
-    // id del consultorio cuya web lo registró (null si se registró en el portal de BeSalud).
-    @Indexed(sparse = true)
-    private String consultorioOrigen;
-
-    // Médico del consultorio por el que entró. El paciente solo ve el perfil de este médico.
-    private String doctorAsignado;
 
     public Paciente() {
         setRole("PACIENTE");

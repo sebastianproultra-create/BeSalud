@@ -130,17 +130,6 @@ public class PacienteService {
                 .toList();
     }
 
-    /** Lo llama cada entrada desde la web de un consultorio: ese médico pasa a ser el del paciente. */
-    public void asignarDoctor(String email, String doctorId) {
-        if (email == null || doctorId == null) return;
-        buscarPorEmail(email.trim().toLowerCase()).ifPresent(p -> {
-            if (!doctorId.equals(p.getDoctorAsignado())) {
-                p.setDoctorAsignado(doctorId);
-                personaRepo.save(p);
-            }
-        });
-    }
-
     public List<Cita> citasDelPaciente(String pacienteId) {
         return citaRepo.findByPacienteId(pacienteId);
     }

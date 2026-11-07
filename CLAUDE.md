@@ -53,8 +53,6 @@ $mvn = Get-ChildItem "$env:USERPROFILE\.m2\wrapper\dists\apache-maven-3.9.9" -Re
 - Otras variables: `API_PYTHON_URL` (sin `/` final), `JWT_SECRET`, `GOOGLE_CLIENT_ID/SECRET`, `GEMINI_API_KEY`,
   `BREVO_API_KEY` + `MAIL_REMITENTE`, `APP_URL`, `PORT`. Sin claves de Gemini/correo la app usa el respaldo por
   palabras clave o solo registra en log; no falla.
-- `API_CONSULTORIOS=true` enciende el módulo de webs de consultorios (`api/`, `/sitio/**`, `/widget/**`,
-  `/desarrolladores`, `/admin/sitios`). Apagado no existe nada de eso (`ApiApagadaTest`); ver `INTEGRACION-API.md`.
 - Seguridad: CSRF activo, `formLogin` deshabilitado (login propio que emite JWT en cookie HttpOnly), sesiones de
   45 min y rate limiting. Antes de cambiar `SecurityConfig`, revisa `SecurityRulesTest`.
 - Los archivos con tildes son UTF-8. En PowerShell 5.1 usa `Get-Content -Encoding UTF8` o verás mojibake.
