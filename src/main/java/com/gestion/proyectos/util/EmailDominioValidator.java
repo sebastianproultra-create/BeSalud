@@ -22,7 +22,6 @@ public class EmailDominioValidator {
 
     private static final String DOMINIO_CONTROL = "google.com";
     private static final int MAX_CACHE = 1000;
-    private static final String[] TIPOS_REGISTRO = { "MX", "A", "AAAA" };
 
     private final boolean habilitado;
     // Solo dominios existentes: un negativo cacheado bloquearía para siempre un dominio recién creado o un NXDOMAIN pasajero.
@@ -74,14 +73,8 @@ public class EmailDominioValidator {
         DirContext ctx = null;
         try {
             ctx = new InitialDirContext(env);
-            // Un tipo por consulta: pedir varios juntos hace que JNDI envíe una consulta ANY,
-            // y los resolvers modernos la responden casi vacía (RFC 8482) aunque el dominio exista.
-            for (String tipo : TIPOS_REGISTRO) {
-                Attributes attrs = ctx.getAttributes(dominio, new String[] { tipo });
-                if (attrs != null && attrs.size() > 0)
-                    return true;
-            }
-            return false;
+            Attributes attrs = ctx.getAttributes(dominio, new String[] { "MX", "A", "AAAA" });
+            return attrs != null && attrs.size() > 0;
         } catch (NameNotFoundException e) {
             return false;
         } catch (NamingException e) {

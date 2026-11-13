@@ -101,13 +101,6 @@ médico ajuste su agenda antes de que se llene.
 La explicación completa (reglas de los datos, ejemplo con números, precisión del modelo, rutas de la API, parte visual
 y cuentas de prueba) está en [`modelo_predictivo/README.md`](modelo_predictivo/README.md).
 
-## API para webs de consultorios (módulo opcional)
-
-Lleva la agenda y los pagos de BeSalud a la web de un consultorio: una **página alojada** que arma el equipo de
-BeSalud para el médico sin web (`/sitio/{slug}`, administrada desde "Páginas web" del admin) y un **widget y una
-API** para quien ya tiene web propia (`/desarrolladores`). Viene **apagada**: sin `API_CONSULTORIOS=true` el sistema
-funciona exactamente igual. Detalle en [INTEGRACION-API.md](INTEGRACION-API.md).
-
 ## Objetivo pedagógico
 
 Este proyecto demuestra cómo construir una aplicación web con:

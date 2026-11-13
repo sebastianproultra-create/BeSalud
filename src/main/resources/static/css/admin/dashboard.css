@@ -118,17 +118,3 @@
     white-space: pre-line;
     line-height: 1.6;
 }
-
-/* Sitio web del consultorio (API para webs de consultorios, solo con la API habilitada) */
-/* position: relative contiene las etiquetas .visually-hidden (absolutas) dentro de la tabla con scroll;
-   sin esto se salen y la página entera se desplaza de lado en el celular */
-.sitio-web { position: relative; min-width: 14rem; }
-.sitio-web__dominio { display: block; overflow-wrap: anywhere; }
-.sitio-web__config,
-.sitio-web__vacio { display: block; margin-top: var(--space-1); color: var(--color-text-muted); font-size: var(--font-size-xs); }
-.sitio-web__config code { font-family: var(--font-mono); overflow-wrap: anywhere; }
-.sitio-web__pagina { display: inline-flex; align-items: center; min-height: 2.75rem; font-size: var(--font-size-sm); font-weight: 600; }
-.sitio-web__vincular { margin-top: var(--space-2); }
-.sitio-web__vincular summary { cursor: pointer; color: var(--color-primary); font-size: var(--font-size-sm); }
-.sitio-web__form { position: relative; display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2); margin-top: var(--space-2); }
-.sitio-web__form .bs-field__control { flex: 1 1 10rem; min-width: 0; }

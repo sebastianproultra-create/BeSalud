@@ -128,21 +128,6 @@ class VistasRenderTest {
     }
 
     @Test
-    void dashboardDoctor_sinApiDeConsultorios_quedaComoAntes() throws Exception {
-        Doctor d = new Doctor();
-        d.setId("d1");
-        d.setNombre("Ana");
-        d.setApellido("Ruiz");
-        when(doctorService.buscarPorEmail("doc@test.com")).thenReturn(Optional.of(d));
-        when(doctorService.dailySlotCounts(any())).thenReturn(Map.of());
-
-        mockMvc.perform(get("/doctores").with(user("doc@test.com").roles("DOCTOR")))
-                .andExpect(status().isOk())
-                .andExpect(content().string(not(containsString("id=\"mi-web\""))))
-                .andExpect(content().string(not(containsString("Desarrolladores"))));
-    }
-
-    @Test
     void dashboardDoctor_muestraDemandaProyectadaConFranjasDelHorario() throws Exception {
         Doctor d = new Doctor();
         d.setId("d1");
