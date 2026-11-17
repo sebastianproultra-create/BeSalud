@@ -90,3 +90,10 @@ html[data-tema="oscuro"] .bs-navbar__account {
     border-left: 0;
 }
 }
+
+@media (min-width: 80.001rem) and (max-width: 100rem) {
+html[data-tema="oscuro"] .bs-navbar--extenso .bs-navbar__account {
+    border-top: 1px solid var(--color-navbar-divider--b);
+    border-left: 0;
+}
+}

@@ -47,6 +47,7 @@
     min-width: 0;
     align-items: center;
     justify-content: flex-end;
+    justify-content: safe flex-end; /* si no cabe, que se corte a la derecha y no tape el logo */
     gap: var(--space-1);
     margin-left: var(--space-6);
     padding: 0;
@@ -216,5 +217,53 @@
     .bs-navbar__link,
     .bs-navbar .bs-navbar__logout {
         padding-inline: var(--space-2);
+    }
+}
+
+/* El menú del admin tiene más enlaces: pasa al menú desplegable antes que los demás para no montarse sobre el logo. */
+@media (min-width: 80.001rem) and (max-width: 100rem) {
+    .bs-navbar--extenso .bs-navbar__inner {
+        flex-wrap: wrap;
+        padding-block: var(--space-2);
+    }
+
+    .bs-navbar--extenso .bs-navbar__toggle {
+        display: inline-flex;
+        margin-left: auto;
+    }
+
+    .bs-navbar--extenso .bs-navbar__menu {
+        display: none;
+        flex: 0 0 100%;
+        width: 100%;
+        align-items: stretch;
+        flex-direction: column;
+        gap: var(--space-1);
+        margin-left: 0;
+        padding: var(--space-2) 0 var(--space-3);
+    }
+
+    .bs-navbar--extenso .bs-navbar__menu.is-open {
+        display: flex;
+    }
+
+    .bs-navbar--extenso .bs-navbar__link,
+    .bs-navbar--extenso .bs-navbar__logout {
+        justify-content: flex-start;
+        padding-inline: var(--space-3);
+    }
+
+    .bs-navbar--extenso .bs-navbar__account {
+        align-items: stretch;
+        flex-direction: column;
+        margin: var(--space-2) 0 0;
+        padding: var(--space-3) 0 0;
+        border-top: 1px solid var(--color-navbar-divider);
+        border-left: 0;
+    }
+
+    .bs-navbar--extenso .bs-navbar__username {
+        max-width: 100%;
+        padding: var(--space-2) var(--space-3);
     }
 }
