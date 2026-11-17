@@ -21,6 +21,20 @@ let pendientes = {};
 try { pendientes = JSON.parse(fs.readFileSync(PENDIENTES, 'utf8')); } catch { }
 const guardarPendientes = () => fs.writeFile(PENDIENTES, JSON.stringify(pendientes), () => { });
 
+// SESION_NUEVA=<cualquier valor nuevo> aparta la sesión guardada una sola vez (si quedó dañada tras un cierre de sesión)
+const MARCA_SESION = path.join(DATOS, 'sesion-renovada.txt');
+if (process.env.SESION_NUEVA) {
+  let hecha = '';
+  try { hecha = fs.readFileSync(MARCA_SESION, 'utf8'); } catch { }
+  const sesion = path.join(DATOS, 'sesion');
+  if (hecha !== process.env.SESION_NUEVA) {
+    if (fs.existsSync(sesion)) fs.renameSync(sesion, sesion + '-vieja-' + Date.now());
+    fs.mkdirSync(DATOS, { recursive: true });
+    fs.writeFileSync(MARCA_SESION, process.env.SESION_NUEVA);
+    console.log('Sesión anterior apartada: se vinculará de nuevo');
+  }
+}
+
 let qrActual = null;
 let codigoActual = null;
 const VINCULAR = (process.env.PAIR_PHONE || '').replace(/\D/g, '');
