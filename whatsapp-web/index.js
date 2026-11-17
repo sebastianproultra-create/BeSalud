@@ -4,6 +4,14 @@ const path = require('path');
 const QRCode = require('qrcode');
 const { Client, LocalAuth } = require('whatsapp-web.js');
 
+// La librería espera el emparejamiento con el límite por defecto de puppeteer (30 s); en Railway WhatsApp tarda
+// más, el proceso se cae y el celular muestra "no se pudo conectar". Sin límite, espera lo que haga falta.
+const { Page } = require('puppeteer-core/lib/cjs/puppeteer/api/Page.js');
+const esperarOriginal = Page.prototype.waitForFunction;
+Page.prototype.waitForFunction = function (fn, opciones, ...args) {
+  return esperarOriginal.call(this, fn, { timeout: 0, ...(opciones || {}) }, ...args);
+};
+
 const PORT = process.env.PORT || 3000;
 const SECRETO = process.env.WHATSAPP_BOT_SECRET;
 const PORTAL = (process.env.PORTAL_URL || 'https://besalud-app-production.up.railway.app').replace(/\/+$/, '');
